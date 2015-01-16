@@ -97,7 +97,7 @@ CacheCreator::CacheCreator(
 CacheCreator::~CacheCreator() = default;
 
 int CacheCreator::Run() {
-#if defined(OS_ANDROID)
+#if defined(OS_ANDROID) || defined(OS_WEBOS)
   static const bool kSimpleBackendIsDefault = true;
 #else
   static const bool kSimpleBackendIsDefault = false;
