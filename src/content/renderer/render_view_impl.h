@@ -601,6 +601,8 @@ class CONTENT_EXPORT RenderViewImpl : public RenderWidget,
   void UpdateThemePrefs() {}
 #endif
 
+  void SetPreferredLanguages(const std::string& languages);
+
   // ---------------------------------------------------------------------------
   // ADDING NEW FUNCTIONS? Please keep private functions alphabetized and put
   // it in the same order in the .cc file as it was in the header.

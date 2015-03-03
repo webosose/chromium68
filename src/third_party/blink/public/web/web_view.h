@@ -456,6 +456,7 @@ class WebView : protected WebWidget {
   BLINK_EXPORT static void RemoveInjectedStyleSheets();
 
   virtual void ReplaceBaseURL(const WebURL& newURL) = 0;
+  virtual void SetPreferredLanguages(const WebVector<WebString>& languages) = 0;
 #endif
 
   // Autoplay configuration -----------------------------------------------

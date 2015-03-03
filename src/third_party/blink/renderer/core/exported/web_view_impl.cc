@@ -165,12 +165,14 @@
 #include "third_party/blink/renderer/platform/image-decoders/image_decoder.h"
 #include "third_party/blink/renderer/platform/instrumentation/tracing/trace_event.h"
 #include "third_party/blink/renderer/platform/keyboard_codes.h"
+#include "third_party/blink/renderer/platform/language.h"
 #include "third_party/blink/renderer/platform/loader/fetch/unique_identifier.h"
 #include "third_party/blink/renderer/platform/runtime_enabled_features.h"
 #include "third_party/blink/renderer/platform/scheduler/public/page_scheduler.h"
 #include "third_party/blink/renderer/platform/scheduler/public/thread_scheduler.h"
 #include "third_party/blink/renderer/platform/scroll/scrollbar_theme.h"
 #include "third_party/blink/renderer/platform/weborigin/scheme_registry.h"
+#include "third_party/blink/renderer/platform/wtf/text/atomic_string.h"
 #include "third_party/blink/renderer/platform/wtf/time.h"
 
 #if defined(WTF_USE_DEFAULT_RENDER_THEME)
@@ -949,6 +951,16 @@ void WebViewImpl::ReplaceBaseURL(const WebURL& newUrl) {
   for (WebFrame* coreFrame =  WebViewImpl::MainFrame();
       coreFrame; coreFrame = coreFrame->TraverseNext())
     coreFrame->ReplaceBaseURL(newUrl.GetString());
+}
+
+void WebViewImpl::SetPreferredLanguages(const WebVector<WebString>& languages) {
+  Vector<AtomicString> preferred_languages;
+  for (size_t i = 0; i < languages.size(); ++i) {
+    String language(languages[i]);
+    preferred_languages.push_back(language);
+  }
+
+  blink::OverrideUserPreferredLanguagesForTesting(preferred_languages);
 }
 #endif
 

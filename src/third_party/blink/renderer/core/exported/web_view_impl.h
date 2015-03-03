@@ -240,6 +240,7 @@ class CORE_EXPORT WebViewImpl final : public WebView,
 
 #if defined(USE_NEVA_APPRUNTIME)
   void ReplaceBaseURL(const WebURL& newUrl) override;
+  void SetPreferredLanguages(const WebVector<WebString>& languages) override;
 #endif
 
   void DidUpdateFullscreenSize();

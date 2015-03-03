@@ -30,6 +30,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_piece.h"
 #include "base/strings/string_split.h"
+#include "base/strings/string_tokenizer.h"
 #include "base/strings/string_util.h"
 #include "base/strings/sys_string_conversions.h"
 #include "base/strings/utf_string_conversions.h"
@@ -1282,6 +1283,16 @@ void RenderViewImpl::OnForceRedraw(const ui::LatencyInfo& latency_info) {
   }
 }
 
+void RenderViewImpl::SetPreferredLanguages(const std::string& languages) {
+  base::StringTokenizer t(languages, ",");
+  std::vector<WebString> preferred_languages;
+  while (t.GetNext())
+    preferred_languages.push_back(WebString::FromUTF8(t.token()));
+
+  if (!preferred_languages.empty())
+    webview()->SetPreferredLanguages(preferred_languages);
+}
+
 // blink::WebViewClient ------------------------------------------------------
 
 // TODO(csharrison): Migrate this method to WebFrameClient / RenderFrameImpl, as
@@ -1969,6 +1980,9 @@ void RenderViewImpl::OnSetRendererPrefs(
   if (webview() &&
       old_accept_languages != renderer_preferences_.accept_languages) {
     webview()->AcceptLanguagesChanged();
+
+    // set preferred language with accept-languages
+    SetPreferredLanguages(renderer_preferences_.accept_languages);
   }
 }
 
