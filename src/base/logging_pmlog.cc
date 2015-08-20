@@ -52,6 +52,7 @@ namespace logging {
   }
 
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Browser, "chromium.browser")
+DECLARE_PMLOG_FOR_CONTEXT_IMPL(Network, "chromium.network")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Raw, "chromium.raw")
 
 }  // namespace logging

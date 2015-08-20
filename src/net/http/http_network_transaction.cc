@@ -14,6 +14,7 @@
 #include "base/callback_helpers.h"
 #include "base/compiler_specific.h"
 #include "base/format_macros.h"
+#include "base/logging_pmlog.h"
 #include "base/metrics/field_trial.h"
 #include "base/metrics/histogram_functions.h"
 #include "base/metrics/histogram_macros.h"
@@ -1194,6 +1195,19 @@ int HttpNetworkTransaction::DoSendRequest() {
   send_start_time_ = base::TimeTicks::Now();
   next_state_ = STATE_SEND_REQUEST_COMPLETE;
 
+  if (PMLOG_DEBUG_ENABLED(Network)) {
+    PMLOG_DEBUG(Network, "> %s %s", request_->method.c_str(),
+                request_->url.spec().c_str());
+    if (!request_headers_.IsEmpty()) {
+      HttpRequestHeaders::Iterator ite(request_headers_);
+      do {
+        PMLOG_DEBUG(Network, "> %s: %s", ite.name().c_str(),
+                    ite.value().c_str());
+      } while (ite.GetNext());
+    }
+    PMLOG_DEBUG(Network, "> ");
+  }
+
   return stream_->SendRequest(request_headers_, &response_, io_callback_);
 }
 
@@ -1259,6 +1273,17 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
 
   if (response_.headers.get() && !ContentEncodingsValid())
     return ERR_CONTENT_DECODING_FAILED;
+
+  if (PMLOG_DEBUG_ENABLED(Network)) {
+    PMLOG_DEBUG(Network, "< %s", response_.headers->GetStatusLine().c_str());
+    size_t iter = 0;
+    std::string name;
+    std::string value;
+    while (response_.headers->EnumerateHeaderLines(&iter, &name, &value)) {
+      PMLOG_DEBUG(Network, "< %s: %s", name.c_str(), value.c_str());
+    }
+    PMLOG_DEBUG(Network, "< ");
+  }
 
   // On a 408 response from the server ("Request Timeout") on a stale socket,
   // retry the request.

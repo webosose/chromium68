@@ -19,6 +19,7 @@
 #include "base/callback_helpers.h"
 #include "base/compiler_specific.h"
 #include "base/location.h"
+#include "base/logging_pmlog.h"
 #include "base/macros.h"
 #include "base/metrics/histogram_functions.h"
 #include "base/metrics/histogram_macros.h"
@@ -1480,6 +1481,30 @@ int HttpCache::Transaction::DoCacheReadResponseComplete(int result) {
   }
 
   TransitionToState(STATE_CACHE_DISPATCH_VALIDATION);
+
+  if (PMLOG_DEBUG_ENABLED(Network) && (next_state_ != STATE_SEND_REQUEST)) {
+    PMLOG_DEBUG(Network, "C> %s %s", request_->method.c_str(),
+                request_->url.spec().c_str());
+
+    if (!request_->extra_headers.IsEmpty()) {
+      HttpRequestHeaders::Iterator ite(request_->extra_headers);
+      do {
+        PMLOG_DEBUG(Network, "C> %s: %s", ite.name().c_str(),
+                    ite.value().c_str());
+      } while (ite.GetNext());
+    }
+    PMLOG_DEBUG(Network, "C> ");
+
+    PMLOG_DEBUG(Network, "C< %s", response_.headers->GetStatusLine().c_str());
+    size_t iter = 0;
+    std::string name;
+    std::string value;
+    while (response_.headers->EnumerateHeaderLines(&iter, &name, &value)) {
+      PMLOG_DEBUG(Network, "C< %s: %s", name.c_str(), value.c_str());
+    }
+    PMLOG_DEBUG(Network, "C< ");
+  }
+
   return OK;
 }
 
