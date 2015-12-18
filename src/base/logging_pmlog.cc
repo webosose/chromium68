@@ -51,6 +51,7 @@ namespace logging {
     g_free(escaped_string);                                                    \
   }
 
+DECLARE_PMLOG_FOR_CONTEXT_IMPL(Browser, "chromium.browser")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Raw, "chromium.raw")
 
 }  // namespace logging

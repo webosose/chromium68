@@ -15,6 +15,7 @@
 #include "base/command_line.h"
 #include "base/location.h"
 #include "base/logging.h"
+#include "base/logging_pmlog.h"
 #include "base/macros.h"
 #include "base/metrics/histogram_macros.h"
 #include "base/metrics/user_metrics.h"
@@ -1514,6 +1515,10 @@ void Browser::NavigationStateChanged(WebContents* source,
   // Only update the UI when something visible has changed.
   if (changed_flags)
     ScheduleUIUpdate(source, changed_flags);
+
+  if (changed_flags & content::INVALIDATE_TYPE_URL)
+    PMLOG_INFO(Browser, "NavigationStateChanged", "new url %s",
+               source->GetVisibleURL().spec().c_str());
 
   // We can synchronously update commands since they will only change once per
   // navigation, so we don't have to worry about flickering. We do, however,
