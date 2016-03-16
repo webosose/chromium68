@@ -315,8 +315,7 @@ void WebView::CommitLoadVisually() {
 }
 
 std::string WebView::DocumentTitle() const {
-  NOTIMPLEMENTED();
-  return base::UTF16ToUTF8(base::string16());
+  return document_title_;
 }
 
 void WebView::RunJavaScript(const std::string& jsCode) {
@@ -1022,6 +1021,16 @@ void WebView::DidReceiveCompositorFrame() {
 
 void WebView::WillSwapMeaningfulPaint(double detected_time) {
   host_interface_->WillSwapMeaningfulPaint(detected_time);
+}
+
+void WebView::TitleWasSet(content::NavigationEntry* entry) {
+  document_title_ = base::UTF16ToUTF8(entry->GetTitle());
+}
+
+void WebView::LoadingStateChanged(content::WebContents*,
+                                  bool to_different_document) {
+  if (to_different_document)
+    document_title_.clear();
 }
 
 bool WebView::OnMessageReceived(const IPC::Message& message) {

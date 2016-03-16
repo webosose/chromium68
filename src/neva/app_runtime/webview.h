@@ -251,6 +251,9 @@ class WebView : public content::WebContentsDelegate,
   void DocumentLoadedInFrame(content::RenderFrameHost* frame_host) override;
   void DidReceiveCompositorFrame() override;
   void WillSwapMeaningfulPaint(double detected_time) override;
+  void TitleWasSet(content::NavigationEntry* entry) override;
+  void LoadingStateChanged(content::WebContents* source,
+                           bool to_different_document) override;
 
   void SetSSLCertErrorPolicy(SSLCertErrorPolicy policy) {
     ssl_cert_error_policy_ = policy;
@@ -287,6 +290,7 @@ class WebView : public content::WebContentsDelegate,
   int height_;
   bool full_screen_;
   bool enable_skip_frame_;
+  std::string document_title_;
   std::unique_ptr<MojoAppRuntimeHostImpl> host_interface_;
   SSLCertErrorPolicy ssl_cert_error_policy_;
   WebViewProfile* profile_ = nullptr;
