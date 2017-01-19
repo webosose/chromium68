@@ -56,7 +56,11 @@
 namespace base {
 namespace debug {
 
-#if defined(OS_MACOSX) || defined(OS_BSD)
+#if defined(USE_SYSTEM_DEBUGGER_ABORT)
+bool BeingDebugged() {
+  return false;
+}
+#elif defined(OS_MACOSX) || defined(OS_BSD)
 
 // Based on Apple's recommended method as described in
 // http://developer.apple.com/qa/qa2004/qa1361.html
@@ -245,6 +249,9 @@ void DebugBreak() {
 #error "Don't know how to debug break on this architecture/OS"
 #endif
 
+#if defined(USE_SYSTEM_DEBUGGER_ABORT)
+void BreakDebugger() {}
+#else
 void BreakDebugger() {
   // NOTE: This code MUST be async-signal safe (it's used by in-process
   // stack dumping signal handler). NO malloc or stdio is allowed here.
@@ -267,6 +274,7 @@ void BreakDebugger() {
   _exit(1);
 #endif
 }
+#endif  // defined(USE_SYSTEM_DEBUGGER_ABORT)
 
 }  // namespace debug
 }  // namespace base
