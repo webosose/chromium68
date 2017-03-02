@@ -1078,6 +1078,12 @@ int HttpCache::Transaction::DoGetBackendComplete(int result) {
     return ERR_CACHE_MISS;
   }
 
+#if defined(USE_NEVA_APPRUNTIME)
+  if (effective_load_flags_ & LOAD_BLOCK_WRITE_CACHE) {
+    mode_ = NONE;
+  }
+#endif
+
   if (mode_ == NONE) {
     if (partial_) {
       partial_->RestoreHeaders(&custom_request_->extra_headers);

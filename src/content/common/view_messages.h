@@ -494,6 +494,9 @@ IPC_MESSAGE_ROUTED1(ViewMsg_ForceRedraw,
 // Sent by WAM to replace url for all frames of the page usually of
 // container application
 IPC_MESSAGE_ROUTED1(ViewMsg_ReplaceBaseURL, GURL)
+
+// Report application is being preloaded. Used for blocking writes on eMMC
+IPC_MESSAGE_ROUTED1(ViewMsg_SetAppPreloadHint, bool /* is_preload */)
 #endif
 
 // Sets the viewport intersection and compositor raster area on the widget for

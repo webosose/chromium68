@@ -92,3 +92,9 @@ LOAD_FLAG(DISABLE_CONNECTION_MIGRATION, 1 << 16)
 // Indicates that the cache should not check that the request matches the
 // response's vary header.
 LOAD_FLAG(SKIP_VARY_CHECK, 1 << 17)
+
+#if defined(USE_NEVA_APPRUNTIME)
+// This is "preload", meaning a app preloading
+// while preloading, block writing cache
+LOAD_FLAG(BLOCK_WRITE_CACHE, 1 << 18)
+#endif

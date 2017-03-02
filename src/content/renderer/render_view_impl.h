@@ -239,6 +239,12 @@ class CONTENT_EXPORT RenderViewImpl : public RenderWidget,
                                   const gfx::Size& max_size);
   void DisableAutoResizeForTesting(const gfx::Size& new_size);
 
+#if defined(USE_NEVA_APPRUNTIME)
+  // NEVA app runtime specific ------------------------------------------------
+
+  bool is_app_preload_hint_set() const { return is_app_preload_hint_set_; }
+#endif  // defined(USE_NEVA_APPRUNTIME)
+
   // IPC::Listener implementation ----------------------------------------------
 
   bool OnMessageReceived(const IPC::Message& msg) override;
@@ -515,6 +521,7 @@ class CONTENT_EXPORT RenderViewImpl : public RenderWidget,
   void OnMoveOrResizeStarted();
 #if defined(USE_NEVA_APPRUNTIME)
   void OnReplaceBaseURL(const GURL& newurl);
+  void OnSetAppPreloadHint(bool blocked);
 #endif
   void OnResolveTapDisambiguation(base::TimeTicks timestamp,
                                   const gfx::Point& tap_viewport_offset,
@@ -765,6 +772,13 @@ class CONTENT_EXPORT RenderViewImpl : public RenderWidget,
   // window.open or via <a target=...>) should be renderer-wide (i.e. going
   // beyond the usual opener-relationship-based BrowsingInstance boundaries).
   bool renderer_wide_named_frame_lookup_;
+
+#if defined(USE_NEVA_APPRUNTIME)
+  // NEVA app runtime Specific -------------------------------------------------
+
+  // Hint app is preloaded, so policies like eMMC write save can be set in place
+  bool is_app_preload_hint_set_;
+#endif  // defined(USE_NEVA_APPRUNTIME)
 
   // ---------------------------------------------------------------------------
   // ADDING NEW DATA? Please see if it fits appropriately in one of the above

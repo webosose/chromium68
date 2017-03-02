@@ -159,7 +159,7 @@ class WEBOS_EXPORT WebViewBase
   // RenderViewHost
   void SetUseLaunchOptimization(bool enabled, int delay_ms);
   void SetUseEnyoOptimization(bool enabled);
-  void SetBlockWriteDiskcache(bool blocked);
+  void SetAppPreloadHint(bool is_preload);
   void SetTransparentBackground(bool enabled);
   void ResetStateToMarkNextPaintForContainer();
 

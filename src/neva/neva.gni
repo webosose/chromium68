@@ -81,4 +81,7 @@ declare_args() {
   # Use in-process stacktrace dumper instead of system
   # stacktrace handler. Official builds will always disable it.
   enable_in_process_stacktraces = !is_webos
+
+  # Enable optimizations to reduce writes to eMMC storages
+  enable_emmc_optimizations = is_webos
 }

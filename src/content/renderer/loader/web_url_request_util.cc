@@ -274,6 +274,11 @@ int GetLoadFlagsForWebURLRequest(const WebURLRequest& request) {
     case FetchCacheMode::kUnspecifiedForceCacheMiss:
       load_flags |= net::LOAD_ONLY_FROM_CACHE | net::LOAD_BYPASS_CACHE;
       break;
+    case FetchCacheMode::kPreloadDisableCache:
+#if defined(USE_NEVA_APPRUNTIME)
+      load_flags |= net::LOAD_BLOCK_WRITE_CACHE;
+#endif
+      break;
   }
 
   if (!request.AllowStoredCredentials()) {

@@ -152,7 +152,7 @@ class WebView : public content::WebContentsDelegate,
   void SetAcceptLanguages(const std::string& languages);
   void SetUseLaunchOptimization(bool enabled, int delay_ms);
   void SetUseEnyoOptimization(bool enabled);
-  void SetBlockWriteDiskcache(bool blocked);
+  void SetAppPreloadHint(bool is_preload);
   void SetTransparentBackground(bool enable);
   void SetBoardType(const std::string& board_type);
   void SetMediaCodecCapability(const std::string& capability);

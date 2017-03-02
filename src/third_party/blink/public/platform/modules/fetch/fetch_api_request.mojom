@@ -84,6 +84,11 @@ enum FetchCacheMode {
   kUnspecifiedOnlyIfCachedStrict,
   // Used by devtools to trigger a request which ends up in CACHE_MISS.
   kUnspecifiedForceCacheMiss,
+
+///@name: USE_NEVA_APPRUNTIME
+///@{
+  kPreloadDisableCache,
+///@}
 };
 
 // Corresponds to Fetch request's "importance mode"

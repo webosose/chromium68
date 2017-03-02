@@ -106,6 +106,10 @@ config("config") {
     defines += [ "ENABLE_IN_PROCESS_STACKTRACES=1" ]
   }
 
+  if (enable_emmc_optimizations) {
+    defines += [ "ENABLE_EMMC_OPTIMIZATIONS" ]
+  }
+
   if (use_lttng && current_toolchain == default_toolchain) {
     configs += [ "//build/config/linux/lttng:lttngust" ]
   }

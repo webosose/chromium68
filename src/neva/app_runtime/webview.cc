@@ -471,9 +471,10 @@ void WebView::SetUseEnyoOptimization(bool enabled) {
   // TODO(jose.dapena): patch not ported
 }
 
-void WebView::SetBlockWriteDiskcache(bool blocked) {
-  NOTIMPLEMENTED();
-  // TODO(jose.dapena): patch not ported
+void WebView::SetAppPreloadHint(bool is_preload) {
+  content::RenderViewHost* rvh = web_contents_->GetRenderViewHost();
+  if (rvh)
+    rvh->SetAppPreloadHint(is_preload);
 }
 
 void WebView::SetTransparentBackground(bool enable) {

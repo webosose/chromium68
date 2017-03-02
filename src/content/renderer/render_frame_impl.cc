@@ -4667,6 +4667,12 @@ void RenderFrameImpl::WillSendRequest(blink::WebURLRequest& request) {
   if (internal_data->is_cache_policy_override_set())
     request.SetCacheMode(internal_data->cache_policy_override());
 
+#if defined(USE_NEVA_APPRUNTIME) && defined(ENABLE_EMMC_OPTIMIZATIONS)
+  // while preloading, writing cache should be blocked.
+  if (render_view_->is_app_preload_hint_set())
+    request.SetCacheMode(blink::mojom::FetchCacheMode::kPreloadDisableCache);
+#endif
+
   // The request's extra data may indicate that we should set a custom user
   // agent. This needs to be done here, after WebKit is through with setting the
   // user agent on its own. Similarly, it may indicate that we should set an

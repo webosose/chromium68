@@ -145,6 +145,7 @@ class CONTENT_EXPORT RenderViewHost : public IPC::Sender {
 
 #if defined(USE_NEVA_APPRUNTIME)
   virtual void ReplaceBaseURL(const GURL& newUrl) = 0;
+  virtual void SetAppPreloadHint(bool is_preload) = 0;
 #endif
  private:
   // This interface should only be implemented inside content.

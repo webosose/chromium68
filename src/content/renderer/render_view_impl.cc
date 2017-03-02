@@ -510,6 +510,9 @@ RenderViewImpl::RenderViewImpl(
       enumeration_completion_id_(0),
       session_storage_namespace_id_(params.session_storage_namespace_id),
       renderer_wide_named_frame_lookup_(false),
+#if defined(USE_NEVA_APPRUNTIME)
+      is_app_preload_hint_set_(false),
+#endif
       weak_ptr_factory_(this) {
   GetWidget()->set_owner_delegate(this);
 }
@@ -1144,6 +1147,7 @@ bool RenderViewImpl::OnMessageReceived(const IPC::Message& message) {
     // platform specific ones at the end.
 #if defined(USE_NEVA_APPRUNTIME)
     IPC_MESSAGE_HANDLER(ViewMsg_ReplaceBaseURL, OnReplaceBaseURL)
+    IPC_MESSAGE_HANDLER(ViewMsg_SetAppPreloadHint, OnSetAppPreloadHint)
 #endif
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(handled = RenderWidget::OnMessageReceived(message))
@@ -2473,7 +2477,11 @@ void RenderViewImpl::OnReplaceBaseURL(const GURL& newUrl) {
 
   webview()->ReplaceBaseURL(WebURL(newUrl));
 }
-#endif
+
+void RenderViewImpl::OnSetAppPreloadHint(bool is_preload) {
+  is_app_preload_hint_set_ = is_preload;
+}
+#endif  // defined(USE_NEVA_APPRUNTIME)
 
 void RenderViewImpl::DidCommitCompositorFrame() {
   RenderWidget::DidCommitCompositorFrame();

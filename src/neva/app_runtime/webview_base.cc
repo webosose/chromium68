@@ -142,8 +142,8 @@ void WebViewBase::SetUseAccessibility(bool enabled) {
     GetWebContents()->EnableWebContentsOnlyAccessibilityMode();
 }
 
-void WebViewBase::SetBlockWriteDiskcache(bool blocked) {
-  webview_->SetBlockWriteDiskcache(blocked);
+void WebViewBase::SetAppPreloadHint(bool is_preload) {
+  webview_->SetAppPreloadHint(is_preload);
 }
 
 void WebViewBase::SetTransparentBackground(bool enable) {
