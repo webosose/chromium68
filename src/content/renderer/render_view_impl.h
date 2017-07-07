@@ -559,7 +559,7 @@ class CONTENT_EXPORT RenderViewImpl : public RenderWidget,
   // Check whether the preferred size has changed.
   void CheckPreferredSize();
 
-#if defined(OS_ANDROID)
+#if defined(OS_ANDROID) || defined(DISABLE_HIDDEN_TAB_VIDEO_CAPTURE)
   // Make the video capture devices (e.g. webcam) stop/resume delivering video
   // frames to their clients, depending on flag |suspend|. This is called in
   // response to a RenderView PageHidden/Shown().

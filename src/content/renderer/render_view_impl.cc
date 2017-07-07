@@ -2152,7 +2152,7 @@ void RenderViewImpl::Close() {
 }
 
 void RenderViewImpl::OnPageWasHidden() {
-#if defined(OS_ANDROID)
+#if defined(OS_ANDROID) || defined(DISABLE_HIDDEN_TAB_VIDEO_CAPTURE)
   SuspendVideoCaptureDevices(true);
 #endif
 
@@ -2169,7 +2169,7 @@ void RenderViewImpl::OnPageWasHidden() {
 }
 
 void RenderViewImpl::OnPageWasShown() {
-#if defined(OS_ANDROID)
+#if defined(OS_ANDROID) || defined(DISABLE_HIDDEN_TAB_VIDEO_CAPTURE)
   SuspendVideoCaptureDevices(false);
 #endif
 
@@ -2385,7 +2385,9 @@ bool RenderViewImpl::DidTapMultipleTargets(
 
   return handled;
 }
+#endif  // defined(OS_ANDROID)
 
+#if defined(OS_ANDROID) || defined(DISABLE_HIDDEN_TAB_VIDEO_CAPTURE)
 void RenderViewImpl::SuspendVideoCaptureDevices(bool suspend) {
   if (!main_render_frame_)
     return;
@@ -2400,7 +2402,7 @@ void RenderViewImpl::SuspendVideoCaptureDevices(bool suspend) {
   RenderThreadImpl::current()->video_capture_impl_manager()->SuspendDevices(
       video_devices, suspend);
 }
-#endif  // defined(OS_ANDROID)
+#endif  // defined(OS_ANDROID) || defined(DISABLE_HIDDEN_TAB_VIDEO_CAPTURE)
 
 unsigned RenderViewImpl::GetLocalSessionHistoryLengthForTesting() const {
   return history_list_length_;

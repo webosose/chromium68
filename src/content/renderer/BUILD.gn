@@ -1073,6 +1073,9 @@ target(link_target_type, "renderer") {
       "neva/render_thread_impl.h",
     ]
   }
+  if (disable_hidden_tab_video_capture) {
+    defines += [ "DISABLE_HIDDEN_TAB_VIDEO_CAPTURE=1" ]
+  }
 }
 
 # See comment at the top of //content/BUILD.gn for how this works.

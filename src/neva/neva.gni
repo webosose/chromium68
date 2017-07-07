@@ -89,4 +89,7 @@ declare_args() {
 
   # Enable optimizations to reduce writes to eMMC storages
   enable_emmc_optimizations = is_webos
+
+  # Allow video capture when tab or app is suspended
+  disable_hidden_tab_video_capture = is_webos
 }
