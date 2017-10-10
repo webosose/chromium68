@@ -93,6 +93,20 @@ uint32_t V4L2Device::VideoPixelFormatToV4L2PixFmt(VideoPixelFormat format) {
 }
 
 // static
+#if BUILDFLAG(USE_LINUX_V4L2)
+uint32_t V4L2Device::VideoCodecProfileToV4L2PixFmt(VideoCodecProfile profile,
+                                                   bool slice_based) {
+  if (profile >= H264PROFILE_MIN && profile <= H264PROFILE_MAX) {
+    return V4L2_PIX_FMT_H264;
+  } else if (profile >= VP8PROFILE_MIN && profile <= VP8PROFILE_MAX) {
+    return V4L2_PIX_FMT_VP8;
+  } else {
+    LOG(FATAL) << "Add more cases as needed";
+    return 0;
+  }
+}
+#else
+// static
 uint32_t V4L2Device::VideoCodecProfileToV4L2PixFmt(VideoCodecProfile profile,
                                                    bool slice_based) {
   if (profile >= H264PROFILE_MIN && profile <= H264PROFILE_MAX) {
@@ -115,6 +129,7 @@ uint32_t V4L2Device::VideoCodecProfileToV4L2PixFmt(VideoCodecProfile profile,
     return 0;
   }
 }
+#endif
 
 // static
 std::vector<VideoCodecProfile> V4L2Device::V4L2PixFmtToVideoCodecProfiles(
@@ -125,7 +140,9 @@ std::vector<VideoCodecProfile> V4L2Device::V4L2PixFmtToVideoCodecProfiles(
 
   switch (pix_fmt) {
     case V4L2_PIX_FMT_H264:
+#if !BUILDFLAG(USE_LINUX_V4L2)
     case V4L2_PIX_FMT_H264_SLICE:
+#endif
       if (is_encoder) {
         // TODO(posciak): need to query the device for supported H.264 profiles,
         // for now choose Main as a sensible default.
@@ -138,11 +155,14 @@ std::vector<VideoCodecProfile> V4L2Device::V4L2PixFmtToVideoCodecProfiles(
       break;
 
     case V4L2_PIX_FMT_VP8:
+#if !BUILDFLAG(USE_LINUX_V4L2)
     case V4L2_PIX_FMT_VP8_FRAME:
+#endif
       min_profile = VP8PROFILE_MIN;
       max_profile = VP8PROFILE_MAX;
       break;
 
+#if !BUILDFLAG(USE_LINUX_V4L2)
     case V4L2_PIX_FMT_VP9:
     case V4L2_PIX_FMT_VP9_FRAME:
       // TODO(posciak): https://crbug.com/819930 Query supported profiles.
@@ -150,6 +170,7 @@ std::vector<VideoCodecProfile> V4L2Device::V4L2PixFmtToVideoCodecProfiles(
       min_profile = VP9PROFILE_PROFILE0;
       max_profile = VP9PROFILE_PROFILE0;
       break;
+#endif
 
     default:
       VLOGF(1) << "Unhandled pixelformat " << std::hex << "0x" << pix_fmt;
@@ -179,8 +200,11 @@ uint32_t V4L2Device::V4L2PixFmtToDrmFormat(uint32_t format) {
     case V4L2_PIX_FMT_RGB32:
       return DRM_FORMAT_ARGB8888;
 
+    case V4L2_PIX_FMT_MT21C:
+#if !BUILDFLAG(USE_LINUX_V4L2)
     case V4L2_PIX_FMT_MT21:
       return DRM_FORMAT_MT21;
+#endif
 
     default:
       DVLOGF(1) << "Unrecognized format " << std::hex << "0x" << format;
