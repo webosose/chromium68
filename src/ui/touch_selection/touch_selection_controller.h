@@ -69,6 +69,10 @@ class UI_TOUCH_SELECTION_EXPORT TouchSelectionController
 
     // Should we hide the active handle.
     bool hide_active_handle;
+
+    // Hide selection handle on a tap and a long press.
+    // Defaults to false.
+    bool hide_selection_handle;
   };
 
   TouchSelectionController(TouchSelectionControllerClient* client,

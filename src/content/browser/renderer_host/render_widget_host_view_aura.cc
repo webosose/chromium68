@@ -2350,6 +2350,9 @@ void RenderWidgetHostViewAura::CreateSelectionController() {
   tsc_config.tap_slop = ui::GestureConfiguration::GetInstance()
                             ->max_touch_move_in_pixels_for_click();
   tsc_config.enable_longpress_drag_selection = false;
+  tsc_config.hide_selection_handle =
+      base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kHideSelectionHandles);
   selection_controller_.reset(new ui::TouchSelectionController(
       selection_controller_client_.get(), tsc_config));
 }

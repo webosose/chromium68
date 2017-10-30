@@ -549,6 +549,9 @@ const char kGpuSandboxStartEarly[] = "gpu-sandbox-start-early";
 // Causes the GPU process to display a dialog on launch.
 const char kGpuStartupDialog[]              = "gpu-startup-dialog";
 
+// Hide selection handles on input when touch is enabled.
+const char kHideSelectionHandles[] = "hide-selection-handles";
+
 // Don't allow content to arbitrarily append to the back/forward list.
 // The page must prcoess a user gesture before an entry can be added.
 const char kHistoryEntryRequiresUserGesture[] =

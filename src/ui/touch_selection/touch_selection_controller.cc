@@ -47,6 +47,7 @@ TouchSelectionController::Config::Config()
       tap_slop(8),
       enable_adaptive_handle_orientation(false),
       enable_longpress_drag_selection(false),
+      hide_selection_handle(false),
       hide_active_handle(false) {}
 
 TouchSelectionController::Config::~Config() {
@@ -461,6 +462,11 @@ gfx::PointF TouchSelectionController::GetSelectionEnd() const {
 void TouchSelectionController::OnInsertionChanged() {
   DeactivateSelection();
 
+  if (config_.hide_selection_handle) {
+    HideAndDisallowShowingAutomatically();
+    return;
+  }
+
   const bool activated = ActivateInsertionIfNecessary();
 
   const TouchHandle::AnimationStyle animation = GetAnimationStyle(!activated);
@@ -475,6 +481,11 @@ void TouchSelectionController::OnInsertionChanged() {
 
 void TouchSelectionController::OnSelectionChanged() {
   DeactivateInsertion();
+
+  if (config_.hide_selection_handle) {
+    HideAndDisallowShowingAutomatically();
+    return;
+  }
 
   const bool activated = ActivateSelectionIfNecessary();
 
