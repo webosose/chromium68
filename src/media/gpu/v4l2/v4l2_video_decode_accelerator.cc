@@ -66,7 +66,7 @@ namespace media {
 // static
 const uint32_t V4L2VideoDecodeAccelerator::supported_input_fourccs_[] = {
     V4L2_PIX_FMT_H264, V4L2_PIX_FMT_VP8,
-#if !BUILDFLAG(USE_LINUX_V4L2)
+#if !defined(USE_LINUX_V4L2)
     V4L2_PIX_FMT_VP9,
 #endif
 };
