@@ -74,6 +74,7 @@ class WebAppWindow : public views::NativeEventDelegate,
                        int hotspot_x,
                        int hotspot_y);
   void SetWindowProperty(const std::string& name, const std::string& value);
+  void SetWindowSurfaceId(int surface_id);
   void Show();
   void Hide();
   void Minimize();
@@ -170,6 +171,7 @@ class WebAppWindow : public views::NativeEventDelegate,
   AppRuntimeDesktopNativeWidgetAura* desktop_native_widget_aura_ = nullptr;
   content::WebContents* web_contents_ = nullptr;
   std::map<std::string, std::string> window_property_list_;
+  int window_surface_id_;
   bool deferred_deleting_ = false;
   bool widget_closed_ = false;
   base::OneShotTimer viewport_timer_;

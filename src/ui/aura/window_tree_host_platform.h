@@ -48,6 +48,7 @@ class AURA_EXPORT WindowTreeHostPlatform : public WindowTreeHost,
   // Set app-id to PlatformWindow (for Neva project)
   void SetWindowProperty(const std::string& name,
                          const std::string& value) override;
+  void SetWindowSurfaceId(int surface_id) override;
   void SetCursorNative(gfx::NativeCursor cursor) override;
   void MoveCursorToScreenLocationInPixels(
       const gfx::Point& location_in_pixels) override;

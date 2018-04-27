@@ -428,6 +428,15 @@ void WebAppWindow::SetWindowProperty(const std::string& name,
   wth->SetWindowProperty(name, value);
 }
 
+void WebAppWindow::SetWindowSurfaceId(int surface_id) {
+  window_surface_id_ = surface_id;
+
+  if (!host_)
+    return;
+
+  host_->SetWindowSurfaceId(surface_id);
+}
+
 void WebAppWindow::Show() {
   widget_->Show();
 }

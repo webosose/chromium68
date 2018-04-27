@@ -90,6 +90,7 @@ class OzoneWaylandWindow : public PlatformWindow,
   void SetWindowProperty(const std::string& name,
                          const std::string& value) override;
   void ResetCustomCursor() override;
+  void SetSurfaceId(int surface_id) override;
   void CreateGroup(const WindowGroupConfiguration&) override;
   void AttachToGroup(const std::string& group,
                      const std::string& layer) override;
@@ -154,6 +155,7 @@ class OzoneWaylandWindow : public PlatformWindow,
   scoped_refptr<BitmapCursorOzone> bitmap_;
   bool init_window_;
   base::WeakPtrFactory<OzoneWaylandWindow> weak_factory_;
+  int surface_id_;
 
   DISALLOW_COPY_AND_ASSIGN(OzoneWaylandWindow);
 };

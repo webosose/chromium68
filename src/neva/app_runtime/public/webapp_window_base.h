@@ -94,6 +94,7 @@ class APP_RUNTIME_EXPORT WebAppWindowBase : WebAppWindowDelegate {
   void SetGroupKeyMask(KeyMask key_mask);
   void SetKeyMask(KeyMask key_mask, bool set);
   void SetWindowProperty(const std::string& name, const std::string& value);
+  void SetWindowSurfaceId(int surface_id);
   void SetOpacity(float opacity);
   void SetRootLayerOpacity(float opacity);
   void Resize(int width, int height);
