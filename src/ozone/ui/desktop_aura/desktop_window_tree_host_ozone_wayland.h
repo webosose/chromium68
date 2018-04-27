@@ -281,6 +281,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   gfx::Rect previous_maximize_bounds_;
   gfx::AcceleratedWidget window_;
   base::string16 title_;
+  int pending_surface_id_;
 
   // Owned by DesktopNativeWidgetAura.
   DesktopDragDropClientWayland* drag_drop_client_;
