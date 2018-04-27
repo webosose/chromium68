@@ -227,7 +227,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   // surface(i.e. toplevel, menu) is none. One needs to explicitly call
   // WaylandWindow::SetShellAttributes to set this. The ownership of
   // WaylandWindow is not passed to the caller.
-  WaylandWindow* CreateAcceleratedSurface(unsigned w);
+  WaylandWindow* CreateAcceleratedSurface(unsigned w, int surface_id);
 
   // Starts polling on display fd. This should be used when one needs to
   // continuously read pending events coming from Wayland compositor and
@@ -241,7 +241,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   WaylandWindow* GetWidget(unsigned w) const;
   void SetWidgetState(unsigned widget, ui::WidgetState state);
   void SetWidgetTitle(unsigned w, const base::string16& title);
-  void CreateWidget(unsigned widget);
+  void CreateWidget(unsigned widget, int surface_id);
   void InitWindow(unsigned widget,
                   unsigned parent,
                   int x,

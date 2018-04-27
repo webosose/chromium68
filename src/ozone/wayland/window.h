@@ -41,7 +41,7 @@ class WaylandWindow {
   };
 
   // Creates a window and maps it to handle.
-  explicit WaylandWindow(unsigned handle);
+  explicit WaylandWindow(unsigned handle, int surface_id);
   ~WaylandWindow();
 
   void SetShellAttributes(ShellType type);
@@ -90,6 +90,7 @@ class WaylandWindow {
 
   ShellType type_;
   unsigned handle_;
+  int surface_id_;
 #if defined(OS_WEBOS)
   WebOSSurfaceGroup* surface_group_;
   bool is_surface_group_client_;

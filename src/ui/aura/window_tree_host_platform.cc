@@ -173,6 +173,9 @@ base::flat_map<std::string, std::string>
 WindowTreeHostPlatform::GetKeyboardLayoutMap() {
   NOTIMPLEMENTED();
   return {};
+
+void WindowTreeHostPlatform::SetWindowSurfaceId(int surface_id) {
+  window_->SetSurfaceId(surface_id);
 }
 
 void WindowTreeHostPlatform::SetCursorNative(gfx::NativeCursor cursor) {

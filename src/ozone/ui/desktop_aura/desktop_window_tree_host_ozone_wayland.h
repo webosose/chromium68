@@ -76,6 +76,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   // belongs to a particular window.
   gfx::Rect GetBoundsInScreen() const;
 
+  void SetWindowSurfaceId(int surface_id) override;
+
  protected:
   // Overridden from DesktopWindowTreeHost:
   void Init(const views::Widget::InitParams& params) override;
