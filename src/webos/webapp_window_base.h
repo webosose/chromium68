@@ -91,6 +91,7 @@ class WEBOS_EXPORT WebAppWindowBase : public WebAppWindowDelegate {
 
  private:
   WebAppWindow* webapp_window_ = nullptr;
+  int pending_surface_id_;
 };
 
 }  // namespace webos

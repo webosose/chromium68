@@ -47,7 +47,8 @@ app_runtime::CustomCursorType ToAppruntimeCursorType(CustomCursorType type) {
 ////////////////////////////////////////////////////////////////////////////////
 // WebAppWindowBase, public:
 
-WebAppWindowBase::WebAppWindowBase() {}
+WebAppWindowBase::WebAppWindowBase()
+    : pending_surface_id_(0) {}
 
 WebAppWindowBase::~WebAppWindowBase() {
   if (webapp_window_) {
@@ -68,7 +69,7 @@ void WebAppWindowBase::InitWindow(int width, int height) {
   params.show_state =
       app_runtime::WebAppWindowBase::CreateParams::WindowShowState::kDefault;
   params.type = app_runtime::WebAppWindowBase::CreateParams::WidgetType::kWindowFrameless;
-  webapp_window_ = new WebAppWindow(params);
+  webapp_window_ = new WebAppWindow(params, pending_surface_id_);
   webapp_window_->SetDelegate(this);
 }
 
@@ -168,7 +169,10 @@ void WebAppWindowBase::SetWindowProperty(const std::string& name,
 }
 
 void WebAppWindowBase::SetWindowSurfaceId(int surface_id) {
-  webapp_window_->SetWindowSurfaceId(surface_id);
+  if (webapp_window_)
+    webapp_window_->SetWindowSurfaceId(surface_id);
+  else
+    pending_surface_id_ = surface_id;
 }
 
 void WebAppWindowBase::SetOpacity(float opacity) {

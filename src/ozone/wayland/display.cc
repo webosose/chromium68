@@ -339,8 +339,7 @@ void WaylandDisplay::InitializeDisplay() {
   display_poll_thread_ = new WaylandDisplayPollThread(display_);
 }
 
-WaylandWindow* WaylandDisplay::CreateAcceleratedSurface(unsigned w,
-                                                        int surface_id) {
+WaylandWindow* WaylandDisplay::CreateAcceleratedSurface(unsigned w) {
   WaylandWindow* window = new WaylandWindow(w);
   widget_map_[w].reset(window);
 
@@ -492,18 +491,20 @@ void WaylandDisplay::SetWidgetTitle(unsigned w, const base::string16& title) {
   widget->SetWindowTitle(title);
 }
 
-void WaylandDisplay::CreateWidget(unsigned widget, int surface_id) {
+void WaylandDisplay::CreateWidget(unsigned widget) {
   DCHECK(!GetWidget(widget));
-  CreateAcceleratedSurface(widget, surface_id);
+  CreateAcceleratedSurface(widget);
 }
 
 void WaylandDisplay::InitWindow(unsigned handle,
                                 unsigned parent,
                                 int x,
                                 int y,
-                                ui::WidgetType type) {
+                                ui::WidgetType type,
+                                int surface_id) {
   WaylandWindow* window = GetWidget(handle);
 
+  window->SetSurfaceId(surface_id);
   WaylandWindow* parent_window = GetWidget(parent);
   DCHECK(window);
   switch (type) {

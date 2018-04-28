@@ -82,6 +82,9 @@ void StubWindow::MoveCursorTo(const gfx::Point& location) {
 void StubWindow::ConfineCursorToBounds(const gfx::Rect& bounds) {
 }
 
+void StubWindow::SetSurfaceId(int surface_id) {
+}
+
 PlatformImeController* StubWindow::GetPlatformImeController() {
   return nullptr;
 }
