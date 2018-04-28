@@ -41,19 +41,21 @@ class WaylandWindow {
   };
 
   // Creates a window and maps it to handle.
-  explicit WaylandWindow(unsigned handle, int surface_id);
+  explicit WaylandWindow(unsigned handle);
   ~WaylandWindow();
 
   void SetShellAttributes(ShellType type);
   void SetShellAttributes(ShellType type, WaylandShellSurface* shell_parent,
                           int x, int y);
   void SetWindowTitle(const base::string16& title);
+  void SetWindowSurfaceId(int surface_id);
   void Maximize();
   void Minimize();
   void Restore();
   void SetFullscreen();
   void Show();
   void Hide();
+  void SetSurfaceId(int surface_id);
   void SetInputRegion(const std::vector<gfx::Rect>& region);
   void SetGroupKeyMask(ui::KeyMask key_mask);
   void SetKeyMask(ui::KeyMask key_mask, bool set);

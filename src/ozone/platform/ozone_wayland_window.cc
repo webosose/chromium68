@@ -168,8 +168,11 @@ void OzoneWaylandWindow::InitPlatformWindow(
   if (!sender_->IsConnected())
     return;
 
-  sender_->Send(
-      new WaylandDisplay_InitWindow(handle_, parent_, bounds_, type_));
+  sender_->Send(new WaylandDisplay_InitWindow(handle_,
+                                              parent_,
+                                              bounds_,
+                                              type_,
+                                              surface_id_));
 }
 
 void OzoneWaylandWindow::SetTitle(const base::string16& title) {
@@ -378,10 +381,13 @@ void OzoneWaylandWindow::OnGpuProcessLaunched() {
 }
 
 void OzoneWaylandWindow::DeferredSendingToGpu() {
-  sender_->Send(new WaylandDisplay_Create(handle_, surface_id_));
+  sender_->Send(new WaylandDisplay_Create(handle_));
   if (init_window_)
-    sender_->Send(
-        new WaylandDisplay_InitWindow(handle_, parent_, bounds_, type_));
+    sender_->Send(new WaylandDisplay_InitWindow(handle_,
+                                                parent_,
+                                                bounds_,
+                                                type_,
+                                                surface_id_));
 
   if (state_ != WidgetState::UNINITIALIZED)
     sender_->Send(new WaylandDisplay_State(handle_, state_));

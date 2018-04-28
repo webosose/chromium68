@@ -29,7 +29,7 @@ class WebAppWindowDelegate;
 
 class WebAppWindow : public app_runtime::WebAppWindow {
  public:
-  WebAppWindow(const app_runtime::WebAppWindowBase::CreateParams& params);
+  WebAppWindow(const app_runtime::WebAppWindowBase::CreateParams& params, int surface_id);
   ~WebAppWindow() override;
 
   void SetDelegate(WebAppWindowDelegate* webapp_window_delegate);

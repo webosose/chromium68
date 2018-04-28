@@ -118,6 +118,7 @@ class APP_RUNTIME_EXPORT WebAppWindowBase : WebAppWindowDelegate {
                           XInputEventType eventType = XINPUT_PRESS_AND_RELEASE);
 
  private:
+  int pending_surface_id_;
   WebAppWindow* webapp_window_;
 };
 
