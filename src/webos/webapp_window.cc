@@ -22,8 +22,8 @@
 
 namespace webos {
 
-WebAppWindow::WebAppWindow(const app_runtime::WebAppWindowBase::CreateParams& params)
-    : app_runtime::WebAppWindow(params, nullptr),
+WebAppWindow::WebAppWindow(const app_runtime::WebAppWindowBase::CreateParams& params, int surface_id)
+    : app_runtime::WebAppWindow(params, nullptr, surface_id),
       keyboard_enter_(false) {
   SetDeferredDeleting(true);
 }

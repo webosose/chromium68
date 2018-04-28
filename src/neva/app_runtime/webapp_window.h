@@ -47,7 +47,7 @@ class WebAppWindow : public views::NativeEventDelegate,
                      public display::DisplayObserver,
                      public views::WidgetDelegateView {
  public:
-  WebAppWindow(const WebAppWindowBase::CreateParams& params, WebAppWindowDelegate* delegate);
+  WebAppWindow(const WebAppWindowBase::CreateParams& params, WebAppWindowDelegate* delegate, int surface_id);
   ~WebAppWindow() override;
 
   bool Event(AppRuntimeEvent* app_runtime_event);
