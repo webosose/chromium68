@@ -4,6 +4,7 @@
 
 import("//build/config/ui.gni")
 import("//neva/neva.gni")
+import("//ui/ozone/ozone.gni")
 
 assert(use_ozone)
 
@@ -41,5 +42,25 @@ source_set("common") {
   # Added for ozone wayland external port
   if (ozone_platform_wayland_external) {
     visibility += [ "//ozone:ozone_wayland", ]
+  }
+}
+
+if (ozone_platform_gbm) {
+  source_set("linux") {
+    assert(ozone_platform_gbm)
+
+    sources = [
+      "linux/drm_util_linux.cc",
+      "linux/drm_util_linux.h",
+    ]
+
+    deps = [
+      "//base:base",
+      "//third_party/libdrm",
+      "//third_party/minigbm",
+      "//ui/gfx:buffer_types",
+    ]
+
+    visibility = [ "//ui/ozone/platform/drm/*" ]
   }
 }
