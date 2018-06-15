@@ -18,10 +18,6 @@ namespace display {
 class NativeDisplayDelegate;
 }
 
-namespace gfx {
-class Rect;
-}
-
 namespace service_manager {
 class Connector;
 }
@@ -37,6 +33,8 @@ class PlatformWindow;
 class PlatformWindowDelegate;
 class SurfaceFactoryOzone;
 class SystemInputInjector;
+
+struct PlatformWindowInitProperties;
 
 // Base class for Ozone platform implementations.
 //
@@ -123,7 +121,7 @@ class OZONE_EXPORT OzonePlatform {
   virtual std::unique_ptr<SystemInputInjector> CreateSystemInputInjector() = 0;
   virtual std::unique_ptr<PlatformWindow> CreatePlatformWindow(
       PlatformWindowDelegate* delegate,
-      const gfx::Rect& bounds) = 0;
+      const PlatformWindowInitProperties& properties) = 0;
   virtual std::unique_ptr<display::NativeDisplayDelegate>
   CreateNativeDisplayDelegate() = 0;
 
