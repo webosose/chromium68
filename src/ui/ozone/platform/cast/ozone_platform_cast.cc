@@ -100,7 +100,7 @@ class OzonePlatformCast : public OzonePlatform {
   }
   std::unique_ptr<PlatformWindow> CreatePlatformWindow(
       PlatformWindowDelegate* delegate,
-      const PlatformWindowInitProperties& properties) override {
+      PlatformWindowInitProperties properties) override {
     return base::WrapUnique<PlatformWindow>(
         new PlatformWindowCast(delegate, properties.bounds));
   }
