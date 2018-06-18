@@ -53,7 +53,7 @@ WindowTreeHostPlatform::WindowTreeHostPlatform(const gfx::Rect& bounds)
 
   ui::PlatformWindowInitProperties properties;
   properties.bounds = bounds_;
-  CreateAndSetPlatformWindow(properties);
+  CreateAndSetPlatformWindow(std::move(properties));
 }
 
 WindowTreeHostPlatform::WindowTreeHostPlatform()
@@ -66,7 +66,7 @@ WindowTreeHostPlatform::WindowTreeHostPlatform(
       current_cursor_(ui::CursorType::kNull) {}
 
 void WindowTreeHostPlatform::CreateAndSetPlatformWindow(
-    const ui::PlatformWindowInitProperties& properties) {
+    ui::PlatformWindowInitProperties properties) {
 #if defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   platform_window_ =
       ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, properties.bounds);
@@ -77,7 +77,7 @@ void WindowTreeHostPlatform::CreateAndSetPlatformWindow(
   SetImeEnabled(ime_enabled);
 #elif defined(USE_OZONE)
   platform_window_ =
-      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, properties); 
+      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, std::move(properties)); 
 #elif defined(OS_WIN)
   platform_window_.reset(new ui::WinWindow(this, properties.bounds));
 #elif defined(OS_ANDROID)
