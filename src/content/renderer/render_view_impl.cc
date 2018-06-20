@@ -2526,6 +2526,7 @@ void RenderViewImpl::DoDeferredClose() {
 }
 
 void RenderViewImpl::SetKeepAliveWebApp(bool keepAlive) {
+  webkit_preferences_.keep_alive_webapp = keepAlive;
   if (webview() && webview()->GetSettings())
     webview()->GetSettings()->SetKeepAliveWebApp(keepAlive);
 }
