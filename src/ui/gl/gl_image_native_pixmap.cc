@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "ui/gfx/buffer_format_util.h"
+#include "ui/gfx/gpu_fence.h"
 #include "ui/gl/egl_util.h"
 #include "ui/gl/gl_context.h"
 #include "ui/gl/gl_enums.h"
@@ -346,16 +347,18 @@ bool GLImageNativePixmap::CopyTexSubImage(unsigned target,
   return false;
 }
 
-bool GLImageNativePixmap::ScheduleOverlayPlane(gfx::AcceleratedWidget widget,
-                                               int z_order,
-                                               gfx::OverlayTransform transform,
-                                               const gfx::Rect& bounds_rect,
-                                               const gfx::RectF& crop_rect,
-                                               bool enable_blend,
-                                               gfx::GpuFence* gpu_fence) {
+bool GLImageNativePixmap::ScheduleOverlayPlane(
+    gfx::AcceleratedWidget widget,
+    int z_order,
+    gfx::OverlayTransform transform,
+    const gfx::Rect& bounds_rect,
+    const gfx::RectF& crop_rect,
+    bool enable_blend,
+    std::unique_ptr<gfx::GpuFence> gpu_fence) {
   DCHECK(pixmap_);
   return pixmap_->ScheduleOverlayPlane(widget, z_order, transform, bounds_rect,
-                                       crop_rect, enable_blend, gpu_fence);
+                                       crop_rect, enable_blend,
+                                       std::move(gpu_fence));
 }
 
 void GLImageNativePixmap::Flush() {
