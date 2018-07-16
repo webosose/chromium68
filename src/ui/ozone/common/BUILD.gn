@@ -44,25 +44,3 @@ source_set("common") {
     visibility += [ "//ozone:ozone_wayland", ]
   }
 }
-
-if (ozone_platform_gbm) {
-  source_set("linux") {
-    assert(ozone_platform_gbm)
-
-    sources = [
-      "linux/drm_util_linux.cc",
-      "linux/drm_util_linux.h",
-      "linux/gbm_device_linux.cc",
-      "linux/gbm_device_linux.h",
-    ]
-
-    deps = [
-      "//base:base",
-      "//third_party/libdrm",
-      "//third_party/minigbm",
-      "//ui/gfx:buffer_types",
-    ]
-
-    visibility = [ "//ui/ozone/platform/drm/*" ]
-  }
-}
