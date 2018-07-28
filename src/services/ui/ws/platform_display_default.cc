@@ -216,8 +216,7 @@ void PlatformDisplayDefault::OnLostCapture() {
 }
 
 void PlatformDisplayDefault::OnAcceleratedWidgetAvailable(
-    gfx::AcceleratedWidget widget,
-    float device_scale_factor) {
+    gfx::AcceleratedWidget widget) {
   // This will get called after Init() is called, either synchronously as part
   // of the Init() callstack or async after Init() has returned, depending on
   // the platform.
@@ -257,8 +256,6 @@ void PlatformDisplayDefault::OnAcceleratedWidgetAvailable(
   frame_generator_->OnWindowSizeChanged(root_window_->bounds().size());
   frame_generator_->SetDeviceScaleFactor(metrics_.device_scale_factor);
 }
-
-void PlatformDisplayDefault::OnAcceleratedWidgetDestroying() {}
 
 void PlatformDisplayDefault::OnAcceleratedWidgetDestroyed() {
 }
