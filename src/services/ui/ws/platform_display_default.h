@@ -66,9 +66,8 @@ class PlatformDisplayDefault : public PlatformDisplay,
   void OnClosed() override;
   void OnWindowStateChanged(ui::PlatformWindowState new_state) override;
   void OnLostCapture() override;
-  void OnAcceleratedWidgetAvailable(gfx::AcceleratedWidget widget,
-                                    float device_scale_factor) override;
-  void OnAcceleratedWidgetDestroying() override;
+  void OnAcceleratedWidgetAvailable(
+      gfx::AcceleratedWidget widget) override;
   void OnAcceleratedWidgetDestroyed() override;
   void OnActivationChanged(bool active) override;
 
