@@ -492,15 +492,11 @@ TEST_P(WaylandWindowTest, OnActivationChanged) {
 }
 
 TEST_P(WaylandWindowTest, OnAcceleratedWidgetDestroy) {
-  EXPECT_CALL(delegate_, OnAcceleratedWidgetDestroying()).Times(1);
-  EXPECT_CALL(delegate_, OnAcceleratedWidgetDestroyed()).Times(1);
   window_.reset();
 }
 
 TEST_P(WaylandWindowTest, CreateAndDestroyMenuWindow) {
   MockPlatformWindowDelegate menu_window_delegate;
-  EXPECT_CALL(menu_window_delegate, OnAcceleratedWidgetDestroying()).Times(1);
-  EXPECT_CALL(menu_window_delegate, OnAcceleratedWidgetDestroyed()).Times(1);
 
   std::unique_ptr<WaylandWindow> menu_window = CreateWaylandWindowWithParams(
       PlatformWindowType::kMenu, widget_, gfx::Rect(0, 0, 10, 10),
@@ -511,8 +507,6 @@ TEST_P(WaylandWindowTest, CreateAndDestroyMenuWindow) {
 
 TEST_P(WaylandWindowTest, CreateAndDestroyMenuWindowWithFocusedParent) {
   MockPlatformWindowDelegate menu_window_delegate;
-  EXPECT_CALL(menu_window_delegate, OnAcceleratedWidgetDestroying()).Times(1);
-  EXPECT_CALL(menu_window_delegate, OnAcceleratedWidgetDestroyed()).Times(1);
 
   // set_pointer_focus(true) requires a WaylandPointer.
   wl_seat_send_capabilities(server_.seat()->resource(),
@@ -531,7 +525,7 @@ TEST_P(WaylandWindowTest, CreateAndDestroyMenuWindowWithFocusedParent) {
 TEST_P(WaylandWindowTest, CreateAndDestroyNestedMenuWindow) {
   MockPlatformWindowDelegate menu_window_delegate;
   gfx::AcceleratedWidget menu_window_widget;
-  EXPECT_CALL(menu_window_delegate, OnAcceleratedWidgetAvailable(_, _))
+  EXPECT_CALL(menu_window_delegate, OnAcceleratedWidgetAvailable(_))
       .WillOnce(SaveArg<0>(&menu_window_widget));
 
   std::unique_ptr<WaylandWindow> menu_window = CreateWaylandWindowWithParams(
@@ -574,7 +568,7 @@ TEST_P(WaylandWindowTest, CanDispatchEventToMenuWindowNonNested) {
 TEST_P(WaylandWindowTest, CanDispatchEventToMenuWindowNested) {
   MockPlatformWindowDelegate menu_window_delegate;
   gfx::AcceleratedWidget menu_window_widget;
-  EXPECT_CALL(menu_window_delegate, OnAcceleratedWidgetAvailable(_, _))
+  EXPECT_CALL(menu_window_delegate, OnAcceleratedWidgetAvailable(_))
       .WillOnce(SaveArg<0>(&menu_window_widget));
 
   std::unique_ptr<WaylandWindow> menu_window = CreateWaylandWindowWithParams(

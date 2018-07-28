@@ -100,8 +100,7 @@ void PlatformDisplayMirror::OnWindowStateChanged(
 void PlatformDisplayMirror::OnLostCapture() {}
 
 void PlatformDisplayMirror::OnAcceleratedWidgetAvailable(
-    gfx::AcceleratedWidget widget,
-    float device_scale_factor) {
+    gfx::AcceleratedWidget widget) {
   DCHECK_EQ(gfx::kNullAcceleratedWidget, widget_);
   widget_ = widget;
 
@@ -153,8 +152,6 @@ void PlatformDisplayMirror::OnAcceleratedWidgetAvailable(
   if (info.id().is_valid())
     frame_generator_->SetEmbeddedSurface(info);
 }
-
-void PlatformDisplayMirror::OnAcceleratedWidgetDestroying() {}
 
 void PlatformDisplayMirror::OnAcceleratedWidgetDestroyed() {}
 
