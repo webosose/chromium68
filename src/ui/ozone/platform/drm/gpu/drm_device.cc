@@ -230,11 +230,13 @@ class DrmDevice::IOWatcher : public base::MessagePumpLibevent::FdWatcher {
 
 DrmDevice::DrmDevice(const base::FilePath& device_path,
                      base::File file,
-                     bool is_primary_device)
+                     bool is_primary_device,
+                     std::unique_ptr<GbmDevice> gbm)
     : device_path_(device_path),
       file_(std::move(file)),
       page_flip_manager_(new PageFlipManager()),
-      is_primary_device_(is_primary_device) {}
+      is_primary_device_(is_primary_device),
+      gbm_(std::move(gbm)) {}
 
 DrmDevice::~DrmDevice() {}
 
