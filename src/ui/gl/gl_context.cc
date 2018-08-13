@@ -216,7 +216,6 @@ bool GLContext::LosesAllContextsOnContextLost() {
     case kGLImplementationEGLGLES2:
     case kGLImplementationSwiftShaderGL:
       return true;
-    case kGLImplementationOSMesaGL:
     case kGLImplementationAppleGL:
       return false;
     case kGLImplementationMockGL:
