@@ -68,12 +68,8 @@ component("gl") {
     "gl_bindings.h",
     "gl_bindings_autogen_gl.cc",
     "gl_bindings_autogen_gl.h",
-    "gl_bindings_autogen_osmesa.cc",
-    "gl_bindings_autogen_osmesa.h",
     "gl_context.cc",
     "gl_context.h",
-    "gl_context_osmesa.cc",
-    "gl_context_osmesa.h",
     "gl_context_stub.cc",
     "gl_context_stub.h",
     "gl_enums.cc",
@@ -102,8 +98,6 @@ component("gl") {
     "gl_image_stub.h",
     "gl_implementation.cc",
     "gl_implementation.h",
-    "gl_osmesa_api_implementation.cc",
-    "gl_osmesa_api_implementation.h",
     "gl_share_group.cc",
     "gl_share_group.h",
     "gl_state_restorer.cc",
@@ -117,8 +111,6 @@ component("gl") {
     "gl_surface.h",
     "gl_surface_format.cc",
     "gl_surface_format.h",
-    "gl_surface_osmesa.cc",
-    "gl_surface_osmesa.h",
     "gl_surface_overlay.cc",
     "gl_surface_overlay.h",
     "gl_surface_presentation_helper.cc",
@@ -149,7 +141,7 @@ component("gl") {
   configs += [ "//build/config:precompiled_headers" ]
   defines = [ "GL_IMPLEMENTATION" ]
 
-  include_dirs = [ "//third_party/mesa/src/include" ]
+  include_dirs = [ "//third_party/mesa_headers" ]
 
   all_dependent_configs = [ ":gl_config" ]
 
@@ -172,7 +164,7 @@ component("gl") {
 
   public_deps = [
     "//base",
-    "//third_party/mesa:mesa_headers",
+    "//third_party/mesa_headers",
     "//ui/events/platform",
     "//ui/gfx",
     "//ui/gfx/geometry",
@@ -241,21 +233,12 @@ component("gl") {
     ]
   }
 
-  # TODO(camurcu): Windows/Ozone uses OSMesa for now. Will be updated.
-  if (is_android || is_linux || is_fuchsia || (is_win && use_ozone)) {
-    sources += [
-      "gl_implementation_osmesa.cc",
-      "gl_implementation_osmesa.h",
-    ]
-  }
   if (use_x11) {
     sources += [
       "gl_surface_egl_x11.cc",
       "gl_surface_egl_x11.h",
       "gl_surface_glx_x11.cc",
       "gl_surface_glx_x11.h",
-      "gl_surface_osmesa_x11.cc",
-      "gl_surface_osmesa_x11.h",
     ]
 
     deps += [ "//ui/base/x" ]
@@ -300,8 +283,6 @@ component("gl") {
       "gl_context_wgl.h",
       "gl_image_dxgi.cc",
       "gl_image_dxgi.h",
-      "gl_surface_osmesa_win.cc",
-      "gl_surface_osmesa_win.h",
       "gl_surface_wgl.cc",
       "gl_surface_wgl.h",
       "gl_wgl_api_implementation.cc",
@@ -317,7 +298,6 @@ component("gl") {
     data_deps += [
       "//third_party/angle:libEGL",
       "//third_party/angle:libGLESv2",
-      "//third_party/mesa:osmesa",
       "//third_party/swiftshader",
     ]
   }
@@ -349,6 +329,7 @@ component("gl") {
       data_deps += [
         "//third_party/angle:libEGL",
         "//third_party/angle:libGLESv2",
+        "//third_party/mesa_headers",
         "//third_party/swiftshader",
       ]
     }
@@ -554,7 +535,7 @@ test("gl_unittests") {
   ]
 
   data_deps = [
-    "//third_party/mesa:osmesa",
+    "//third_party/mesa_headers",
   ]
 
   if (use_x11) {

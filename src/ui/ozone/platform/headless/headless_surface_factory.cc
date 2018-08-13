@@ -17,8 +17,10 @@
 #include "ui/gfx/native_pixmap.h"
 #include "ui/gfx/skia_util.h"
 #include "ui/gfx/vsync_provider.h"
-#include "ui/ozone/common/gl_ozone_osmesa.h"
-#include "ui/ozone/platform/headless/gl_surface_osmesa_png.h"
+#include "ui/gl/gl_surface_egl.h"
+#include "ui/ozone/common/egl_util.h"
+#include "ui/ozone/common/gl_ozone_egl.h"
+#include "ui/ozone/common/gl_surface_egl_readback.h"
 #include "ui/ozone/platform/headless/headless_window.h"
 #include "ui/ozone/platform/headless/headless_window_manager.h"
 #include "ui/ozone/public/surface_ozone_canvas.h"
@@ -108,30 +110,42 @@ class TestPixmap : public gfx::NativePixmap {
   DISALLOW_COPY_AND_ASSIGN(TestPixmap);
 };
 
-class GLOzoneOSMesaHeadless : public GLOzoneOSMesa {
+class GLOzoneEGLHeadless : public GLOzoneEGL {
  public:
-  explicit GLOzoneOSMesaHeadless(HeadlessSurfaceFactory* surface_factory)
-      : surface_factory_(surface_factory) {}
-
-  ~GLOzoneOSMesaHeadless() override = default;
+  GLOzoneEGLHeadless() = default;
+  ~GLOzoneEGLHeadless() override = default;
 
   // GLOzone:
   scoped_refptr<gl::GLSurface> CreateViewGLSurface(
       gfx::AcceleratedWidget window) override {
+    // TODO(kylechar): Extend GLSurface implementation to write to PNG file.
     return gl::InitializeGLSurface(
-        new GLSurfaceOSMesaPng(surface_factory_->GetPathForWidget(window)));
+        base::MakeRefCounted<GLSurfaceEglReadback>());
+  }
+
+  scoped_refptr<gl::GLSurface> CreateOffscreenGLSurface(
+      const gfx::Size& size) override {
+    return gl::InitializeGLSurface(
+        base::MakeRefCounted<gl::PbufferGLSurfaceEGL>(size));
+  }
+
+ protected:
+  // GLOzoneEGL:
+  intptr_t GetNativeDisplay() override { return EGL_DEFAULT_DISPLAY; }
+
+  bool LoadGLES2Bindings(gl::GLImplementation implementation) override {
+    return LoadDefaultEGLGLES2Bindings(implementation);
   }
 
  private:
-  HeadlessSurfaceFactory* const surface_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(GLOzoneOSMesaHeadless);
+  DISALLOW_COPY_AND_ASSIGN(GLOzoneEGLHeadless);
 };
 
 }  // namespace
 
 HeadlessSurfaceFactory::HeadlessSurfaceFactory(base::FilePath base_path)
-    : base_path_(base_path) {
+    : base_path_(base_path),
+      swiftshader_implementation_(std::make_unique<GLOzoneEGLHeadless>()) {
   CheckBasePath();
   osmesa_implementation_ = std::make_unique<GLOzoneOSMesaHeadless>(this);
 }
@@ -155,14 +169,15 @@ base::FilePath HeadlessSurfaceFactory::GetPathForWidget(
 
 std::vector<gl::GLImplementation>
 HeadlessSurfaceFactory::GetAllowedGLImplementations() {
-  return std::vector<gl::GLImplementation>{gl::kGLImplementationOSMesaGL};
+  return std::vector<gl::GLImplementation>{gl::kGLImplementationSwiftShaderGL};
 }
 
 GLOzone* HeadlessSurfaceFactory::GetGLOzone(
     gl::GLImplementation implementation) {
   switch (implementation) {
-    case gl::kGLImplementationOSMesaGL:
-      return osmesa_implementation_.get();
+    case gl::kGLImplementationEGLGLES2:
+    case gl::kGLImplementationSwiftShaderGL:
+      return swiftshader_implementation_.get();
     default:
       return nullptr;
   }

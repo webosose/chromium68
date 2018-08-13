@@ -366,7 +366,6 @@ class RenderWidgetHostViewMacTest : public RenderViewHostImplTestHarness {
 
   void SetUp() override {
     RenderViewHostImplTestHarness::SetUp();
-    gpu::ImageTransportSurface::SetAllowOSMesaForTesting(true);
 
     browser_context_ = std::make_unique<TestBrowserContext>();
     process_host_ =
