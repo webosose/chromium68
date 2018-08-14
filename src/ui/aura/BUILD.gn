@@ -211,6 +211,8 @@ jumbo_component("aura") {
       "mus/platform_event_source_mus_ozone.cc",
       "mus/platform_event_source_mus_ozone.h",
     ]
+    public += [ "screen_ozone.h" ]
+    sources += [ "screen_ozone.cc" ]
   }
 
   if (is_android) {
