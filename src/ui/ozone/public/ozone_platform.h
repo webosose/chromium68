@@ -7,12 +7,14 @@
 
 #include <memory>
 
+#include "base/callback.h"
 #include "base/macros.h"
 #include "base/message_loop/message_loop.h"
 #include "services/service_manager/public/cpp/bind_source_info.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
 #include "ui/events/system_input_injector.h"
 #include "ui/gfx/buffer_types.h"
+#include "ui/gfx/native_widget_types.h"
 #include "ui/ozone/ozone_export.h"
 
 namespace display {
@@ -30,6 +32,7 @@ class InputController;
 class GpuPlatformSupport;
 class GpuPlatformSupportHost;
 class OverlayManagerOzone;
+class PlatformScreen;
 class PlatformWindow;
 class PlatformWindowDelegate;
 class SurfaceFactoryOzone;
@@ -152,6 +155,7 @@ class OZONE_EXPORT OzonePlatform {
       PlatformWindowInitProperties properties) = 0;
   virtual std::unique_ptr<display::NativeDisplayDelegate>
   CreateNativeDisplayDelegate() = 0;
+  virtual std::unique_ptr<PlatformScreen> CreateScreen();
 
   // Returns a struct that contains configuration and requirements for the
   // current platform implementation.
