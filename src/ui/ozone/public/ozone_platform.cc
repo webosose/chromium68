@@ -7,9 +7,11 @@
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/trace_event/trace_event.h"
+#include "ui/display/screen.h"
 #include "ui/events/devices/device_data_manager.h"
 #include "ui/ozone/platform_object.h"
 #include "ui/ozone/platform_selection.h"
+#include "ui/ozone/public/platform_screen.h"
 
 namespace ui {
 
@@ -131,6 +133,10 @@ void OzonePlatform::RegisterStartupCallback(
 
 // static
 OzonePlatform* OzonePlatform::instance_ = nullptr;
+
+std::unique_ptr<PlatformScreen> OzonePlatform::CreateScreen() {
+  return nullptr;
+}
 
 const OzonePlatform::PlatformProperties&
 OzonePlatform::GetPlatformProperties() {
