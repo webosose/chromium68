@@ -88,7 +88,8 @@ class WindowManagerWayland
   void OnGpuServiceLaunched(
       scoped_refptr<base::SingleThreadTaskRunner> host_runner,
       scoped_refptr<base::SingleThreadTaskRunner> io_runner,
-      GpuHostBindInterfaceCallback binder) override;
+      GpuHostBindInterfaceCallback binder,
+      GpuHostTerminateCallback terminate_callback) override;
   void MotionNotify(float x, float y);
   void ButtonNotify(unsigned handle,
                     EventType type,

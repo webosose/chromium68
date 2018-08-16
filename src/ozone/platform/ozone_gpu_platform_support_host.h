@@ -43,7 +43,8 @@ class OzoneGpuPlatformSupportHost : public GpuPlatformSupportHost,
   void OnGpuServiceLaunched(
       scoped_refptr<base::SingleThreadTaskRunner> host_runner,
       scoped_refptr<base::SingleThreadTaskRunner> io_runner,
-      GpuHostBindInterfaceCallback binder) override;
+      GpuHostBindInterfaceCallback binder,
+      GpuHostTerminateCallback terminate_callback) override;
 
   // IPC::Listener:
   void OnMessageReceived(const IPC::Message& message) override;

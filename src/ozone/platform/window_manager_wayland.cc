@@ -245,8 +245,8 @@ void WindowManagerWayland::OnChannelDestroyed(int host_id) {
 void WindowManagerWayland::OnGpuServiceLaunched(
     scoped_refptr<base::SingleThreadTaskRunner> host_runner,
     scoped_refptr<base::SingleThreadTaskRunner> io_runner,
-    GpuHostBindInterfaceCallback binder) {
-}
+    GpuHostBindInterfaceCallback binder,
+    GpuHostTerminateCallback terminate_callback) {}
 
 void WindowManagerWayland::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(WindowManagerWayland, message)
