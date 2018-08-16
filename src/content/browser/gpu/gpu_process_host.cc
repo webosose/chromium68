@@ -593,6 +593,14 @@ void GpuProcessHost::BindInterface(
                                               std::move(interface_pipe));
 }
 
+void GpuProcessHost::TerminateGpuProcess(const std::string& message) {
+  // At the moment, this path is only used by Ozone/Wayland. Once others start
+  // to use this, start to distinguish the origin of termination. By default,
+  // it's unknown.
+  termination_origin_ = GpuTerminationOrigin::kOzoneWaylandProxy;
+  process_->TerminateOnBadMessageReceived(message);
+}
+
 // static
 GpuProcessHost* GpuProcessHost::FromID(int host_id) {
   DCHECK_CURRENTLY_ON(BrowserThread::IO);
@@ -720,6 +728,9 @@ GpuProcessHost::~GpuProcessHost() {
                                      info.exit_code);
         break;
       case base::TERMINATION_STATUS_PROCESS_WAS_KILLED:
+        UMA_HISTOGRAM_ENUMERATION("GPU.GPUProcessTerminationOrigin",
+                                  termination_origin_,
+                                  GpuTerminationOrigin::kMax);
         message = "You killed the GPU process! Why?";
         break;
 #if defined(OS_CHROMEOS)
@@ -755,26 +766,31 @@ void GpuProcessHost::InitOzone() {
   // possible to ensure the latter always has a valid device. crbug.com/608839
   // When running with mus, the OzonePlatform may not have been created yet. So
   // defer the callback until OzonePlatform instance is created.
-  base::CommandLine* browser_command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (browser_command_line->HasSwitch(switches::kEnableDrmMojo)) {
+  bool using_mojo = true;
+#if defined(OS_CHROMEOS)
+  using_mojo = features::IsOzoneDrmMojo();
+#endif
+  if (using_mojo) {
     // TODO(rjkroege): Remove the legacy IPC code paths when no longer
     // necessary. https://crbug.com/806092
     auto interface_binder = base::BindRepeating(&GpuProcessHost::BindInterface,
                                                 weak_ptr_factory_.GetWeakPtr());
+    auto terminate_cb = base::BindOnce(&GpuProcessHost::TerminateGpuProcess,
+                                       weak_ptr_factory_.GetWeakPtr());
 
     auto io_callback = base::BindOnce(
         [](const base::RepeatingCallback<void(const std::string&,
                                               mojo::ScopedMessagePipeHandle)>&
                interface_binder,
+           base::OnceCallback<void(const std::string&)> terminate_cb,
            ui::OzonePlatform* platform) {
           DCHECK_CURRENTLY_ON(BrowserThread::IO);
           platform->GetGpuPlatformSupportHost()->OnGpuServiceLaunched(
               BrowserThread::GetTaskRunnerForThread(BrowserThread::UI),
               BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-              interface_binder);
+              interface_binder, std::move(terminate_cb));
         },
-        interface_binder);
+        interface_binder, std::move(terminate_cb));
 
     OzoneRegisterStartupCallbackHelper(std::move(io_callback));
   } else {

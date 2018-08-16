@@ -100,11 +100,13 @@ void OzoneGpuPlatformSupportHost::OnChannelDestroyed(int host_id) {
 }
 
 void OzoneGpuPlatformSupportHost::OnGpuServiceLaunched(
-      scoped_refptr<base::SingleThreadTaskRunner> host_runner,
-      scoped_refptr<base::SingleThreadTaskRunner> io_runner,
-      GpuHostBindInterfaceCallback binder) {
+    scoped_refptr<base::SingleThreadTaskRunner> host_runner,
+    scoped_refptr<base::SingleThreadTaskRunner> io_runner,
+    GpuHostBindInterfaceCallback binder,
+    GpuHostTerminateCallback terminate_callback) {
   for (size_t i = 0; i < handlers_.size(); ++i)
-    handlers_[i]->OnGpuServiceLaunched(host_runner, io_runner, binder);
+    handlers_[i]->OnGpuServiceLaunched(host_runner, io_runner, binder,
+                                       std::move(terminate_callback));
 }
 
 void OzoneGpuPlatformSupportHost::OnMessageReceived(

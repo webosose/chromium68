@@ -54,10 +54,10 @@ void InputMethodContextManager::OnGpuProcessLaunched(
 }
 
 void InputMethodContextManager::OnGpuServiceLaunched(
-      scoped_refptr<base::SingleThreadTaskRunner> host_runner,
-      scoped_refptr<base::SingleThreadTaskRunner> io_runner,
-      GpuHostBindInterfaceCallback binder) {
-}
+    scoped_refptr<base::SingleThreadTaskRunner> host_runner,
+    scoped_refptr<base::SingleThreadTaskRunner> io_runner,
+    GpuHostBindInterfaceCallback binder,
+    GpuHostTerminateCallback terminate_callback) {}
 
 void InputMethodContextManager::OnChannelDestroyed(int host_id) {
 }
