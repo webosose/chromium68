@@ -1910,6 +1910,12 @@ static_library("base_static") {
     configs -= [ "//build/config/compiler:default_optimization" ]
     configs += [ "//build/config/compiler:optimize_max" ]
   }
+
+  if (use_neva_appruntime) {
+    public_deps = [
+      "//base/neva",
+    ]
+  }
 }
 
 component("i18n") {

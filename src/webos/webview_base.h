@@ -220,6 +220,8 @@ class WEBOS_EXPORT WebViewBase
   void SetTrustLevel(const std::string& trust_level);
   void SetAppPath(const std::string& app_path);
   void SetBackHistoryAPIDisabled(const bool on);
+  void SetV8SnapshotPath(const std::string& v8_snapshot_path);
+  void SetV8ExtraFlags(const std::string& v8_extra_flags);
 
   // WebViewDelegate
   void DidFirstNonBlankPaint() override {};

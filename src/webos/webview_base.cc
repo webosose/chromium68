@@ -42,22 +42,6 @@ WebViewBase::WebViewBase(int width, int height)
   injection_browser_control_handler_->SetDelegate(this);
   webview_->SetDelegate(this);
   PushStateToIOThread();
-
-  if (GetWebContents()) {
-    // The arcitecture of using WebContentsImpl is not good way and is not what
-    // we want to do
-    // Need to change it
-    content::RenderViewHost* rvh = GetWebContents()->GetRenderViewHost();
-    if (!rvh->IsRenderViewLive()) {
-      // TODO(pikulik): should be revised
-      content::WebContentsImpl* webcontents_impl =
-          static_cast<content::WebContentsImpl*>(GetWebContents());
-      webcontents_impl->CreateRenderViewForRenderManager(
-          rvh, MSG_ROUTING_NONE, MSG_ROUTING_NONE,
-          rvh->GetMainFrame()->GetDevToolsFrameToken(),
-          content::FrameReplicationState());
-    }
-  }
 }
 
 WebViewBase::~WebViewBase() {
@@ -74,9 +58,26 @@ void WebViewBase::Initialize(const std::string& app_id,
   SetAppPath(app_path);
   SetTrustLevel(trust_level);
   SetAppId(app_id);
+  SetV8SnapshotPath(v8_snapshot_path);
+  SetV8ExtraFlags(v8_extra_flags);
 
-  NOTIMPLEMENTED() << "setup v8 snapshot path, v8 extra flags,"
-                   << " native scrolls, allow mouse on/off event";
+  if (GetWebContents()) {
+    // The arcitecture of using WebContentsImpl is not good way and is not what
+    // we want to do
+    // Need to change it
+    content::RenderViewHost* rvh = GetWebContents()->GetRenderViewHost();
+    if (!rvh->IsRenderViewLive()) {
+      // TODO(pikulik): should be revised
+      content::WebContentsImpl* webcontents_impl =
+          static_cast<content::WebContentsImpl*>(GetWebContents());
+      webcontents_impl->CreateRenderViewForRenderManager(
+          rvh, MSG_ROUTING_NONE, MSG_ROUTING_NONE,
+          rvh->GetMainFrame()->GetDevToolsFrameToken(),
+          content::FrameReplicationState());
+    }
+  }
+
+  NOTIMPLEMENTED() << " native scrolls, allow mouse on/off event";
 }
 
 content::WebContents* WebViewBase::GetWebContents() {
@@ -680,6 +681,14 @@ app_runtime::WebViewProfile* WebViewBase::GetProfile() const {
 
 void WebViewBase::SetProfile(app_runtime::WebViewProfile* profile) {
   webview_->SetProfile(profile);
+}
+
+void WebViewBase::SetV8SnapshotPath(const std::string& v8_snapshot_path) {
+  webview_->SetV8SnapshotPath(v8_snapshot_path);
+}
+
+void WebViewBase::SetV8ExtraFlags(const std::string& v8_extra_flags) {
+  webview_->SetV8ExtraFlags(v8_extra_flags);
 }
 
 }  // namespace webos

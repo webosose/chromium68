@@ -18,6 +18,7 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "base/neva/base_switches.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
@@ -112,6 +113,28 @@ void AppRuntimeContentBrowserClient::AppendExtraCommandLineSwitches(
     base::CommandLine* command_line,
     int child_process_id) {
   command_line->AppendSwitch(service_manager::switches::kNoSandbox);
+
+  // Append v8 snapshot path if exists
+  auto iter = v8_snapshot_pathes_.find(child_process_id);
+  if (iter != v8_snapshot_pathes_.end()) {
+    command_line->AppendSwitchPath(switches::kV8SnapshotBlobPath,
+                                   base::FilePath(iter->second));
+    v8_snapshot_pathes_.erase(iter);
+  }
+
+  // Append v8 extra flags if exists
+  iter = v8_extra_flags_.find(child_process_id);
+  if (iter != v8_extra_flags_.end()) {
+    std::string js_flags = iter->second;
+    // If already has, append it also
+    if (command_line->HasSwitch(switches::kJavaScriptFlags)) {
+      js_flags.append(" ");
+      js_flags.append(
+          command_line->GetSwitchValueASCII(switches::kJavaScriptFlags));
+    }
+    command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);
+    v8_extra_flags_.erase(iter);
+  }
 }
 
 content::DevToolsManagerDelegate*
@@ -128,6 +151,18 @@ void AppRuntimeContentBrowserClient::OverrideWebkitPrefs(
   RenderViewHostDelegate* delegate = render_view_host->GetDelegate();
   if (delegate)
     delegate->OverrideWebkitPrefs(prefs);
+}
+
+void AppRuntimeContentBrowserClient::SetV8SnapshotPath(
+    int child_process_id,
+    const std::string& path) {
+  v8_snapshot_pathes_.insert(
+      std::make_pair(child_process_id, path));
+}
+
+void AppRuntimeContentBrowserClient::SetV8ExtraFlags(int child_process_id,
+                                                     const std::string& flags) {
+  v8_extra_flags_.insert(std::make_pair(child_process_id, flags));
 }
 
 }  // namespace app_runtime

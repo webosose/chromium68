@@ -1087,4 +1087,14 @@ void WebView::OverrideWebkitPrefs(content::WebPreferences* prefs) {
       web_preferences_->fantasy_font_family_map[content::kCommonScript];
 }
 
+void WebView::SetV8SnapshotPath(const std::string& v8_snapshot_path) {
+  GetAppRuntimeContentBrowserClient()->SetV8SnapshotPath(
+      web_contents_->GetMainFrame()->GetProcess()->GetID(), v8_snapshot_path);
+}
+
+void WebView::SetV8ExtraFlags(const std::string& v8_extra_flags) {
+  GetAppRuntimeContentBrowserClient()->SetV8ExtraFlags(
+      web_contents_->GetMainFrame()->GetProcess()->GetID(), v8_extra_flags);
+}
+
 }  // namespace app_runtime

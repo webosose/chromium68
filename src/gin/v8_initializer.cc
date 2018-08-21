@@ -35,6 +35,11 @@
 #endif
 #endif  // V8_USE_EXTERNAL_STARTUP_DATA
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "base/command_line.h"
+#include "base/neva/base_switches.h"
+#endif
+
 namespace gin {
 
 namespace {
@@ -265,11 +270,34 @@ void V8Initializer::Initialize(IsolateHolder::ScriptMode mode,
   GetMappedFileData(g_mapped_natives, &natives);
   v8::V8::SetNativesDataBlob(&natives);
 
+#if defined(USE_NEVA_APPRUNTIME)
+  base::MemoryMappedFile* mapped_snapshot = g_mapped_snapshot;
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kV8SnapshotBlobPath)) {
+    base::FilePath file_path =
+        base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+            switches::kV8SnapshotBlobPath);
+    std::unique_ptr<base::MemoryMappedFile> custom_snapshot(
+        new base::MemoryMappedFile());
+    if (custom_snapshot->Initialize(file_path)) {
+      mapped_snapshot = custom_snapshot.release();
+      LOG(INFO) << __func__ << ": V8 Custom snapshot_blob loaded: "
+                << file_path.value().c_str();
+    }
+  }
+
+  if (mapped_snapshot != nullptr) {
+    v8::StartupData snapshot;
+    GetMappedFileData(mapped_snapshot, &snapshot);
+    v8::V8::SetSnapshotDataBlob(&snapshot);
+  }
+#else
   if (g_mapped_snapshot) {
     v8::StartupData snapshot;
     GetMappedFileData(g_mapped_snapshot, &snapshot);
     v8::V8::SetSnapshotDataBlob(&snapshot);
   }
+#endif  // USE_NEVA_APPRUNTIME
 #endif  // V8_USE_EXTERNAL_STARTUP_DATA
 
   v8::V8::SetEntropySource(&GenerateEntropy);

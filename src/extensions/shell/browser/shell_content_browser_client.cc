@@ -56,6 +56,10 @@
 #include "content/public/browser/child_process_data.h"
 #endif
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "base/neva/base_switches.h"
+#endif
+
 using base::CommandLine;
 using content::BrowserContext;
 using content::BrowserThread;
@@ -163,6 +167,16 @@ void ShellContentBrowserClient::SiteInstanceGotProcess(
   if (!extension)
     return;
 
+#if defined(USE_NEVA_APPRUNTIME)
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          ::switches::kV8SnapshotBlobPath)) {
+    v8_snapshot_path_ =
+        std::make_pair(site_instance->GetProcess()->GetID(),
+                       base::CommandLine::ForCurrentProcess()
+                           ->GetSwitchValuePath(::switches::kV8SnapshotBlobPath)
+                           .value());
+  }
+#endif
   ProcessMap::Get(browser_main_parts_->browser_context())
       ->Insert(extension->id(),
                site_instance->GetProcess()->GetID(),
@@ -211,6 +225,13 @@ void ShellContentBrowserClient::AppendExtraCommandLineSwitches(
       command_line->GetSwitchValueASCII(::switches::kProcessType);
   if (process_type == ::switches::kRendererProcess)
     AppendRendererSwitches(command_line);
+#if defined(USE_NEVA_APPRUNTIME)
+  // Append v8 snapshot path if given
+  if (v8_snapshot_path_.first == child_process_id) {
+    command_line->AppendSwitchPath(::switches::kV8SnapshotBlobPath,
+                                   base::FilePath(v8_snapshot_path_.second));
+  }
+#endif
 }
 
 content::SpeechRecognitionManagerDelegate*

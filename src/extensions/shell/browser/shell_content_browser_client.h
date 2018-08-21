@@ -105,6 +105,11 @@ class ShellContentBrowserClient : public content::ContentBrowserClient {
   // Owned by ShellBrowserMainParts.
   ShellBrowserMainDelegate* browser_main_delegate_;
 
+#if defined(USE_NEVA_APPRUNTIME)
+  // Store the path of V8 snapshot blob for app_shell.
+  std::pair<int, std::string> v8_snapshot_path_;
+#endif
+
   DISALLOW_COPY_AND_ASSIGN(ShellContentBrowserClient);
 };
 

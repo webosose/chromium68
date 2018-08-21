@@ -75,6 +75,9 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
   void SetPluginLoaded(bool loaded) { plugin_loaded_ = loaded; }
 #endif
 
+  void SetV8SnapshotPath(int child_process_id, const std::string& path);
+  void SetV8ExtraFlags(int child_process_id, const std::string& flags);
+
  private:
   class MainURLRequestContextGetter;
 
@@ -88,6 +91,9 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
 #if defined(ENABLE_PLUGINS)
   bool plugin_loaded_;
 #endif
+
+  std::map<int, std::string> v8_snapshot_pathes_;
+  std::map<int, std::string> v8_extra_flags_;
 };
 
 }  // namespace app_runtime

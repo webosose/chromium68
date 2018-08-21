@@ -184,6 +184,8 @@ class WebView : public content::WebContentsDelegate,
   void RequestClearInjections();
   bool IsKeyboardVisible() const;
   void ResetStateToMarkNextPaintForContainer();
+  void SetV8SnapshotPath(const std::string& v8_snapshot_path);
+  void SetV8ExtraFlags(const std::string& v8_extra_flags);
 
   // WebContentsDelegate
   void LoadProgressChanged(content::WebContents* source,
