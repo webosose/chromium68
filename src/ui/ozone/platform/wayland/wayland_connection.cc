@@ -26,13 +26,14 @@ static_assert(XDG_SHELL_VERSION_CURRENT == 5, "Unsupported xdg-shell version");
 namespace ui {
 
 namespace {
-const uint32_t kMaxCompositorVersion = 4;
-const uint32_t kMaxLinuxDmabufVersion = 1;
-const uint32_t kMaxSeatVersion = 4;
-const uint32_t kMaxShmVersion = 1;
-const uint32_t kMaxXdgShellVersion = 1;
-const uint32_t kMaxDeviceManagerVersion = 3;
+constexpr uint32_t kMaxCompositorVersion = 4;
+constexpr uint32_t kMaxLinuxDmabufVersion = 1;
+constexpr uint32_t kMaxSeatVersion = 4;
+constexpr uint32_t kMaxShmVersion = 1;
+constexpr uint32_t kMaxXdgShellVersion = 1;
+constexpr uint32_t kMaxDeviceManagerVersion = 3;
 constexpr uint32_t kMaxTextInputManagerVersion = 1;
+constexpr uint32_t kMaxWpPresentationVersion = 1;
 
 std::unique_ptr<WaylandDataSource> CreateWaylandDataSource(
     WaylandDataDeviceManager* data_device_manager,
@@ -455,6 +456,10 @@ void WaylandConnection::Global(void* data,
       LOG(ERROR) << "Failed to bind to zwp_text_input_manager_v1 global";
       return;
     }
+  } else if (!connection->presentation_ &&
+             (strcmp(interface, "wp_presentation") == 0)) {
+    connection->presentation_ =
+        wl::Bind<wp_presentation>(registry, name, kMaxWpPresentationVersion);
   }
 
   connection->ScheduleFlush();

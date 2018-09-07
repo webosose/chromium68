@@ -78,6 +78,7 @@ class WaylandConnection : public PlatformEventSource,
   zwp_text_input_manager_v1* text_input_manager_v1() {
     return text_input_manager_v1_.get();
   }
+  wp_presentation* presentation() const { return presentation_.get(); }
 
   WaylandWindow* GetWindow(gfx::AcceleratedWidget widget);
   WaylandWindow* GetCurrentFocusedWindow();
@@ -198,6 +199,7 @@ class WaylandConnection : public PlatformEventSource,
   wl::Object<xdg_shell> shell_;
   wl::Object<zxdg_shell_v6> shell_v6_;
   wl::Object<zwp_text_input_manager_v1> text_input_manager_v1_;
+  wl::Object<wp_presentation> presentation_;
 
   std::unique_ptr<WaylandDataDeviceManager> data_device_manager_;
   std::unique_ptr<WaylandDataDevice> data_device_;
