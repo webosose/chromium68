@@ -6,9 +6,8 @@
 #define THIRD_PARTY_BLINK_RENDERER_PLATFORM_NEVA_PARTITION_ALLOC_MEMORY_TRACE_PROVIDER_H_
 
 #include "base/trace_event/neva/memory_trace_provider.h"
-#include "public/platform/WebCommon.h"
-#include "platform/wtf/Noncopyable.h"
-#include "platform/wtf/ThreadingPrimitives.h"
+#include "third_party/blink/public/platform/web_common.h"
+#include "third_party/blink/renderer/platform/wtf/noncopyable.h"
 
 namespace blink {
 namespace neva {

@@ -68,7 +68,7 @@
 
 #if defined(USE_MEMORY_TRACE)
 #include "base/trace_event/neva/memory_trace_manager.h"
-#include "platform/neva/partition_alloc_memory_trace_provider.h"
+#include "third_party/blink/renderer/platform/neva/partition_alloc_memory_trace_provider.h"
 #endif
 
 namespace blink {

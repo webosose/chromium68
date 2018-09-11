@@ -10,7 +10,6 @@
 
 #include "base/allocator/allocator_extension.h"
 #include "base/allocator/allocator_shim.h"
-#include "base/allocator/features.h"
 #include "build/build_config.h"
 
 namespace base {

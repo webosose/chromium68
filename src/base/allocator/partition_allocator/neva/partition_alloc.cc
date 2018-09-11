@@ -20,7 +20,7 @@
 namespace base {
 
 void PartitionDumpBucketStats(PartitionBucketMemoryStats* stats_out,
-                              const PartitionBucket* bucket);
+                              const internal::PartitionBucket* bucket);
 
 namespace neva {
 
@@ -42,7 +42,7 @@ void PartitionTraceStatsGeneric(PartitionRootGeneric* partition,
     subtle::SpinLock::Guard guard(partition->lock);
 
     for (size_t i = 0; i < kGenericNumBuckets; ++i) {
-      const PartitionBucket* bucket = &partition->buckets[i];
+      const internal::PartitionBucket* bucket = &partition->buckets[i];
       // Don't report the pseudo buckets that the generic allocator sets up in
       // order to preserve a fast size->bucket map (see
       // PartitionAllocGenericInit for details).
@@ -58,7 +58,7 @@ void PartitionTraceStatsGeneric(PartitionRootGeneric* partition,
       }
     }
 
-    for (PartitionDirectMapExtent *extent = partition->direct_map_list;
+    for (internal::PartitionDirectMapExtent *extent = partition->direct_map_list;
          extent && num_direct_mapped_allocations < kMaxReportableDirectMaps;
          extent = extent->next_extent, ++num_direct_mapped_allocations) {
       DCHECK(!extent->next_extent ||
