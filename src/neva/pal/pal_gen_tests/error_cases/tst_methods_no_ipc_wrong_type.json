@@ -1,0 +1,11 @@
+{
+    "name": "MethodsNoIpcWrongType",
+    "methods": [
+      {
+          "method": "std::string GetValue",
+          "in_args": [],
+          "out_args": [],
+          "no_IPC": "13"
+      }
+    ]
+}

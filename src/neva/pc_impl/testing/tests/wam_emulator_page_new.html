@@ -1,0 +1,939 @@
+<html>
+  <head>
+    <style type="text/css">
+body {
+    background-color: black;
+    color: white;
+}
+
+.image {
+  width: 90px;
+  height: 190px;
+  float: left;
+  padding: 10px;
+  text-align: center;
+  border: thick solid black;
+}
+
+.image img {
+  width: 90px;
+}
+
+.image h1 {
+  height: 80px;
+  font: 20px solid Arial;
+  margin: 10px;
+}
+
+.image h1 span.description {
+  font-size: 70%;
+  display: inline-block;
+}
+
+h2#textbottom {
+   color:gray;
+   margin-top:50px;
+}
+
+div.block {
+  clear: both;
+  padding-top: 10px;
+}
+
+div.block > h1 {
+  margin-top: 2em;
+  font-size: 150%;
+}
+
+div.section {
+  height: 100px;
+  border: dashed thin white;
+  float: left;
+  padding: 8px 0 5px 0;
+  margin: 15px 10px auto;
+}
+
+div.section > div {
+  float: left;
+  margin: 0 auto;
+  padding: 0px 5px 0 5px;
+}
+
+div.section button {
+  float: left;
+}
+
+span.note {
+  font-size: 80%;
+  color: red;
+}
+
+h1 {
+  white-space: normal;
+  font-size: 16px;
+  margin: 0;
+  text-align: center;
+}
+
+h2 {
+  font-size: 14px;
+  margin: 0 0 0 5px;
+  text-align: center;
+}
+
+input:disabled {
+  color: black;
+  background-color: gray;
+  border: 0;
+}
+
+input.small {
+  width: 50px;
+}
+
+input,
+button {
+  height: 20px;
+  text-align: center;
+  margin: 5px;
+}
+
+button {
+  width: 80px;
+  height: 26px;
+}
+
+button#resetCompositorPainting {
+  width: 120px;
+}
+
+#textbottom {
+  position: fixed;
+  bottom: 5px;
+  right: 1em;
+  text-align: left;
+}
+    </style>
+    <script type="text/javascript" src="js/mock_server_urls.js"></script>
+    <script type="text/javascript" src="js/mock_server.js"></script>
+    <script type="text/javascript" src="js/wam_emulator.js"></script>
+    <title></title>
+  </head>
+  <body>
+    <h1>Neva testing page</h1>
+    <div class="apps">
+      <div class="image" id="bing" onclick="onClick(this.id, 'bing')">
+        <h1>App1</h1>
+        <img src="./images/bing.png" id="bing.img" alt="" name="bing"/>
+      </div>
+      <div class="image" id="espn" onclick="onClick(this.id, 'espn')">
+        <h1>App2</h1>
+        <img src="./images/espn.png" id="espn.img" alt="" name="espn"/>
+      </div>
+      <div class="image" id="imdb" onclick="onClick(this.id, 'imdb')">
+        <h1>App3</h1>
+        <img src="./images/imdb.png" id="imdb.img" alt="" name="imdb"/>
+      </div>
+      <div class="image" id="wiki" onclick="onClick(this.id, 'wiki')">
+        <h1>App4</h1>
+        <img src="./images/wiki.png" id="wiki.img" alt="" name="wiki"/>
+      </div>
+      <div class="image" id="yelp" onclick="onClick(this.id, 'yelp')">
+        <h1>App5</h1>
+        <img src="./images/yelp.png" id="yelp.img" alt="" name="yelp"/>
+      </div>
+      <div class="image" id="bbc" onclick="onClick(this.id, 'bbc')">
+        <h1>App6</h1>
+        <img src="./images/bbc.png" id="bbc.img" alt="" name="bbc"/>
+      </div>
+      <div class="image" id="youtube" onclick="onClick(this.id, 'youtube')">
+        <h1>App7</h1>
+        <img src="./images/youtube.png" id="youtube.img" alt="" name="youtube"/>
+      </div>
+      <div class="image" id="hid" onclick="onClick(this.id, 'hid')">
+        <h1>FR_73 HID</h1>
+        <img src="./images/hid.png" id="hid.img" alt="" name="hid"/>
+      </div>
+      <div class="image" id="auto" onclick="onClick(this.id, 'auto')">
+        <h1>FR_1..FR_5<span class="description">Sample injection autotest</span></h1>
+        <img src="./images/auto.png" id="auto.img" alt="" name="auto"/>
+      </div>
+      <div class="image" id="manual" onclick="onClick(this.id, 'manual')">
+        <h1>FR_1..FR_5<span class="description">Sample injection manual test</span></h1>
+        <img src="./images/manual.png" id="manual.img" alt="" name="manual"/>
+      </div>
+      <div class="image" id="xframe" onclick="onClick(this.id, 'xframe')">
+        <h1>FR_17 (FR_86) XFrame</h1>
+        <img src="./images/xframe.png" id="xframe.img" alt="" name="xframe"/>
+      </div>
+      <div class="image" id="vps" onclick="onClick(this.id, 'vps')">
+        <h1>Viewport size</h1>
+        <img src="./images/vps.png" id="vps.img" alt="" name="vps"/>
+      </div>
+      <div class="image" id="fbt" onclick="onClick(this.id, 'fbt')">
+        <h1>Fake bold text</h1>
+        <img src="./images/fbt.png" id="fbt.img" alt="" name="fbt"/>
+      </div>
+      <div class="image" id="htmlkb" onClick="onClick(this.id, 'htmlkb')">
+        <h1>Html VKB</h1>
+        <img src="./images/htmlvkb.png" id="htmlkb.img" alt="" name="htmlkb">
+      </div>
+      <div class="image" id="browsercontrol" onClick="onClick(this.id, 'browsercontrol')">
+        <h1>Browser Control</h1>
+        <img src="./images/browsercontrol.png" id="browsercontrol.img" alt="" name="browsercontrol">
+      </div>
+      <div class="image" id="visibilitystate" onClick="onClick(this.id, 'visibilitystate')">
+        <h1>Visibility State</h1>
+        <img src="./images/vs.png" id="visibilitystate.img" alt="" name="visibilitystate">
+      </div>
+    </div>
+    <div class="block">
+      <h1>App lifecycle</h1>
+      <div class="section">
+        <h1>FR_6, FR_9<br>Create<br>application</h1>
+        <button id="launchApp" onclick="runDirectCommand('launchApp')">Shown</button>
+        <button id="launchHiddenApp" onclick="runDirectCommand('launchHiddenApp')">Hidden</button>
+      </div>
+      <div class="section">
+        <h1>FR_1..FR_5, FR_10<br>Injections</h1>
+        <h2>Put a list of injections to be loaded<br>on app launch into this input (ex: v8/sample)</h2>
+        <input id="injections_input" style="width: 320px" type="text"/>
+        <button id="clearInjections" onclick="runDirectCommand('clearInjections')">Clear</button>
+      </div>
+      <div class="section">
+        <h1>FR_11<br>Destroy<br>application</h1>
+        <button id="stopApp" onclick="runDirectCommand('stopApp')">Close</button>
+        <button id="killApp" onclick="runDirectCommand('killApp')">Kill</button>
+      </div>
+      <div class="section">
+        <h1>FR_16, FR_25<br>Renderer process ID</h1>
+        <div>
+          <h2>
+            <button id="getPid" onclick="runDirectCommand('getPid')">Get</button>
+          </h2>
+          <input class="small" type="text" id="get_render_process_pid" disabled="disabled"/>
+        </div>
+        <div>
+          <h2>FR_25:Auto</h2>
+          <input id="render_process_pid" type="text" class="small" value="0" disabled="disabled"/>
+        </div>
+      </div>
+      <div class="section">
+        <h1>SetInspectable</h1>
+        <button id="setInspectableOn" onclick="setInspectable(true)">On</button>
+        <button id="setInspectableOff" onclick="setInspectable(false)">Off</button>
+      </div>
+      <div class="section">
+        <h1>DevTools</h1>
+        <button id="getDevToolsEndpoint" onclick="runDirectCommand('getDevToolsEndpoint')">Get</button>
+        <div>
+          <h2>Port</h2>
+          <input class="small" type="text" id="dev_tools_port" disabled="disabled"/>
+        </div>
+        <a id="dev_tools_link" href="#" target="_blank">...</a>
+      </div>
+      <div class="section">
+        <h1>EnableInspectablePage</h1>
+        <button id="enableInspectablePage" onclick="runDirectCommand('enableInspectablePage')">Enable</button>
+      </div>
+      <div class="section">
+        <h1>FR_41, FR_42<br>Suspend/Resume</h1>
+        <div>
+          <h2>DOM activity</h2>
+          <button id="suspendDOM" onclick="runDirectCommand('suspendDOM')">Suspend</button>
+          <button id="resumeDOM" onclick="runDirectCommand('resumeDOM')">Resume</button>
+        </div>
+        <div>
+          <h2>Media</h2>
+          <button id="suspendMedia" onclick="runDirectCommand('suspendMedia')">Suspend</button>
+          <button id="resumeMedia" onclick="runDirectCommand('resumeMedia')">Resume</button>
+        </div>
+        <div>
+          <h2>Painting</h2>
+          <button id="suspendPainting" onclick="runDirectCommand('suspendPainting')">Suspend</button>
+          <button id="resumePainting" onclick="runDirectCommand('resumePainting')">Resume</button>
+          <button id="resetCompositorPainting" onclick="runDirectCommand('resetCompositorPainting')">Reset compositor</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>FR_8<br>Navigate application</h1>
+        <div>
+          <h2>URL<br></h2>
+          <input id="url_data_value_input" style="width: 420px" type="text"/>
+        </div>
+        <div>
+          <h2>FR_8:Change<br>URL</h2>
+          <button id="changeURL" onclick="changeURL()">Change</button>
+        </div>
+        <div>
+          <h2>FR_50:Replace<br>base URL</h2>
+          <button id="replaceBaseURL" onclick="replaceBaseURL()">Replace</button>
+        </div>
+        <div>
+          <h2>Reset to<br>default URL</h2>
+          <button id="resetToDefaultURL" onclick="resetToDefaultURL()">Reset</button>
+        </div>
+        <div>
+          <h2>Stop/<br>Reload</h2>
+          <button id="stopReloadButton" type="button" onclick="stopOrReload()">Stop</button>
+        </div>
+        <div>
+          <h2>Go<br>back</h2>
+          <button id="goBack" onclick="runDirectCommand('goBack'), runDirectCommand('canGoBack')">&lt;-</button>
+        </div>
+        <div>
+          <h2>Can<br>go back</h2>
+          <button id="GoBack" onclick="runDirectCommand('canGoBack')">?</button>
+          <input type="text" id="can_go_back" disabled>
+        </div>
+      </div>
+      <div class="section">
+        <h1>Run JS </h1>
+        <div>
+          <h2>In main app</h2>
+          <button onclick="runJavaScript()">Run</button>
+          <input id="javascript_code" type="text" value="document.body.style.background='darkslategray'">
+        </div>
+        <div>
+          <h2>In all frames</h2>
+          <button onclick="runDirectCommand('runJSInAllFrames')">Run</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>Target board</h1>
+        <div>
+          <h2>Type</h2>
+          <input id="set_board_type_input" type="text" value="type">
+          <button id="setBoardType" onclick="setBoardType()">Set</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>FR_46, FR_69<br>VKB</h1>
+        <div>
+          <h2>FR_46<br>HTML keyboard</h2>
+          <button id="setHTMLSystemKeyboardEnabled" onclick="runDirectCommand('setHTMLSystemKeyboardEnabled')">HTML KB</button>
+        </div>
+        <div>
+          <h2>FR_46: SetUseVirtualKeyboard</h2>
+          <button id="setUseVirtualKeyboardOn" onclick="runDirectCommandWithArgs('setUseVirtualKeyboard', { enable: 'true' })">On</button>
+          <button id="setUseVirtualKeyboardOff"  onclick="runDirectCommandWithArgs('setUseVirtualKeyboard', { enable: 'false' })">Off</button>
+        </div>
+        <div>
+          <h2>FR_69: IsKeyboardVisible</h2>
+          <button id="isKeyboardVisible" onclick="runDirectCommand('isKeyboardVisible')">?</button>
+          <input type="text" id="keyboard_visibility" disabled>
+        </div>
+      </div>
+      <div class="section">
+        <h1>User profile</h1>
+        <div>
+          <h2>Proxy server</h2>
+          <input id="proxy_server_name" value="set.proxy.server.net" type="text">
+          <input id="proxy_server_port" value="8888" type="text">
+          <button id="setProxyServer" onclick="setProxyServer()">Set</button>
+        </div>
+        <div>
+          <h2>Set Additional Headers</h2>
+          <input id="header" value="Referrer" type="text">
+          <input id="value" value="www.ru" type="text">
+          <button id="setAdditionalHeader" onclick="setAdditionalHeader()">Set</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>FR_65 SSL</h1>
+        <div>
+          <h2>Ignore SSL<br>Error</h2>
+          <button id="ignoreSSLError" onclick="runDirectCommand('ignoreSSLError')">Ignore</button>
+        </div>
+        <div>
+          <h2>Decide<br>Response</h2>
+          <button id="decidePolicyForResponse" onclick="runDirectCommand('decidePolicyForResponse')">Policy</button>
+        </div>
+      </div>
+      <div class="section">
+       <h1>Preferences: attributes</h1>
+        <div>
+          <h2>FR_86<br>Cross Origin Security</h2>
+          <button id="allowXFrameSameOrigin" onclick="runDirectCommand('allowXFrameSameOrigin')">XFrame</button>
+        </div>
+        <div>
+          <h2>FR_87<br>Universal Access<br>From File Urls</h2>
+          <button id="allowUniversalAccessFromFileUrls" onclick="runDirectCommand('allowUniversalAccessFromFileUrls')">Allow</button>
+        </div>
+        <div>
+          <h2>FR_88<br>Set accept languages</h2>
+          <button id="setAcceptLanguage" onclick="runDirectCommand('setAcceptLanguage')">Ko</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>User Agent</h1>
+        <div>
+          <button id="getUserAgent" onclick="runDirectCommand('getUserAgent')">Get</button>
+          <input id="user_agent_output" type="text" disabled>
+        </div>
+        <div>
+          <button id="setUserAgent" onclick="setUserAgent()">Set</button>
+          <input id="user_agent_input" type="text">
+        </div>
+      </div>
+      <div class="section">
+        <h1>Set MediaCodecCapability</h1>
+        <div>
+          <button id="setMediaCodecCapability" onclick="setMediaCodecCapability()">Set</button>
+          <textarea id="media_codec_capability_json" rows="4" cols="50">
+{
+  "version" : "1.0",
+  "videoCodecs" : [
+    {
+      "name" : "H.264",
+      "maxWidth" : 4096,
+      "maxHeight" : 2304,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 50
+    },
+
+    {
+      "name" : "HEVC",
+      "maxWidth" : 4096,
+      "maxHeight" : 2176,
+      "maxFrameRate" : 60,
+      "maxBitRate" : 50
+    },
+
+    {
+      "name" : "DivX",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "XviD",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "H.263",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "MPEG1",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "MPEG2",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "MPEG4",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "MP4S",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "MPS2",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "MP43",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "MJPEG",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "RV30",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "RV40",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "WMV",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "VP8",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    },
+
+    {
+      "name" : "VP9",
+      "maxWidth" : 4096,
+      "maxHeight" : 2304,
+      "maxFrameRate" : 60,
+      "maxBitRate" : 50
+    },
+
+    {
+      "name" : "AVS",
+      "maxWidth" : 1920,
+      "maxHeight" : 1088,
+      "maxFrameRate" : 30,
+      "maxBitRate" : 40
+    }
+  ],
+  "audioCodecs" : [
+    {
+      "name" : "MPEG",
+      "channels" : 2
+    },
+
+    {
+      "name" : "AAC",
+      "channels" : 6
+    },
+
+    {
+      "name" : "WMA",
+      "channels" : 6
+    },
+
+    {
+      "name" : "WMAP",
+      "channels" : 8
+    },
+
+    {
+      "name" : "WMAL",
+      "channels" : 8
+    },
+
+    {
+      "name" : "PCM",
+      "channels" : 2
+    },
+
+    {
+      "name" : "LPCM",
+      "channels" : 2
+    },
+
+    {
+      "name" : "AC3",
+      "channels" : 6
+    },
+
+    {
+      "name" : "EAC3",
+      "channels" : 6
+    },
+
+    {
+      "name" : "DTS",
+      "channels" : 6
+    },
+
+    {
+      "name" : "DTSH",
+      "channels" : 6
+    },
+
+    {
+      "name" : "DTSE",
+      "channels" : 6
+    },
+
+    {
+      "name" : "DRA",
+      "channels" : 6
+    },
+
+    {
+      "name" : "Vorbis",
+      "channels" : 6
+    },
+
+    {
+      "name" : "RA6",
+      "channels" : 2
+    },
+
+    {
+      "name" : "RA8",
+      "channels" : 6
+    },
+
+    {
+      "name" : "AMR",
+      "channels" : 1
+    },
+
+    {
+      "name" : "FLAC",
+      "channels" : 6
+    }
+  ]
+}
+          </textarea>
+        </div>
+      </div>
+      <div class="section">
+        <h1>Media Capture Access Permission</h1>
+        <div>
+          <button id="setMediaCapturePermission" onclick="runDirectCommand('setMediaCapturePermission')">Set</button>
+        </div>
+        <div>
+          <button id="clearMediaCapturePermission" onclick="runDirectCommand('clearMediaCapturePermission')">Clear</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>Set Group Key Mask<br><span class="note">WebOS only</span></h1>
+        <div>
+          <h2>Group Key Mask</h2>
+          <select multiple id="group_key_mask_selector" size="3">
+            <option value="1">HOME</option>
+            <option value="2">BACK</option>
+            <option value="4">EXIT</option>
+            <option value="8">NAVIGATION_LEFT</option>
+            <option value="16">NAVIGATION_RIGHT</option>
+            <option value="32">NAVIGATION_UP</option>
+            <option value="64">NAVIGATION_DOWN</option>
+            <option value="128">NAVIGATION_OK</option>
+            <option value="256">NUMERIC_KEYS</option>
+            <option value="512">REMOTE_COLOR_RED</option>
+            <option value="1024">REMOTE_COLOR_GREEN</option>
+            <option value="2048">REMOTE_COLOR_YELLOW</option>
+            <option value="4096">REMOTE_COLOR_BLUE</option>
+            <option value="8192">REMOTE_PROGRAMME_GROUP</option>
+            <option value="16384">REMOTE_PLAYBACK_GROUP</option>
+            <option value="32768">REMOTE_TELETEXT_GROUP</option>
+            <option value="65536">LOCAL_LEFT</option>
+            <option value="131072">LOCAL_RIGHT</option>
+            <option value="262144">LOCAL_UP</option>
+            <option value="524288">LOCAL_DOWN</option>
+            <option value="1048576">LOCAL_OK</option>
+            <option value="2097152">REMOTE_MAGNIFIER_GROUP</option>
+          </select>
+        </div>
+        <div>
+          <h2>Set Group Mask</h2>
+          <button onclick="setGroupKeyMask()">Set</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>Set Key Mask<br><span class="note">WebOS only</span></h1>
+        <div>
+          <h2>Key Mask</h2>
+          <select id="key_mask_selector">
+            <option value="1">HOME</option>
+            <option value="2">BACK</option>
+            <option value="4">EXIT</option>
+            <option value="8">NAVIGATION_LEFT</option>
+            <option value="16">NAVIGATION_RIGHT</option>
+            <option value="32">NAVIGATION_UP</option>
+            <option value="64">NAVIGATION_DOWN</option>
+            <option value="128">NAVIGATION_OK</option>
+            <option value="256">NUMERIC_KEYS</option>
+            <option value="512">REMOTE_COLOR_RED</option>
+            <option value="1024">REMOTE_COLOR_GREEN</option>
+            <option value="2048">REMOTE_COLOR_YELLOW</option>
+            <option value="4096">REMOTE_COLOR_BLUE</option>
+            <option value="8192">REMOTE_PROGRAMME_GROUP</option>
+            <option value="16384">REMOTE_PLAYBACK_GROUP</option>
+            <option value="32768">REMOTE_TELETEXT_GROUP</option>
+            <option value="65536">LOCAL_LEFT</option>
+            <option value="131072">LOCAL_RIGHT</option>
+            <option value="262144">LOCAL_UP</option>
+            <option value="524288">LOCAL_DOWN</option>
+            <option value="1048576">LOCAL_OK</option>
+            <option value="2097152">REMOTE_MAGNIFIER_GROUP</option>
+          </select>
+        </div>
+        <div>
+          <h2>Set Mask</h2>
+          <button onclick="setKeyMask('true')">Set</button>
+          <button onclick="setKeyMask('false')">Unset</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>Set Input Region<br><br></h1>
+        <div>
+          <h2>Input Region</h2>
+          <select id="input_region_selector">
+            <option value="1">TOP-LEFT</option>
+            <option value="2">TOP-RIGHT</option>
+            <option value="3">BOTTOM-LEFT</option>
+            <option value="4">BOTTOM-RIGHT</option>
+          </select>
+        </div>
+        <div>
+          <h2>Set Region</h2>
+          <button onclick="setInputRegion()">Set</button>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <h1>User StyleSheet</h1>
+      <div>
+        <input id="user_style_sheet" value="body {background-color: red;}" type="text">
+        <button id="addUserStyleSheet" onclick="addUserStyleSheet()">Add</button>
+      </div>
+    </div>
+    <div class="section">
+      <h1>Do not track header</h1>
+      <div>
+        <button id="DoNotTrackOn" onclick="runDirectCommandWithArgs('doNotTrack', { enable: 'true' })">On</button>
+        <button id="DoNotTrackOff" onclick="runDirectCommandWithArgs('doNotTrack', { enable: 'false' })">Off</button>
+      </div>
+    </div>
+    <div class="section">
+      <h1>Web storages</h1>
+      <div>
+        <button id="deleteWebStorages" onclick="runDirectCommand('deleteWebStorages')">Delete</button>
+      </div>
+    </div>
+    <div class="block">
+      <h1>App appearance</h1>
+      <div class="section">
+        <h1>FR_36<br>Window</h1>
+        <div>
+          <h2>Width</h2>
+          <input class="small" id="launch_width_input" type="text" value="640" onkeyup="onUpdateWidth()"/>
+        </div>
+        <div>
+          <h2>Height</h2>
+          <input class="small" id="launch_height_input" type="text" value="480" onkeyup="onUpdateHeight()"/>
+        </div>
+        <div>
+          <h2>FR_82:Update bounds</h2>
+          <button id="updateAppWindow" onclick="updateAppWindow()">Update</button>
+        </div>
+        <div>
+          <h2>Fullscreen</h2>
+          <input type="checkbox" id="full_screen_cb" onclick="onFullScreenChanged();"/>
+        </div>
+        <div>
+          <h2>FR_36:Frameless</h2>
+          <input type="checkbox" id="frameless_window_cb"/>
+        </div>
+        <div>
+          <h2>Width</h2>
+          <input class="small" id="window_width_input" type="text" value="640"/>
+        </div>
+        <div>
+          <h2>Height</h2>
+          <input class="small" id="window_height_input" type="text" value="480"/>
+        </div>
+        <div>
+          <h2>Resize</h2>
+          <button id="resizeWindow" onclick="resizeWindow()">Resize</button>
+        </div>
+        <div>
+          <h2>Opacity</h2>
+          <input class="input_size_pos" id="opacity_input" type="range" min="0" max="1" step="0.1" value="0">
+          <button id="setOpacity" onclick="setOpacity()">Set</button>
+        </div>
+        <div>
+          <h2>Scale</h2>
+          <input class="input_size_pos" id="scale_factor_input" type="range" min="0.1" max="5" step="0.1" value="1">
+          <button id="setScaleFactor" onclick="setScaleFactor()">Set</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>Window state<br><span class="note">WebOS only</span></h1>
+        <div>
+          <h2>Fullscreen</h2>
+          <button id="setWindowStateFullscreen" onclick="setWindowState('3')">Set</button>
+        </div>
+        <div>
+          <h2>Maximize</h2>
+          <button id="setWindowStateMaximize" onclick="setWindowState('4')">Set</button>
+        </div>
+        <div>
+          <h2>Minimize</h2>
+          <button id="setWindowStateMinimize" onclick="setWindowState('5')">Set</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>Viewport size</h1>
+        <div>
+          <h2>Width</h2>
+          <input class="small" id="viewport_width_input" type="text" value="0"/>
+        </div>
+        <div>
+          <h2>Height</h2>
+          <input class="small" id="viewport_height_input" type="text" value="0"/>
+        </div>
+      </div>
+      <div class="section">
+        <h1>FR_33, FR_35<br>Application<br>visibility</h1>
+        <button id="showApp" onclick="runDirectCommand('showApp')">Show</button>
+        <button id="hideApp" onclick="runDirectCommand('hideApp')">Hide</button>
+        <button id="foregroundApp" onclick="runDirectCommand('foregroundApp')">Move_up</button>
+      </div>
+      <div class="section">
+        <h1>Background color</h1>
+        <div>
+          <h2>Red</h2>
+          <input id="red_channel_input" type="range" value="0" min="0" max="255"/>
+        </div>
+        <div>
+          <h2>Green</h2>
+          <input id="green_channel_input" type="range" value="0" min="0" max="255"/>
+        </div>
+        <div>
+          <h2>Blue</h2>
+          <input id="blue_channel_input" type="range" value="0" min="0" max="255"/>
+        </div>
+        <button id="updateWindowBackgroundColor" onclick="updateWindowBackgroundColor()">Update</button>
+      </div>
+      <div class="section">
+        <h1>FR_87<br>Font</h1>
+        <div>
+          <h2>PC</h2>
+          <button id="setFontFamilyArial" onclick="setFontFamily('Arial')">Arial</button>
+          <button id="setFontFamilyCourier" onclick="setFontFamily('Courier')">Courier</button>
+        </div>
+        <div>
+          <h2>webOS</h2>
+          <button id="setFontFamilyMiso" onclick="setFontFamily('Miso')">Miso</button>
+          <button id="isetFontFamilyDroidSans" onclick="setFontFamily('Droid Sans')">Droid</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>FR_38<br>Zoom</h1>
+        <input id="zoom_factor" class="small" type="text" value="0%" disabled="disabled"/>
+        <button id="onZoomDown" onclick="onZoomDown()">-</button>
+        <button id="onZoomUp" onclick="onZoomUp()">+</button>
+      </div>
+      <div class="section">
+        <h1>Set Window property</h1>
+        <div>
+          <h2>Name</h2>
+          <input id="set_window_property_name_input" type="text" value="name"/>
+        </div>
+        <div>
+          <h2>Value</h2>
+          <input id="set_window_property_value_input" type="text" value="value"/>
+        </div>
+        <button id="setWindowProperty" onclick="setWindowProperty()">Set</button>
+      </div>
+      <div class="section">
+        <h1>Fake bold text</h1>
+        <div>
+          <button onclick="runDirectCommandWithArgs('setAllowFakeBoldText', { allow: 'true' })">Allow</button>
+          <button onclick="runDirectCommandWithArgs('setAllowFakeBoldText', { allow: 'false' })">Disallow</button>
+        </div>
+      </div>
+      <div class="section">
+        <h1>Hardware resolution</h1>
+        <div>
+          <h2>Width</h2>
+          <input class="input_size_pos" id="resolution_width_input" type="text" value="1280">
+        </div>
+        <div>
+          <h2>Height</h2>
+          <input class="input_size_pos" id="resolution_height_input" type="text" value="720">
+        </div>
+        <button id="setHardwareResolution" onclick="setHardwareResolution()">Set</button>
+      </div>
+      <div class="section">
+        <h1>XInput<br><span class="note">WebOS only</span></h1>
+          <button id="onXInputActivate" onclick="onXInputActivate()">Activate</button>
+          <button id="onXInputDeactivate" onclick="onXInputDeactivate()">Deactivate</button>
+          <div>
+            <button id="onXInputInvokeAction" onclick="onXInputInvokeAction()">InvokeAction</button>
+            <select id="XInputSel">
+              <option value="18874372">QMENU</option>
+              <option value="18874417">3DMENU</option>
+              <option value="18874423">RATIO</option>
+            </select>
+          </div>
+      </div>
+      <div class="section">
+        <h1>Get Window State<br><span class="note">WebOS only</span></h1>
+          <div>
+            <h2>Window State</h2>
+            <input id="window_state_output" type="text" disabled>
+          </div>
+          <div>
+            <h2>Get State</h2>
+            <button onclick="runDirectCommand('getWindowState')">Get</button>
+          </div>
+      </div>
+      <div class="section">
+          <h1>Get Window State About To Change<br><span class="note">WebOS only</span></h1>
+            <div>
+              <h2>Window State About To Change</h2>
+              <input id="window_state_about_to_change_output" type="text" disabled>
+            </div>
+            <div>
+              <h2>Get State About To Change</h2>
+              <button onclick="runDirectCommand('getWindowStateAboutToChange')">Get</button>
+            </div>
+      </div>
+      <div class="section">
+        <h1>Set custom cursor<br><span class="note">WebOS only</span></h1>
+          <button id="onSetCustomCursor" onclick="runDirectCommand('setCustomCursor')">Set</button>
+      </div>
+      <div class="section">
+        <h1>Visibility state</h1>
+        <button id="setVisibilityStateVisible" onclick="setVisibilityState('Visible')">Visible</button>
+        <button id="setVisibilityStateHidden" onclick="setVisibilityState('Hidden')">Hidden</button>
+        <button id="setVisibilityStateLaunching" onclick="setVisibilityState('Launching')">Launching</button>
+      </div>
+      <div class="section">
+        <h1>Focus</h1>
+        <button onclick="runDirectCommandWithArgs('setFocus', { set: 'true' })">Set</button>
+        <button onclick="runDirectCommandWithArgs('setFocus', { set: 'false' })">Unset</button>
+      </div>
+    </div>
+    <h2 id="textbottom">This page should be hosted by Mock server</h2>
+  </body>
+</html>

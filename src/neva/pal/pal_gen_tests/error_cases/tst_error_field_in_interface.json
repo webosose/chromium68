@@ -1,0 +1,9 @@
+{
+    "name": "ErrorFieldInInterface",
+    "error_field" : "Value",
+    "methods": [
+    ],
+    "comment": [
+        "'error_field' is a wrong field name."
+    ]
+}

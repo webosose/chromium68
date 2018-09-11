@@ -1,0 +1,1 @@
+virtual SampleInterface* GetSampleInterface();

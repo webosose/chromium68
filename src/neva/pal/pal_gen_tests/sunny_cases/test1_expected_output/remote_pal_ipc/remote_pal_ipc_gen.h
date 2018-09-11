@@ -1,0 +1,1 @@
+SystemInfoInterface* GetSystemInfoInterface() override;

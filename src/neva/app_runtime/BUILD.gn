@@ -1,0 +1,227 @@
+# Copyright (c) 2018 LG Electronics, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+import("//build/config/ui.gni")
+import("//mojo/public/tools/bindings/mojom.gni")
+import("//neva/neva.gni")
+import("//tools/grit/repack.gni")
+
+config("app_runtime_cfg") {
+  defines = [ "APP_RUNTIME_IMPLEMENTATION" ]
+}
+
+static_library("app_runtime") {
+  configs += [ ":app_runtime_cfg" ]
+
+  sources = [
+    "app/app_runtime_main.cc",
+    "app/app_runtime_main.h",
+    "app/app_runtime_main_delegate.cc",
+    "app/app_runtime_main_delegate.h",
+    "browser/app_runtime_browser_context.cc",
+    "browser/app_runtime_browser_context.h",
+    "browser/app_runtime_browser_context_adapter.cc",
+    "browser/app_runtime_browser_context_adapter.h",
+    "browser/app_runtime_browser_main_extra_parts.h",
+    "browser/app_runtime_browser_main_parts.cc",
+    "browser/app_runtime_browser_main_parts.h",
+    "browser/app_runtime_browser_switches.cc",
+    "browser/app_runtime_browser_switches.h",
+    "browser/app_runtime_content_browser_client.cc",
+    "browser/app_runtime_content_browser_client.h",
+    "browser/app_runtime_devtools_manager_delegate.cc",
+    "browser/app_runtime_devtools_manager_delegate.h",
+    "browser/app_runtime_http_user_agent_settings.cc",
+    "browser/app_runtime_http_user_agent_settings.h",
+    "browser/app_runtime_plugin_service_filter.cc",
+    "browser/app_runtime_plugin_service_filter.h",
+    "browser/app_runtime_web_contents_view_delegate_aura.cc",
+    "browser/app_runtime_web_contents_view_delegate_creator.h",
+    "browser/browsing_data/browsing_data_remover.cc",
+    "browser/browsing_data/browsing_data_remover.h",
+    "browser/net/app_runtime_network_delegate.cc",
+    "browser/net/app_runtime_network_delegate.h",
+    "browser/url_request_context_factory.cc",
+    "browser/url_request_context_factory.h",
+    "common/app_runtime_content_client.cc",
+    "common/app_runtime_content_client.h",
+    "common/app_runtime_message_generator.cc",
+    "common/app_runtime_message_generator.h",
+    "common/app_runtime_user_agent.cc",
+    "common/app_runtime_user_agent.h",
+    "common/app_runtime_view_messages.h",
+    "injection_browser_control_handler.cc",
+    "public/app_runtime_constants.h",
+    "public/app_runtime_event.h",
+    "public/app_runtime_export.h",
+    "public/injection_browser_control_handler.h",
+    "public/webapp_window_base.h",
+    "public/webapp_window_delegate.cc",
+    "public/webapp_window_delegate.h",
+    "public/webview_base.h",
+    "public/webview_delegate.h",
+    "public/window_group_configuration.h",
+    "renderer/app_runtime_content_renderer_client.cc",
+    "renderer/app_runtime_content_renderer_client.h",
+    "renderer/app_runtime_page_load_timing_render_frame_observer.cc",
+    "renderer/app_runtime_page_load_timing_render_frame_observer.h",
+    "renderer/app_runtime_render_frame_observer.cc",
+    "renderer/app_runtime_render_frame_observer.h",
+    "ui/desktop_aura/app_runtime_desktop_native_widget_aura.cc",
+    "ui/desktop_aura/app_runtime_desktop_native_widget_aura.h",
+    "app_runtime_event.cc",
+    "webapp_injection_manager.cc",
+    "webapp_injection_manager.h",
+    "webapp_window.cc",
+    "webapp_window.h",
+    "webapp_window_base.cc",
+    "webview.cc",
+    "webview.h",
+    "webview_export.h",
+    "webview_base.cc",
+    "webview_profile.cc",
+    "webview_profile.h",
+    "window_group_configuration.cc",
+  ]
+
+  public_deps = [
+    "//third_party/boringssl:boringssl",
+    "//skia:skia",
+    ":mojo_app_runtime_bindings",
+  ]
+
+  deps = [
+    "//base/third_party/dynamic_annotations",
+    "//content",
+    "//content/public/app:browser",
+    "//content/public/browser",
+    "//content/public/common",
+    "//components/cookie_config",
+    "//components/media_capture_util:devices_dispatcher",
+    "//components/network_session_configurator/common",
+    "//components/os_crypt",
+    "//components/web_cache/browser",
+    "//components/web_cache/public/interfaces",
+    "//neva/injection",
+    "//third_party/blink/public:blink",
+    "//ui/aura",
+    "//ui/base",
+    "//ui/events",
+    "//ui/gfx",
+    "//ui/gfx/geometry",
+    "//ui/views",
+    "//ui/views/controls/webview",
+    "//ui/wm",
+    "//url",
+  ]
+
+  if (use_ozone && ozone_platform_wayland_external) {
+    deps += [
+      "//ozone/ui/webui",
+    ]
+  }
+
+  data_deps = [
+    ":app_runtime_resources",
+  ]
+
+  include_dirs = [ "." ]
+  defines = [
+    "WEBVIEW_IMPLEMENTATION",
+  ]
+}
+
+grit("app_runtime_inspector_resources_grit") {
+  visibility = [ ":*" ]
+  source = "//neva/app_runtime/browser/resources/app_runtime_inspector_resources.grd"
+  outputs = [
+    "grit/app_runtime_inspector_resources.h",
+    "app_runtime_inspector_resources.pak",
+  ]
+}
+
+copy("copy_app_runtime_inspector_resources") {
+  sources = [
+    "$target_gen_dir/app_runtime_inspector_resources.pak",
+    "$target_gen_dir/app_runtime_inspector_resources.pak.info",
+  ]
+  outputs = [
+    "$root_gen_dir/app_runtime/public/resources/{{source_file_part}}",
+  ]
+
+  public_deps = [
+    ":app_runtime_inspector_resources_grit",
+  ]
+}
+
+group("resources") {
+  public_deps = [
+    ":copy_app_runtime_inspector_resources",
+  ]
+}
+
+repack("app_runtime_resources") {
+  sources = [
+    "$root_gen_dir/app_runtime/public/resources/app_runtime_inspector_resources.pak",
+    "$root_gen_dir/content/app/resources/content_resources_100_percent.pak",
+    "$root_gen_dir/content/app/strings/content_strings_en-US.pak",
+    "$root_gen_dir/content/browser/tracing/tracing_resources.pak",
+    "$root_gen_dir/content/content_resources.pak",
+    "$root_gen_dir/net/net_resources.pak",
+    "$root_gen_dir/third_party/blink/public/resources/blink_resources.pak",
+    "$root_gen_dir/third_party/blink/public/resources/blink_scaled_resources_100_percent.pak",
+    "$root_gen_dir/ui/resources/ui_resources_100_percent.pak",
+    "$root_gen_dir/ui/resources/webui_resources.pak",
+    "$root_gen_dir/ui/strings/app_locale_settings_en-US.pak",
+    "$root_gen_dir/ui/strings/ui_strings_en-US.pak",
+  ]
+
+  deps = [
+    ":resources",
+    "//content:resources",
+    "//content/app/resources",
+    "//content/app/strings",
+    "//content/browser/tracing:resources",
+    "//net:net_resources",
+    "//third_party/blink/public:resources",
+    "//third_party/blink/public:scaled_resources_100_percent",
+    "//ui/resources",
+    "//ui/strings",
+  ]
+
+  if (toolkit_views) {
+    deps += [ "//ui/views/resources" ]
+    sources +=
+        [ "$root_gen_dir/ui/views/resources/views_resources_100_percent.pak" ]
+  }
+
+  public_deps = [
+    "//tools/v8_context_snapshot:v8_context_snapshot",
+  ]
+
+  sources += [ "$root_gen_dir/content/browser/devtools/devtools_resources.pak" ]
+  deps += [ "//content/browser/devtools:resources" ]
+  output = "$root_out_dir/app_runtime_content.pak"
+}
+
+mojom("mojo_app_runtime_bindings") {
+  sources = [
+    "common/app_runtime.mojom",
+  ]
+  deps = [
+    "//third_party/blink/public/mojom:mojom_platform",
+  ]
+}

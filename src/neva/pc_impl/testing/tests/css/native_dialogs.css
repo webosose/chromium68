@@ -1,0 +1,46 @@
+button, input {
+    font-size: 100%;
+}
+
+button.ok_cancel {
+    margin: 5px;
+    width: 90px;
+    bottom: 0px;
+    position: absolute;
+}
+
+.dialog_emulator {
+    height: 160px;
+    width: 480px;
+    border: 1px solid black;
+}
+
+.dialog_url {
+    font-size: 115%;
+}
+
+.dialog_text {
+    margin-left: 20px;
+}
+
+.dialog_alert {
+    background-color: darkturquoise;
+}
+
+.dialog_confirm {
+    background-color: #e6b3e4;
+}
+
+.dialog_result {
+    background-color: palegreen;
+    visibility: hidden;
+}
+
+.dialog_prompt {
+    background-color: #0716e2;
+    color: aqua;
+}
+
+input#input_text {
+    width:  90%;
+}

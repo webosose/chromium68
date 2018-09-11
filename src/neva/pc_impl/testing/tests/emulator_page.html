@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Sample WebAPI Emulator Page</title>
+    <style type="text/css">
+        button, input {
+            font-size: 100%;
+        }
+
+        details {
+            font-size: 100%;
+        }
+        ul.request-list { height: 100px; width: 500px; }
+        ul.request-list {
+            overflow: hidden;
+            overflow-y: auto;
+            list-style-type: none;
+        }
+
+    </style>
+    <!-- let's keep this file the first one -->
+    <script type="text/javascript" src="js/mock_server_urls.js"></script>
+    <script type="text/javascript" src="js/mockServerClient.js"></script>
+    <script type="text/javascript" src="js/mock_server.js"></script>
+    <script type="text/javascript" src="js/sample_emulator.js"></script>
+</head>
+
+<body>
+    <p>navigator.sample.getPlatformValue() Web API</p>
+    Platform value: <input id="sample_platform_value_input" type="text">
+    <button type="button"
+        onclick="setSampleValue(
+            kSample_getPlatformValue,
+            document.getElementById('sample_platform_value_input').value
+        )">Update</button>
+    <hr>
+    <p>navigator.sample.addEventListener('samplenotify',eventCallback) Web API,<br>
+    that calls 'SampleUpdate' PAL API</p>
+    Value to send: <input id="sample_update_value_input" type="text">
+    <button type="button"
+        onclick="setSampleValue(
+            kSample_sampleUpdate,
+            document.getElementById('sample_update_value_input').value
+        )">Send</button>
+    <hr>
+    <p>navigator.sample.processData() Web API</p>
+    Response for request <span id='process_data_msg_num'
+        style='color:blue'>(select request in the list)</span>:
+    <select id='process_data_result'>
+        <option value=true selected>True</option>
+        <option value=false>False</option>
+    </select>
+    <button id = 'process_data_btn' type="button"
+        onclick="sendProcessDataValue()">Send</button>
+    <p>
+     <section>
+        <h3>Received requests:</h3>
+        <select size='10' id='process_data_received_requests'
+            onchange='processDataResponseChanged()'>
+            <option value='-1'>No unprocessed requests</option>
+        </select>
+     </section>
+
+    </p>
+    <hr>
+    <p>navigator.sample.callFunc() Web API</p>
+    <span id="call_func_msg_num" style="color:blue"></span> received call with params:
+    arg1 = <span id="call_func_arg1" style="color:blue">__</span>
+    , arg2 = <span id="call_func_arg2" style="color:blue">__</span>
+</body>
+
+<script>
+    var poll_period = 500;
+    function setSampleValue(url, value) {
+        createExpectation(url, value);
+    }
+    setTimeout(periodicPoll, poll_period);
+</script>
+
+</html>

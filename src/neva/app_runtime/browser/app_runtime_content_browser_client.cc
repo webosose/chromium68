@@ -1,0 +1,133 @@
+// Copyright (c) 2016-2018 LG Electronics, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
+#include "neva/app_runtime/browser/app_runtime_content_browser_client.h"
+
+#include "base/command_line.h"
+#include "base/logging.h"
+#include "base/strings/utf_string_conversions.h"
+#include "content/browser/frame_host/render_frame_host_impl.h"
+#include "content/browser/web_contents/web_contents_impl.h"
+#include "content/public/browser/devtools_manager_delegate.h"
+#include "content/public/browser/render_frame_host.h"
+#include "content/public/common/content_switches.h"
+#include "neva/app_runtime/browser/app_runtime_browser_main_parts.h"
+#include "neva/app_runtime/browser/app_runtime_devtools_manager_delegate.h"
+#include "neva/app_runtime/browser/app_runtime_web_contents_view_delegate_creator.h"
+#include "neva/app_runtime/browser/url_request_context_factory.h"
+#include "neva/app_runtime/webview.h"
+#include "services/service_manager/sandbox/switches.h"
+
+namespace app_runtime {
+
+AppRuntimeContentBrowserClient::AppRuntimeContentBrowserClient(
+    net::NetworkDelegate* delegate)
+    : url_request_context_factory_(new URLRequestContextFactory(delegate)),
+#if defined(ENABLE_PLUGINS)
+      plugin_loaded_(false),
+#endif
+      external_browser_context_(nullptr) {
+}
+
+AppRuntimeContentBrowserClient::AppRuntimeContentBrowserClient(
+    content::BrowserContext* p,
+    net::NetworkDelegate* delegate)
+    : AppRuntimeContentBrowserClient(delegate) {
+  external_browser_context_ = p;
+}
+
+AppRuntimeContentBrowserClient::~AppRuntimeContentBrowserClient() {}
+
+void AppRuntimeContentBrowserClient::SetBrowserExtraParts(
+    AppRuntimeBrowserMainExtraParts* browser_extra_parts) {
+  browser_extra_parts_ = browser_extra_parts;
+}
+
+content::BrowserMainParts*
+AppRuntimeContentBrowserClient::CreateBrowserMainParts(
+    const content::MainFunctionParams& parameters) {
+  main_parts_ = new AppRuntimeBrowserMainParts(
+      url_request_context_factory_.get(), external_browser_context_);
+
+  if (browser_extra_parts_)
+    main_parts_->AddParts(browser_extra_parts_);
+
+  return main_parts_;
+}
+
+content::WebContentsViewDelegate*
+AppRuntimeContentBrowserClient::GetWebContentsViewDelegate(
+    content::WebContents* web_contents) {
+  return CreateAppRuntimeWebContentsViewDelegate(web_contents);
+}
+
+void AppRuntimeContentBrowserClient::AllowCertificateError(
+    content::WebContents* web_contents,
+    int cert_error,
+    const net::SSLInfo& ssl_info,
+    const GURL& request_url,
+    content::ResourceType resource_type,
+    bool strict_enforcement,
+    bool expired_previous_decision,
+    const base::Callback<void(content::CertificateRequestResultType)>&
+        callback) {
+  // HCAP requirements: For SSL Certificate error, follows the policy settings
+  if (web_contents && web_contents->GetDelegate()) {
+    WebView* webView = static_cast<WebView*>(web_contents->GetDelegate());
+    switch (webView->GetSSLCertErrorPolicy()) {
+      case SSL_CERT_ERROR_POLICY_IGNORE:
+        callback.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE);
+        return;
+      case SSL_CERT_ERROR_POLICY_DENY:
+        callback.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
+        return;
+      default:
+        break;
+    }
+  }
+
+  if (resource_type != content::RESOURCE_TYPE_MAIN_FRAME) {
+    // A sub-resource has a certificate error. The user doesn't really
+    // have a context for making the right decision, so block the
+    // request hard, without and info bar to allow showing the insecure
+    // content.
+    callback.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
+  }
+}
+
+void AppRuntimeContentBrowserClient::AppendExtraCommandLineSwitches(
+    base::CommandLine* command_line,
+    int child_process_id) {
+  command_line->AppendSwitch(service_manager::switches::kNoSandbox);
+}
+
+content::DevToolsManagerDelegate*
+AppRuntimeContentBrowserClient::GetDevToolsManagerDelegate() {
+  return new AppRuntimeDevToolsManagerDelegate();
+}
+
+void AppRuntimeContentBrowserClient::OverrideWebkitPrefs(
+    content::RenderViewHost* render_view_host,
+    content::WebPreferences* prefs) {
+  if (!render_view_host)
+    return;
+
+  RenderViewHostDelegate* delegate = render_view_host->GetDelegate();
+  if (delegate)
+    delegate->OverrideWebkitPrefs(prefs);
+}
+
+}  // namespace app_runtime

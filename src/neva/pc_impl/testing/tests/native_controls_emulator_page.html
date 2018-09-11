@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Native Input Controls API Emulator Page</title>
+    <link rel="stylesheet" type="text/css" href="css/native_controls.css">
+    <script type="text/javascript" src="js/mock_server_urls.js"></script>
+    <script type="text/javascript" src="js/mockServerClient.js"></script>
+    <script type="text/javascript" src="js/mock_server.js"></script>
+</head>
+
+<body>
+    <h1 style="background-color: darkkhaki;">'Native Input Controls' API emulator</h1>
+    <div id="no_calls">
+        No active Input Controls
+    </div>
+    <div id="show_file_chooser" style="display: none;" >
+        <h2 class="file_chooser">File chooser:</h2>
+        <button type="button" onclick="callFileChooser();">
+            File Chooser
+        </button>
+        <input id="file_chooser" type="file" style="display: none">
+        <hr>
+    </div>
+    <div id="show_color_chooser" style="display: none;" >
+        <h2 class="control-color-picker">Color chooser:</h2>
+        Press button to choose color: <input id="color_chooser" type="color">
+        <br/>
+        <button type="button" onclick="closeColorChooser();">
+            Close Chooser
+        </button>
+        <hr>
+    </div>
+</body>
+
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/native_controls_emulator.js"></script>
+
+</html>

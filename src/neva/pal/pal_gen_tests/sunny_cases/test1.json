@@ -1,0 +1,13 @@
+{
+  "name": "SystemInfo",
+  "methods": [
+      {
+        "method": "std::string GetSSLCertPath",
+        "pal_ret": true,
+        "comment": "Interface for getting system info.",
+        "return" : "sync",
+        "in_args": [],
+        "out_args": []
+      }
+  ]
+}

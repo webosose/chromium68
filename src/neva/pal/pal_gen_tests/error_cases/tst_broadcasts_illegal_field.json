@@ -1,0 +1,14 @@
+{
+    "name": "BroadcastsIllegalField",
+    "methods": [
+    ],
+    "broadcasts":[
+      {
+          "method": "void SampleUpdate",
+          "field":  "error",
+          "args": [
+                "const std::string& value"
+          ]
+      }
+    ]
+}

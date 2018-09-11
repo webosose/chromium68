@@ -1,0 +1,52 @@
+{
+    "name": "NativeControls",
+    "methods": [
+      {
+        "method": "void OpenColorChooser",
+        "no_IPC"  : true,
+        "return"  : "async",
+        "in_args" : [
+          "const std::string& color_params"
+        ],
+        "out_args": []
+      },
+      {
+        "method": "void CloseColorChooser",
+        "no_IPC"  : true,
+        "in_args" : [],
+        "out_args": []
+      },
+      {
+        "method": "void RunFileChooser",
+        "pal_ret" : false,
+        "return"  : "sync_delayed",
+        "no_IPC"  : true,
+        "in_args" : [
+          "int mode",
+          "const std::string& title",
+          "const std::string& default_file_name",
+          "const std::vector<std::string>& accept_types",
+          "bool need_local_path",
+          "const std::string& url"
+        ],
+        "out_args": [
+          "std::string selected_files"
+        ]
+      }
+
+    ],
+    "broadcasts": [
+      {
+        "method": "void ColorChosen",
+        "no_IPC": true,
+        "args": [
+          "int color"
+        ]
+      }
+    ],
+    "comment": [
+      "This interface serves to call platform",
+      "implementation of JS controls:",
+      "File Chooser, ..."
+    ]
+}

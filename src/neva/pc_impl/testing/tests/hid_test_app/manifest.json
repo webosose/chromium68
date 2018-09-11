@@ -1,0 +1,13 @@
+{
+  "manifest_version": 2,
+  "name": "Sample webapp for HID test",
+  "minimum_chrome_version": "35.0.0.0",
+  "version": "1.0",
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },
+  "permissions": [
+  ]
+}

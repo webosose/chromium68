@@ -1,0 +1,686 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!--
+  PLEASE USE wam_emulator_page_new.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-->
+<html>
+<head>
+<style>
+body {
+    background-color: black;
+}
+.image {
+  display: block;
+  -webit-flex-direction: column;
+  float:left;
+  padding: 10px;
+  text-align: center;
+  border: thick solid black;
+}
+.button {
+  width: 80px;
+  height: 26px;
+}
+#textbottom {
+position: fixed;
+bottom: 5px;
+right: 1em;
+text-align: left;
+}
+.input_size_pos {
+  width: 50px;
+}
+
+</style>
+<script type="text/javascript" src="js/mock_server_urls.js"></script>
+<script type="text/javascript" src="js/mock_server.js"></script>
+<script type="text/javascript" src="js/wam_emulator.js"></script>
+
+<title></title>
+</head>
+
+<body>
+  <h1 style="color:red; font-size: 400%;" align="center">Please use neva_emulator_page_new.html</h1> 
+  <h1 style="color:white" align="center">Neva testing page</h1>
+  <table>
+    <tr>
+      <th>
+        <div class="image" id="image1" onClick="onClick(this.id, 'bing')">
+          <h1 style="font:20px solid Arial; color:white; margin: 10px;">App1</h1>
+          <img src="./images/bing.png" id="bing" width="90" height="50" alt="" name="bing" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+      <th>
+        <div class="image" id="image2" onClick="onClick(this.id, 'espn')">
+          <h1 style="font:20px solid Arial; color:white; margin: 10px;">App2</h1>
+          <img src="./images/espn.png" id="espn" width="90" height="50" alt="" name="espn" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+      <th>
+        <div class="image" id="image3" onClick="onClick(this.id, 'imdb')">
+          <h1 style="font:20px solid Arial; color:white; margin: 10px;">App3</h1>
+          <img src="./images/imdb.png" id="imdb" width="90" height="50" alt="" name="imdb" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+      <th>
+        <div class="image" id="image4" onClick="onClick(this.id, 'wiki')">
+          <h1 style="font:20px solid Arial; color:white; margin: 10px;">App4</h1>
+          <img src="./images/wiki.png" id="wiki" width="90" height="50" alt="" name="wiki" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+      <th>
+        <div class="image" id="image5" onClick="onClick(this.id, 'yelp')">
+          <h1 style="font:20px solid Arial; color:white; margin: 10px;">App5</h1>
+          <img src="./images/yelp.png" id="yelp" width="90" height="50" alt="" name="yelp" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+      <th>
+        <div class="image" id="image6" onClick="onClick(this.id, 'bbc')">
+          <h1 style="font:20px solid Arial; color:white; margin: 10px;">App6</h1>
+          <img src="./images/bbc.png" id="bbc" width="90" height="50" alt="" name="bbc" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+      <th>
+        <div class="image" id="image7" onClick="onClick(this.id, 'youtube')">
+          <h1 style="font:20px solid Arial; color:white; margin: 10px;">App7</h1>
+          <img src="./images/youtube.png" id="youtube" width="90" height="50" alt="" name="youtube" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <th>
+        <div class="image" id="image8" onClick="onClick(this.id, 'hid')">
+          <h1 style="font:20px solid Arial; color:white; margin: 1px;">HID</h1>
+          <img src="./images/hid.png" id="hid" width="90" height="90" alt="" name="hid" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+      <th>
+        <div class="image" id="image9" onClick="onClick(this.id, 'auto')">
+          <h1 style="font:20px solid Arial; color:white; margin: 1px;">Auto</h1>
+          <img src="./images/auto.png" id="auto" width="90" height="90" alt="" name="auto" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+      <th>
+        <div class="image" id="image10" onClick="onClick(this.id, 'manual')">
+          <h1 style="font:20px solid Arial; color:white; margin: 1px;">Manual</h1>
+          <img src="./images/manual.png" id="manual" width="90" height="90" alt="" name="manual" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+      <th>
+        <div class="image" id="image12" onClick="onClick(this.id, 'htmlkb')">
+          <h1 style="font:20px solid Arial; color:white; margin: 1px;">Html VKB</h1>
+          <img src="./images/htmlvkb.png" id="htmlkb" width="90" height="90" alt="" name="htmlkb" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+      <th>
+        <div class="image" id="image13" onClick="onClick(this.id, 'browsercontrol')">
+          <h1 style="font:20px solid Arial; color:white; margin: 1px;">BrowserControl</h1>
+          <img src="./images/browsercontrol.png" id="browsercontrol" width="90" height="90" alt="" name="browsercontrol" style="padding-bottom:10px; border-bottom: thick solid black;">
+        </div>
+      </th>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:186px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white;" align="middle">Create<br>application</h5></th>
+            </tr>
+            <tr>
+              <th><button class="button" id="button1" type="button" style="display:block; float:left; margin-left:5px; margin-top:5px" onclick="runDirectCommand('launchApp')">Shown</button></th>
+              <th><button class="button" id="button2" type="button" style="display:block; float:left; margin-left:5px; margin-top:5px" onclick="runDirectCommand('launchHiddenApp')">Hidden</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:723px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white;" align="middle">Application<br>URL (http://...)</h5></th>
+              <th><h5 style="color:white;" align="middle">Change<br>URL</h5></th>
+              <th><h5 style="color:white;" align="middle">Replace<br>base URL</h5></th>
+              <th><h5 style="color:white;" align="middle">Reset to<br>default URL</h5></th>
+              <th><h5 style="color:white;" align="middle">Stop/<br>Reload</h5></th>
+            </tr>
+            <tr>
+              <th><input id="url_data_value_input" style="width:320px; margin-left:5px" type="text"></th>
+              <th><button class="button" id="button3" type="button" style="display:block; float:left; margin-left:10px; margin-top:5px" onclick="changeURL()">Change</button></th>
+              <th><button class="button" id="button18" type="button" style="display:block; float:left; margin-left:10px; margin-top:5px" onclick="replaceBaseURL()">Replace</button></th>
+              <th><button class="button" id="button4" type="button" style="display:block; float:left; margin-left:10px; margin-top:5px" onclick="resetToDefaultURL()">Reset</button></th>
+              <th><button class="button" id="stopReloadButton" type="button" style="display:block; float:left; margin-left:10px; margin-top:5px" onclick="stopOrReload()">Stop</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+    <tr>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:186px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white" align="middle">Destroy<br>application</h5></th>
+            </tr>
+            <tr>
+              <th><button class="button" id="button5" type="button" style="display:block; float:left; margin-left:5px; margin-top:5px" onclick="runDirectCommand('stopApp')">Close</button></th>
+              <th><button class="button" id="button17" type="button" style="display:block; float:left; margin-left:5px; margin-top:5px" onclick="runDirectCommand('killApp')">Kill</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+      <th style="padding:0px">
+        <table style="border-spacing:0px">
+          <tr>
+            <th>
+              <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:426px; height:116px">
+                <table>
+                  <tr>
+                    <th><h5 style="color:white; margin-left:10px; margin-top:20px; margin-bottom:5px" align="left">Window</h5></th>
+                  </tr>
+                  <tr>
+                    <th><h5 style="color:white; margin-left:5px; margin-top:6px; margin-bottom:10px" align="middle">Width</h5></th>
+                    <th><h5 style="color:white; margin-left:5px; margin-top:6px; margin-bottom:10px" align="middle">Height</h5></th>
+                    <th><h5 style="color:white; margin-left:10px; margin-top:6px; margin-bottom:6px" align="middle">Update size</h5></th>
+                    <th><h5 style="color:white; margin-left:10px; margin-top:6px; margin-bottom:6px" align="middle">Fullscreen</h5></th>
+                    <th><h5 style="color:white; margin-left:5px; margin-top:6px; margin-bottom:6px" align="middle">Frameless</h5></th>
+                  </tr>
+                  <tr>
+                    <th><input class="input_size_pos" id="launch_width_input" style="margin-left:5px" type="text" value="640" onkeyup="onUpdateWidth()"></th>
+                    <th><input class="input_size_pos" id="launch_height_input" style="margin-left:10px" type="text" value="480" onkeyup="onUpdateHeight()"></th>
+                    <th><button class="button" id="button9" type="button" style="display:block; float:left; margin-left:15px; margin-top:2px" onclick="updateAppWindow()">Update</button></th>
+                    <th><input type="checkbox" id="full_screen_cb" style="margin-left:10px" onclick="onFullScreenChanged();"/></th>
+                    <th><input type="checkbox" id="frameless_window_cb" style="margin-left:15px"/></th>
+                  </tr>
+                </table>
+              </div>
+            </th>
+            <th>
+              <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:191px; height:116px">
+                <table>
+                  <tr>
+                    <th><h5 style="color:white; margin-left:10px; margin-top:10px; margin-bottom:6px" align="middle">Process ID</h5></th>
+                  </tr>
+                  <tr>
+                    <th><button class="button" id="button19" type="button" style="display:block; float:left; margin-left:10px" onclick="runDirectCommand('getPid')">Get</button></th>
+                    <th><h5 style="color:white; margin-left:28px; margin-top:12px; margin-bottom:12px" align="middle">Auto</h5></th>
+                  </tr>
+                  <tr>
+                    <th><input id="get_render_process_pid" style="background-color:gray; color:black; width:50px; height:22px; margin-left:10px; border:0px; text-align:center" type="text" disabled></th>
+                    <th><input id="render_process_pid" style="background-color:gray; color:black; width:50px; height:22px; margin-left:28px; border:0px; text-align:center" type="text" value = "0" disabled></th>
+                  </tr>
+                </table>
+              </div>
+            </th>
+          </tr>
+        </table>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:186px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white; margin-top:6px; margin-bottom:6px" align="middle">Application<br>visibility</h5></th>
+            </tr>
+            <tr>
+              <th><button class="button" id="button6" type="button" style="display:block; float:left; margin-left:5px; margin-top:2px" onclick="runDirectCommand('showApp')">Show</button></th>
+              <th><button class="button" id="button7" type="button" style="display:block; float:left; margin-left:5px; margin-top:2px" onclick="runDirectCommand('hideApp')">Hide</button></th>
+            </tr>
+            <tr>
+              <th><button class="button" id="button8" type="button" style="display:block; float:left; margin-left:5px; margin-top:2px" onclick="runDirectCommand('foregroundApp')">Move_up</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+      <th style="padding:0px">
+        <table style="border-spacing:0px">
+          <tr>
+            <th>
+              <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:426px; height:116px">
+                <table>
+                  <tr>
+                    <th><h5 style="color:white; margin-top:6px; margin-bottom:6px" align="middle">Background<br>color</h5></th>
+                  </tr>
+                  <tr>
+                    <th><h5 style="color:white; margin-left:25px; margin-top:2px; margin-bottom:6px" align="middle">Red</h5></th>
+                    <th><h5 style="color:white; margin-left:25px; margin-top:2px; margin-bottom:6px" align="middle">Green</h5></th>
+                    <th><h5 style="color:white; margin-left:25px; margin-top:2px; margin-bottom:6px" align="middle">Blue</h5></th>
+                  </tr>
+                  <tr>
+                    <th><input class="input_size_pos" id="red_channel_input" style="margin-left:25px" type="range" value="0" min="0" max="255"></th>
+                    <th><input class="input_size_pos" id="green_channel_input" style="margin-left:25px" type="range" value="0" min="0" max="255"></th>
+                    <th><input class="input_size_pos" id="blue_channel_input" style="margin-left:25px" type="range" value="0" min="0" max="255"></th>
+                    <th><button class="button" id="button12" type="button" style="display:block; float:left; margin-left:40px; margin-top:5px" onclick="updateWindowBackgroundColor()">Update</button></th>
+                  </tr>
+                </table>
+              </div>
+            </th>
+            <th>
+              <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:191px; height:116px">
+                <table>
+                  <tr>
+                    <th><h5 style="color:white; margin-left:0px; margin-top:2px; margin-bottom:2px" align="middle">Font</h5></th>
+                  </tr>
+                  <tr>
+                    <th><h5 style="color:white; margin-left:5px; margin-top:2px; margin-bottom:2px" align="middle">PC</h5></th>
+                    <th><h5 style="color:white; margin-left:5px; margin-top:2px; margin-bottom:2px" align="middle">webOS</h5></th>
+                  </tr>
+                  <tr>
+                    <th><button class="button" id="button20" type="button" style="display:block; float:left; margin-left:5px; margin-top:2px" onclick="setFontFamily('Arial')">Arial</button></th>
+                    <th><button class="button" id="button21" type="button" style="display:block; float:left; margin-left:5px; margin-top:2px" onclick="setFontFamily('Miso')">Miso</button></th>
+                  </tr>
+                  <tr>
+                    <th><button class="button" id="button22" type="button" style="display:block; float:left; margin-left:5px; margin-top:2px" onclick="setFontFamily('Courier')">Courier</button></th>
+                    <th><button class="button" id="button23" type="button" style="display:block; float:left; margin-left:5px; margin-top:2px" onclick="setFontFamily('Droid Sans')">Droid</button></th>
+                  </tr>
+                </table>
+              </div>
+            </th>
+          </tr>
+        </table>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:186px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white; margin-bottom:6px" align="middle">Zoom</h5></th>
+            </tr>
+            <tr>
+              <th><input id="zoom_factor" style="background-color:gray; color:black; width:50px; height:22px; margin-left:2px; border:0px; text-align:center" type="text" value = "0%" disabled></th>
+            </tr>
+            <tr>
+              <th>
+                <table style="margin-bottom:0px; margin-top:5px;">
+                  <tr>
+                    <th><button class="button" id="button10" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px;" onclick="onZoomDown()">-</button></th>
+                    <th><button class="button" id="button11" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px;" onclick="onZoomUp()">+</button></th>
+                  </tr>
+                </table>
+              </th>
+            </tr>
+          </table>
+        </div>
+      </th>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:633px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white; margin-bottom:6px" align="middle">Set Window property</h5></th>
+            </tr>
+            <tr>
+              <th><h5 style="color:white; margin-bottom:6px; margin-top:6px" align="middle">Name</h5></th>
+              <th><h5 style="color:white; margin-bottom:6px; margin-top:6px" align="middle">Value</h5></th>
+            </tr>
+            <tr>
+              <th><input id="set_window_property_name_input" style="width:200px; margin-left:5px" type="text" value="name"></th>
+              <th><input id="set_window_property_value_input" style="width:200px; margin-left:5px" type="text" value="value"></th>
+              <th><button class="button" id="button13" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="setWindowProperty()">Set</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:186px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white; margin-bottom:6px" align="middle">Suspend<br>DOM activity</h5></th>
+              <th><h5 style="color:white; margin-bottom:6px" align="middle">Resume<br>DOM activity</h5></th>
+            </tr>
+            <tr>
+              <th><button class="button" id="button15" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('suspendDOM')">Suspend</button></th>
+              <th><button class="button" id="button16" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('resumeDOM')">Resume</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+      <th>
+        <table>
+          <tr>
+            <th>
+              <div style="border:dashed thin white; margin-left:9px; margin-top:10px; padding:0px; width:189px; height:116px">
+                <table>
+                  <tr>
+                    <th><h5 style="color:white; margin-bottom:6px" align="middle">Suspend<br>Media</h5></th>
+                    <th><h5 style="color:white; margin-bottom:6px" align="middle">Resume<br>Media</h5></th>
+                  </tr>
+                  <tr>
+                    <th><button class="button" id="button24" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('suspendMedia')">Suspend</button></th>
+                    <th><button class="button" id="button25" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('resumeMedia')">Resume</button></th>
+                  </tr>
+                </table>
+              </div>
+            </th>
+            <th>
+              <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:505px; height:116px">
+                <table>
+                  <tr>
+                    <th><h5 style="color:white; margin-top:6px; margin-bottom:6px" align="middle">Injections</h5></th>
+                  </tr>
+                  <tr>
+                    <th><h5 style="color:white; margin-top:6px; margin-bottom:6px" align="middle">Put the list of injections to be loaded<br>on app launch into this input (ex: v8/sample)</h5></th>
+                  </tr>
+                  <tr>
+                    <th><input id="injections_input" style="width:400px; margin-left:5px" type="text"></th>
+                    <th><button class="button" id="button28" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('clearInjections')">Clear</button></th>
+                  </tr>
+                </table>
+              </div>
+            </th>
+          </tr>
+        </table>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <table>
+          <tr>
+            <th>
+              <div style="border:dashed thin white; margin-left:9px; margin-top:10px; padding:0px; width:189px; height:116px">
+                <table>
+                  <tr>
+                    <th><h5 style="color:white; margin-bottom:6px" align="middle">Ignore SSL<br>Error</h5></th>
+                    <th><h5 style="color:white; margin-bottom:6px" align="middle">Decide<br>Response</h5></th>
+                  </tr>
+                  <tr>
+                    <th><button class="button" id="button26" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('ignoreSSLError')">Ignore</button></th>
+                    <th><button class="button" id="button27" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('decidePolicyForResponse')">Policy</button></th>
+                  </tr>
+                </table>
+              </div>
+            </th>
+          </tr>
+        </table>
+      </th>
+      <th>
+        <table>
+          <tr>
+            <th>
+              <div style="border:dashed thin white; margin-left:9px; margin-top:10px; padding:0px; width:631px; height:116px">
+                <table>
+                  <tr>
+                    <th><h5 style="color:white; margin-bottom:6px" align="middle">HTML<br>keyboard</h5></th>
+                    <th><h5 style="color:white; margin-bottom:6px" align="middle">Set accept<br>language</h5></th>
+                    <th><h5 style="color:white; margin-bottom:6px" align="middle">Run JS in<br>all frames</h5></th>
+                  </tr>
+                  <tr>
+                    <th><button class="button" id="button29" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('setHTMLSystemKeyboardEnabled')">HTML KB</button></th>
+                    <th><button class="button" id="button30" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('setAcceptLanguage')">Ko</button></th>
+                    <th><button class="button" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('runJSInAllFrames')">Run</button></th>
+                  </tr>
+                </table>
+              </div>
+            </th>
+            <th>
+              <div style="border:dashed thin white; margin-left:9px; margin-top:10px; padding:0px; height:116px">
+                <table>
+                  <tr>
+                    <th><h5 style="color:white; margin-bottom:6px" align="middle">Set Proxy</h5></th>
+                  </tr>
+                  <tr>
+                    <th>
+                      <input id="proxy_server_name" style="margin-left:5px" value="set.proxy.server.net" type="text">
+                      <input id="proxy_server_port" style="margin-left:5px" value="8888" type="text">
+                      <button class="button" type="button" style="display:block; margin-left:5px; margin-top:0px" onclick="setProxyServer()">Set</button>
+                    </th>
+                  </tr>
+                </table>
+              </div>
+            </th>
+            <th>
+              <div style="border:dashed thin white; margin-left:9px; margin-top:10px; padding:0px; height:116px">
+                <table>
+                  <tr>
+                    <th><h5 style="color:white; margin-bottom:6px" align="middle">Set Additional Headers</h5></th>
+                  </tr>
+                  <tr>
+                    <th>
+                      <input id="header" style="margin-left:5px" value="Referrer" type="text">
+                      <input id="value" style="margin-left:5px" value="www.ru" type="text">
+                      <button class="button" type="button" style="display:block; margin-left:5px; margin-top:0px" onclick="setAdditionalHeader()">Set</button>
+                    </th>
+                  </tr>
+                </table>
+              </div>
+           </th>
+          </tr>
+        </table>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:189px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white; margin-left:10px; margin-top:6px; margin-bottom:6px" align="left">Target Board</h5></th>
+            </tr>
+            <tr>
+              <th><h5 style="color:white; margin-bottom:6px; margin-top:6px" align="middle">Type</h5></th>
+            </tr>
+            <tr>
+              <th><input id="set_board_type_input" style="width:70px; margin-left:5px" type="text" value="type"></th>
+              <th><button class="button" id="button33" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="setBoardType()">Set</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:340px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:5px" align="middle">Set Window<br>State</h5></th>
+              <th><h5 style="color:red; margin-left:5px; margin-top:5px; margin-bottom:5px" align="middle">(to be tested</h5></th>
+              <th><h5 style="color:red; margin-left:5px; margin-top:5px; margin-bottom:5px" align="middle">on WebOS only)</h5></th>
+            </tr>
+            <tr>
+              <th><h5 style="color:white; margin-left:5px; margin-top:0px; margin-bottom:10px" align="left">Fullscreen</h5></th>
+              <th><h5 style="color:white; margin-left:5px; margin-top:0px; margin-bottom:10px" align="left">Maximize</h5></th>
+              <th><h5 style="color:white; margin-left:5px; margin-top:0px; margin-bottom:10px" align="left">Minimize</h5></th>
+            </tr>
+            <tr>
+              <th><button class="button" id="button36" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="setWindowState('3')">Set</button></th>
+              <th><button class="button" id="button37" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="setWindowState('4')">Set</button></th>
+              <th><button class="button" id="button38" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="setWindowState('5')">Set</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+      <th>
+        <div style="border:dashed thin white; margin-left:9px; margin-top:10px; padding:0px; width:275px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white; margin-bottom:6px" align="middle">Suspend<br>Painting</h5></th>
+              <th><h5 style="color:white; margin-bottom:6px" align="middle">Resume<br>Painting</h5></th>
+              <th><h5 style="color:white; margin-bottom:6px" align="middle">Compositor<br>Painting</h5></th>
+            </tr>
+            <tr>
+              <th><button class="button" id="button30" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('suspendPainting')">Suspend</button></th>
+              <th><button class="button" id="button31" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('resumePainting')">Resume</button></th>
+              <th><button class="button" id="button32" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="runDirectCommand('resetCompositorPainting')">Reset</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:290px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:5px" align="middle">Resize<br>Window</h5></th>
+            </tr>
+            <tr>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:10px" align="middle">Width</h5></th>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:10px" align="middle">Height</h5></th>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:10px" align="middle">Resize Window</h5></th>
+            </tr>
+            <tr>
+              <th><input class="input_size_pos" id="window_width_input" style="margin-left:5px" type="text" value="640"></th>
+              <th><input class="input_size_pos" id="window_height_input" style="margin-left:10px" type="text" value="480"></th>
+              <th><button class="button" id="button41" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="resizeWindow()">Resize</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:320px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:5px" align="middle">Set Hardware<br>Resolution</h5></th>
+            </tr>
+            <tr>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:10px" align="middle">Width</h5></th>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:10px" align="middle">Height</h5></th>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:10px" align="middle">Set Resolution</h5></th>
+            </tr>
+            <tr>
+              <th><input class="input_size_pos" id="resolution_width_input" style="margin-left:5px" type="text" value="1280"></th>
+              <th><input class="input_size_pos" id="resolution_height_input" style="margin-left:10px" type="text" value="720"></th>
+              <th><button class="button" id="button34" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="setHardwareResolution()">Set</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+    </tr>
+  </table>
+  <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:186px; height:116px">
+    <h5 style="color:white; margin-bottom:6px" align="middle">IsKeyboardVisible</h5>
+    <button type="button"
+            style="display:block; float:left; margin:10px;" class="button"
+            onclick="runDirectCommand('isKeyboardVisible')">?</button>
+    <input type="text" id="keyboard_visibility"
+           style="background-color:gray; color:black; width:50px; height:22px; border:0; margin:10px; text-align:center"
+           disabled>
+  </div>
+  <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; height:116px; float: left">
+     <h5 style="color:white; margin-bottom:6px" align="middle">SetUseVirtualKeyboard</h5>
+     <button type="button"
+             style="display:block; float:left; margin:10px" class="button"
+             onclick="runDirectCommandWithArgs('setUseVirtualKeyboard', { enable: 'true' })">On</button>
+     <button type="button"
+             style="display:block; float:left; margin:10px" class="button"
+             onclick="runDirectCommandWithArgs('setUseVirtualKeyboard', { enable: 'false' })">Off</button>
+  </div>
+  <div>
+    <table>
+      <tr>
+        <th>
+          <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:426px; height:116px">
+            <table width="100%">
+              <tr>
+                <th><h5 style="color:white; margin-bottom:6px" align="middle">XInput</h5></th>
+              </tr>
+              <tr>
+                <td>
+                  <table width="100%">
+                    <tr>
+                      <td width="25%">
+                        <button class="button" type="button" style="width:100%" onclick="onXInputActivate()">Activate</button>
+                      </td>
+                      <td width="25%">
+                        <button class="button" type="button" style="width:100%" onclick="onXInputDeactivate()">Deactivate</button>
+                      </td>
+                      <td width="50%">
+                        <table width="100%">
+                          <tr>
+                            <td width="60%">
+                              <button class="button" type="button" style="width:100%" onclick="onXInputInvokeAction()">InvokeAction</button>
+                            </td>
+                            <td width="40%">
+                              <select id="XInputSel" style="width:100%; height:26px">
+                                <option value="18874372">QMENU</option>
+                                <option value="18874417">3DMENU</option>
+                                <option value="18874423">RATIO</option>
+                              </select>
+                            </td>
+                          <tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </th>
+      </tr>
+    </table>
+  </div>
+  <table>
+    <tr>
+      <th>
+        <div style="border:dashed thin white; margin-left:12px; margin-top:10px; padding:0px; width:210px; height:116px">
+          <table>
+            <tr>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:5px" align="middle">Set Window<br>Opacity</h5></th>
+            </tr>
+            <tr>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:10px" align="middle">Opacity</h5></th>
+              <th><h5 style="color:white; margin-left:5px; margin-top:5px; margin-bottom:10px" align="middle">Set Opacity</h5></th>
+            </tr>
+            <tr>
+              <th><input class="input_size_pos" id="opacity_input" style="margin-left:5px" type="range" min="0" max="1" step="0.1" value="0"></th>
+              <th><button class="button" id="button40" type="button" style="display:block; float:left; margin-left:5px; margin-top:0px" onclick="setOpacity()">Set</button></th>
+            </tr>
+          </table>
+        </div>
+      </th>
+    </tr>
+  </table>
+  <h5 id="textbottom" style="color:gray; margin-top:50px" align="left">This page should be hosted by Mock server</h5>
+</body>
+</html>

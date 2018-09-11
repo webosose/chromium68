@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Browser WebAPI Test Page</title>
+    <style type="text/css">
+        button, input {
+            font-size: 100%;
+        }
+    ul.result-list { height: 100px; width: 400px; }
+    ul.result-list { overflow: hidden; overflow-y: auto;}
+    </style>
+</head>
+
+<body>
+    <h1>Test 'BrowserControl' WebAPI support</h1>
+    <div id="web_api_tests"></div>
+    <p>
+        <button type="button" onclick="checkBrowserControlAPI();">
+            Run 'BrowserControl' WebAPI support tests
+        </button>
+    </p>
+    <hr>
+
+    <h1>'BrowserControl' WebAPI methods test</h1>
+    <h2>callFunction(name, arguments):</h2>
+    name: <input id="call_function_name_input" type="text">
+    arguments: <input id="call_function_arguments_input" type="text">
+    <p>
+        <button id='call_func_btn' type="button"
+            onclick="callFunction()">
+            callFunction
+        </button>
+    </p>
+
+    <h2>sendCommandFunction(function_name, arguments):</h2>
+    name: <input id="send_command_name_input" type="text">
+    arguments: <input id="send_command_arguments_input" type="text">
+    <p>
+        <button id='call_func_btn' type="button"
+            onclick="sendCommand()">
+            sendCommand
+        </button>
+    </p>
+
+    <p>
+     <section>
+        <h3>BrowserControl API calls log</h3>
+        <select size='5' id='browser_control_log'>
+            <option value='-1'>No BrowserControl API calls</option>
+        </select>
+     </section>
+    </p>
+</body>
+
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/browser_control.js"></script>
+
+<script>
+    var callsNumber = 0
+    checkBrowserControlAPI()
+</script>
+
+</html>

@@ -1,0 +1,50 @@
+# Copyright (c) 2016 The Chromium Authors. All rights reserved.
+
+config("ozone_wayland_config") {
+  defines = [ "OZONE_WAYLAND_IMPLEMENTATION" ]
+
+  include_dirs = [ ".." ]
+}
+
+source_set("ozone_wayland") {
+
+  configs += [ ":ozone_wayland_config" ]
+
+  sources = [
+    "media/media_ozone_platform_wayland.cc",
+    "media/media_ozone_platform_wayland.h",
+    "platform/client_native_pixmap_factory_wayland.cc",
+    "platform/client_native_pixmap_factory_wayland.h",
+    "platform/desktop_platform_screen.h",
+    "platform/desktop_platform_screen_delegate.h",
+    "platform/ozone_export_wayland.h",
+    "platform/messages.h",
+    "platform/message_generator.h",
+    "platform/message_generator.cc",
+    "platform/ozone_gpu_platform_support_host.h",
+    "platform/ozone_gpu_platform_support_host.cc",
+    "platform/ozone_platform_wayland.cc",
+    "platform/ozone_platform_wayland.h",
+    "platform/ozone_wayland_window.cc",
+    "platform/ozone_wayland_window.h",
+    "platform/window_constants.h",
+    "platform/window_manager_wayland.cc",
+    "platform/window_manager_wayland.h",
+  ]
+
+  deps = [
+    "//skia",
+    "//base/third_party/dynamic_annotations",
+    "//ui/display:display",
+    "//ui/events/ozone:events_ozone",
+    "//ui/events/ozone:events_ozone_evdev",
+    "//ui/events/ozone:events_ozone_evdev_neva",
+    "//ui/events/ozone:events_ozone_layout",
+    "//ui/gfx/ipc",
+    "//ui/ozone:ozone_base",
+    "//ui/ozone/common",
+    "wayland",
+  ]
+
+
+}

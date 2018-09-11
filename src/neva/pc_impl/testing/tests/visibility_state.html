@@ -1,0 +1,32 @@
+<html>
+
+<script language="javascript">
+    n = 0;
+
+    function log(msg){
+      htmlConsole.value += msg + "\n";
+      console.log(msg);
+    }
+
+    function OnVisibilitychange(){
+      msg = "(" + n + ")"
+      msg += " document.webkitHidden = " + document.webkitHidden;
+      msg += " document.visibilityState = " + document.visibilityState;
+      log(msg);
+
+      n++;
+    }
+
+    function processOnload(){
+      htmlConsole = document.getElementById("console");
+      OnVisibilitychange();
+
+      document.addEventListener('visibilitychange', OnVisibilitychange)
+    }
+</script>
+
+<body onload= "processOnload();">
+<textarea id="console" rows="25" cols="80"></textarea>
+</body>
+
+</html>

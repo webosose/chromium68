@@ -1,0 +1,10 @@
+{
+    "name": "MethodsOutArgsWrongType",
+    "methods": [
+      {
+          "method": "std::string GetValue",
+          "in_args": [],
+          "out_args": ""
+      }
+    ]
+}

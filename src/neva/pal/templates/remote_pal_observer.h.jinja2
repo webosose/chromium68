@@ -1,0 +1,48 @@
+{#- ======================================================================= #}
+{%- from 'macros.jinja2' import write_file_is_generated, write_method_args -%}
+{#- ======================================================================= #}
+{{- write_file_is_generated(source_jsons) }}
+{%- if is_needed_IPC %}
+{%- set u_name = interface.under_score_name %}
+{%- set up_name = u_name | upper %}
+{%- set name = interface.name %}
+
+#ifndef REMOTE_PAL_IPC_{{up_name}}_{{up_name}}_REMOTE_PAL_OBSERVER_H_
+#define REMOTE_PAL_IPC_{{up_name}}_{{up_name}}_REMOTE_PAL_OBSERVER_H_
+
+#include <string>
+#include "content/public/renderer/render_frame_observer.h"
+
+namespace content {
+
+class CONTENT_EXPORT {{name}}RemotePalObserver : public RenderFrameObserver {
+ public:
+  explicit {{name}}RemotePalObserver(RenderFrame* render_frame);
+  ~{{name}}RemotePalObserver() override = default;
+  void OnDestruct() override;
+
+  bool OnMessageReceived(const IPC::Message& message) override;
+
+ private:
+  {%- set arg_cb = [dict(type = 'int', name = 'pal_async_callback_id')] %}
+  {% for method in interface.methods %}
+  {%- if method.no_IPC %} {%- continue %}{%- endif %}
+  {%- if method.return != 'async' %} {%- continue %}{%- endif %}
+  {%- set ret_arg = [] %}
+  {%- set ret_arg = ret_arg + arg_cb %}
+  {%- for arg in method.out_args%}
+    {%- set type = arg.type | replace('&', '') | replace('const', '') %}
+    {%- do ret_arg.append({'name' : arg.name, "type" : type}) %}
+  {%- endfor %}
+  void On{{method.name}}Done({{write_method_args(ret_arg)}});
+  {%- endfor %}
+  {%- for broadcast in interface.broadcasts %}
+  void On{{broadcast.name}}({{write_method_args(broadcast.args)}});
+  {%- endfor %}
+};
+
+}  // namespace content
+
+#endif  // REMOTE_PAL_IPC_{{up_name}}_{{up_name}}_REMOTE_PAL_OBSERVER_H_
+{% endif %}
+

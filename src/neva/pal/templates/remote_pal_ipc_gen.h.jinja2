@@ -1,0 +1,5 @@
+{%- for interface in pal_description | sort(attribute = 'name')-%}
+{%- if check_IPC_needed(interface) -%}
+{{interface.name}}Interface* Get{{interface.name}}Interface() override;
+{%- endif %}
+{% endfor %}

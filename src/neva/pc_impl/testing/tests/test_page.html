@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Sample WebAPI Test Page</title>
+    <style type="text/css">
+        button, input {
+            font-size: 100%;
+        }
+    ul.result-list { height: 100px; width: 400px; }
+    ul.result-list { overflow: hidden; overflow-y: auto;}
+    </style>
+</head>
+
+<body>
+    <h1>Test 'Sample' WebAPI support</h1>
+    <div id="web_api_tests"></div>
+    <p>
+        <button type="button" onclick="checkSampleAPI();">
+            Run 'Sample' WebAPI support tests
+        </button>
+    </p>
+    <hr>
+    <h1>'Sample' WebAPI methods test</h1>
+    <h2>getPlatformValue():</h2>
+    <span id="get_platform_value_num" style="color:blue">__</span>
+    received value =
+    <span id="get_platform_returned_value" style="color:blue">__</span>
+    <p>
+        <button id='get_platform_btn' type="button"
+            onclick="getPlatformValue()">
+            getPlatformValue
+        </button>
+    </p>
+    <hr>
+    <h2>add/remove EventListener('samplenotify', eventCallback):</h2>
+    <span id="sample_update_msg_num" style="color:blue">__</span>
+    received notification value =
+    <span id="sample_update_returned_value" style="color:blue">__</span>
+    <p>
+        <button id='sample_update_subscribe_btn' type="button"
+            onclick="sampleUpdateChangeSubscriptionStatus()">
+            AddEventListener
+        </button>
+    </p>
+    <hr>
+    <h2>processData():</h2>
+    Data to send: <input id="process_data_value_input" type="text">
+    <button id='process_data_btn' type="button"
+        onclick="processData()">
+        processData
+    </button>
+    <p>
+    <section>
+        <h3>Sent requests</h3>
+        <ul class='result-list' id='process_data_sent_requests'
+            style="list-style-type:none">
+        </ul>
+    </section>
+    <hr>
+    <h2>callFunc():</h2>
+    Data to send <span id="call_func_msg_num" style="color:blue"></span>:
+    arg1: <input id="call_func_arg1_input" type="text">
+    arg2: <input id="call_func_arg2_input" type="text">
+    <p>
+        <button id='call_func_btn' type="button"
+            onclick="callFunc()">
+            callFunc
+        </button>
+    </p>
+</body>
+
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/sample.js"></script>
+
+<script>
+    var isSampleUpdateSubscribed = false;
+    var numberSampleUpdatesMessages = 0;
+    var numberGetPlatformValueMessages = 0;
+    var numberProcessDataMessages = 0;
+    var numberCallFuncMessages = 0;
+
+
+    checkSampleAPI();
+</script>
+
+</html>

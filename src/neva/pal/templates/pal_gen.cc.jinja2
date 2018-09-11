@@ -1,0 +1,18 @@
+{%- from 'macros.jinja2' import write_file_is_generated -%}
+{{ write_file_is_generated(source_jsons) }}
+
+// Redefine NOTIMPLEMENTED_POLICY to log once
+#define NOTIMPLEMENTED_POLICY 5
+#include "base/logging.h"
+#include "pal/public/pal.h"
+
+namespace pal {
+
+{% for interface in pal_description | sort(attribute = 'name') %}
+{{interface.name}}Interface* Pal::Get{{interface.name}}Interface({%- if interface.getterArgs is defined %}{{interface.getterArgs}}{% endif %}) {
+  NOTIMPLEMENTED();
+  return nullptr;
+}
+{% endfor %}
+
+}  // namespace pal

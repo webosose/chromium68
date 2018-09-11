@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Native Controls API Test Page</title>
+    <link rel="stylesheet" type="text/css" href="css/native_controls.css">
+</head>
+
+<body>
+    <h1 class="page-title">'Native Controls' API test</h1>
+    <h2 class="control-file-chooser">File chooser:</h2>
+    <p>
+        <label for="accept_types">Accept types</label>
+        <input id="accept_types" type="text" value=".txt,.cc">
+    </p>
+    <p>
+        <label for="multiple">Multiple?</label>
+        <input type="checkbox" id="multiple">
+    </p>
+    <p>
+        <button type="button" onclick="callFileChooser();">
+            File Chooser
+        </button>
+        <input id="file_chooser" type="file" style="display: none">
+        <div id="file_chooser_result" class="dialog_result,results_header"></div>
+    </p>
+    <hr>
+    <h2 class="control-color-picker">Color chooser:</h2>
+        Press button to choose color: <input id="color_picker" type="color" value="#ff0080">
+    <hr>
+</body>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/native_controls_test.js"></script>
+
+</html>

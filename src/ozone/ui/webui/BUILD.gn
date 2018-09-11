@@ -1,0 +1,39 @@
+# Copyright (c) 2016 The Chromium Authors. All rights reserved.
+
+import("//build/config/linux/pangocairo/pangocairo.gni")
+
+declare_args() {
+  use_select_file_dialog_webui_impl = false
+}
+
+source_set("webui") {
+
+  deps = [
+    "//ui/base:base",
+    "//ui/gfx/ipc",
+    "//ipc:ipc",
+    "//ui/ozone:platform",
+  ]
+
+  sources = [
+    "ozone_webui.h",
+    "ozone_webui.cc",
+    "input_method_context_impl_wayland.h",
+    "input_method_context_impl_wayland.cc",
+    "input_method_context_manager.h",
+    "input_method_context_manager.cc",
+  ]
+
+  if (use_pangocairo) {
+    configs += [ "//build/config/linux/pangocairo" ]
+  }
+
+  if (use_select_file_dialog_webui_impl) {
+    defines = [ USE_SELECT_FILE_DIALOG_WEBUI_IMPL ]
+    sources += [
+      "file_picker_web_dialog.h",
+      "select_file_dialog_impl_webui.h",
+      "select_file_dialog_impl_webui.cc",
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Native Dialogs API Test Page</title>
+    <link rel="stylesheet" type="text/css" href="css/native_dialogs.css">
+</head>
+
+<body>
+    <h1 style="background-color: chartreuse;">'Native Dialogs' API test</h1>
+    <h2 class="dialog_alert">Alert dialog:</h2>
+    Data to send: <input id="alert_message" type="text" value="Alert message!!!">
+    <p>
+        <button type="button" onclick="callAlertDialog();">
+            Click the button to display an ALERT dialog.
+        </button>
+        <div id="alert_result" class="dialog_result">You have closed dialog</div>
+    </p>
+    <hr>
+    <h2 class="dialog_confirm">Confirm dialog:</h2>
+    Data to send: <input id="confirm_message" type="text" value="Confirm message!!!">
+    <p>
+        <button type="button" onclick="callConfirmDialog();">
+            Click the button to display a CONFIRM dialog.
+        </button>
+        <div id="confirm_result" class="dialog_result">You pressed </div>
+    </p>
+    <hr>
+    <h2 class="dialog_prompt">Prompt dialog:</h2>
+    <p>Text: <input id="prompt_text" type="text" value="Prompt text"></p>
+    <p>Default answer text: <input id="prompt_default_text" type="text" value="Default text"></p>
+    <p>
+        <button type="button" onclick="callPromptDialog();">
+            Click the button to display a PROMPT dialog.
+        </button>
+        <div id="prompt_result" class="dialog_result">You entered: </div>
+    </p>
+    <hr>
+</body>
+
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/native_dialogs_test.js"></script>
+
+</html>

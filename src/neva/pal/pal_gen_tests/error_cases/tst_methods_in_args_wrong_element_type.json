@@ -1,0 +1,14 @@
+{
+    "name": "MethodsInArgsWrongElementType",
+    "methods": [
+      {
+          "method": "std::string GetValue",
+          "in_args": [
+            "std::string arg1     // Any value",
+            13,
+            "std::string arg2"
+          ],
+          "out_args": []
+      }
+    ]
+}

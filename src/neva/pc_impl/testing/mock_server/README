@@ -1,0 +1,16 @@
+To run neva's 'platoform bus emulator server' (emulator server
+for short) just run the run_emulator_server.bash script to start
+and preconfigure MockServer[1] and to start TestsServer as well.
+
+MockServer is supposed to provide emulated answers that it
+was told to and also serves as a http-frontend to TestsServer.
+TestsServer in turn is basically serves static http emulator pages
+and their js scripts which actually are neva emulator clients.
+
+By default, MockServer is configured to serve on tcp/8888 port
+and TestsServer is on tcp/8887 port. Thus, to run emulator client
+page just open http://localhost:8888 in your browser.
+
+---
+[1] Detailed information on the MockServer server purpose,
+usage and features can be found at http://www.mock-server.com

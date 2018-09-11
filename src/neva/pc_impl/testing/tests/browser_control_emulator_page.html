@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Sample WebAPI Emulator Page</title>
+    <style type="text/css">
+        button, input {
+            font-size: 100%;
+        }
+
+        details {
+            font-size: 100%;
+        }
+        ul.request-list { height: 100px; width: 500px; }
+        ul.request-list {
+            overflow: hidden;
+            overflow-y: auto;
+            list-style-type: none;
+        }
+
+    </style>
+    <!-- let's keep this file the first one -->
+    <script type="text/javascript" src="js/mock_server_urls.js"></script>
+    <script type="text/javascript" src="js/mockServerClient.js"></script>
+    <script type="text/javascript" src="js/mock_server.js"></script>
+    <script type="text/javascript" src="js/browser_control_emulator.js"></script>
+</head>
+
+<body>
+    <h2>#: result = callFunction(name, arguments) / sendCommand(name, arguments):</h2>
+    <p>
+     <section>
+        <select size='5' id='browser_control_log'>
+            <option value='-1'>No SendCommand calls</option>
+        </select>
+     </section>
+    </p>
+</body>
+
+<script>
+    var poll_period = 500;
+    setTimeout(periodicPoll, poll_period);
+</script>
+
+</html>

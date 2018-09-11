@@ -1,0 +1,3 @@
+  {% for interface in pal_description | sort(attribute = 'name')-%}
+  virtual {{interface.name}}Interface* Get{{interface.name}}Interface({%- if interface.getterArgs is defined %}{{interface.getterArgs}}{% endif %});
+  {% endfor %}

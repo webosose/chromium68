@@ -1,0 +1,3 @@
+{% for interface in pal_description | sort(attribute = 'name')-%}
+#include "remote_pal_ipc/{{interface.under_score_name}}/{{interface.under_score_name}}_remote_pal_observer.h"
+{% endfor %}

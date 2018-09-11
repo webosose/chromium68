@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<p>Keyboard attribute test</p>
+ <form>
+  <br>System keyboard attribute is false, so system keyboard in not allowed<br>
+  <input type="text" systemkeyboard="false" name="firstname"><br>
+  <br>System keyboard attribute is true, so system keyaboard is allowed:<br>
+  <input type="text" systemkeyboard="true" name="secondname"><br>
+  <br>systemkeyboard attribute is empty, so system keyaboard is allowed:<br>
+  <input type="text" systemkeyboard="" name="thirdname">
+  <br><br>No systemkeyboard attribute, so system keyaboard is allowed by default:<br>
+  <input type="text" name="lastname">
+</form>
+
+</body>
+</html>

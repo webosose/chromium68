@@ -1,0 +1,80 @@
+import("//neva/neva.gni")
+
+config("config") {
+  defines = []
+
+  cflags = [
+    "-Wno-unused-variable",
+  ]
+
+  include_dirs = [
+    ".",
+    "$target_gen_dir",
+  ]
+
+  # All defines for neva must be defined here
+  if (use_injections) {
+    defines += [ "USE_INJECTIONS=1" ]
+  }
+
+  if (enable_browser_control_webapi) {
+    defines += [ "ENABLE_BROWSER_CONTROL_WEBAPI=1" ]
+  }
+
+   if (enable_sample_webapi) {
+    defines += [ "ENABLE_SAMPLE_WEBAPI=1" ]
+  }
+
+  if (enable_memorymanager_webapi) {
+    defines += [ "ENABLE_MEMORYMANAGER_WEBAPI=1" ]
+  }
+
+  if (neva_dcheck_always_on) {
+    defines += [ "NEVA_DCHECK_ALWAYS_ON=1" ]
+  }
+
+  if (ozone_platform_wayland_external) {
+    defines += [ "OZONE_PLATFORM_WAYLAND_EXTERNAL=1" ]
+  }
+
+  if (webos) {
+    defines += [
+      "OS_WEBOS=1",
+      "VIDEO_HOLE=1",
+    ]
+
+    enable_webm_audio_codecs = false
+  }
+
+  if (use_neva_appruntime) {
+    defines += [ "USE_NEVA_APPRUNTIME=1" ]
+  }
+
+  if (use_neva_media) {
+    defines += [ "USE_NEVA_MEDIA=1" ]
+  }
+
+  if (enable_webm_audio_codecs) {
+    defines += [ "ENABLE_WEBM_AUDIO_CODECS=1" ]
+  }
+
+  if (enable_webm_video_codecs) {
+    defines += [ "ENABLE_WEBM_VIDEO_CODECS=1" ]
+  }
+
+  if (use_memory_trace) {
+    defines += [ "USE_MEMORY_TRACE=1" ]
+  }
+
+  if(is_linux && is_debug) {
+    cflags += [ "-Wno-deprecated-register" ]
+  }
+
+  if (use_videotexture) {
+    defines += [ "USE_VIDEO_TEXTURE=1" ]
+  }
+
+  if (use_cbe) {
+    defines += [ "USE_CBE=1" ]
+  }
+}

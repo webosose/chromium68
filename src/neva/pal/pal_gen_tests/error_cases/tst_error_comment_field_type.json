@@ -1,0 +1,7 @@
+{
+    "name": "ErrorCommentFieldType",
+    "methods": [],
+    "comment": { "line":
+        "Interface's 'comment' field has wrong type"
+    }
+}

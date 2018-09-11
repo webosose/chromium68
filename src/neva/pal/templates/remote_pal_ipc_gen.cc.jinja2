@@ -1,0 +1,29 @@
+{%- from 'macros.jinja2' import write_file_is_generated -%}
+{{ write_file_is_generated(source_jsons) }}
+
+#include "remote_pal_ipc/remote_pal_ipc.h"
+
+#include <mutex>
+
+{% for interface in pal_description | sort(attribute = 'name')-%}
+#include "remote_pal_ipc/{{interface.under_score_name}}/{{interface.under_score_name}}_remote_pal_interface_ipc.h"
+{% endfor %}
+
+namespace pal {
+
+{% for interface in pal_description | sort(attribute = 'name')-%}
+{%- if check_IPC_needed(interface) %}
+{%- set u_name = interface.under_score_name -%}
+{%- set name = interface.name -%}
+std::unique_ptr<{{name}}Interface> {{u_name}}_interface_instance;
+std::once_flag {{u_name}}_interface_instance_flag;
+
+{{name}}Interface* RemotePalIPC::Get{{name}}Interface() {
+  std::call_once({{u_name}}_interface_instance_flag,
+      []() { {{u_name}}_interface_instance.reset(new {{name}}RemotePalInterfaceIPC()); });
+  return {{u_name}}_interface_instance.get();
+}
+{%- endif %}
+{% endfor %}
+}  // namespace pal
+

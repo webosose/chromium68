@@ -1,0 +1,17 @@
+import("//neva/neva.gni")
+
+if (webos) {
+  deps = [
+    "//neva/webos_impl/pal:pal_webos_impl"
+  ]
+} else {
+  deps = [
+    # Default Neva PAL impl
+    # This line can be modified by a platform team to build another PAL implementation target
+    "//neva/pc_impl/pal:pal_pc_impl"
+  ]
+}
+
+
+
+

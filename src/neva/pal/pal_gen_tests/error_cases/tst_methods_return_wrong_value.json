@@ -1,0 +1,11 @@
+{
+    "name": "MethodsReturnWrongValue",
+    "methods": [
+      {
+          "method": "std::string GetValue",
+          "in_args": [],
+          "out_args": [],
+          "return": "error_value"
+      }
+    ]
+}

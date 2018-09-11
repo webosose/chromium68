@@ -1,0 +1,12 @@
+{
+    "name": "NoBroadcastsMethodField",
+    "methods": [
+    ],
+    "broadcasts":[
+      {
+          "args": [
+                "const std::string& value"
+          ]
+      }
+    ]
+}

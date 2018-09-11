@@ -1,0 +1,46 @@
+button, input {
+    font-size: 100%;
+}
+
+.page-title {
+    background-color: chartreuse;
+}
+
+.control-file-chooser {
+    background-color: darkturquoise;
+}
+
+.control-color-picker {
+    background-color: mediumseagreen;
+}
+
+.file_chooser {
+    background-color: darkturquoise;
+}
+
+.dialog_result {
+    visibility: hidden;
+}
+
+.results_header {
+    background-color: chartreuse;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    padding: 8px;
+}
+
+td {
+    text-align: left;
+    font-weight: initial;
+}
+
+.file-date {
+    font-size: 0.6em;
+}

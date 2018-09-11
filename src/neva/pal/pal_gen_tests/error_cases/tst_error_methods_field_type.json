@@ -1,0 +1,7 @@
+{
+    "name": "ErrorMethodsFieldType",
+    "methods": "Error type",
+    "comment": [
+        "Interface's 'methods' field has wrong type"
+    ]
+}

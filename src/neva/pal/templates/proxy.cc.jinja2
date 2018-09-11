@@ -1,0 +1,86 @@
+{#- =================================================== #}
+{#- Macro to generate IPC Message Name                  #}
+{#- =================================================== #}
+{%- macro generate_IPC_message_name(class, method) -%}
+{{class}}HostMsg_{{method}}
+{%- endmacro -%}
+{%- from 'macros.jinja2' import write_file_is_generated -%}
+{{ write_file_is_generated(source_jsons) }}
+
+{% if is_needed_IPC %}
+{%- set files = [] -%}
+{%- set name = interface.under_score_name -%}
+{%- do files.append('pal/ipc/renderer/' ~ name ~ '/' ~ name ~ '_proxy') -%}
+{%- do files.append('pal/ipc/' ~ name ~ '_messages') -%}
+{%- for file in files|sort %}
+#include "{{ file }}.h"
+{%- endfor %}
+
+namespace pal {
+
+{{interface.name}}Proxy::{{interface.name}}Proxy(content::RenderFrame* frame)
+    : render_frame_(frame) {}
+
+{% for method in interface.methods %}
+{%- if method.no_IPC %} {%- continue %}{%- endif %}
+void {{interface.name}}Proxy::{{method.name}}(
+      {%- if method.return == 'async' -%}
+        {%- set args = [dict(type = 'int', name = 'pal_async_callback_id')] %}
+      {%- else -%}
+        {%- set args = [] -%}
+      {%- endif -%}
+      {%- set args = args + method.in_args -%}
+      {%- if method.return == 'sync' and method.pal_ret -%}
+        {%- do args.append({'name' : "pal_ret", "type" : (method.type + "&")}) -%}
+      {%- endif %}
+      {%- if method.return in ['sync', 'sync_delayed'] -%}
+        {%- set args = args + method.out_args -%}
+      {%- endif %}
+      {%- if args | count == 0 %}{{") {"}}{%- endif %}
+      {% for arg in args -%}
+        {{ arg.type}} {{arg.name}}
+        {%- if not loop.last -%},
+        {%- else -%}) {
+        {% endif %}
+      {% endfor -%}{#- Remove indent #}
+  if (render_frame_) {
+    {%- set ret_arg = [] -%}
+    {%- if method.return == 'async' -%}
+      {%- set args = [dict(type = 'int', name = 'pal_async_callback_id')] %}
+    {%- else -%}
+      {%- set args = [] -%}
+    {%- endif -%}
+    {%- set args = args + method.in_args -%}
+    {%- if method.return in ['sync', 'sync_delayed'] -%}
+      {%- if method.return == 'sync' and method.pal_ret -%}
+        {%- do args.append({'name' : "&pal_ret", "type" : method.type}) -%}
+      {%- endif %}
+      {%- for arg in method.out_args -%}
+        {%- do args.append({"name" : "&" + arg.name }) -%}
+      {%- endfor -%}
+    {%- endif %}
+    {{"render_frame_->Send("}}
+        new {{ generate_IPC_message_name(interface.name, method.name) }}(render_frame_->GetRoutingID()
+         {%- if args | count > 0 -%}{{","}}{%- endif %}
+         {%- for arg in args %} {{arg.name}}
+         {%- if not loop.last -%},
+         {%- endif -%}
+         {%- endfor -%}{{"));"}}
+  }
+}
+{% endfor %}
+{%- if interface.broadcasts is defined %}
+bool {{interface.name}}Proxy::Unsubscribe() {
+  return (render_frame_) ?
+    render_frame_->Send(new {{interface.name}}HostMsg_Unsubscribe(render_frame_->GetRoutingID())) : false;
+}
+
+bool {{interface.name}}Proxy::Subscribe() {
+  return (render_frame_) ?
+    render_frame_->Send(new {{interface.name}}HostMsg_Subscribe(render_frame_->GetRoutingID())) : false;
+}
+{% endif %}
+
+} // namespace pal
+{% endif %}
+

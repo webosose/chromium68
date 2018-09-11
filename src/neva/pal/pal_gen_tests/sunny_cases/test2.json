@@ -1,0 +1,44 @@
+{
+    "name": "IntentAgent",
+    "methods": [
+        {
+          "method": "void InvokeIntent",
+          "in_args": [
+              "const std::string& action              //Invoke action (e.g. \"guide\", \"call\", \"nfcpush\")",
+              "const std::string& type                //Invoke payload type (e.g. \"coordinates\", \"address\", \"tel\", \"pairAppInfo\")",
+              "const std::string& data                //Payload",
+              "const std::string& app_id              //App id which invokes the intent",
+              "[context_var] int32_t callback_index   //JS callback Index"
+          ],
+          "out_args": [
+              "int error_code                         //error code (0 - success)",
+              "const std::string& data                //response payload"
+          ],
+          "comment": "This function is called by an intent client when it wants to execute an intent",
+          "return" : "async"
+        },
+        {
+          "method": "void RespondIntent",
+          "in_args": [
+              "bool               result              //True if success",
+              "uint32_t           session_id          //An ID provided by platform when launching intent service",
+              "const std::string& data                //Response payload"
+          ],
+          "out_args": [],
+          "comment": [
+                "This function is called by an intent service when intent is completed",
+                "to provide response"
+          ]
+        }
+    ],
+    "comment": [
+        "This interface provides a framework which lets one web application",
+        "(intent service) use its functionalities by other web applications",
+        "(intent clients)",
+        "",
+        "Each platform has intent services registered as pairs of <action, type>",
+        "These pairs are unique",
+        "",
+        "Introduced-by: LPD team"
+    ]
+}

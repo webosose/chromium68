@@ -1,0 +1,8 @@
+{%- from 'macros.jinja2' import write_file_is_generated -%}
+{{ write_file_is_generated(source_jsons) }}
+
+// Multiply-included file, hence no include guard.
+
+{%- for interface in pal_description %}
+#include "pal/ipc/{{interface.under_score_name}}_messages.h"
+{% endfor %}

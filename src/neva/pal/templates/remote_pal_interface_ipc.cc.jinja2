@@ -1,0 +1,147 @@
+{#- ======================================================================= #}
+{%- from 'macros.jinja2' import write_file_is_generated, write_method_args -%}
+{#- ======================================================================= #}
+{{- write_file_is_generated(source_jsons) }}
+{%- if is_needed_IPC %}
+{%- set u_name = interface.under_score_name %}
+{%- set name = interface.name %}
+
+#include "remote_pal_ipc/{{ u_name }}/{{ u_name }}_remote_pal_interface_ipc.h"
+
+#include <limits>
+
+#include "base/bind.h"
+#include "content/public/renderer/render_frame.h"
+#include "pal/ipc/renderer/{{ u_name }}/{{ u_name }}_proxy.h"
+#include "third_party/blink/public/web/web_local_frame.h"
+
+namespace pal {
+
+{{ name }}RemotePalInterfaceIPC::{{ name }}RemotePalInterfaceIPC() = default;
+
+{{ name }}RemotePalInterfaceIPC::~{{ name }}RemotePalInterfaceIPC() = default;
+
+{{ name }}RemotePalInterfaceIPC::FrameCallbacks::FrameCallbacks() = default;
+{{ name }}RemotePalInterfaceIPC::FrameCallbacks::~FrameCallbacks() = default;
+
+content::RenderFrame* {{ name }}RemotePalInterfaceIPC::getFrame() const {
+  content::RenderFrame* frame = content::RenderFrame::FromWebFrame(
+      blink::WebLocalFrame::FrameForCurrentContext());
+  if (!frame) {
+    LOG(ERROR) << "Frame isn't available in Remote '{{ name }}' Interface";
+    return nullptr;
+  }
+  return frame;
+}
+
+{%- set first_async = true %}
+{% for method in interface.methods %}
+{%- if method.return == 'sync' or method.return == 'sync_delayed' %}
+{%- set all_arg = method.in_args + method.out_args %}
+{{ method.type }} {{ name }}RemotePalInterfaceIPC::{{ method.name }}({{ write_method_args(all_arg) }}) {%- if method.const %} const {%- endif %}{
+{%- if method.no_IPC %}
+  LOG(ERROR) << "PAL method described as 'no_IPC' was called remotely.";
+  return * new ({{ method.type }});
+{%- else %}
+  content::RenderFrame* frame = getFrame();
+  {%- if method.pal_ret %}
+  {%- set ret_type = method.type | replace('&', '') | replace('const', '') %}
+  {{- ret_type }} pal_ret;
+  {%- set arg_ret = [dict(type = ret_type, name = 'pal_ret')] %}
+  if (!frame) return pal_ret;
+  {%- else %}
+  {%- set arg_ret = [] %}
+  if (!frame) return;
+  {%- endif %}
+  {%- set arg_ret = arg_ret + all_arg %}
+  std::unique_ptr<pal::{{ name }}Proxy> proxy(new pal::{{ name }}Proxy(frame));
+  proxy->{{ method.name }}({{ write_method_args(arg_ret, true) }});
+  return {{' '}}{%- if method.pal_ret %}pal_ret{%- endif %};
+{%- endif %}
+}
+{%- elif method.return == 'async' %}
+{%- if first_async %}
+{% set first_async = false %}
+//static
+template <typename _ID, typename  _Map>
+_ID {{name}}RemotePalInterfaceIPC::GetAsyncMsgId(_ID &async_msg_id_, _Map &map) {
+  _ID max = std::numeric_limits<_ID>::max();
+  if (++async_msg_id_ == max)
+    async_msg_id_ = 0;
+  if (map.size() == (size_t)max) {
+    LOG(ERROR) << "Remote PAL Async callback map is full.";
+    return async_msg_id_;
+  }
+  if (map.find(async_msg_id_) != map.end())
+    return GetAsyncMsgId<_ID, _Map>(async_msg_id_, map);
+  return async_msg_id_;
+}
+{%- endif %}
+{%- set cb_type = 'const ' ~ method.name ~ 'RespondCallback&' %}
+{%- set cb_name = 'on_' ~ method.under_score_name ~ '_done' %}
+{%- set arg_cb = [dict(type = cb_type, name = cb_name)] %}
+{%- set args = method.in_args + arg_cb %}
+{%- set cb_id = 'pal_async_callback_id' %}
+
+//static
+int {{name}}RemotePalInterfaceIPC::{{method.under_score_name}}_callback_id_ = 0;
+
+void {{name}}RemotePalInterfaceIPC::{{method.name}}({{write_method_args(args)}}) {
+{%- if method.no_IPC %}
+  LOG(ERROR) << "PAL method described as 'no_IPC' was called remotely.";
+  return;
+{%- else %}
+  content::RenderFrame* frame = getFrame();
+  if (!frame) return;
+
+  size_t {{ cb_id }} = GetAsyncMsgId<int, {{method.name}}RespondCallbackMAP>(
+      {{method.under_score_name}}_callback_id_, {{method.under_score_name}}_respond_callbacks_);
+  {{method.under_score_name}}_respond_callbacks_[{{cb_id}}] = {{ cb_name }};
+  {%- set arg_cb = [dict(type = 'int', name = cb_id)] %}
+  {% set args = arg_cb + method.in_args %}
+  std::unique_ptr<pal::{{name}}Proxy> proxy(new pal::{{name}}Proxy(frame));
+  proxy->{{method.name}}({{write_method_args(args, true)}});
+{%- endif %}
+}
+{%- else %}{#- Default return type: No return value #}
+void {{ name }}RemotePalInterfaceIPC::{{ method.name }}({{ write_method_args(method.in_args) }}) {%- if method.const %} const {%- endif %}{
+  content::RenderFrame* frame = getFrame();
+  if (!frame) return;
+  std::unique_ptr<pal::{{ name }}Proxy> proxy(new pal::{{ name }}Proxy(frame));
+  proxy->{{ method.name }}({{ write_method_args(method.in_args, true) }});
+  return;
+}
+{%- endif %}
+{% endfor %}
+
+{%- set arg_id = [dict(name = 'frame_id', type = 'int')] %}
+{%- for broadcast in interface.broadcasts %}
+{%- set args = arg_id + broadcast.args %}
+std::unique_ptr<{{name}}Interface::{{broadcast.name}}Subscription>
+{{name}}RemotePalInterfaceIPC::AddCallback(
+    const {{name}}Interface::{{broadcast.name}}Callback& callback) {
+  content::RenderFrame *const frame = getFrame();
+  if (!frame) return nullptr;
+
+  int id = frame->GetRoutingID();
+  bool need_subscribe = false;
+  FrameCallbacksMAP::iterator  it = callbacks_.find(id);
+  if( it == callbacks_.end() ) {
+    need_subscribe = true;
+    callbacks_[id] = std::unique_ptr<FrameCallbacks>(new FrameCallbacks);
+  }
+  std::unique_ptr<{{name}}Interface::{{broadcast.name}}Subscription> subscr =
+      callbacks_[id]->{{broadcast.under_score_name}}_callbacks_.Add(callback);
+
+  if (need_subscribe) {
+    std::unique_ptr<pal::{{name}}Proxy> proxy(new pal::{{name}}Proxy(frame));
+    proxy->Subscribe();
+  }
+
+  return subscr;
+}
+{% endfor %}
+
+}  // namespace pal
+{% endif %}
+

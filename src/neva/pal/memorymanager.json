@@ -1,0 +1,26 @@
+{
+    "name": "MemoryManager",
+    "methods": [
+      {
+        "method": "void GetMemoryStatus",
+        "in_args": [],
+        "out_args": [
+          "const std::string& status_json"
+        ],
+        "return" : "async"
+      }
+    ],
+    "broadcasts": [
+      {
+        "method": "void LevelChanged",
+        "args": [
+          "const std::string& level_json"
+        ]
+      }
+     ],
+    "comment": [
+      "This interface is ...",
+      "",
+      "Introduced-by: Neva Core team"
+    ]
+}

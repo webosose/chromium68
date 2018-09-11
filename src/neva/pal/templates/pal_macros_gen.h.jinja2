@@ -1,0 +1,24 @@
+{%- from 'macros.jinja2' import write_file_is_generated -%}
+{{ write_file_is_generated(source_jsons) }}
+
+{%- if pal_description is defined and pal_description | count > 0 -%}
+  {%- set filters_postfix = "\\" -%}
+{%- else %}
+  {%- set filters_postfix = "" -%}
+{%- endif %}
+
+{% for interface in pal_description -%}
+#include "pal/ipc/browser/{{interface.under_score_name}}/{{interface.under_score_name}}_host.h"
+{% endfor -%}{{""}}
+#define PalAddFiltersGen(AddFilterMethod){{filters_postfix}}
+  {%- for interface in pal_description %}
+  AddFilterMethod(new pal::{{interface.name}}Host);{%- if not loop.last -%}{{"\\"}}{%- endif -%}
+  {% endfor %}
+
+{%- if pal_description is defined and pal_description | count > 0 %}
+#define PalMsgStartGen \
+  {%- for interface in pal_description %}
+  {{interface.name}}MsgStart{%- if not loop.last -%}{{",\\"}}{%- endif %}
+  {%- endfor %}
+{%- endif %}
+

@@ -1,0 +1,11 @@
+{
+    "name": "MethodsPalRetWrongType",
+    "methods": [
+      {
+          "method": "std::string GetValue",
+          "in_args": [],
+          "out_args": [],
+          "pal_ret": 13
+      }
+    ]
+}

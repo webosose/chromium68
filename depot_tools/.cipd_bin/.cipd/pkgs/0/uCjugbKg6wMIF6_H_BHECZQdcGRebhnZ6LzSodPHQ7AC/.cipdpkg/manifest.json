@@ -1,0 +1,16 @@
+{
+  "format_version": "1.1",
+  "package_name": "infra/tools/luci/vpython/linux-amd64",
+  "version_file": ".versions/vpython.cipd_version",
+  "files": [
+    {
+      "name": "vpython",
+      "size": 15831073,
+      "executable": true
+    },
+    {
+      "name": ".versions/vpython.cipd_version",
+      "size": 125
+    }
+  ]
+}

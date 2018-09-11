@@ -1,0 +1,49 @@
+{%- from 'macros.jinja2' import write_file_is_generated -%}
+{{ write_file_is_generated(source_jsons) }}
+
+{% if is_needed_IPC %}
+#ifndef PAL_PUBLIC_RENDERER_{{interface.under_score_name | upper}}_PROXY_H_
+#define PAL_PUBLIC_RENDERER_{{interface.under_score_name | upper}}_PROXY_H_
+
+#include "content/public/renderer/render_frame.h"
+#include "pal/ipc/pal_export.h"
+
+namespace pal {
+
+class PAL_EXPORT {{interface.name}}Proxy {
+
+ public:
+  {{interface.name}}Proxy(content::RenderFrame* frame);
+  virtual ~{{interface.name}}Proxy() = default;
+  {% for method in interface.methods %}
+    {%- if method.no_IPC %} {%- continue %}{%- endif %}
+    {%- if method.return == 'async' -%}
+      {%- set args = [dict(type = 'int', name = 'pal_async_callback_id')] %}
+    {%- else -%}
+      {%- set args = [] -%}
+    {%- endif -%}
+    {%- set args = args + method.in_args -%}
+    {%- if method.return == 'sync' and method.pal_ret -%}
+      {%- do args.append({'name' : "pal_ret", "type" : (method.type + "&")}) -%}
+    {%- endif %}
+    {%- if method.return in ['sync', 'sync_delayed'] -%}
+      {%- set args = args + method.out_args -%}
+    {%- endif %}
+  void {{ method.name }}(
+      {%- for arg in args %}
+      {{arg.type}} {{arg.name}} {%- if not loop.last -%},{%- endif -%}
+      {% endfor %}{{");"}}
+  {% endfor -%}{{""}}
+  {%- if interface.broadcasts is defined %}
+  bool Unsubscribe();
+  bool Subscribe();
+  {% endif %}
+ private:
+  content::RenderFrame* render_frame_;
+};
+
+} // namespace pal
+
+#endif  // PAL_PUBLIC_RENDERER_{{interface.under_score_name | upper}}_PROXY_H_
+{% endif %}
+

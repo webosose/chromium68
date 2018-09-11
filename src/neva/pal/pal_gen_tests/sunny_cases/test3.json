@@ -1,0 +1,62 @@
+{
+    "name": "Sample",
+    "methods": [
+        {
+          "method": "std::string GetValue",
+          "const"   : true,
+          "pal_ret" : false,
+          "comment" : [
+                "Returns current value. Value might be any (string, number, object, etc)",
+                "It's represent data's way: injection->page"
+          ],
+          "return"  : "sync",
+          "no_IPC"  : true,
+          "in_args" : [],
+          "out_args": []
+        },
+        {
+          "method": "void CallFunc",
+          "in_args": [
+                "std::string arg1     // Any value",
+                "std::string arg2     // Another any value"
+          ],
+          "out_args": [],
+          "comment": "It's represent data's way: page->injection->page"
+        },
+        {
+          "method": "void ProcessData",
+          "in_args": [
+                "std::string data                         // Data of any type",
+                "[context_var] int32_t callback_index     // JS callback index"
+          ],
+          "out_args": [
+              "int error_code                         // error code (0 - success)",
+              "const std::string& data                // response data"
+          ],
+          "comment": "It's represent data's way: page->injection",
+          "return" : "async"
+        },
+        {
+          "method": "void SubscribeToEvent",
+          "in_args" : [],
+          "out_args": [],
+          "comment": [
+                "Combination with other SampleAPI's functions represents: injection->page->injection"
+          ]
+        }
+    ],
+    "broadcasts": [
+        {
+          "method": "void SampleUpdate",
+          "args": [
+                "const std::string& value"
+          ]
+        }
+    ],
+    "comment": [
+        "This interface provides a framework which lets check",
+        "all ways of data flow",
+        "",
+        "Introduced-by: Newa Framework team"
+    ]
+}

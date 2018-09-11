@@ -1,0 +1,95 @@
+{#- =================================================== #}
+{#-           Write Method Declaration                  #}
+{#- =================================================== #}
+{%- macro write_method_declaration(interface, method, args, prefix, postfix) -%}
+  void {{interface.name}}RemotePalObserver::{{ prefix }}{{ method.name }}{{ postfix }}(
+      {%- set arg_end = ") {" %}
+      {%- for arg in args %}
+      {{arg.type}} {{arg.name}} {%- if loop.last -%}{{arg_end}}{% else %},{%- endif -%}
+      {% endfor %}
+{%- endmacro -%}
+{#- ======================================================================= #}
+{%- from 'macros.jinja2' import write_file_is_generated, write_method_args -%}
+{#- ======================================================================= #}
+{{- write_file_is_generated(source_jsons) }}
+{%- if is_needed_IPC %}
+{%- set u_name = interface.under_score_name %}
+{%- set name = interface.name %}
+
+#include "{{u_name}}_remote_pal_observer.h"
+
+#include "pal/ipc/{{u_name}}_messages.h"
+#include "pal/public/pal_factory.h"
+#include "pal/public/pal.h"
+#include "remote_pal_ipc/{{u_name}}/{{u_name}}_remote_pal_interface_ipc.h"
+
+namespace content {
+
+{{name}}RemotePalObserver::{{name}}RemotePalObserver(RenderFrame* render_frame)
+    : RenderFrameObserver(render_frame) {}
+
+void {{name}}RemotePalObserver::OnDestruct() {
+  delete this;
+}
+
+bool {{name}}RemotePalObserver::OnMessageReceived(const IPC::Message& message) {
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP({{name}}RemotePalObserver, message)
+  {%- for method in interface.methods %}
+  {%- if method.no_IPC %} {%- continue %}{%- endif %}
+  {%- if method.return != 'async' %} {%- continue %}{%- endif %}
+    IPC_MESSAGE_HANDLER({{name}}Msg_{{method.name}}Done, On{{method.name}}Done)
+  {%-endfor%}
+  {%- for broadcast in interface.broadcasts %}
+    IPC_MESSAGE_HANDLER({{name}}Msg_{{broadcast.name}}, On{{broadcast.name}})
+  {%- endfor %}
+  IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+  return handled;
+}
+
+{%- set arg_cb = [dict(type = 'int', name = 'pal_async_callback_id')] %}
+{% for method in interface.methods %}
+{%- if method.no_IPC %} {%- continue %}{%- endif %}
+{%- if method.return != 'async' %} {%- continue %}{%- endif %}
+{%- set ret_arg = [] %}
+{%- set ret_arg = ret_arg + arg_cb %}
+{%- for arg in method.out_args%}
+  {%- set type = arg.type | replace('&', '') | replace('const', '') %}
+  {%- do ret_arg.append({'name' : arg.name, "type" : type}) %}
+{%- endfor %}
+
+{{ write_method_declaration(interface, method, ret_arg, "On", "Done") }}
+  using namespace pal;
+  {{name}}RemotePalInterfaceIPC* interface =
+      reinterpret_cast<{{name}}RemotePalInterfaceIPC*>
+      (pal::GetInstance()->Get{{name}}Interface());
+
+  if (interface == nullptr) {
+    LOG(ERROR) << "No Remote PAL implemented for interface";
+    return;
+  }
+  interface->Notify{{method.name}}({{write_method_args(ret_arg, true)}});
+}
+{% endfor %}
+
+{%- set arg_id = [dict(name = 'routing_id()')] %}
+{%- for broadcast in interface.broadcasts %}
+{{ write_method_declaration(interface, broadcast, broadcast.args, "On", "") }}
+  using namespace pal;
+  {{name}}RemotePalInterfaceIPC* interface =
+      reinterpret_cast<{{name}}RemotePalInterfaceIPC*>
+      (pal::GetInstance()->Get{{name}}Interface());
+
+  if (interface == nullptr) {
+    LOG(ERROR) << "No Remote PAL implemented for interface";
+    return;
+  }
+  {%- set args = arg_id + broadcast.args %}
+  interface->Notify{{broadcast.name}}({{write_method_args(args, true)}});
+}
+{% endfor %}
+
+}  // namespace content
+{% endif %}
+

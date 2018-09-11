@@ -1,0 +1,30 @@
+{
+    "id": "com.webos.app.browser",
+    "version": "2.0.0",
+    "vendor": "LG Electronics, Inc.",
+    "type": "native_builtin",
+    "title": "Web Browser",
+    "icon": "webbrowser_icon.png",
+    "iconColor": "#009999",
+    "splashBackground": "webbrowser_splash.png",
+    "main": "run_webbrowser",
+    "handlesRelaunch": true,
+    "requiredMemory": 160,
+    "bootLaunchParams":
+        {
+            "BGMode": "1"
+        },
+    "mimeTypes": [
+        {
+            "mime": "text/html",
+            "extension": "html",
+            "stream": true
+        },
+        {
+            "scheme": "http"
+        },
+        {
+            "scheme": "https"
+        }
+    ]
+}

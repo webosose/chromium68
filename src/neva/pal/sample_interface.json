@@ -1,0 +1,72 @@
+{
+    "name": "Sample",
+    "methods": [
+      {
+        "method": "std::string GetCurrentValue",
+        "const"   : true,
+        "pal_ret" : true,
+        "comment" : [
+          "Returns some platform value",
+          "Value might be any (string, number, object, etc)",
+          "Data flow: native->native"
+        ],
+        "return"  : "sync",
+        "no_IPC"  : true,
+        "in_args" : [],
+        "out_args": []
+      },
+      {
+        "method": "std::string GetPlatformValue",
+        "const"   : true,
+        "pal_ret" : true,
+        "comment" : [
+          "Returns some platform value to JS",
+          "Data flow: native->js"
+        ],
+        "return"  : "sync",
+        "in_args" : [],
+        "out_args": []
+      },
+      {
+        "method": "void CallFunc",
+        "in_args": [
+          "std::string arg1     // Any value",
+          "std::string arg2     // Another any value"
+        ],
+        "out_args": [],
+        "comment": [
+          "Calls some platform function with args",
+          "Data flow: js->native"
+        ]
+      },
+      {
+        "method": "void ProcessData",
+        "in_args": [
+          "const std::string data                  // Data of any type"
+        ],
+        "out_args": [
+          "bool result                         // true - success"
+        ],
+        "comment": [
+          "Processes received data from js and",
+          "calls a callback with result of data processing",
+          "Data flow: js->native->js"
+        ],
+        "return" : "async"
+      }
+    ],
+    "broadcasts": [
+      {
+        "method": "void SampleUpdate",
+        "args": [
+          "const std::string& value"
+        ]
+      }
+    ],
+    "comment": [
+      "This interface is a sample interface showing",
+      "all possible ways of data flow between js and native code",
+      "",
+      "Introduced-by: Neva Framework team"
+    ]
+}

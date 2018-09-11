@@ -1,0 +1,60 @@
+{%- from 'macros.jinja2' import write_file_is_generated -%}
+{{ write_file_is_generated(source_jsons) }}
+
+// Multiply-included message file, no traditional include guard
+#include <string>
+
+#include "ipc/ipc_message_macros.h"
+#include "pal/ipc/pal_export.h"
+
+#undef IPC_MESSAGE_EXPORT
+#define IPC_MESSAGE_EXPORT PAL_EXPORT
+#define IPC_MESSAGE_START {{interface.name}}MsgStart
+{% if interface.broadcasts is defined %}
+IPC_MESSAGE_ROUTED0({{interface.name}}HostMsg_Unsubscribe)
+IPC_MESSAGE_ROUTED0({{interface.name}}HostMsg_Subscribe)
+{%- for broadcast in interface.broadcasts %}
+IPC_MESSAGE_ROUTED{{- broadcast.args | count -}}({{interface.name}}Msg_{{broadcast.name}}
+        {%- if broadcast.args | count > 0 %},
+        {%- for arg in broadcast.args %}
+        {{arg.type | replace('&', '') | replace('const', '')}} {{" /* "}}{{arg.name}}{{" */"}}
+        {%- if not loop.last -%}{{","}}{%- endif -%}
+        {% endfor %}
+        {%- endif %})
+{%- endfor %}
+{%- endif %}
+{#- ========================== end broadcast treatment ========================== #}
+{%- for method in interface.methods %}
+{%- if method.no_IPC %} {%- continue %}{%- endif %}
+{%- set context_arg = [] %}
+{%- if method.return == 'async' %}
+{%- set context_arg = [dict(type = 'int', name = 'pal_async_callback_id')] %}
+{%- set ret_arg = context_arg + method.out_args %}
+IPC_MESSAGE_ROUTED{{ret_arg | count}}({{interface.name}}Msg_{{method.name}}Done,
+                          {%- for arg in ret_arg %}
+                          {{arg.type | replace('&', '') | replace('const', '')}} {{" /* "}}{{arg.name}}{{" */"}}
+                          {%- if not loop.last -%}{{","}}{%- endif -%}
+                          {%- endfor -%})
+{%- endif %}
+{%- if method.return in ['sync', 'sync_delayed'] %}
+     {%- set out_args = [] %}
+     {%- if method.return == 'sync' and method.pal_ret %}
+          {%- do out_args.append({'name' : "pal_ret", "type" : (method.type + "&")}) %}
+     {%- endif %}
+     {%- set out_args = out_args + method.out_args %}
+     {%- set postfix = (method.in_args | count) ~ "_" ~ (out_args | count) %}
+     {%- set ipc_msg = "IPC_SYNC_MESSAGE_ROUTED" %}
+     {%- set args = method.in_args | list %}
+     {%- set args = args + out_args %}
+{%- else %}
+     {%- set args = context_arg + method.in_args %}
+     {%- set postfix = args | count %}
+     {%- set ipc_msg = "IPC_MESSAGE_ROUTED" %}
+{%- endif %}
+{{ipc_msg}}{{postfix}}({{interface.name}}HostMsg_{{method.name}}{%- if args | count > 0 %}{{","}}{%- endif %}
+                          {%- for arg in args %}
+                          {{arg.type | replace('&', '') | replace('const', '')}} {{" /* "}}{{arg.name}}{{" */"}}
+                          {%- if not loop.last -%}{{","}}{%- endif -%}
+                          {% endfor %})
+{%- endfor %}
+

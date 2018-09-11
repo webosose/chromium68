@@ -1,0 +1,140 @@
+# Copyright (c) 2018 LG Electronics, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+import(".PREBUILD/pal_gen.gni")
+import("//neva/neva.gni")
+
+config("pal_config") {
+  configs = [
+    "//build/config/compiler:no_chromium_code"
+  ]
+  include_dirs = [
+    "$target_gen_dir/pal",
+  ]
+  defines = ["PAL_IMPLEMENTATION"]
+}
+
+action("pal_gen") {
+  script = "pal_gen.py"
+  sources = pal_gen_source_json
+  inputs = [
+    "./templates/host.cc.jinja2",
+    "./templates/host.h.jinja2",
+    "./templates/interface.h.jinja2",
+    "./templates/macros.jinja2",
+    "./templates/messages.h.jinja2",
+    "./templates/pal_classes_gen.h.jinja2",
+    "./templates/pal_gen.cc.jinja2",
+    "./templates/pal_gen.gni.jinja2",
+    "./templates/pal_gen.h.jinja2",
+    "./templates/pal_macros_gen.h.jinja2",
+    "./templates/pal_message_generator_gen.h.jinja2",
+    "./templates/proxy.cc.jinja2",
+    "./templates/proxy.h.jinja2",
+    "./templates/remote_pal_interface_ipc.cc.jinja2",
+    "./templates/remote_pal_interface_ipc.h.jinja2",
+    "./templates/remote_pal_interface_notify_ipc.cc.jinja2",
+    "./templates/remote_pal_ipc_gen.cc.jinja2",
+    "./templates/remote_pal_ipc_gen.h.jinja2",
+    "./templates/remote_pal_observer.cc.jinja2",
+    "./templates/remote_pal_observer.h.jinja2",
+    "./templates/remote_pal_observers_gen.h.jinja2",
+    "./templates/remote_pal_observers_gen_impl.cc.jinja2",
+  ]
+  inputs += pal_gen_source_json
+
+  outputs = pal_gen_common_sources + pal_gen_common_h
+  outputs += pal_gen_interface_h
+  outputs += pal_gen_interface_host_sources + pal_gen_interface_proxy_sources
+
+  outputs += pal_gen_remote_interface_observer_notify_sources
+  outputs += pal_gen_remote_interface_observer_sources
+  outputs += pal_gen_remote_interface_sources
+
+  output_dir = "$target_gen_dir/"
+
+  args = [ "-o", rebase_path(output_dir) ]
+}
+
+component("pal") {
+  import("pal_impl.gni")
+
+  configs += [
+    ":pal_config"
+  ]
+
+  deps += [
+    ":pal_gen",
+  ]
+
+  sources = [
+    "public/common/callback_handler.h",
+    "public/pal.cc",
+    "public/pal.h",
+  ]
+  sources += pal_gen_common_sources + pal_gen_common_h
+}
+
+source_set("ipc_interfaces_host") {
+  configs += [
+    ":pal_config"
+  ]
+
+  deps = [
+    ":ipc_msg",
+    ":pal_gen",
+  ]
+
+  sources = pal_gen_interface_host_sources
+}
+
+source_set("ipc_msg") {
+  configs += [
+    ":pal_config"
+  ]
+
+  defines = ["PAL_MSG_IMPLEMENTATION"]
+
+  deps = [
+    ":pal_gen",
+    "//ipc"
+  ]
+
+  sources = [
+    "ipc/pal_export.h",
+    "ipc/pal_macros.h",
+    "ipc/pal_message_generator.cc",
+    "ipc/pal_message_generator.h",
+  ]
+  sources += pal_gen_common_h
+}
+
+source_set("pal_factory") {
+  configs += [
+    ":pal_config"
+  ]
+
+  import("pal_impl.gni")
+  deps += [
+    ":pal_gen",
+    "//neva/remote_pal_ipc:remote_pal_ipc"
+  ]
+
+  sources = [
+    "public/pal_factory.cc",
+    "public/pal_factory.h",
+  ]
+}

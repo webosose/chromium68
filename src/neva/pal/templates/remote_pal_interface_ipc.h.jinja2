@@ -1,0 +1,98 @@
+{#- ======================================================================= #}
+{%- from 'macros.jinja2' import write_file_is_generated, write_method_args -%}
+{#- ======================================================================= #}
+{{- write_file_is_generated(source_jsons) }}
+{%- if is_needed_IPC %}
+{%- set u_name = interface.under_score_name %}
+{%- set name = interface.name %}
+{%- set up_name = u_name | upper %}
+
+#ifndef REMOTE_PAL_IPC_{{up_name}}_{{up_name}}_REMOTE_PAL_INTERFACE_IPC_H_
+#define REMOTE_PAL_IPC_{{up_name}}_{{up_name}}_REMOTE_PAL_INTERFACE_IPC_H_
+
+#include <map>
+
+#include "pal/public/interfaces/{{u_name}}_interface.h"
+#include "remote_pal_ipc/{{u_name}}/{{u_name}}_remote_pal_observer.h"
+
+namespace pal {
+
+class {{name}}RemotePalInterfaceIPC : public {{name}}Interface {
+ public:
+  {{name}}RemotePalInterfaceIPC();
+  ~{{name}}RemotePalInterfaceIPC() override;
+
+  {% for method in interface.methods %}
+  {%- if method.return != 'async' %}
+  {%- set all_arg = method.in_args + method.out_args %}
+  {{ method.type }} {{ method.name }}({{ write_method_args(all_arg) }}) {%- if method.const %} const {%- endif %} override;
+
+  {%- elif method.return == 'async' %}
+  {%- set cb_type = 'const ' ~ method.name ~ 'RespondCallback&' %}
+  {%- set cb_name = 'on_' ~ method.under_score_name ~ '_done' %}
+  {%- set arg_cb = [dict(type = cb_type, name = cb_name)] %}
+  {%- set args = method.in_args + arg_cb %}
+
+  void {{method.name}}({{write_method_args(args)}}) override;
+
+  {%- else %}{#- No return value to render #}
+  void {{ method.name }}({{ write_method_args(method.in_args) }}) {%- if method.const %} const {%- endif %} override;
+  {%- endif %}
+  {%- endfor %}
+
+  {% for broadcast in interface.broadcasts %}
+  std::unique_ptr<{{broadcast.name}}Subscription> AddCallback(
+      const {{broadcast.name}}Callback& callback) override;
+  {% endfor %}
+
+ private:
+  {%- if interface.broadcasts | length > 0 -%}
+  struct FrameCallbacks {
+    FrameCallbacks();
+    ~FrameCallbacks();
+    {% for broadcast in interface.broadcasts %}
+    {{broadcast.name}}CallbackList {{broadcast.under_score_name}}_callbacks_;
+    {% endfor %}
+  };
+  {%- endif %}
+
+  content::RenderFrame* getFrame() const;
+
+  friend content::{{name}}RemotePalObserver;
+  {%- set cb_id = 'pal_async_callback_id' %}
+  {% for method in interface.methods %}
+  {%- if method.no_IPC %} {%- continue %}{%- endif %}
+  {%- if method.return == 'async' %}
+  {%- set arg_cb = [dict(type = 'int', name = cb_id)] %}
+  {%- set args = arg_cb + method.out_args %}
+  void Notify{{method.name}}({{write_method_args(args)}});
+  {%- endif %}
+  {%- endfor %}
+
+  {%- set arg_id = [dict(name = 'frame_id', type = 'int')] %}
+  {%- for broadcast in interface.broadcasts %}
+  {%- set args = arg_id + broadcast.args %}
+  void Notify{{broadcast.name}}({{write_method_args(args)}});
+  {%- endfor %}
+
+  using FrameCallbacksMAP = std::map<int, std::unique_ptr<FrameCallbacks>>;
+  FrameCallbacksMAP callbacks_;
+
+  {% for method in interface.methods %}
+  {%- if method.no_IPC %} {%- continue %}{%- endif %}
+  {%- if method.return == 'async' %}
+  using {{method.name}}RespondCallbackMAP =
+      std::map<int, {{method.name}}RespondCallback>;
+  {{method.name}}RespondCallbackMAP {{method.under_score_name}}_respond_callbacks_;
+  static int {{method.under_score_name}}_callback_id_;
+  {%- endif %}
+  {% endfor %}
+  template <typename _ID, typename  _Map>
+  static _ID GetAsyncMsgId(_ID &async_msg_id_, _Map &map);
+};
+
+}  // namespace pal
+
+#endif // REMOTE_PAL_IPC_{{up_name}}_{{up_name}}_REMOTE_PAL_INTERFACE_IPC_H_
+{% endif %}
+

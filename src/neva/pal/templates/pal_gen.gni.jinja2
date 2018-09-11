@@ -1,0 +1,91 @@
+{%- from 'macros.jinja2' import write_file_is_generated -%}
+{{ write_file_is_generated(source_jsons, "#") }}
+
+pal_gen_dir = "$root_gen_dir/neva"
+
+pal_gen_common_h = [
+  "$pal_gen_dir/pal/ipc/pal_macros_gen.h",
+  "$pal_gen_dir/pal/ipc/pal_message_generator_gen.h",
+  "$pal_gen_dir/pal/public/pal_classes_gen.h",
+  "$pal_gen_dir/pal/public/pal_gen.h",
+]
+
+pal_gen_common_sources = [
+  "$pal_gen_dir/pal/public/pal_gen.cc",
+]
+{% set sources = [] %}
+{%- for interface in pal_description %}
+  {%- set name =  interface.under_score_name %}
+  {%- do sources.append('$pal_gen_dir/pal/ipc/' ~ name ~ '_messages.h') -%}
+  {%- do sources.append('$pal_gen_dir/pal/public/interfaces/' ~ name ~ '_interface.h') -%}
+{%- endfor %}
+pal_gen_interface_h = [
+{%- for source in sources|sort %}
+  "{{ source }}",
+{%- endfor %}
+]
+{% set sources = [] %}
+{%- for interface in pal_description %}
+  {%- set name =  interface.under_score_name %}
+  {%- do sources.append('$pal_gen_dir/pal/ipc/browser/' ~ name ~ '/' ~ name ~ '_host.cc') -%}
+  {%- do sources.append('$pal_gen_dir/pal/ipc/browser/' ~ name ~ '/' ~ name ~ '_host.h') -%}
+{%- endfor %}
+pal_gen_interface_host_sources = [
+{%- for source in sources|sort %}
+  "{{ source }}",
+{%- endfor %}
+]
+{% set sources = [] %}
+{%- for interface in pal_description %}
+  {%- set name =  interface.under_score_name %}
+  {%- do sources.append('$pal_gen_dir/pal/ipc/renderer/' ~ name ~ '/' ~ name ~ '_proxy.cc') -%}
+  {%- do sources.append('$pal_gen_dir/pal/ipc/renderer/' ~ name ~ '/' ~ name ~ '_proxy.h') -%}
+{%- endfor %}
+pal_gen_interface_proxy_sources = [
+{%- for source in sources|sort %}
+  "{{ source }}",
+{%- endfor %}
+]
+{% set sources = [] %}
+{%- for interface in pal_description %}
+  {%- set name =  interface.under_score_name %}
+  {%- do sources.append('$pal_gen_dir/remote_pal_ipc/' ~ name ~ '/' ~ name ~ '_remote_pal_interface_notify_ipc.cc') -%}
+{%- endfor %}
+pal_gen_remote_interface_observer_notify_sources = [
+{%- for source in sources|sort %}
+  "{{ source }}",
+{%- endfor %}
+]
+{% set sources = [] %}
+{%- for interface in pal_description %}
+  {%- set name =  interface.under_score_name %}
+  {%- do sources.append('$pal_gen_dir/remote_pal_ipc/' ~ name ~ '/' ~ name ~ '_remote_pal_observer.cc') -%}
+  {%- do sources.append('$pal_gen_dir/remote_pal_ipc/' ~ name ~ '/' ~ name ~ '_remote_pal_observer.h') -%}
+{%- endfor %}
+pal_gen_remote_interface_observer_sources = [
+{%- for source in sources|sort %}
+  "{{ source }}",
+{%- endfor %}
+]
+{% set sources = ['$pal_gen_dir/remote_pal_ipc/remote_pal_ipc_gen.cc'] %}
+{%- for interface in pal_description %}
+  {%- set name =  interface.under_score_name %}
+  {%- do sources.append('$pal_gen_dir/remote_pal_ipc/' ~ name ~ '/' ~ name ~ '_remote_pal_interface_ipc.cc') -%}
+  {%- do sources.append('$pal_gen_dir/remote_pal_ipc/' ~ name ~ '/' ~ name ~ '_remote_pal_interface_ipc.h') -%}
+{%- endfor %}
+pal_gen_remote_interface_sources = [
+{%- for source in sources|sort %}
+  "{{ source }}",
+{%- endfor %}
+]
+
+pal_gen_source_json = [
+  {%- set files = [] -%}
+  {%- for interface in pal_description %}
+    {%- do files.append(interface.json_file) -%}
+  {%- endfor %}
+  {%- for file in files|sort %}
+  "{{ file }}",
+  {%- endfor %}
+]
+

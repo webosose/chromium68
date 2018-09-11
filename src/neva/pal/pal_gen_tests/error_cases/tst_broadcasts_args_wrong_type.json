@@ -1,0 +1,11 @@
+{
+    "name": "NoBroadcastsMethodField",
+    "methods": [
+    ],
+    "broadcasts":[
+      {
+          "method": "void SampleUpdate",
+          "args": "const std::string& value"
+      }
+    ]
+}

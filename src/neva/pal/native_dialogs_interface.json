@@ -1,0 +1,34 @@
+{
+    "name": "NativeDialogs",
+    "methods": [
+      {
+        "method": "void RunJavaScriptDialog",
+        "pal_ret" : false,
+        "return"  : "sync_delayed",
+        "no_IPC"  : true,
+        "in_args" : [
+          "int dialog_type",
+          "const std::string& message_text",
+          "const std::string& default_prompt_text",
+          "const std::string& url"
+        ],
+        "out_args": [
+          "bool success",
+          "std::string& user_input"
+        ]
+      },
+      {
+        "method": "void CancelJavaScriptDialog",
+        "pal_ret" : false,
+        "return"  : "sync",
+        "no_IPC"  : true,
+        "in_args" : [],
+        "out_args": []
+      }
+    ],
+    "comment": [
+      "This interface serves to call platform",
+      "implementation of JS dialogs:",
+      "ALERT, CONFIRM & PROMPT"
+    ]
+}

@@ -1,0 +1,7 @@
+{
+    "methods": [
+    ],
+    "comment": [
+        "Absent interface's 'name' field, that has to be checked first."
+    ]
+}

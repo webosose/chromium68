@@ -1,0 +1,121 @@
+{#- =================================================== #}
+{#- Macro to 1 line or multiple lines comment writing   #}
+{#- =================================================== #}
+{%- macro write_comment(text) -%}
+{% if text is string -%}
+// {{text}}
+{%- else -%}
+{%- for str in text -%}
+// {{str}}
+{% endfor -%}
+{%- endif -%}
+{%- endmacro -%}
+{#- =================================================== #}
+{#- Macro for comment writing in the end of the line    #}
+{#- =================================================== #}
+{%- macro write_trailed_comment(text, ident) -%}
+{%- if text is string -%}
+{{"\t"}}// {{text}}
+{%- else -%}
+{%- set ident_str = "\t" * ident -%}
+{%- for str in text -%}
+{%- if loop.index == 1 -%}
+{{"\t"}}// {{str}}
+{%- else %}
+{{ident_str}}// {{str}}
+{%- endif -%}
+{%- endfor -%}
+{%- endif -%}
+{%- endmacro -%}
+{#- =================================================== #}
+{%- set callback_comment = "Callback to notify client with received service response" -%}
+{#- =================================================== #}
+{%- from 'macros.jinja2' import write_file_is_generated, write_method_args -%}
+{{ write_file_is_generated(source_jsons) }}
+
+#ifndef PAL_PUBLIC_INTERFACES_{{interface.under_score_name | upper}}_INTERFACE_H_
+#define PAL_PUBLIC_INTERFACES_{{interface.under_score_name | upper}}_INTERFACE_H_
+
+{% if interface.broadcasts is defined %}
+#include <memory>
+{%- endif %}
+#include "base/callback.h"
+{%- if interface.broadcasts is defined %}
+#include "base/callback_list.h"
+{%- endif %}
+#include "pal/ipc/pal_export.h"
+
+namespace pal {
+
+{%- set first_callback = True -%}
+{% for method in interface.methods %}
+{%- if method.return != 'async' -%}{% continue %}{%- endif -%}
+{% if first_callback %}
+{%- set first_callback = False %}
+//The callback is called to notify client with recieved service response
+{%- endif %}
+using {{method.name}}RespondCallback = base::Callback<void(
+  {%- for arg in method.out_args %}{{arg.type}} {{arg.name}}{%- if not loop.last %}, {%endif%}{% endfor -%}
+  )>;
+{% endfor %}
+{{ write_comment(interface.comment) }}
+class PAL_EXPORT {{interface.name}}Interface {
+ public:
+  {% for broadcast in interface.broadcasts %}
+  using {{ broadcast.name }}Callback = base::Callback<void({{ write_method_args(broadcast.args) }})>;
+
+  using {{ broadcast.name }}CallbackList = base::CallbackList<void({{ write_method_args(broadcast.args) }})>;
+
+  using {{ broadcast.name }}Subscription = {{ broadcast.name }}CallbackList::Subscription;
+  {% endfor %}
+  virtual ~{{interface.name}}Interface() {};
+
+  {%- for method in interface.methods %}
+  {%- set args = [] -%}
+  {%- if method.return == 'async' -%}
+    {%- for arg in method.in_args -%}
+      {%- if not arg.context_var %}
+        {%- do args.append(arg) -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- do args.append({'name' : 'on_done', 'type' : 'const ' + method.name + 'RespondCallback&',
+                        'comment' :  callback_comment}) -%}
+  {%- else %}
+    {%- set args = method.in_args | list -%}
+    {%- if method.return == 'sync' -%}
+      {%- if method.out_args is defined -%}
+          {%- set args = args + method.out_args -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endif %}
+  {% if method.return == 'sync_delayed' %}
+  using {{method.name}}RespondCallback = base::Callback<void({{ write_method_args(method.out_args) }})>;
+    {%- do args.append({'name' : 'callback', 'type' : 'const ' + method.name + 'RespondCallback&',
+                        'comment' :  'Return callback'}) -%}
+  {%- endif %}{{""}}
+
+  {{ write_comment(method.comment) }}
+  {%- if method.const %}
+    {%- set args_end = ") const = 0;" %}
+  {%- else %}
+    {%- set args_end = ") = 0;" %}
+  {%- endif %}
+
+  virtual {{ method.type }} {{ method.name }}({%- if args | count == 0 %}{{args_end}}{%- endif %}
+      {%- for arg in args %}
+      {{ arg.type}} {{arg.name}}
+      {%- if loop.last -%}{{args_end}}{%- else -%}{{","}}{%- endif -%} {{"\t"}} // {{ arg.comment }}
+      {%- endfor %}
+  {%- endfor -%}{{- "" }}
+{%- if interface.broadcasts is defined %}
+{{""}}
+{%- for broadcast in interface.broadcasts %}
+  virtual std::unique_ptr<{{ broadcast.name }}Subscription> AddCallback(
+      const {{ broadcast.name }}Callback& callback) = 0;
+{%- endfor %}
+{%- endif %}
+};
+
+}  // namespace pal
+
+#endif  // PAL_PUBLIC_INTERFACES_{{interface.under_score_name | upper}}_INTERFACE_H_

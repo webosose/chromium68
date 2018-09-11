@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Native Dialogs API Emulator Page</title>
+    <link rel="stylesheet" type="text/css" href="css/native_dialogs.css">
+    <script type="text/javascript" src="js/mock_server_urls.js"></script>
+    <script type="text/javascript" src="js/mockServerClient.js"></script>
+    <script type="text/javascript" src="js/mock_server.js"></script>
+</head>
+
+<body>
+    <h1 style="background-color: darkkhaki;">'Native Dialogs' API emulator</h1>
+    <div id="no_calls">
+        No active Dialogs
+    </div>
+    <div id="show_dialog" style="display: none;" >
+        <h2 class="dialog_alert" id="dialog_type">Alert dialog:</h2>
+        <div id="dialog_emulator" class="dialog_emulator">
+             <div style="position:relative; background: #f3ffc4; height: 100%">
+                <br>
+                <div id="dialog_title" class="dialog_text dialog_url"></div><br>
+                <div id="dialog_message" class="dialog_text"></div>
+                <p id="dilog_input" style="display: none;">
+                    <input id="input_text" type="text" class="dialog_text" value="Input text">
+                </p>
+                <button id="ok_button" type="button" class="ok_cancel"
+                        style="right:0px;"
+                        onclick="closeDialog(true);">
+                    OK
+                </button>
+                <button id="cancel_button" type="button" class="ok_cancel"
+                        style="left:0px; display: none;"
+                        onclick="closeDialog(false);">
+                    Cancel
+                </button>
+            </div>
+        </div>
+        <hr>
+    </div>
+</body>
+
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/native_dialogs_emulator.js"></script>
+
+</html>

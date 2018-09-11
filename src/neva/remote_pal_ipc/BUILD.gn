@@ -1,0 +1,70 @@
+# Copyright (c) 2018 LG Electronics, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+import("//neva/pal/.PREBUILD/pal_gen.gni")
+
+source_set("remote_pal_ipc") {
+ defines = ["REMOTE_PAL_IMPLEMENTATION"]
+  deps = [
+    ":remote_pal_ipc_interface",
+    "//neva/pal:pal_gen",
+  ]
+  sources = [
+    "remote_pal_ipc.cc",
+    "remote_pal_ipc.h",
+  ]
+}
+
+source_set("remote_pal_ipc_interface") {
+  defines = ["REMOTE_PAL_IMPLEMENTATION"]
+  deps = [
+    ":ipc_interface_proxy",
+    "//neva/pal",
+    "//neva/pal:pal_gen",
+    "//third_party/blink/public:blink_headers",
+    "//third_party/blink/public:blink",
+  ]
+  sources = pal_gen_remote_interface_sources
+}
+
+source_set("remote_pal_observer") {
+  deps = [
+    "//components/services/leveldb",
+    "//neva/pal:pal_gen",
+    "//third_party/blink/public:blink_headers",
+    "//third_party/blink/public:blink",
+  ]
+  sources = [
+    "remote_pal_observer.cc",
+    "remote_pal_observer.h",
+  ]
+  sources += pal_gen_remote_interface_observer_sources
+  sources += pal_gen_remote_interface_observer_notify_sources
+}
+
+source_set("ipc_interface_proxy") {
+  configs += [
+    "//neva/pal:pal_config"
+  ]
+
+  deps = [
+    "//neva/pal:ipc_msg",
+    "//neva/pal:pal_gen",
+    "//third_party/blink/public:blink_headers",
+  ]
+
+  sources = pal_gen_interface_proxy_sources + pal_gen_interface_h
+}

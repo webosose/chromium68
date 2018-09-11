@@ -1,0 +1,5 @@
+webos/runtime/default_browser/appinfo.json
+webos/runtime/default_browser/kill_webbrowser
+webos/runtime/default_browser/run_webbrowser
+webos/runtime/default_browser/webbrowser_icon.png
+webos/runtime/default_browser/webbrowser_splash.png

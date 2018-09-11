@@ -1,0 +1,147 @@
+# Copyright (c) 2016 The Chromium Authors. All rights reserved.
+
+import("//build/config/linux/pkg_config.gni")
+import("//neva/neva.gni")
+import("//ui/base/ui_features.gni")
+
+declare_args() {
+  enable_drm_support = false
+  use_data_device_manager = false
+}
+
+pkg_config("wayland_lib") {
+  packages = [
+    "wayland-client",
+    "wayland-cursor",
+    "wayland-egl",
+  ]
+  if (webos) {
+    packages += [
+      "wayland-webos-client",
+    ]
+  }
+  if (enable_drm_support) {
+    packages += [
+      "gbm",
+    ]
+  }
+}
+
+config("wayland_config") {
+  defines = [ "OZONE_WAYLAND_IMPLEMENTATION=1" ]
+
+  if (enable_drm_support) {
+    defines += [ "ENABLE_DRM_SUPPORT" ]
+  }
+
+  if (use_data_device_manager) {
+    defines += [ "USE_DATA_DEVICE_MANAGER" ]
+  }
+
+  include_dirs = [
+    "../..",
+    "//third_party/khronos",
+  ]
+}
+
+source_set("wayland") {
+
+  configs += [ ":wayland_lib" ]
+  configs += [ ":wayland_config" ]
+
+  deps = [
+    "//skia",
+    "//ui/gfx",
+    "//ui/gfx/geometry",
+    "//ui/gl",
+  ]
+
+  public_deps = [
+    "//base",
+    "//ui/gfx/ipc",
+  ]
+
+  sources = [
+    "data_offer.cc",
+    "data_offer.h",
+    "display.cc",
+    "display.h",
+    "display_poll_thread.cc",
+    "display_poll_thread.h",
+    "ozone_wayland_screen.cc",
+    "ozone_wayland_screen.h",
+    "screen.cc",
+    "screen.h",
+    "seat.cc",
+    "seat.h",
+    "window.cc",
+    "window.h",
+    "egl/egl_window.cc",
+    "egl/egl_window.h",
+    "egl/gl_surface_wayland.cc",
+    "egl/gl_surface_wayland.h",
+    "input/cursor.cc",
+    "input/cursor.h",
+    "input/keyboard.cc",
+    "input/keyboard.h",
+    "input/pointer.cc",
+    "input/pointer.h",
+    "input/text_input.h",
+    "input/text_input.cc",
+    "input/touchscreen.cc",
+    "input/touchscreen.h",
+    "protocol/text-protocol.c",
+    "protocol/text-client-protocol.h",
+    "protocol/ivi-application-protocol.c",
+    "protocol/ivi-application-client-protocol.h",
+    "protocol/xdg-shell-protocol.c",
+    "protocol/xdg-shell-client-protocol.h",
+    "shell/shell.cc",
+    "shell/shell.h",
+    "shell/shell_surface.h",
+    "shell/shell_surface.cc",
+    "shell/wl_shell_surface.cc",
+    "shell/wl_shell_surface.h",
+    "shell/xdg_shell_surface.cc",
+    "shell/xdg_shell_surface.h",
+    "shell/ivi_shell_surface.cc",
+    "shell/ivi_shell_surface.h",
+  ]
+  if (webos) {
+    sources += [
+      "group/wayland_webos_surface_group.cc",
+      "group/wayland_webos_surface_group.h",
+      "group/webos_surface_group.cc",
+      "group/webos_surface_group.h",
+      "group/webos_surface_group_compositor.cc",
+      "group/webos_surface_group_compositor.h",
+      "group/webos_surface_group_layer.cc",
+      "group/webos_surface_group_layer.h",
+      "input/webos_text_input.cc",
+      "input/webos_text_input.h",
+      "shell/webos_shell_surface.cc",
+      "shell/webos_shell_surface.h",
+    ]
+    sources -= [
+      "input/text_input.h",
+      "input/text_input.cc",
+    ]
+    if (use_xkbcommon) {
+      deps += [ "//ui/events/keycodes:xkb" ]
+    }
+  }
+  if (enable_drm_support) {
+    sources += [
+      "egl/wayland_pixmap.cc",
+      "egl/wayland_pixmap.h",
+      "protocol/wayland-drm-protocol.cc",
+      "protocol/wayland-drm-protocol.h",
+    ]
+  }
+  if (use_data_device_manager) {
+    sources += [
+      "data_device.cc",
+      "data_device.h",
+    ]
+  }
+}

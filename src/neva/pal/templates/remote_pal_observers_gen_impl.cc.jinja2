@@ -1,0 +1,5 @@
+{% for interface in pal_description | sort(attribute = 'name')-%}
+{%- if check_IPC_needed(interface) -%}
+new {{interface.name}}RemotePalObserver(mainRenderFrame);
+{%- endif %}
+{% endfor %}

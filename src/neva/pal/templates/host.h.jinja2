@@ -1,0 +1,104 @@
+{#- ======================================================================= #}
+{%- from 'macros.jinja2' import write_file_is_generated, write_method_args -%}
+{#- ======================================================================= #}
+
+{#- =================================================== #}
+{#-          Write  Method Declaration                  #}
+{#- =================================================== #}
+{%- macro write_method_declaration(with_type, method, args, prefix, postfix, first_arg) -%}
+  {%- set all_args = [] %}
+  {%- set all_args = all_args + first_arg %}
+  {%- set all_args = all_args + args %}
+  void {{ prefix }}{{ method.name }}{{ postfix }}({{write_method_args(all_args, not with_type)}});
+{%- endmacro -%}
+{#- =================================================== #}
+
+{%- from 'macros.jinja2' import write_file_is_generated -%}
+{{ write_file_is_generated(source_jsons) }}
+
+#ifndef PAL_PUBLIC_BROWSER_{{interface.under_score_name | upper}}_HOST_H_
+#define PAL_PUBLIC_BROWSER_{{interface.under_score_name | upper}}_HOST_H_
+
+{% if interface.broadcasts is defined %}
+#include <set>
+{% endif %}
+#include "content/public/browser/browser_message_filter.h"
+#include "pal/ipc/pal_export.h"
+#include "pal/public/interfaces/{{interface.under_score_name}}_interface.h"
+
+namespace pal {
+
+class PAL_EXPORT {{interface.name}}Host : public content::BrowserMessageFilter {
+ public:
+  {{interface.name}}Host();
+
+  bool OnMessageReceived(const IPC::Message& message) override;
+ private:
+  ~{{interface.name}}Host() override;
+  {%- set msg_arg = {'type' : 'IPC::Message*', 'name' : 'reply_msg'} -%}
+  {%- set need_weak_ptr = [] -%}
+  {%- set ret_arg = [] -%}
+  {% for method in interface.methods %}
+  {%- if method.no_IPC %} {%- continue %}{%- endif %}
+  {% if method.return == 'async' %}
+  {%- do need_weak_ptr.append(true) -%}
+  {%- set ret_arg = [dict(type = 'int', name = 'pal_async_callback_id')] %}
+  {%- for arg in method.in_args -%}
+  {% if arg.context_var %}
+  {%- do ret_arg.append(arg) -%}
+  {%- endif -%}
+  {%- endfor -%}
+  {{ write_method_declaration(true, method, ret_arg + method.out_args, "On", "Done", [dict(type = "int", name = "routing_id")]) }}
+  {% elif method.return == 'sync_delayed' %}
+  {%- do need_weak_ptr.append(true) -%}
+  template <typename ClassMsg>
+  void {{method.name}}RespondCallback(IPC::Message* reply_msg,
+                              {%- for arg in method.out_args %}
+                              {{arg.type}} {{arg.name}}
+                              {%- if loop.last -%});{% else %},{%- endif -%}
+                              {% endfor %}
+  {% endif %}
+  {%- set routing_arg = [dict(type = 'int*', name = 'routing_id')] -%}
+  {%- if method.return == 'async' -%}
+    {%- set args = [dict(type = 'int', name = 'pal_async_callback_id')] %}
+  {%- else -%}
+    {%- set args = [] %}
+  {%- endif -%}
+  {%- set args = args + method.in_args -%}
+  {%- if method.return == 'sync_delayed' %}
+    {%- do args.append(msg_arg) -%}
+  {%- elif method.return == 'sync' %}
+    {%- set routing_arg = [] -%}
+    {%- if method.pal_ret -%}
+      {%- do args.append({'name' : "pal_ret", "type" : (method.type + "*")}) -%}
+    {%- endif %}
+    {%- for arg in method.out_args%}
+      {%- set type = arg.type | replace('&', '') | replace('const', '') %}
+      {%- do args.append({'name' : arg.name, "type" : (type + "*")}) -%}
+    {%- endfor -%}
+  {%- endif %}
+  {{ write_method_declaration(true, method, args, "On", "", routing_arg) }}
+  {% endfor -%}{{""}}
+  {%- for broadcast in interface.broadcasts %}
+  {{ write_method_declaration(true, broadcast, broadcast.args, "Send", "", []) }}
+  {% endfor %}
+  {% if interface.broadcasts is defined %}
+    {%- do need_weak_ptr.append(true) -%}
+    std::set<int> route_ids_;
+    {%- for broadcast in interface.broadcasts %}
+    {{ interface.name }}Interface::{{ broadcast.name }}Callback m{{ broadcast.name }}Callback;
+    std::unique_ptr<{{ interface.name }}Interface::{{ broadcast.name }}Subscription> m{{ broadcast.name }}Subscription;
+    {%- endfor %}
+
+    void AddCallbacks();
+  {%- endif %}
+  {%- if need_weak_ptr | length > 0 %}
+
+    base::WeakPtrFactory<{{interface.name}}Host> weak_ptr_factory_;
+  {%- endif %}
+  DISALLOW_COPY_AND_ASSIGN({{interface.name}}Host);
+};
+
+}  // namespace pal
+
+#endif  // PAL_PUBLIC_BROWSER_{{interface.under_score_name | upper}}_HOST_H_

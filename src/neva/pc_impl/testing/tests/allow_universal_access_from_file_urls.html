@@ -1,0 +1,33 @@
+<html>
+<head>
+
+<script>
+function onLoad() {
+  var pageConsole = document.getElementById('console');
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', "https://api.ipify.org/", true);
+
+  xhr.onload = function() {
+    if (this.status == 200) {
+      pageConsole.value = this.responseText;
+      console.log("onload:");
+      console.log(this.responseText);
+    }
+  };
+
+  xhr.onerror = function() {
+    pageConsole.value = this.statusText;
+    console.log("onerror:");
+    console.log(this.statusText);
+  };
+
+  xhr.send();
+}
+</script>
+</head>
+
+<body onload="onLoad();">
+<textarea id="console" cols="80" rows="25"></textarea>
+</body>
+</html>

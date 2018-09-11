@@ -1,0 +1,13 @@
+// Copyright (c) 2018 LG Electronics, Inc. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module content.mojom;
+
+interface MediaSuppressor {
+  // Request suspend media player
+  SuspendMedia();
+
+  // Request resume media player
+  ResumeMedia();
+};

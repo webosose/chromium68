@@ -1,0 +1,31 @@
+# Copyright 2017 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+config("palmsystem") {
+  libs = [ "luna-service2" ]
+}
+
+source_set("palm_injection") {
+
+  sources = [
+    "luna_service_mgr.cc",
+    "luna_service_mgr.h",
+    "palmsystem_injection.cc",
+    "palmsystem_injection.h",
+    "pmtracer.h",
+    "pmtrace_bundle_provider.h",
+  ]
+
+  deps = [
+    "//v8",
+  ]
+
+  configs += [
+    ":palmsystem",
+    "//build/config/linux:glib",
+  ]
+
+}
+
+

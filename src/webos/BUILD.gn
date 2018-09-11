@@ -1,0 +1,80 @@
+# Copyright (c) 2018 LG Electronics, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+import("//build/buildflag_header.gni")
+import("//build/config/compiler/compiler.gni")
+import("//build/config/features.gni")
+import("//build/config/sanitizers/sanitizers.gni")
+import("//build/config/ui.gni")
+
+shared_library("weboswebruntime") {
+  testonly = true
+  output_name = "cbe"
+
+  configs += [
+    "//build/config:precompiled_headers",
+    "//content:content_implementation",
+    "//v8:external_startup_data",
+    "//neva/app_runtime:app_runtime_cfg",
+  ]
+
+  sources = [
+    "app/webos_content_main_delegate.cc",
+    "app/webos_content_main_delegate.h",
+    "app/webos_main.cc",
+    "app/webos_main.h",
+    "browser/net/webos_network_delegate.cc",
+    "browser/net/webos_network_delegate.h",
+    "browser/webos_webview_renderer_state.cc",
+    "browser/webos_webview_renderer_state.h",
+    "common/webos_constants.h",
+    "common/webos_content_client.cc",
+    "common/webos_content_client.h",
+    "common/webos_export.h",
+    "common/webos_locales_mapping.cc",
+    "common/webos_locales_mapping.h",
+    "common/webos_native_event_delegate.h",
+    "common/webos_native_window_state.h",
+    "common/webos_event.h",
+    "public/runtime.cc",
+    "public/runtime.h",
+    "public/runtime_delegates.h",
+    "webapp_window.cc",
+    "webapp_window.h",
+    "webapp_window_base.cc",
+    "webapp_window_base.h",
+    "webapp_window_delegate.cc",
+    "webapp_window_delegate.h",
+    "webview_profile.cc",
+    "webview_profile.h",
+    "webos_platform.cc",
+    "webos_platform.h",
+    "webview_base.cc",
+    "webview_base.h",
+    "window_group_configuration.cc",
+    "window_group_configuration.h",
+  ]
+
+  deps = [
+    "//neva/app_runtime",
+    "//third_party/leveldatabase",
+    "//third_party/blink/public:blink",
+    "//ui/gl",
+  ]
+
+
+  include_dirs = [ "." ]
+}

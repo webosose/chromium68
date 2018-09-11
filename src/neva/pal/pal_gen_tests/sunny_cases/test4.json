@@ -1,0 +1,25 @@
+{
+    "name": "NativeDialogs",
+    "methods": [
+      {
+        "method": "void RunJavaScriptDialog",
+        "pal_ret" : false,
+        "return"  : "sync_delayed",
+        "no_IPC"  : true,
+        "in_args" : [
+          "int dialog_type",
+          "const std::string& message_text",
+          "const std::string& default_prompt_text",
+          "const std::string& url"
+        ],
+        "out_args": [
+          "bool success",
+          "std::string& user_input"
+        ]
+      }
+    ],
+    "comment": [
+      "Test situation when all methods in the interface have",
+      " 'no_IPC' property = 'true'"
+    ]
+}

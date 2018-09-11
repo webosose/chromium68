@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<body>
+  <p>Viewport size test page</p>
+  <p id="viewport_size"></p>
+</body>
+
+<script>
+function showData() {
+  document.getElementById("viewport_size").innerHTML =
+    "<br>Screen size:<br> width = " + window.screen.width + ", height = " + window.screen.height + "<br>" +
+    "<br>Viewport size:<br> width = " + window.innerWidth + ", height = " + window.innerHeight;
+}
+window.onload = showData();
+</script>
+</html>

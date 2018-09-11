@@ -1,0 +1,40 @@
+{#- ======================================================================= #}
+{%- from 'macros.jinja2' import write_file_is_generated, write_method_args -%}
+{#- ======================================================================= #}
+{{- write_file_is_generated(source_jsons) }}
+{%- if is_needed_IPC %}
+{%- set u_name = interface.under_score_name %}
+{%- set name = interface.name %}
+
+#include "remote_pal_ipc/{{u_name}}/{{u_name}}_remote_pal_interface_ipc.h"
+
+namespace pal {
+
+{%- set arg_cb = [dict(type = 'int', name = 'pal_async_callback_id')] %}
+{% for method in interface.methods %}
+{%- if method.no_IPC %} {%- continue %}{%- endif %}
+{%- if method.return != 'async' %} {%- continue %}{%- endif %}
+{%- set args = arg_cb + method.out_args %}
+void {{name}}RemotePalInterfaceIPC::Notify{{method.name}}({{write_method_args(args)}}) {
+  {{method.name}}RespondCallbackMAP::iterator it =
+      {{method.under_score_name}}_respond_callbacks_.find(pal_async_callback_id);
+  if( it == {{method.under_score_name}}_respond_callbacks_.end() )
+    return;
+  it->second.Run({{write_method_args(method.out_args, true)}});
+}
+{% endfor %}
+
+{%- set arg_id = [dict(name = 'frame_id', type = 'int')] %}
+{%- for broadcast in interface.broadcasts %}
+{%- set args = arg_id + broadcast.args %}
+void {{name}}RemotePalInterfaceIPC::Notify{{broadcast.name}}({{write_method_args(args)}}) {
+  FrameCallbacksMAP::iterator it = callbacks_.find(frame_id);
+  if( it == callbacks_.end() )
+    return;
+  it->second->{{broadcast.under_score_name}}_callbacks_.Notify({{write_method_args(broadcast.args, true)}});
+}
+{% endfor %}
+
+}  // namespace pal
+{% endif %}
+

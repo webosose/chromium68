@@ -1,0 +1,14 @@
+{
+    "name": "MethodsInArgsElementNoRetType",
+    "methods": [
+      {
+          "method": "std::string GetValue",
+          "in_args": [
+            "arg1     // Any value"
+          ],
+          "out_args": [
+            "int error_code                         // error code (0 - success)"
+          ]
+      }
+    ]
+}

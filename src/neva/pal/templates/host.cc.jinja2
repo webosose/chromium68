@@ -1,0 +1,192 @@
+{#- =================================================== #}
+{#-           Write Method Declaration                  #}
+{#- =================================================== #}
+{%- macro write_method_declaration(interface, method, args, prefix, postfix, first_arg) -%}
+  void {{interface.name}}Host::{{ prefix }}{{ method.name }}{{ postfix }}(
+      {%- set arg_end = ") {" %}
+      {%- if method.return != 'sync' %}{{first_arg}}{%- if args | count == 0 %}{{arg_end}}{%-else %},{%-endif%}{%endif%}
+      {%- for arg in args %}
+      {{arg.type}} {{arg.name}} {%- if loop.last -%}{{arg_end}}{% else %},{%- endif -%}
+      {% endfor %}
+{%- endmacro -%}
+{#- =================================================== #}
+{#-                 Write Args list                     #}
+{#- =================================================== #}
+{%- macro write_args_for_done(args) -%}
+      {%- for arg in args -%}
+      {{arg.name}} {%- if loop.last -%}{{"));"}}{%- else -%}{{", "}}{%- endif -%}
+      {%- endfor %}
+{%- endmacro -%}
+
+{#- =================================================== #}
+{%- from 'macros.jinja2' import write_file_is_generated -%}
+{{ write_file_is_generated(source_jsons) }}
+{%- set name = interface.under_score_name %}
+{%- set need_weak_ptr = [] %}
+{%- if interface.broadcasts is defined %}
+  {%- do need_weak_ptr.append(True) -%}
+{%- else %}
+  {% for method in interface.methods %}
+    {%- if method.no_IPC %} {%- continue %}{%- endif %}
+    {%- if method.return in ['async', 'sync_delayed']%}
+      {%- do need_weak_ptr.append(True) -%}
+    {%- endif %}
+  {%- endfor %}
+{%- endif %}
+
+#include "pal/ipc/browser/{{ name }}/{{ name }}_host.h"
+
+#include "base/bind.h"
+#include "pal/ipc/{{name}}_messages.h"
+#include "pal/public/pal.h"
+#include "pal/public/pal_factory.h"
+
+namespace pal {
+
+{{interface.name}}Host::{{interface.name}}Host()
+    : content::BrowserMessageFilter({{interface.name}}MsgStart)
+    {%- if interface.broadcasts is defined -%},route_ids_(){%- endif %}
+    {%- if need_weak_ptr | length > 0 %},weak_ptr_factory_(this){%- endif %}
+    {
+  {%- for broadcast in interface.broadcasts %}
+  m{{ broadcast.name }}Callback = base::Bind(&{{ interface.name }}Host::Send{{ broadcast.name }},
+                        weak_ptr_factory_.GetWeakPtr());
+  {%- endfor %}
+}
+
+{{interface.name}}Host::~{{interface.name}}Host() {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
+}
+
+// clang-format off
+bool {{interface.name}}Host::OnMessageReceived(const IPC::Message& message) {
+  int routing_id = message.routing_id();
+  bool handled = true;
+
+  IPC_BEGIN_MESSAGE_MAP_WITH_PARAM(
+      {{interface.name}}Host, message, &routing_id)
+    {%- if interface.broadcasts is defined %}
+    case {{interface.name}}HostMsg_Unsubscribe::ID:
+      route_ids_.erase(routing_id);
+      break;
+    case {{interface.name}}HostMsg_Subscribe::ID:
+      route_ids_.insert(routing_id);
+      AddCallbacks();
+      break;
+    {%- endif %}
+    {%- for method in interface.methods %}
+    {%- if method.no_IPC %} {%- continue %}{%- endif %}
+    IPC_MESSAGE_HANDLER({{interface.name}}HostMsg_{{method.name}}, On{{method.name}})
+    {%-endfor%}
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+  return handled;
+}
+// clang-format on
+
+{% for method in interface.methods %}
+{%- if method.no_IPC %} {%- continue %}{%- endif %}
+{%- set on_args = method.in_args | list %}
+{%- if method.return == 'async' %}
+  {%- set ret_arg = [dict(type = 'int', name = 'pal_async_callback_id')] %}
+  {%- set on_args = ret_arg + on_args %}
+  {%- for arg in method.in_args -%}
+    {% if arg.context_var %}
+      {%- do ret_arg.append(arg) %}
+    {%- endif %}
+  {%- endfor %}
+  {%- set all_ret_arg = [{"name" : "routing_id" }] +  ret_arg + method.out_args %}
+{{ write_method_declaration(interface, method, ret_arg + method.out_args, "On", "Done", "int routing_id") }}
+  Send(new {{interface.name}}Msg_{{method.name}}Done({{write_args_for_done(all_ret_arg)}}
+}
+{%- elif method.return == 'sync_delayed' %}
+  {%- do on_args.append({'type' : 'IPC::Message*', 'name' : 'reply_msg'}) %}
+{%- elif method.return == 'sync' %}
+  {%- if method.pal_ret -%}
+    {%- do on_args.append({'name' : "pal_ret", "type" : (method.type + "*")}) %}
+  {%- endif %}
+  {%- for arg in method.out_args%}
+    {%- set type = arg.type | replace('&', '') | replace('const', '') %}
+    {%- do on_args.append({'name' : arg.name, "type" : (type + "*")}) %}
+  {%- endfor %}
+{%- endif %}
+
+{{ write_method_declaration(interface, method, on_args, "On", "", "int *routing_id") }}
+  {{interface.name}}Interface* interface = pal::GetInstance()->Get{{interface.name}}Interface();
+
+  {% if method.return == 'async' -%}
+    {%- set call_arg = [] -%}
+    {%- set call_context_arg = [dict(type = 'int', name = 'pal_async_callback_id')] %}
+    {%- for arg in method.in_args -%}
+      {% if not arg.context_var %}
+        {%- do call_arg.append(arg) -%}
+      {%- else -%}
+        {%- do call_context_arg.append(arg) -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- else -%}
+    {%- set call_arg = method.in_args -%}
+  {%- endif -%}
+
+  if (interface != NULL) {
+    {% if method.return == 'sync' and method.pal_ret %}{{ "*pal_ret = " }}{%- endif %}interface->{{method.name}}(
+      {%- set comma_need = call_arg | length > 0 -%}
+      {%- for arg in call_arg -%}
+      {{arg.name}} {%- if not loop.last -%}{{", "}}{%- endif -%}
+      {%- endfor %}
+      {%- if method.return == 'async' %}{%- if comma_need -%}{{","}}{%- endif %}
+                            base::Bind(&{{interface.name}}Host::On{{method.name}}Done,
+                                        weak_ptr_factory_.GetWeakPtr(),
+                                        *routing_id
+                                        {%- if call_context_arg | length > 0 -%} {{", "}}
+                                        {%- for arg in call_context_arg -%}
+                                          {{arg.name}} {%- if not loop.last -%}{{", "}}{%- endif -%}
+                                        {%- endfor -%}
+                                        {%- endif -%}{{")"}}
+      {%- elif method.return == 'sync_delayed' -%}{%- if comma_need -%}{{","}}{%- endif %}
+                            base::Bind(&{{interface.name}}Host::{{method.name}}RespondCallback<
+                                        {{method.name}}HostMsg_{{method.name}}>,
+                                        base::Unretained(this), reply_msg)
+      {%- elif method.return == 'sync' -%}
+                                        {%- for arg in method.out_args -%}
+                                          {% if comma_need -%}{{","}}{%- set comma_need = True -%}{%- endif -%}{{ " *" + arg.name }}
+                                        {%- endfor -%}
+      {%- endif -%}{{");"}}
+  } else {
+    LOG(ERROR) << "Interface not available";
+  }
+}
+{% endfor %}
+
+{% if interface.broadcasts is defined %}
+void {{interface.name}}Host::AddCallbacks() {
+  {{interface.name}}Interface* interface = pal::GetInstance()->Get{{interface.name}}Interface();
+  if(!interface)
+    return;
+
+  {%- for broadcast in interface.broadcasts %}
+  if (!m{{ broadcast.name }}Subscription.get()) {
+    m{{ broadcast.name }}Subscription = interface->AddCallback(m{{ broadcast.name }}Callback);
+  }
+  {%- endfor %}
+}
+
+{% for broadcast in interface.broadcasts %}
+void {{ interface.name }}Host::Send{{ broadcast.name }}(
+                                                {%- for arg in broadcast.args %}
+                                                {{arg.type}} {{arg.name}} {%- if not loop.last -%},{%- endif -%}
+                                                {% endfor %}
+                                                {{") {"}}
+  {%- set args = [{'name' : 'route_id'},] %}
+  {%- set args = args + broadcast.args %}
+  for (const int route_id : route_ids_) {
+    Send(new {{ interface.name }}Msg_{{broadcast.name}}(
+                                  {%- for arg in args -%}
+                                  {{arg.name}} {%- if loop.last -%}{{"));"}}{% else %}{{", "}}{%- endif -%}
+                                  {%- endfor %}
+  }
+}
+{% endfor %}
+
+{% endif %}
+}  // namespace pal

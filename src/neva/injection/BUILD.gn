@@ -1,0 +1,82 @@
+# Copyright (c) 2018 LG Electronics, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+import("//neva/neva.gni")
+
+if (enable_sample_webapi) {
+  import("sample/sample.gni")
+}
+
+if (enable_browser_control_webapi) {
+  import("browser_control/browser_control.gni")
+}
+
+if (enable_memorymanager_webapi) {
+  import("memorymanager/memorymanager.gni")
+}
+
+source_set("injection") {
+  deps = [
+    "//components/services/leveldb",
+    "//neva/pal:pal_factory",
+    "//third_party/blink/public:blink",
+    "//v8",
+  ]
+  sources = [
+    "common/public/renderer/injection_base.cc",
+    "common/public/renderer/injection_base.h",
+    "common/public/renderer/injection_browser_control_base.cc",
+    "common/public/renderer/injection_browser_control_base.h",
+    "common/public/renderer/injection_data_manager.cc",
+    "common/public/renderer/injection_data_manager.h",
+    "common/public/renderer/injection_loader_extension.cc",
+    "common/public/renderer/injection_loader_extension.h",
+    "common/renderer/injection_observer.cc",
+    "common/renderer/injection_observer.h",
+    "common/util/arguments_checking.cc",
+    "common/util/arguments_checking.h",
+    "common/wrapper/injection_wrapper.cc",
+    "common/wrapper/injection_wrapper.h",
+
+    "//neva/neva_chromium/content/common/browser_control_messages.h",
+    "//neva/neva_chromium/content/common/injection_messages.h",
+    "//neva/neva_chromium/content/common/neva_message_generator.cc",
+    "//neva/neva_chromium/content/common/neva_message_generator.h",
+  ]
+
+  if (enable_sample_webapi) {
+    sources += sample_sources
+  }
+
+  if (enable_browser_control_webapi) {
+    sources += browser_control_sources
+  }
+
+  if (webos) {
+    deps += [
+      "//neva/injection/palmsystem:palm_injection",
+    ]
+
+    if (enable_memorymanager_webapi) {
+      sources += memorymanager_sources
+    }
+
+    sources += [
+      "common/public/renderer/injection_webos.cc",
+      "common/public/renderer/injection_webos.h",
+    ]
+  }
+}
