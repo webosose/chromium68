@@ -148,4 +148,4 @@ echo "                       Launching App Shell                          "
 echo "----------------------------------------------------------------------"
 echo ""
 
-exec ${BIN_DIR}/app_shell ${CHROME_FLAGS} --launch-args="${EXTRA_PARAMS_JSON}" "$@"
+exec ${DEPLOY_DIR}/app_shell ${CHROME_FLAGS} --launch-args="${EXTRA_PARAMS_JSON}" "$@"

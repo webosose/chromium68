@@ -7,7 +7,7 @@ PmLogCtl logkv chrome.runscript info launchTime place=start_chrome
 ######################################################################
 
 export CHROMIUM_BROWSER="yes"
-export BROWSER_NAME="Chromium51"
+export BROWSER_NAME="Chromium68"
 export TMPDIR="/tmp"
 export BROWSER_APP_ID="com.webos.app.browser"
 
@@ -16,7 +16,6 @@ if test -d ${XDG_RUNTIME_DIR}; then
 fi
 
 DEPLOY_DIR=$(dirname $(readlink -f $0))
-BIN_DIR="/usr/bin/chrome"
 
 USER_CACHE_CONF=${DEPLOY_DIR}/user_cachedir_conf
 if [ -f ${USER_CACHE_CONF} ]; then
@@ -178,7 +177,7 @@ echo ""
 #${DEPLOY_DIR}/chrome ${CHROME_FLAGS} --user-agent="${USER_AGENT}" --chrome-switch-end ${WEB_LANGUAGE} ${WEB_COUNTRY} $@
 
 if [ -n "${USER_AGENT}" ]; then
-  exec ${BIN_DIR}/chrome ${CHROME_FLAGS} --user-agent="${USER_AGENT}" --webos-launch-json="${@}"
+  exec ${DEPLOY_DIR}/chrome ${CHROME_FLAGS} --user-agent="${USER_AGENT}" --webos-launch-json="${@}"
 else
-  exec ${BIN_DIR}/chrome ${CHROME_FLAGS} --webos-launch-json="${@}"
+  exec ${DEPLOY_DIR}/chrome ${CHROME_FLAGS} --webos-launch-json="${@}"
 fi

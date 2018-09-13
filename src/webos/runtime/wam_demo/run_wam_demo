@@ -91,4 +91,4 @@ echo "                       Launching Wam Demo                          "
 echo "----------------------------------------------------------------------"
 echo ""
 
-exec ${BIN_DIR}/wam_demo ${CHROME_FLAGS} "$@"
+exec ${DEPLOY_DIR}/wam_demo ${CHROME_FLAGS} "$@"

@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.webos.app.wam-demo
+Exec=/usr/palm/applications/com.webos.app.wam-demo/wam_demo
+Type=static
