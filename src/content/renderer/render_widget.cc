@@ -2079,6 +2079,7 @@ void RenderWidget::DidToggleFullscreen() {
 void RenderWidget::OnImeEventGuardStart(ImeEventGuard* guard) {
   if (!ime_event_guard_)
     ime_event_guard_ = guard;
+  input_handler_->set_handling_ime_event(true);
 }
 
 void RenderWidget::OnImeEventGuardFinish(ImeEventGuard* guard) {
@@ -2087,6 +2088,7 @@ void RenderWidget::OnImeEventGuardFinish(ImeEventGuard* guard) {
     return;
   }
   ime_event_guard_ = nullptr;
+  input_handler_->set_handling_ime_event(false);
 
   // While handling an ime event, text input state and selection bounds updates
   // are ignored. These must explicitly be updated once finished handling the

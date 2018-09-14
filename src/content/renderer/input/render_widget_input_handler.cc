@@ -181,6 +181,7 @@ RenderWidgetInputHandler::RenderWidgetInputHandler(
     : delegate_(delegate),
       widget_(widget),
       handling_input_event_(false),
+      handling_ime_event_(false),
       handling_event_overscroll_(nullptr),
       handling_event_type_(WebInputEvent::kUndefined),
       suppress_next_char_events_(false) {

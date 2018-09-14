@@ -68,6 +68,11 @@ class CONTENT_EXPORT RenderWidgetInputHandler {
     handling_input_event_ = handling_input_event;
   }
 
+  bool handling_ime_event() const { return handling_ime_event_; }
+  void set_handling_ime_event(bool handling_ime_event) {
+    handling_ime_event_ = handling_ime_event;
+  }
+
   // Process the touch action, returning whether the action should be relayed
   // to the browser.
   bool ProcessTouchAction(cc::TouchAction touch_action);
@@ -82,6 +87,9 @@ class CONTENT_EXPORT RenderWidgetInputHandler {
 
   // Are we currently handling an input event?
   bool handling_input_event_;
+
+  // Are we currently handling an ime event?
+  bool handling_ime_event_;
 
   // Used to intercept overscroll notifications while an event is being
   // handled. If the event causes overscroll, the overscroll metadata can be

@@ -4441,6 +4441,23 @@ void RenderFrameImpl::AbortClientNavigation() {
 }
 
 void RenderFrameImpl::DidChangeSelection(bool is_empty_selection) {
+  if (is_empty_selection &&
+      !GetRenderWidget()->input_handler().handling_input_event() &&
+      !GetRenderWidget()->input_handler().handling_ime_event()) {
+    WebRange selection =
+        frame_->GetInputMethodController()->GetSelectionOffsets();
+    if (selection.IsNull())
+      return;
+
+    gfx::Range range =
+        gfx::Range(selection.StartOffset(), selection.EndOffset());
+    base::string16 text =
+        frame_->RangeAsText(WebRange(0, kExtraCharsBeforeAndAfterSelection + 1))
+            .Utf16();
+
+    SetSelectedText(text, 0, range);
+  }
+
   if (!GetRenderWidget()->input_handler().handling_input_event() &&
       !handling_select_range_)
     return;
