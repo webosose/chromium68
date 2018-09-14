@@ -32,42 +32,41 @@ bool MallocTraceProvider::OnMemoryTrace() {
   size_t resident_size = 0;
   size_t allocated_objects_size = 0;
 
+  MemoryTraceManager* mtm = MemoryTraceManager::GetInstance();
+
+  bool is_trace_log_csv = mtm->IsTraceLogCSV();
+  bool use_mega_bytes = mtm->GetUseMegaBytes();
+  int mb = use_mega_bytes ? 1024 : 1;
+
   struct mallinfo info = mallinfo();
   DCHECK_GE(info.arena + info.hblkhd, info.uordblks);
-
-  MemoryTraceManager* mtm = MemoryTraceManager::GetInstance();
 
   // In case of Android's jemalloc |arena| is 0 and the outer pages size is
   // reported by |hblkhd|. In case of dlmalloc the total is given by
   // |arena| + |hblkhd|. For more details see link: http://goo.gl/fMR8lF.
-  total_virtual_size = (info.arena + info.hblkhd) / KB;
-  resident_size = info.uordblks / KB;
-  allocated_objects_size = info.uordblks / KB;
+  total_virtual_size = (info.arena + info.hblkhd) / KB / mb;
+  resident_size = info.uordblks / KB / mb;
+  allocated_objects_size = info.uordblks / KB / mb;
 
-  bool is_trace_log_csv = mtm->IsTraceLogCSV();
-
-  if (!is_trace_log_csv) {
-    print_fmt = "[malloc] virtual = %8zd KB, resident = %8zd KB, "
-                         "allocated = %8zd KB\n";
+  if (is_trace_log_csv) {
+    fprintf(mtm->GetTraceFile(), "%zd", allocated_objects_size);
   } else {
-    print_fmt = "%zd, %zd, %zd";
-  }
-  if (mtm->GetUseMegaBytes()) {
-    total_virtual_size = ConvertKBtoMB(total_virtual_size);
-    resident_size = ConvertKBtoMB(resident_size);
-    allocated_objects_size = ConvertKBtoMB(allocated_objects_size);
-    if (!is_trace_log_csv)
+    if (use_mega_bytes) {
       print_fmt = "[malloc] virtual = %4zd MB, resident = %4zd MB, "
                            "allocated = %4zd MB\n";
+    } else {
+      print_fmt = "[malloc] virtual = %8zd KB, resident = %8zd KB, "
+                           "allocated = %8zd KB\n";
+    }
+    fprintf(mtm->GetTraceFile(), print_fmt,
+            total_virtual_size, resident_size, allocated_objects_size);
   }
-  fprintf(mtm->GetTraceFile(), print_fmt,
-          total_virtual_size, resident_size, allocated_objects_size);
 
   return true;
 }
 
 std::string MallocTraceProvider::GetCSVHeader() {
-  return std::string("malloc:virtual, malloc:resident, malloc:allocated");
+  return std::string("malloc");
 }
 
 }  // namespace neva

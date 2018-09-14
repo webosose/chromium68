@@ -50,11 +50,13 @@ void V8IsolateMemoryTraceProvider::TraceHeapStatistics() {
   FILE* trace_fp = mtm->GetTraceFile();
   bool is_trace_log_csv = mtm->IsTraceLogCSV();
   bool use_mega_bytes = mtm->GetUseMegaBytes();
+  int mb = use_mega_bytes ? 1024 : 1;
 
   v8::HeapStatistics heap_statistics;
   isolate_holder_->isolate()->GetHeapStatistics(&heap_statistics);
-  size_t malloced_memory = heap_statistics.malloced_memory() / KB;
-  size_t peak_malloced_memory = heap_statistics.peak_malloced_memory() / KB;
+
+  size_t malloced_memory = heap_statistics.malloced_memory() / KB / mb;
+  size_t peak_malloced_memory = heap_statistics.peak_malloced_memory() / KB / mb;
 
   // Print isolate information.
   if (!is_trace_log_csv) {
@@ -67,14 +69,10 @@ void V8IsolateMemoryTraceProvider::TraceHeapStatistics() {
   // Trace statistics about malloced memory.
   if (!is_trace_log_csv) {
     print_fmt = "[v8/      malloc] malloced = %6zd, peak    = %6zd\n";
+    fprintf(trace_fp, print_fmt, malloced_memory, peak_malloced_memory);
   } else {
-    print_fmt = ", %zd, %zd";
+    // Do not print v8 malloced info in csv mode.
   }
-  if (use_mega_bytes) {
-    malloced_memory = ConvertKBtoMB(malloced_memory);
-    peak_malloced_memory = ConvertKBtoMB(peak_malloced_memory);
-  }
-  fprintf(trace_fp, print_fmt, malloced_memory, peak_malloced_memory);
 
   // Trace statistics of each space in v8 heap.
   size_t known_spaces_used_size = 0;
@@ -86,26 +84,22 @@ void V8IsolateMemoryTraceProvider::TraceHeapStatistics() {
     isolate_holder_->isolate()->GetHeapSpaceStatistics(&space_statistics,
                                                        space);
 
-    size_t space_size = space_statistics.space_size() / KB;
-    size_t space_used_size = space_statistics.space_used_size() / KB;
-    size_t space_physical_size = space_statistics.physical_space_size() / KB;
+    size_t space_physical_size = space_statistics.physical_space_size() / KB / mb;
+    size_t space_size = space_statistics.space_size() / KB / mb;
+    size_t space_used_size = space_statistics.space_used_size() / KB / mb;
 
-    if (!is_trace_log_csv) {
+    if (is_trace_log_csv) {
+      fprintf(trace_fp, ", %zd", space_used_size);
+    } else {
       const char* name = space_statistics.space_name();
       if (!strcmp(name, "large_object_space"))
         name = "lo_space";
       fprintf(trace_fp, "[v8/%12s] ", name);
       print_fmt = "physical = %6zd, virtual = %6zd, allocated = %6zd\n";
-    } else {
-      print_fmt = ", %zd, %zd, %zd";
+
+      fprintf(trace_fp, print_fmt,
+              space_physical_size, space_size, space_used_size);
     }
-    if (use_mega_bytes) {
-      space_physical_size = ConvertKBtoMB(space_physical_size);
-      space_size = ConvertKBtoMB(space_size);
-      space_used_size = ConvertKBtoMB(space_used_size);
-    }
-    fprintf(trace_fp, print_fmt,
-            space_physical_size, space_size, space_used_size);
 
     known_spaces_size += space_size;
     known_spaces_used_size += space_used_size;
@@ -113,28 +107,24 @@ void V8IsolateMemoryTraceProvider::TraceHeapStatistics() {
   }
 
   // Compute the rest of the memory, not accounted by the spaces above.
-  size_t total_physical_size = heap_statistics.total_physical_size() / KB;
-  size_t total_heap_size = heap_statistics.total_heap_size() / KB;
-  size_t used_heap_size = heap_statistics.used_heap_size() / KB;
-  if (!is_trace_log_csv) {
+  size_t total_physical_size = heap_statistics.total_physical_size() / KB / mb;
+  size_t total_heap_size = heap_statistics.total_heap_size() / KB / mb;
+  size_t used_heap_size = heap_statistics.used_heap_size() / KB / mb;
+
+  if (is_trace_log_csv) {
+    fprintf(trace_fp, ", %zd", (used_heap_size - known_spaces_used_size));
+  } else {
     print_fmt =
         "[v8/      others] physical = %6zd, virtual = %6zd, allocated = %6zd\n";
-  } else {
-    print_fmt = ", %zd, %zd, %zd";
+    fprintf(trace_fp, print_fmt,
+            (total_physical_size - known_spaces_physical_size),
+            (total_heap_size - known_spaces_size),
+            (used_heap_size - known_spaces_used_size));
   }
-  if (use_mega_bytes) {
-    total_physical_size = ConvertKBtoMB(total_physical_size);
-    total_heap_size = ConvertKBtoMB(total_heap_size);
-    used_heap_size = ConvertKBtoMB(used_heap_size);
-  }
-  fprintf(trace_fp, print_fmt,
-          (total_physical_size - known_spaces_physical_size),
-          (total_heap_size - known_spaces_size),
-          (used_heap_size - known_spaces_used_size));
 }
 
 std::string V8IsolateMemoryTraceProvider::GetCSVHeader() {
-  std::string header = "v8:isolate, v8:malloc:size, v8:malloc:peak";
+  std::string header = "v8:isolate";
   size_t number_of_spaces = isolate_holder_->isolate()->NumberOfHeapSpaces();
 
   for (size_t space = 0; space < number_of_spaces; space++) {
@@ -142,11 +132,9 @@ std::string V8IsolateMemoryTraceProvider::GetCSVHeader() {
     isolate_holder_->isolate()->GetHeapSpaceStatistics(&space_statistics,
                                                        space);
     const char* space_name = space_statistics.space_name();
-    header += std::string(", v8:") + space_name + ":phy";
-    header += std::string(", v8:") + space_name + ":virt";
-    header += std::string(", v8:") + space_name + ":alloc";
+    header += std::string(", v8:") + space_name;
   }
-  header += ", v8:other:phy, v8:other:virt, v8:other:alloc";
+  header += ", v8:other";
 
   return header;
 }

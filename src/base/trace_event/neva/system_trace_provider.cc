@@ -342,25 +342,23 @@ bool SystemTraceProvider::OnMemoryTrace() {
   FILE* trace_fp = mtm->GetTraceFile();
   bool is_trace_log_csv = mtm->IsTraceLogCSV();
   bool use_mega_bytes = mtm->GetUseMegaBytes();
+  int mb = use_mega_bytes ? 1024 : 1;
 
   {
     // Read /proc/self/statm and print its info.
     ProcStatMReader proc_statm_reader;
-    int vss    = proc_statm_reader.GetVSS();
-    int rss    = proc_statm_reader.GetRSS();
-    int shared = proc_statm_reader.GetShared();
+    int vss    = proc_statm_reader.GetVSS() / mb;
+    int rss    = proc_statm_reader.GetRSS() / mb;
+    int shared = proc_statm_reader.GetShared() / mb;
 
-    if (!is_trace_log_csv) {
-      print_fmt = "[system] VSS = %8d KB, RSS = %8d KB, shared = %8d KB\n";
-    } else {
+    if (is_trace_log_csv) {
       print_fmt = "%d, %d, %d, ";
-    }
-    if (use_mega_bytes) {
-      vss    = ConvertKBtoMB(vss);
-      rss    = ConvertKBtoMB(rss);
-      shared = ConvertKBtoMB(shared);
-      if (!is_trace_log_csv)
+    } else {
+      if (use_mega_bytes) {
         print_fmt = "[system] VSS = %4d MB, RSS = %4d MB, shared = %4d MB\n";
+      } else {
+        print_fmt = "[system] VSS = %8d KB, RSS = %8d KB, shared = %8d KB\n";
+      }
     }
     fprintf(trace_fp, print_fmt, vss, rss, shared);
   }
@@ -368,55 +366,48 @@ bool SystemTraceProvider::OnMemoryTrace() {
   {
     // Read /proc/self/smaps and print its info.
     ProcSmapsReader proc_smaps_reader;
-    int pss_total  = proc_smaps_reader.GetPSSTotal();
-    int pss_file   = proc_smaps_reader.GetPSSOfFile();
-    int pss_stack  = proc_smaps_reader.GetPSSOfStack();
-    int pss_anon   = proc_smaps_reader.GetPSSOfAnon();
-    int pss_shared = proc_smaps_reader.GetPSSOfShared();
-    int pss_etc    = proc_smaps_reader.GetPSSOfEtc();
-    int total_swap = proc_smaps_reader.GetSwap();
-    if (!is_trace_log_csv) {
-      print_fmt = "[system] PSS = %8d KB (file = %d, shared = %d, "
-                           "anon = %d, stack = %d, etc = %d), "
-                           "Swap = %d KB\n";
+    int pss_total  = proc_smaps_reader.GetPSSTotal() / mb;
+    int pss_file   = proc_smaps_reader.GetPSSOfFile() / mb;
+    int pss_stack  = proc_smaps_reader.GetPSSOfStack() / mb;
+    int pss_anon   = proc_smaps_reader.GetPSSOfAnon() / mb;
+    int pss_shared = proc_smaps_reader.GetPSSOfShared() / mb;
+    int pss_etc    = proc_smaps_reader.GetPSSOfEtc() / mb;
+    int total_swap = proc_smaps_reader.GetSwap() / mb;
+
+    if (is_trace_log_csv) {
+      fprintf(trace_fp, "%d, %d, %d, %d, ",
+              pss_total, pss_file, pss_anon, total_swap);
     } else {
-      print_fmt = "%d, %d, %d, %d, %d, %d, %d, ";
-    }
-    if (use_mega_bytes) {
-      pss_total  = ConvertKBtoMB(pss_total);
-      pss_file   = ConvertKBtoMB(pss_file);
-      pss_shared = ConvertKBtoMB(pss_shared);
-      pss_anon   = ConvertKBtoMB(pss_anon);
-      pss_stack  = ConvertKBtoMB(pss_stack);
-      pss_etc    = ConvertKBtoMB(pss_etc);
-      total_swap = ConvertKBtoMB(total_swap);
-      if (!is_trace_log_csv)
+      if (use_mega_bytes) {
         print_fmt = "[system] PSS = %4d MB (file = %4d, shared = %4d, "
                              "anon = %4d, stack = %4d, etc = %4d), "
                              "Swap = %4d MB\n";
+      } else {
+        print_fmt = "[system] PSS = %8d KB (file = %d, shared = %d, "
+                             "anon = %d, stack = %d, etc = %d), "
+                             "Swap = %d KB\n";
+      }
+      fprintf(trace_fp, print_fmt,
+              pss_total, pss_file, pss_shared, pss_anon, pss_stack, pss_etc,
+              total_swap);
     }
-    fprintf(trace_fp, print_fmt,
-            pss_total, pss_file, pss_shared, pss_anon, pss_stack, pss_etc,
-            total_swap);
   }
 
   {
     // Read /proc/meminfo and print its info.
     ProcMemInfoReader proc_mem_info_reader;
-    int mem_free = proc_mem_info_reader.GetMemFree();
-    int mem_available = proc_mem_info_reader.GetMemAvailable();
-    int swap_free = proc_mem_info_reader.GetSwapFree();
-    if (!is_trace_log_csv) {
-      print_fmt = "[system] MemFree = %8d KB, MemAvailable = %8d KB, SwapFree = %8d KB\n";
-    } else {
+    int mem_free = proc_mem_info_reader.GetMemFree() / mb;
+    int mem_available = proc_mem_info_reader.GetMemAvailable() / mb;
+    int swap_free = proc_mem_info_reader.GetSwapFree() / mb;
+
+    if (is_trace_log_csv) {
       print_fmt = "%d, %d, %d";
-    }
-    if (use_mega_bytes) {
-      mem_free      = ConvertKBtoMB(mem_free);
-      mem_available = ConvertKBtoMB(mem_available);
-      swap_free     = ConvertKBtoMB(swap_free);
-      if (!is_trace_log_csv)
+    } else {
+      if (use_mega_bytes) {
         print_fmt = "[system] MemFree = %4d MB, MemAvailable = %4d MB, SwapFree = %4d MB\n";
+      } else {
+        print_fmt = "[system] MemFree = %8d KB, MemAvailable = %8d KB, SwapFree = %8d KB\n";
+      }
     }
     fprintf(trace_fp, print_fmt, mem_free, mem_available, swap_free);
   }
@@ -426,7 +417,7 @@ bool SystemTraceProvider::OnMemoryTrace() {
 
 std::string SystemTraceProvider::GetCSVHeader() {
   return std::string("VSS, RSS, shared, "
-                     "PSS, PSS:file, PSS:shared, PSS:anon, PSS:stack, PSS:etc, "
+                     "PSS, PSS:file, PSS:anon, "
                      "Swap, MemFree, MemAvailable, SwapFree");
 }
 
