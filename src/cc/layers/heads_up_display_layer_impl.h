@@ -29,6 +29,14 @@ class FrameRateCounter;
 class LayerTreeFrameSink;
 class LayerTreeResourceProvider;
 
+enum class HUDRelativePosition {
+  kNotInitialized,
+  kTopRight,
+  kTopLeft,
+  kBottomRight,
+  kBottomLeft,
+};
+
 class CC_EXPORT HeadsUpDisplayLayerImpl : public LayerImpl {
  public:
   static std::unique_ptr<HeadsUpDisplayLayerImpl> Create(
@@ -57,6 +65,8 @@ class CC_EXPORT HeadsUpDisplayLayerImpl : public LayerImpl {
   bool IsAnimatingHUDContents() const { return fade_step_ > 0; }
 
   void SetHUDTypeface(sk_sp<SkTypeface> typeface);
+
+  static HUDRelativePosition GetHUDRelativePosition();
 
   // This evicts hud quad appended during render pass preparation.
   void EvictHudQuad(const viz::RenderPassList& list);
@@ -142,6 +152,7 @@ class CC_EXPORT HeadsUpDisplayLayerImpl : public LayerImpl {
   sk_sp<SkSurface> staging_surface_;
 
   sk_sp<SkTypeface> typeface_;
+  static HUDRelativePosition hud_position_;
 
   float internal_contents_scale_;
   gfx::Size internal_content_bounds_;

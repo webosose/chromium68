@@ -65,6 +65,10 @@ const char kCompositedLayerBorders[] = "layer";
 // will also be output to the console log.
 const char kShowFPSCounter[] = "show-fps-counter";
 const char kUIShowFPSCounter[] = "ui-show-fps-counter";
+// Specifies the layout mode for the HUD FPS counter. The format is
+// "<tr|tl|br|bl>" where t=TOP, r=RIGHT, b=BOTTOM and L=LEFT. For example,
+// 'tr' means it's positioned at the top right corner.
+const char kFPSCounterLayout[] = "fps-counter-layout";
 
 // Renders a border that represents the bounding box for the layer's animation.
 const char kShowLayerAnimationBounds[] = "show-layer-animation-bounds";

@@ -36,6 +36,7 @@ CC_BASE_EXPORT extern const char kShowCompositedLayerBorders[];
 CC_BASE_EXPORT extern const char kUIShowCompositedLayerBorders[];
 CC_BASE_EXPORT extern const char kShowFPSCounter[];
 CC_BASE_EXPORT extern const char kUIShowFPSCounter[];
+CC_BASE_EXPORT extern const char kFPSCounterLayout[];
 CC_BASE_EXPORT extern const char kShowLayerAnimationBounds[];
 CC_BASE_EXPORT extern const char kUIShowLayerAnimationBounds[];
 CC_BASE_EXPORT extern const char kShowPropertyChangedRects[];

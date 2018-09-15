@@ -10,12 +10,14 @@
 #include <algorithm>
 #include <vector>
 
+#include "base/command_line.h"
 #include "base/numerics/safe_conversions.h"
 #include "base/single_thread_task_runner.h"
 #include "base/stl_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/trace_event/trace_event.h"
 #include "base/trace_event/trace_event_argument.h"
+#include "cc/base/switches.h"
 #include "cc/debug/debug_colors.h"
 #include "cc/raster/scoped_gpu_raster.h"
 #include "cc/resources/memory_history.h"
@@ -45,6 +47,10 @@
 #include "ui/gl/trace_util.h"
 
 namespace cc {
+
+// static
+HUDRelativePosition HeadsUpDisplayLayerImpl::hud_position_ =
+    HUDRelativePosition::kNotInitialized;
 
 static inline SkPaint CreatePaint() {
   SkPaint paint;
@@ -407,6 +413,28 @@ void HeadsUpDisplayLayerImpl::PushPropertiesTo(LayerImpl* layer) {
   layer_impl->SetHUDTypeface(typeface_);
 }
 
+// static
+HUDRelativePosition HeadsUpDisplayLayerImpl::GetHUDRelativePosition() {
+  if (hud_position_ != HUDRelativePosition::kNotInitialized)
+    return hud_position_;
+  hud_position_ = HUDRelativePosition::kTopRight;
+
+  const base::CommandLine& command_line =
+      *base::CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(cc::switches::kFPSCounterLayout)) {
+    std::string position =
+        command_line.GetSwitchValueASCII(cc::switches::kFPSCounterLayout);
+    if (position == "bl") {
+      hud_position_ = HUDRelativePosition::kBottomLeft;
+    } else if (position == "br") {
+      hud_position_ = HUDRelativePosition::kBottomRight;
+    } else if (position == "tl") {
+      hud_position_ = HUDRelativePosition::kTopLeft;
+    }
+  }
+  return hud_position_;
+}
+
 void HeadsUpDisplayLayerImpl::UpdateHudContents() {
   const LayerTreeDebugState& debug_state = layer_tree_impl()->debug_state();
 
@@ -558,9 +586,26 @@ SkRect HeadsUpDisplayLayerImpl::DrawFPSDisplay(
 
   const int kHistogramWidth = 37;
 
-  int width = kGraphWidth + kHistogramWidth + 4 * kPadding;
-  int height = kTitleFontHeight + kFontHeight + kGraphHeight + 6 * kPadding + 2;
-  int left = bounds().width() - width - right;
+  const int width = kGraphWidth + kHistogramWidth + 4 * kPadding;
+  const int height_padding = 6 * kPadding + 2;
+  const int height =
+      kTitleFontHeight + kFontHeight + kGraphHeight + height_padding;
+  int left = 0;
+  switch (GetHUDRelativePosition()) {
+    case HUDRelativePosition::kTopLeft:
+      break;
+    case HUDRelativePosition::kBottomRight:
+      left = bounds().width() - width - right;
+      top = height - height_padding;
+      break;
+    case HUDRelativePosition::kBottomLeft:
+      top = height - height_padding;
+      break;
+    case HUDRelativePosition::kTopRight:
+    default:
+      left = bounds().width() - width - right;
+      break;
+  }
   SkRect area = SkRect::MakeXYWH(left, top, width, height);
 
   SkPaint paint = CreatePaint();
@@ -698,7 +743,17 @@ SkRect HeadsUpDisplayLayerImpl::DrawMemoryDisplay(SkCanvas* canvas,
   const int kFontHeight = 12;
 
   const int height = kTitleFontHeight + 2 * kFontHeight + 5 * kPadding;
-  const int left = bounds().width() - width - right;
+  int left = 0;
+  switch (GetHUDRelativePosition()) {
+    case HUDRelativePosition::kBottomRight:
+    case HUDRelativePosition::kTopRight:
+    default:
+      left = bounds().width() - width - right;
+      break;
+    case HUDRelativePosition::kTopLeft:
+    case HUDRelativePosition::kBottomLeft:
+      break;
+  }
   const SkRect area = SkRect::MakeXYWH(left, top, width, height);
 
   const double kMegabyte = 1024.0 * 1024.0;
@@ -805,7 +860,17 @@ SkRect HeadsUpDisplayLayerImpl::DrawGpuRasterizationStatus(SkCanvas* canvas,
   const int kFontHeight = 12;
 
   const int height = kTitleFontHeight + kFontHeight + 3 * kPadding;
-  const int left = bounds().width() - width - right;
+  int left = 0;
+  switch (GetHUDRelativePosition()) {
+    case HUDRelativePosition::kBottomRight:
+    case HUDRelativePosition::kTopRight:
+    default:
+      left = bounds().width() - width - right;
+      break;
+    case HUDRelativePosition::kTopLeft:
+    case HUDRelativePosition::kBottomLeft:
+      break;
+  }
   const SkRect area = SkRect::MakeXYWH(left, top, width, height);
 
   SkPaint paint = CreatePaint();

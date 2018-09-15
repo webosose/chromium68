@@ -42,11 +42,22 @@ void HeadsUpDisplayLayer::PrepareForCalculateDrawProperties(
   if (layer_tree_host()->GetDebugState().ShowHudRects()) {
     bounds = device_viewport_in_layout_pixels;
   } else {
-    int size = 256;
+    const int size = 256;
     bounds.SetSize(size, size);
-    matrix.Translate(device_viewport_in_layout_pixels.width() - size, 0.0);
+    const HUDRelativePosition pos =
+        HeadsUpDisplayLayerImpl::GetHUDRelativePosition();
+    const double x_translation =
+        (pos != HUDRelativePosition::kTopLeft &&
+         pos != HUDRelativePosition::kBottomLeft)
+            ? device_viewport_in_layout_pixels.width() - size
+            : 0.0;
+    const double y_translation =
+        (pos == HUDRelativePosition::kBottomRight ||
+         pos == HUDRelativePosition::kBottomLeft)
+            ? device_viewport_in_layout_pixels.height() - size
+            : 0.0;
+    matrix.Translate(x_translation, y_translation);
   }
-
   SetBounds(bounds);
   SetTransform(matrix);
 }
