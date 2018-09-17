@@ -293,6 +293,10 @@ void RenderWidgetHostViewEventHandler::OnKeyEvent(ui::KeyEvent* event) {
       accept_return_character_ = event->type() == ui::ET_KEY_PRESSED;
     }
 
+    if (event->key_code() == ui::VKEY_LEFT ||
+        event->key_code() == ui::VKEY_RIGHT)
+      FinishImeCompositionSession();
+
     // Call SetKeyboardFocus() for not only ET_KEY_PRESSED but also
     // ET_KEY_RELEASED. If a user closed the hotdog menu with ESC key press,
     // we need to notify focus to Blink on ET_KEY_RELEASED for ESC key.
