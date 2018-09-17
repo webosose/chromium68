@@ -5,9 +5,18 @@
 #include "ozone/ui/webui/input_method_context_impl_wayland.h"
 
 #include "base/logging.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "ozone/ui/webui/input_method_context_manager.h"
 #include "ui/base/ime/composition_text.h"
+
+constexpr SkColor kPreeditHighlightColor =
+#if defined(OS_WEBOS)
+    // specified by UX team
+    SkColorSetARGB(0xFF, 198, 176, 186);
+#else
+    SK_ColorTRANSPARENT;
+#endif
 
 namespace ui {
 
@@ -47,13 +56,27 @@ void InputMethodContextImplWayland::SetCursorLocation(const gfx::Rect&) {
 }
 
 void InputMethodContextImplWayland::Commit(const std::string& text) {
-  delegate_->OnCommit(base::string16(base::ASCIIToUTF16(text.c_str())));
+  base::string16 string_commited;
+  if (base::IsStringUTF8(text))
+    base::UTF8ToUTF16(text.c_str(), text.length(), &string_commited);
+  else
+    string_commited = base::ASCIIToUTF16(text);
+
+  delegate_->OnCommit(string_commited);
 }
 
 void InputMethodContextImplWayland::PreeditChanged(const std::string& text,
                                                    const std::string& commit) {
   ui::CompositionText composition_text;
-  composition_text.text = base::string16(base::ASCIIToUTF16(text.c_str()));
+  if (base::IsStringUTF8(text)) {
+    base::UTF8ToUTF16(text.c_str(), text.length(), &composition_text.text);
+    composition_text.selection = gfx::Range(0, composition_text.text.length());
+    composition_text.ime_text_spans.push_back(ui::ImeTextSpan(
+        ui::ImeTextSpan::Type::kComposition, 0, composition_text.text.length(),
+        ui::ImeTextSpan::Thickness::kNone, kPreeditHighlightColor));
+  } else
+    composition_text.text = base::ASCIIToUTF16(text);
+
   delegate_->OnPreeditChanged(composition_text);
 }
 
