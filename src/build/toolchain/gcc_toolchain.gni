@@ -618,6 +618,10 @@ template("clang_toolchain") {
                              "is_clang_analysis_supported",
                              "enable_linker_map",
                              "use_unstripped_as_runtime_outputs",
+                             "extra_cflags",
+                             "extra_cxxflags",
+                             "extra_cppflags",
+                             "extra_ldflags",
                            ])
 
     toolchain_args = {
