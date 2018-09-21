@@ -77,4 +77,8 @@ config("config") {
   if (use_cbe) {
     defines += [ "USE_CBE=1" ]
   }
+
+  if (use_pmlog && current_toolchain == default_toolchain) {
+    defines += [ "USE_PMLOG=1" ]
+  }
 }

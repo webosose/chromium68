@@ -56,4 +56,7 @@ declare_args() {
 
   # To be used as CBE library
   use_cbe = false
+
+  # Use webOS PmLog logging library
+  use_pmlog = false
 }
