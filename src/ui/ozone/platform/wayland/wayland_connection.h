@@ -78,9 +78,13 @@ class WaylandConnection : public PlatformEventSource,
   wl_seat* seat() { return seat_.get(); }
   wl_data_device* data_device() { return data_device_->data_device(); }
   zwp_linux_dmabuf_v1* zwp_linux_dmabuf() { return zwp_linux_dmabuf_.get(); }
+  zwp_text_input_manager_v1* text_input_manager_v1() {
+    return text_input_manager_v1_.get();
+  }
 
   WaylandWindow* GetWindow(gfx::AcceleratedWidget widget);
   WaylandWindow* GetCurrentFocusedWindow();
+  WaylandWindow* GetCurrentKeyboardFocusedWindow();
   void AddWindow(gfx::AcceleratedWidget widget, WaylandWindow* window);
   void RemoveWindow(gfx::AcceleratedWidget widget);
 
@@ -145,6 +149,9 @@ class WaylandConnection : public PlatformEventSource,
                        base::OnceCallback<void(const std::string&)> callback);
 
  private:
+  // WaylandInputMethodContextFactory needs access to DispatchUiEvent
+  friend class WaylandInputMethodContextFactory;
+
   void Flush();
   void DispatchUiEvent(Event* event);
 
@@ -216,6 +223,7 @@ class WaylandConnection : public PlatformEventSource,
   wl::Object<xdg_shell> shell_;
   wl::Object<zwp_linux_dmabuf_v1> zwp_linux_dmabuf_;
   wl::Object<zxdg_shell_v6> shell_v6_;
+  wl::Object<zwp_text_input_manager_v1> text_input_manager_v1_;
 
   // Stores a wl_buffer and it's id provided by the GbmBuffer object on the
   // GPU process side.
