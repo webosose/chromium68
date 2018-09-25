@@ -287,6 +287,14 @@ void InputMethodAuraLinux::OnCaretBoundsChanged(const TextInputClient* client) {
   NotifyTextInputCaretBoundsChanged(client);
   context_->SetCursorLocation(GetTextInputClient()->GetCaretBounds());
 
+  gfx::Range text_range, selection_range;
+  base::string16 text;
+  if (client->GetTextRange(&text_range) &&
+      client->GetTextFromRange(text_range, &text) &&
+      client->GetSelectionRange(&selection_range)) {
+    context_->SetSurroundingText(text, selection_range);
+  }
+
   if (!IsTextInputTypeNone() && text_input_type_ != TEXT_INPUT_TYPE_PASSWORD &&
       GetEngine())
     GetEngine()->SetCompositionBounds(GetCompositionBounds(client));
@@ -318,13 +326,6 @@ void InputMethodAuraLinux::ResetContext() {
 
   context_->Reset();
   context_simple_->Reset();
-
-  // Some input methods may not honour the reset call. Focusing out/in the
-  // |context_| to make sure it gets reset correctly.
-  if (text_input_type_ != TEXT_INPUT_TYPE_NONE) {
-    context_->Blur();
-    context_->Focus();
-  }
 
   composition_ = CompositionText();
   result_text_.clear();
@@ -366,6 +367,14 @@ void InputMethodAuraLinux::OnCommit(const base::string16& text) {
     ui::KeyEvent release_event(ui::ET_KEY_RELEASED, ui::VKEY_PROCESSKEY, 0);
     SendFakeProcessKeyEvent(&release_event);
 #endif
+  }
+}
+
+void InputMethodAuraLinux::OnDeleteSurroundingText(int32_t index,
+                                                   uint32_t length) {
+  if (GetTextInputClient() && composition_.text.empty()) {
+    uint32_t before = index >= 0 ? 0U : static_cast<uint32_t>(-1 * index);
+    GetTextInputClient()->ExtendSelectionAndDelete(before, length - before);
   }
 }
 
