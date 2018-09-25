@@ -788,8 +788,8 @@ void WebView::ForwardAppRuntimeEvent(AppRuntimeEvent* event) {
 
       native_event.windows_key_code = keycode;
       native_event.native_key_code = keycode;
-      native_event.text[0] = keycode;
-      native_event.unmodified_text[0] = keycode;
+      native_event.text[0] = 0;
+      native_event.unmodified_text[0] = 0;
       native_event.SetType(event->GetType() == AppRuntimeKeyEvent::KeyPress
                                ? blink::WebInputEvent::Type::kKeyDown
                                : blink::WebInputEvent::Type::kKeyUp);
