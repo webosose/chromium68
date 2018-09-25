@@ -96,7 +96,7 @@ void WebOSNetworkDelegate::ParsePathsFromSettings(
     std::getline(stream, str);
     if (str.find("size=") != std::string::npos)
       break;
-    int path_pos = str.find("=");
+    size_t path_pos = str.find("=");
     if (path_pos != std::string::npos) {
       paths.push_back(str.substr(path_pos + 1));
     }
@@ -117,7 +117,7 @@ bool WebOSNetworkDelegate::IsAccessAllowed(
   const base::FilePath stripped_path(path.StripTrailingSeparators());
 
   // 1. Resources in globally permitted paths
-  for (int i = 0; i < allowed_target_paths_.size(); ++i) {
+  for (size_t i = 0; i < allowed_target_paths_.size(); ++i) {
     const base::FilePath white_listed_path(allowed_target_paths_.at(i));
     // base::FilePath::operator== should probably handle trailing separators.
     if (white_listed_path == stripped_path || white_listed_path.IsParent(path))
@@ -149,7 +149,7 @@ bool WebOSNetworkDelegate::IsAccessAllowed(
 
   // 3. Resources for trusted app
   if (trust_level == "trusted") {
-    for (int i = 0; i < allowed_trusted_target_paths_.size(); ++i) {
+    for (size_t i = 0; i < allowed_trusted_target_paths_.size(); ++i) {
       base::FilePath config_path(allowed_trusted_target_paths_.at(i));
       // Strip trailingseparators, this allows using both /foo/ and /foo in
       // security_config file
