@@ -23,6 +23,7 @@
 #include "components/os_crypt/key_storage_config_linux.h"
 #include "components/os_crypt/os_crypt.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/common/content_switches.h"
 #include "content/public/common/result_codes.h"
 #include "neva/app_runtime/browser/app_runtime_browser_context_adapter.h"
 #include "neva/app_runtime/browser/app_runtime_browser_main_extra_parts.h"
@@ -120,6 +121,59 @@ void AppRuntimeBrowserMainParts::PreMainMessageLoopRun() {
 
   for (auto* extra_part : app_runtime_extra_parts_)
     extra_part->PreMainMessageLoopRun();
+
+  const base::CommandLine& command_line =
+      *base::CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kEnableWatchdog)) {
+    ui_watchdog_.reset(new watchdog::Watchdog());
+    io_watchdog_.reset(new watchdog::Watchdog());
+
+    std::string env_timeout =
+        command_line.GetSwitchValueASCII(switches::kWatchdogBrowserTimeout);
+    if (!env_timeout.empty()) {
+      int timeout;
+      base::StringToInt(env_timeout, &timeout);
+      ui_watchdog_->SetTimeout(timeout);
+      io_watchdog_->SetTimeout(timeout);
+    }
+
+    std::string env_period =
+        command_line.GetSwitchValueASCII(switches::kWatchdogBrowserPeriod);
+    if (!env_period.empty()) {
+      int period;
+      base::StringToInt(env_period, &period);
+      ui_watchdog_->SetPeriod(period);
+      io_watchdog_->SetPeriod(period);
+    }
+
+    ui_watchdog_->StartWatchdog();
+    io_watchdog_->StartWatchdog();
+
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&AppRuntimeBrowserMainParts::ArmWatchdog,
+                   base::Unretained(this), content::BrowserThread::UI,
+                   ui_watchdog_.get()));
+
+    content::BrowserThread::PostTask(
+        content::BrowserThread::IO, FROM_HERE,
+        base::Bind(&AppRuntimeBrowserMainParts::ArmWatchdog,
+                   base::Unretained(this), content::BrowserThread::IO,
+                   io_watchdog_.get()));
+  }
+}
+
+void AppRuntimeBrowserMainParts::ArmWatchdog(content::BrowserThread::ID thread,
+                                             watchdog::Watchdog* watchdog) {
+  watchdog->Arm();
+  if (!watchdog->GetWatchingThreadTid())
+    watchdog->SetWatchingThreadTid((pid_t)syscall(SYS_gettid));
+
+  content::BrowserThread::PostDelayedTask(
+      thread, FROM_HERE,
+      base::Bind(&AppRuntimeBrowserMainParts::ArmWatchdog, base::Unretained(this),
+                 thread, watchdog),
+      base::TimeDelta::FromSeconds(watchdog->GetPeriod()));
 }
 
 bool AppRuntimeBrowserMainParts::MainMessageLoopRun(int* result_code) {

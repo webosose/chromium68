@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018 LG Electronics, Inc.
+// Copyright (c) 2018 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,49 +14,52 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef WEBOS_COMMON_WEBOS_WATCHDOG_H_
-#define WEBOS_COMMON_WEBOS_WATCHDOG_H_
+#ifndef COMPONENTS_WATCHDOG_WATCHDOG_H_
+#define COMPONENTS_WATCHDOG_WATCHDOG_H_
 
 #include <memory>
+
+#include <sys/syscall.h>
+#include <sys/types.h>
 
 #include "base/threading/watchdog.h"
 #include "base/time/time.h"
 
-namespace webos {
+namespace watchdog {
 
-class WebOSWatchdog {
+class Watchdog {
  public:
-  WebOSWatchdog();
-  virtual ~WebOSWatchdog();
+  Watchdog();
+  virtual ~Watchdog();
 
   void StartWatchdog();
   void Arm();
 
   void SetPeriod(int period) { period_ = period; }
-  int Period() { return period_; }
+  int GetPeriod() { return period_; }
 
   void SetTimeout(int timeout) { timeout_ = timeout; }
 
-  int WatchingThreadTid() { return watching_tid_; }
-  void SetWatchingThreadTid(int tid) { watching_tid_ = tid; }
+  void SetWatchingThreadTid(pid_t tid) { watching_tid_ = tid; }
+  int GetWatchingThreadTid() { return watching_tid_; }
 
  private:
   class WatchdogThread : public base::Watchdog {
    public:
-    WatchdogThread(const base::TimeDelta& duration, WebOSWatchdog* watchdog);
+    WatchdogThread(const base::TimeDelta& duration, watchdog::Watchdog* watchdog);
 
     void Alarm() override;
 
    private:
-    WebOSWatchdog* watchdog_;
+    watchdog::Watchdog* watchdog_;
   };
 
   std::unique_ptr<base::Watchdog> watchdog_thread_;
-  int watching_tid_;
   int period_;
   int timeout_;
+  pid_t watching_tid_;
 };
 
-}  // namespace webos
+}  // namespace watchdog
 
-#endif /* WEBOS_COMMON_WEBOS_WATCHDOG_H_ */
+#endif /* COMPONENTS_WATCHDOG_WATCHDOG_H_ */

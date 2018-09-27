@@ -460,6 +460,9 @@ const char kEnableVtune[]                   = "enable-vtune-support";
 // Enable Vulkan support, must also have ENABLE_VULKAN defined.
 const char kEnableVulkan[] = "enable-vulkan";
 
+// Enable watchdog for detecting stuck processes
+const char kEnableWatchdog[]                = "enable-watchdog";
+
 // Enable the Web Authentication Testing API.
 // https://w3c.github.io/webauthn
 const char kEnableWebAuthTestingAPI[] = "enable-web-authentication-testing-api";
@@ -851,6 +854,12 @@ const char kValidateInputEventStream[] = "validate-input-event-stream";
 // will be used as a filter to determine if the child process should have the
 // kWaitForDebugger flag passed on or not.
 const char kWaitForDebuggerChildren[]       = "wait-for-debugger-children";
+
+// Knobs for configuring browser/renderer watchdog period and timeout
+const char kWatchdogBrowserPeriod[]         = "watchdog-browser-period";
+const char kWatchdogBrowserTimeout[]        = "watchdog-browser-timeout";
+const char kWatchdogRendererPeriod[]        = "watchdog-renderer-period";
+const char kWatchdogRendererTimeout[]       = "watchdog-renderer-timeout";
 
 // Disables encryption of RTP Media for WebRTC. When Chrome embeds Content, it
 // ignores this switch on its stable and beta channels.

@@ -115,6 +115,7 @@ static_library("app_runtime") {
     "//components/os_crypt",
     "//components/web_cache/browser",
     "//components/web_cache/public/interfaces",
+    "//components/watchdog:watchdog",
     "//neva/injection",
     "//third_party/blink/public:blink",
     "//ui/aura",

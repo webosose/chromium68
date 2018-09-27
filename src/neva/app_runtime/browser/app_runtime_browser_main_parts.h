@@ -17,7 +17,11 @@
 #ifndef NEVA_APP_RUNTIME_APP_RUNTIME_BROWSER_MAIN_PARTS_H_
 #define NEVA_APP_RUNTIME_APP_RUNTIME_BROWSER_MAIN_PARTS_H_
 
+#include <memory>
+
+#include "components/watchdog/watchdog.h"
 #include "content/public/browser/browser_main_parts.h"
+#include "content/public/browser/browser_thread.h"
 #include "neva/app_runtime/browser/app_runtime_browser_context.h"
 
 #if defined(ENABLE_PLUGINS)
@@ -64,7 +68,12 @@ class AppRuntimeBrowserMainParts : public content::BrowserMainParts {
     return url_request_context_factory_;
   }
 
+  void ArmWatchdog(content::BrowserThread::ID thread, watchdog::Watchdog* watchdog);
+
  private:
+  std::unique_ptr<watchdog::Watchdog> ui_watchdog_;
+  std::unique_ptr<watchdog::Watchdog> io_watchdog_;
+
   bool dev_tools_enabled_ = false;
   void CreateOSCryptConfig();
 

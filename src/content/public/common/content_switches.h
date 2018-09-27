@@ -142,6 +142,7 @@ CONTENT_EXPORT extern const char kEnableUseZoomForDSF[];
 CONTENT_EXPORT extern const char kEnableViewport[];
 CONTENT_EXPORT extern const char kEnableVtune[];
 CONTENT_EXPORT extern const char kEnableVulkan[];
+CONTENT_EXPORT extern const char kEnableWatchdog[];
 CONTENT_EXPORT extern const char kEnableWebAuthTestingAPI[];
 CONTENT_EXPORT extern const char kEnableWebGLDraftExtensions[];
 CONTENT_EXPORT extern const char kEnableWebGLImageChromium[];
@@ -248,6 +249,10 @@ extern const char kWebRtcMaxCaptureFramerate[];
 extern const char kWebRtcMaxCpuConsumptionPercentage[];
 CONTENT_EXPORT extern const char kWebRtcStunProbeTrialParameter[];
 CONTENT_EXPORT extern const char kWebRtcLocalEventLogging[];
+CONTENT_EXPORT extern const char kWatchdogBrowserPeriod[];
+CONTENT_EXPORT extern const char kWatchdogBrowserTimeout[];
+CONTENT_EXPORT extern const char kWatchdogRendererPeriod[];
+CONTENT_EXPORT extern const char kWatchdogRendererTimeout[];
 
 #if defined(OS_ANDROID)
 CONTENT_EXPORT extern const char kDisableMediaSessionAPI[];

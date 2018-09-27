@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018 LG Electronics, Inc.
+// Copyright (c) 2018 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,55 +14,55 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "webos/common/webos_watchdog.h"
-
 #include <signal.h>
 
-#include "base/command_line.h"
-#include "base/logging.h"
-#include "content/public/common/content_switches.h"
+#include "components/watchdog/watchdog.h"
 
-namespace webos {
+#include "base/command_line.h"
+#include "base/logging_pmlog.h"
+
+namespace watchdog {
 
 static const int kDefaultWatchdogTimeout = 100;
 static const int kDefaultWatchdogPeriod = 20;
 static const int kWatchdogCleanupPeriod = 10;
 
-WebOSWatchdog::WebOSWatchdog()
+Watchdog::Watchdog()
     : period_(kDefaultWatchdogPeriod),
       timeout_(kDefaultWatchdogTimeout),
       watching_tid_(0) {
 }
 
-WebOSWatchdog::~WebOSWatchdog() {
+Watchdog::~Watchdog() {
   if (watchdog_thread_) {
     watchdog_thread_->Disarm();
     watchdog_thread_->Cleanup();
   }
 }
 
-void WebOSWatchdog::StartWatchdog() {
+void Watchdog::StartWatchdog() {
   watchdog_thread_.reset(
       new WatchdogThread(base::TimeDelta::FromSeconds(timeout_), this));
 }
 
-void WebOSWatchdog::Arm() {
+void Watchdog::Arm() {
   watchdog_thread_->Arm();
 }
 
-WebOSWatchdog::WatchdogThread::WatchdogThread(const base::TimeDelta& duration,
-                                              WebOSWatchdog* watchdog)
-    : base::Watchdog(duration, "WebOSWatchdog", true), watchdog_(watchdog) {
+Watchdog::WatchdogThread::WatchdogThread(const base::TimeDelta& duration,
+                                              watchdog::Watchdog* watchdog)
+    : base::Watchdog(duration, "Watchdog", true), watchdog_(watchdog) {
 }
 
-void WebOSWatchdog::WatchdogThread::Alarm() {
-// kill process
-  RAW_PMLOG_INFO("WatchdogThread",
-                 "Stuck detected in thread %d in process %d! Kill %d process",
-                 watchdog_->WatchingThreadTid(),
-                 getpid(),
-                 getpid());
+void Watchdog::WatchdogThread::Alarm() {
+  // kill process
+#if defined(USE_PMLOG)
+  PMLOG_INFO(Raw,
+      "WatchdogThread",
+      "Detected stuck thread %d in process %d! Killing process with SIGABRT",
+      watchdog_->GetWatchingThreadTid(), getpid(), getpid());
+#endif
   kill(getpid(), SIGABRT);
 }
 
-}  // namespace webos
+}  // namespace watchdog

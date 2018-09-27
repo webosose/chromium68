@@ -17,6 +17,9 @@
 #ifndef NEVA_APP_RUNTIME_RENDERER_APP_RUNTIME_CONTENT_RENDERER_CLIENT_H_
 #define NEVA_APP_RUNTIME_RENDERER_APP_RUNTIME_CONTENT_RENDERER_CLIENT_H_
 
+#include <memory>
+
+#include "components/watchdog/watchdog.h"
 #include "content/public/renderer/content_renderer_client.h"
 
 namespace app_runtime {
@@ -24,6 +27,12 @@ namespace app_runtime {
 class AppRuntimeContentRendererClient : public content::ContentRendererClient {
  public:
   void RenderFrameCreated(content::RenderFrame* render_frame) override;
+
+  void RenderThreadStarted() override;
+
+ private:
+  void ArmWatchdog();
+  std::unique_ptr<watchdog::Watchdog> watchdog_;
 };
 
 }  // namespace app_runtime
