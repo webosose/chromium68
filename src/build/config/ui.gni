@@ -48,7 +48,7 @@ declare_args() {
 use_x11 = is_linux && !use_ozone
 
 # Turn off glib if Ozone is enabled.
-if (use_ozone && !webos) {
+if (use_ozone && !is_webos) {
   use_glib = false
 }
 

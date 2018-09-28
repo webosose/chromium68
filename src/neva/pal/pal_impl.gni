@@ -1,6 +1,6 @@
 import("//neva/neva.gni")
 
-if (webos) {
+if (is_webos) {
   deps = [
     "//neva/webos_impl/pal:pal_webos_impl"
   ]

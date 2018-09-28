@@ -30,7 +30,7 @@ source_set("neva_filters") {
     "//skia",
   ]
 
-  if (webos) {
+  if (is_webos) {
     deps += [ "//media/filters/neva/webos" ]
   }
 }

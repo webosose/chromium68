@@ -52,7 +52,7 @@ source_set("neva") {
     "webmediaplayer_params_neva.h",
   ]
 
-  if (webos) {
+  if (is_webos) {
     sources -= [
       "mediaplayerneva_factory_stub.cc",
       "webmediaplayer_neva_factory_stub.cc",

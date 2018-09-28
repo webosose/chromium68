@@ -9,5 +9,5 @@ declare_args() {
   # See http://crbug.com/466975 and http://crbug.com/355223.
   # Not all platforms have the gnome-keyring library, because of that
   # we disable the using of gnome-keyring for webos platform build.
-  use_gnome_keyring = is_desktop_linux && use_glib && !webos
+  use_gnome_keyring = is_desktop_linux && use_glib && !is_webos
 }

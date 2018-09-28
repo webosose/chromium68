@@ -37,7 +37,7 @@ config("config") {
     defines += [ "OZONE_PLATFORM_WAYLAND_EXTERNAL=1" ]
   }
 
-  if (webos) {
+  if (is_webos) {
     defines += [
       "OS_WEBOS=1",
       "VIDEO_HOLE=1",

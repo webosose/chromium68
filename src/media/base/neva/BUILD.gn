@@ -31,7 +31,7 @@ source_set("neva") {
     "//third_party/jsoncpp",
   ]
 
-  if (webos) {
+  if (is_webos) {
     deps += [ "//media/base/neva/webos" ]
   } else {
     sources += [

@@ -65,7 +65,7 @@ source_set("injection") {
     sources += browser_control_sources
   }
 
-  if (webos) {
+  if (is_webos) {
     deps += [
       "//neva/injection/palmsystem:palm_injection",
     ]

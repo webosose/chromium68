@@ -26,7 +26,7 @@ source_set("neva") {
     "//skia",
   ]
 
-  if (webos) {
+  if (is_webos) {
     sources -= [
       "neva_media_player_renderer_factory_stub.cc",
     ]

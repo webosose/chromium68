@@ -3692,7 +3692,7 @@ test("unit_tests") {
       "//ui/wm",
     ]
   }
-  if (!is_chromeos && is_linux && !webos) {
+  if (!is_chromeos && is_linux && !is_webos) {
     sources += [
       "../browser/password_manager/native_backend_kwallet_x_unittest.cc",
       "../browser/shell_integration_linux_unittest.cc",
