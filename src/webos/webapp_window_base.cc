@@ -226,17 +226,48 @@ void WebAppWindowBase::OnWindowClosing() {
 }
 
 void WebAppWindowBase::XInputActivate(const std::string& type) {
-  NOTIMPLEMENTED() << "WebOS specific api of DesktopWindowTreeHostOzone";
+  webapp_window_->XInputActivate(type);
 }
 
 void WebAppWindowBase::XInputDeactivate() {
-  NOTIMPLEMENTED() << "WebOS specific api of DesktopWindowTreeHostOzone";
+  webapp_window_->XInputDeactivate();
 }
 
 void WebAppWindowBase::XInputInvokeAction(uint32_t keysym,
                                           SpecialKeySymbolType symbol_type,
                                           XInputEventType event_type) {
-  NOTIMPLEMENTED() << "WebOS specific api of DesktopWindowTreeHostOzone";
+  app_runtime::XInputKeySymbolType art_symbol_type;
+  switch (symbol_type) {
+    case QT_KEY_SYMBOL:
+      art_symbol_type = app_runtime::XINPUT_QT_KEY_SYMBOL;
+      break;
+    case NATIVE_KEY_SYMBOL:
+      art_symbol_type = app_runtime::XINPUT_NATIVE_KEY_SYMBOL;
+      break;
+    default:
+      NOTIMPLEMENTED() << " symbol_type '" << symbol_type
+                       << "' should be converted";
+      return;
+  };
+
+  app_runtime::XInputEventType art_event_type;
+  switch (event_type) {
+    case XINPUT_PRESS_AND_RELEASE:
+      art_event_type = app_runtime::XINPUT_PRESS_AND_RELEASE;
+      break;
+    case XINPUT_PRESS:
+      art_event_type = app_runtime::XINPUT_PRESS;
+      break;
+    case XINPUT_RELEASE:
+      art_event_type = app_runtime::XINPUT_RELEASE;
+      break;
+    default:
+      NOTIMPLEMENTED() << " event_type '" << event_type
+                       << "' should be converted";
+      return;
+  };
+
+  webapp_window_->XInputInvokeAction(keysym, art_symbol_type, art_event_type);
 }
 
 void WebAppWindowBase::WebAppWindowDestroyed() {
