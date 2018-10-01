@@ -1024,7 +1024,8 @@ void WebView::DidFailLoad(content::RenderFrameHost* render_frame_host,
                           const GURL& validated_url,
                           int error_code,
                           const base::string16& error_description) {
-  std::string url = validated_url.GetContent();
+  std::string url =
+      validated_url.is_valid() ? validated_url.spec() : std::string();
   if (webview_delegate_) {
     if (error_code == net::ERR_ABORTED)
       webview_delegate_->LoadStopped(url);
