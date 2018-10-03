@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "base/strings/string16.h"
+#include "ui/base/class_property.h"
 #include "ui/base/cursor/cursor.h"
 #include "ui/platform_window/platform_window_delegate.h"
 
@@ -34,7 +35,7 @@ class PlatformImeController;
 #if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
 class PlatformWindow : public WaylandPlatformWindow {
 #else
-class PlatformWindow {
+class PlatformWindow : public PropertyHandler {
 #endif
  public:
   virtual ~PlatformWindow() {}
