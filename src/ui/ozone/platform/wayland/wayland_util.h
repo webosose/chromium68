@@ -16,6 +16,10 @@ namespace base {
 class SharedMemory;
 }
 
+namespace ui {
+class WaylandConnection;
+}
+
 namespace gfx {
 class Size;
 }
@@ -28,6 +32,11 @@ wl_buffer* CreateSHMBuffer(const gfx::Size& size,
 void DrawBitmapToSHMB(const gfx::Size& size,
                       const base::SharedMemory& shared_memory,
                       const SkBitmap& bitmap);
+
+// Identifies the direction of the "hittest" for Wayland. |connection|
+// is used to identify whether values from shell v5 or v6 must be used.
+uint32_t IdentifyDirection(const ui::WaylandConnection& connection,
+                           int hittest);
 
 }  // namespace wl
 

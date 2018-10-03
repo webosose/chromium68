@@ -563,6 +563,21 @@ void SetAppId(wl_client* client, wl_resource* resource, const char* app_id) {
   GetUserDataAs<MockXdgSurface>(resource)->SetAppId(app_id);
 }
 
+void Move(wl_client* client,
+          wl_resource* resource,
+          wl_resource* seat,
+          uint32_t serial) {
+  GetUserDataAs<MockXdgSurface>(resource)->Move(serial);
+}
+
+void Resize(wl_client* client,
+            wl_resource* resource,
+            wl_resource* seat,
+            uint32_t serial,
+            uint32_t edges) {
+  GetUserDataAs<MockXdgSurface>(resource)->Resize(serial, edges);
+}
+
 void AckConfigure(wl_client* client, wl_resource* resource, uint32_t serial) {
   GetUserDataAs<MockXdgSurface>(resource)->AckConfigure(serial);
 }
@@ -605,8 +620,8 @@ const struct xdg_surface_interface xdg_surface_impl = {
     &SetTitle,           // set_title
     &SetAppId,           // set_app_id
     nullptr,             // show_window_menu
-    nullptr,             // move
-    nullptr,             // resize
+    &Move,               // move
+    &Resize,             // resize
     &AckConfigure,       // ack_configure
     &SetWindowGeometry,  // set_window_geometry
     &SetMaximized,       // set_maximized
@@ -708,8 +723,8 @@ const struct zxdg_toplevel_v6_interface zxdg_toplevel_v6_impl = {
     &SetTitle,         // set_title
     &SetAppId,         // set_app_id
     nullptr,           // show_window_menu
-    nullptr,           // move
-    nullptr,           // resize
+    &Move,             // move
+    &Resize,           // resize
     nullptr,           // set_max_size
     nullptr,           // set_min_size
     &SetMaximized,     // set_maximized
