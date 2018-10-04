@@ -243,6 +243,7 @@ class WebView : public content::WebContentsDelegate,
   void RenderProcessCreated(base::ProcessHandle handle) override;
   void RenderProcessGone(base::TerminationStatus status) override;
   void DocumentLoadedInFrame(content::RenderFrameHost* frame_host) override;
+  void DidReceiveCompositorFrame() override;
 
   void SetSSLCertErrorPolicy(SSLCertErrorPolicy policy) {
     ssl_cert_error_policy_ = policy;

@@ -174,6 +174,11 @@ void BlinkView::DidClearWindowObject() {
             << "(): Did clear window object notification is delivered";
 }
 
+void BlinkView::DidSwapCompositorFrame() {
+  LOG(INFO) << __func__
+            << "(): Did swap window frame notification is delivered";
+}
+
 void WebAppWindowImpl::OnWindowClosing() {
   observer_->OnWindowClosing(this);
 }

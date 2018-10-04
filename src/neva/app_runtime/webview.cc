@@ -970,6 +970,11 @@ void WebView::DocumentLoadedInFrame(
     webview_delegate_->DocumentLoadFinished();
 }
 
+void WebView::DidReceiveCompositorFrame() {
+  if (webview_delegate_)
+    webview_delegate_->DidSwapCompositorFrame();
+}
+
 bool WebView::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(WebView, message)

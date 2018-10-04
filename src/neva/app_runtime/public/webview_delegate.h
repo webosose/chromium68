@@ -47,6 +47,7 @@ class WebViewDelegate {
   virtual void DocumentLoadFinished() = 0;
   virtual void DidHistoryBackOnTopPage() = 0;
   virtual void DidClearWindowObject() = 0;
+  virtual void DidSwapCompositorFrame() = 0;
 
   // Pluggable delegate
   virtual void SendCookiesForHostname(const std::string& cookies) {}
