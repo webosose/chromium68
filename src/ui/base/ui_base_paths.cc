@@ -25,7 +25,7 @@ bool PathProvider(int key, base::FilePath* result) {
   base::FilePath cur;
   switch (key) {
     case DIR_LOCALES:
-      if (!base::PathService::Get(base::DIR_MODULE, &cur))
+      if (!base::PathService::Get(base::DIR_ASSETS, &cur))
         return false;
 #if defined(OS_MACOSX)
       // On Mac, locale files are in Contents/Resources, a sibling of the

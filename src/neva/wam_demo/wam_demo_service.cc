@@ -16,8 +16,10 @@
 
 #include "neva/wam_demo/wam_demo_service.h"
 
+#include "base/base_paths.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
+#include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
@@ -786,10 +788,12 @@ void WamDemoService::DataUpdated(const std::string& url,
       else
         LOG(INFO) << __func__ << "(): Invalid user stylesheet type";
     } else if (cmd == command::kSetCustomCursor) {
-        auto argv0(parameters_.command_line.GetProgram());
-        auto image_path(argv0.DirName().Append("cursor.png"));
-        webapp->SetCustomCursor(app_runtime::CustomCursorType::kPath,
-        image_path.value().c_str(), 0, 0);
+      base::FilePath cursor_file;
+      bool result = base::PathService::Get(base::DIR_ASSETS, &cursor_file);
+      DCHECK(result);
+      cursor_file = cursor_file.Append(FILE_PATH_LITERAL("cursor.png"));
+      webapp->SetCustomCursor(app_runtime::CustomCursorType::kPath,
+                              cursor_file.value().c_str(), 0, 0);
     } else if (cmd == command::kSetVisibilityState) {
       std::string visibility_state;
       if (UnpackString(value, argument::kVisibilityState, visibility_state)) {

@@ -75,7 +75,10 @@ config("config") {
   }
 
   if (use_cbe) {
-    defines += [ "USE_CBE=1" ]
+    defines += [
+      "USE_CBE=1",
+      "COMPONENT_BUILD=1"
+    ]
   }
 
   if (use_pmlog && current_toolchain == default_toolchain) {

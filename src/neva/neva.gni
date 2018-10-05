@@ -57,6 +57,15 @@ declare_args() {
   # To be used as CBE library
   use_cbe = false
 
+  # If CBE is used, include chrome in it
+  is_chrome_cbe = false
+
+  # If CBE is used, include app_shell in it
+  is_app_shell_cbe = false
+
+  # If CBE is use, include wam_demo in it
+  is_wam_demo_cbe = false
+
   # Use webOS PmLog logging library
   use_pmlog = false
 }

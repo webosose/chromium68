@@ -29,14 +29,24 @@
 #include <sys/sysctl.h>
 #elif defined(OS_SOLARIS) || defined(OS_AIX)
 #include <stdlib.h>
+#elif defined(USE_CBE)
+#include <dlfcn.h>
 #endif
 
 namespace base {
 
 bool PathProviderPosix(int key, FilePath* result) {
   switch (key) {
-    case FILE_EXE:
-    case FILE_MODULE: {  // TODO(evanm): is this correct?
+    case FILE_MODULE:
+#if defined(USE_CBE)
+      Dl_info info;
+      if (dladdr((void*)PathService::Get, &info) != 0) {
+        *result = base::FilePath(info.dli_fname);
+        return true;
+      }
+#endif  // defined(USE_CBE)
+
+    case FILE_EXE: {  // TODO(evanm): is this correct?
 #if defined(OS_LINUX)
       FilePath bin_dir;
       if (!ReadSymbolicLink(FilePath(kProcSelfExe), &bin_dir)) {
@@ -112,6 +122,18 @@ bool PathProviderPosix(int key, FilePath* result) {
       *result = cache_dir;
       return true;
     }
+#if defined(USE_CBE)
+    case base::DIR_ASSETS: {
+      FilePath path;
+      if (!PathService::Get(DIR_MODULE, &path))
+        return false;
+      path = path.Append(FILE_PATH_LITERAL("cbe"));
+      if (!PathExists(path))
+        return false;
+      *result = path;
+      return true;
+    }
+#endif
   }
   return false;
 }

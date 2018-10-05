@@ -6,7 +6,10 @@
 
 #include "base/command_line.h"
 #include "base/strings/string_split.h"
+
+#if !defined(USE_CBE)
 #include "content/shell/common/layout_test/layout_test_switches.h"
+#endif
 
 namespace switches {
 
@@ -59,8 +62,12 @@ std::vector<std::string> GetSideloadFontFiles() {
 }
 
 bool IsRunWebTestsSwitchPresent() {
+#if !defined(USE_CBE)
   return base::CommandLine::ForCurrentProcess()->HasSwitch(
       switches::kRunWebTests);
+#else
+  return false;
+#endif
 }
 
 }  // namespace switches

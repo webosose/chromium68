@@ -29,12 +29,10 @@ copy("cursor") {
   outputs = [ "$root_out_dir/cursor.png" ]
 }
 
-executable("wam_demo") {
-  testonly = true
-  output_name = "wam_demo"
+source_set("wam_demo_lib") {
+  testonly = !use_cbe
 
   configs += [
-    "//build/config:precompiled_headers",
     "//content:content_implementation",
     "//v8:external_startup_data",
   ]
@@ -42,7 +40,6 @@ executable("wam_demo") {
   sources = [
     "util.cc",
     "util.h",
-    "wam_demo.cc",
     "wam_demo_main_delegate.cc",
     "wam_demo_main_delegate.h",
     "wam_demo_service.cc",
@@ -70,4 +67,32 @@ executable("wam_demo") {
   }
 
   include_dirs = [ "." ]
+}
+
+executable("wam_demo") {
+  testonly = true
+  output_name = "wam_demo"
+
+  configs += [
+    "//build/config:precompiled_headers",
+    "//content:content_implementation",
+  ]
+
+  sources = [
+    "wam_demo.cc",
+  ]
+
+  deps = [
+    "//third_party/boringssl",
+  ]
+
+  if (use_cbe && is_wam_demo_cbe) {
+    deps += [
+      "//neva/cbe:chromium_cbe"
+    ]
+  } else {
+    deps += [
+      ":wam_demo_lib",
+    ]
+  }
 }

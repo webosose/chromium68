@@ -24,7 +24,12 @@ namespace wam_demo {
 
 class WamDemoService;
 
+#if defined(USE_CBE)
+class __attribute__((visibility("default"))) WamDemoMainDelegate :
+    public app_runtime::AppRuntimeMainDelegate {
+#else
 class WamDemoMainDelegate : public app_runtime::AppRuntimeMainDelegate {
+#endif
  public:
   WamDemoMainDelegate(const content::MainFunctionParams& parameters);
   ~WamDemoMainDelegate() override;

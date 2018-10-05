@@ -66,7 +66,7 @@ bool WebosResourceDelegate::GetLocalizedString(int message_id,
 
 bool WebosResourceDelegate::LoadBrowserResources() {
   base::FilePath path;
-  PathService::Get(base::DIR_CBE_DATA, &path);
+  PathService::Get(base::DIR_ASSETS, &path);
   base::FilePath resource_path =
       path.Append(FILE_PATH_LITERAL("webos_resources.pak"));
   ui::ResourceBundle::GetSharedInstance().AddDataPackFromPath(

@@ -186,8 +186,10 @@ ShellDevToolsManagerDelegate::CreateNewTarget(const GURL& url) {
                                         url,
                                         nullptr,
                                         gfx::Size());
+#if !defined(USE_CBE)
   if (switches::IsRunWebTestsSwitchPresent())
     SecondaryTestWindowObserver::CreateForWebContents(shell->web_contents());
+#endif
   return DevToolsAgentHost::GetOrCreateFor(shell->web_contents());
 }
 

@@ -1,8 +1,2 @@
 app_shell
-ui_resources_100_percent.pak
-content_shell.pak
-extensions_shell_and_test.pak
-shell_resources.pak
-icudtl.dat
-natives_blob.bin
 snapshot_blob.bin

@@ -125,7 +125,7 @@ base::FilePath GetResourcesPakFilePath() {
       CFSTR("extensions_shell_and_test.pak"));
 #else
   base::FilePath extensions_shell_and_test_pak_path;
-  base::PathService::Get(base::DIR_MODULE, &extensions_shell_and_test_pak_path);
+  base::PathService::Get(base::DIR_ASSETS, &extensions_shell_and_test_pak_path);
   extensions_shell_and_test_pak_path =
       extensions_shell_and_test_pak_path.AppendASCII(
           "extensions_shell_and_test.pak");

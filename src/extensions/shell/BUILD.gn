@@ -34,7 +34,7 @@ source_set("app_shell_lib") {
   # TODO(jamescook): investigate and get rid of test dependencies. This library
   # is testonly because it depends on testonly libraries, namely
   # //content/shell:content_shell_lib. See http://crbug.com/438283
-  testonly = true
+  testonly = !use_cbe
   deps = [
     ":resources",
     ":version_header",
@@ -54,7 +54,7 @@ source_set("app_shell_lib") {
     "//components/user_prefs",
     "//components/version_info",
     "//content",
-    "//content/shell:content_shell_lib",
+    "//content/shell:content_shell_nontest_lib",
     "//device/base",
     "//device/bluetooth",
     "//device/usb",
@@ -293,18 +293,32 @@ if (is_mac) {
 } else {
   executable("app_shell") {
     # testonly because :app_shell_lib is testonly. See :app_shell_lib comment.
-    testonly = true
+    testonly = !use_cbe
     sources = [
       "app/shell_main.cc",
     ]
 
+    if (use_cbe) {
+      configs += [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
+    }
+
+    ldflags = [ "-pie" ]
+
     deps = [
-      ":app_shell_lib",
       "//build/config:exe_and_shlib_deps",
       "//build/win:default_exe_manifest",
-      "//content/public/app:both",
-      "//extensions:shell_and_test_pak",
     ]
+
+    if (use_cbe && is_app_shell_cbe) {
+      assert(is_linux)
+      deps += [ "//neva/cbe:chromium_cbe" ]
+    } else {
+      deps += [
+        ":app_shell_lib",
+        "//content/public/app:both",
+        "//extensions:shell_and_test_pak",
+      ]
+    }
 
     if (is_win) {
       configs += [ "//build/config/win:windowed" ]

@@ -20,8 +20,23 @@ import("//build/config/features.gni")
 import("//build/config/sanitizers/sanitizers.gni")
 import("//build/config/ui.gni")
 
-shared_library("weboswebruntime") {
-  testonly = true
+if (use_cbe) {
+  component("weboswebruntime") {
+    deps = [
+      ":webos_impl"
+    ]
+  }
+} else {
+  shared_library("weboswebruntime") {
+    output_name = "cbe"
+
+    deps = [
+      ":webos_impl"
+    ]
+  }
+}
+
+source_set("webos_impl") {
   output_name = "cbe"
 
   configs += [

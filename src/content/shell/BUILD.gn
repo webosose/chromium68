@@ -54,6 +54,97 @@ source_set("layout_test_switches") {
   ]
 }
 
+# (jose.dapena) Move here for now the dependencies for CBE. It would be
+# interesting to also do it for other platforms and upstream it.
+static_library("content_shell_nontest_lib") {
+  sources = [
+    "app/shell_main_delegate.cc",
+    "app/shell_main_delegate.h",
+    "browser/shell.cc",
+    "browser/shell.h",
+    "browser/shell_browser_context.cc",
+    "browser/shell_browser_context.h",
+    "browser/shell_devtools_manager_delegate.cc",
+    "browser/shell_devtools_manager_delegate.h",
+    "browser/shell_download_manager_delegate.cc",
+    "browser/shell_download_manager_delegate.h",
+    "browser/shell_javascript_dialog_manager.cc",
+    "browser/shell_javascript_dialog_manager.h",
+    "browser/shell_javascript_dialog_neva.cc",
+    "browser/shell_javascript_dialog_neva.h",
+    "browser/shell_network_delegate.cc",
+    "browser/shell_network_delegate.h",
+    "browser/shell_permission_manager.cc",
+    "browser/shell_permission_manager.h",
+    "browser/shell_platform_data_aura.cc",
+    "browser/shell_platform_data_aura.h",
+    "browser/shell_url_request_context_getter.cc",
+    "browser/shell_url_request_context_getter.h",
+    "common/shell_content_client.cc",
+    "common/shell_content_client.h",
+    "common/shell_neva_switches.cc",
+    "common/shell_neva_switches.h",
+    "common/shell_switches.cc",
+    "common/shell_switches.h",
+  ]
+
+  defines = [ "CONTENT_SHELL_VERSION=\"$content_shell_version\"" ]
+
+  public_deps = [
+    # This exposes all public content APIs.
+    "//content/public/app:both",
+    "//content/public/browser",
+    "//content/public/child",
+    "//content/public/common",
+    "//content/public/gpu",
+    "//content/public/renderer",
+    "//content/public/utility",
+    "//ipc",
+    "//services/network:network_service",
+  ]
+
+  deps = [
+    "//skia",
+  ]
+  if (!use_cbe) {
+    testonly = true
+    deps += [
+      "//content/test:test_support",
+    ]
+  }
+
+  if (use_aura) {
+    deps += [
+      "//ui/aura",
+      "//ui/events",
+      "//ui/strings",
+      "//ui/wm",
+    ]
+
+    if (toolkit_views) {
+      sources += [
+        "browser/shell_views.cc",
+        "browser/shell_web_contents_view_delegate_views.cc",
+      ]
+      deps += [
+        "//ui/resources",
+        "//ui/views",
+        "//ui/views/controls/webview",
+      ]
+    } else {
+      sources += [
+        "browser/shell_aura.cc",
+        "browser/shell_web_contents_view_delegate_aura.cc",
+      ]
+    }
+  } else {
+    sources -= [
+      "browser/shell_platform_data_aura.cc",
+      "browser/shell_platform_data_aura.h",
+    ]
+  }
+}
+
 static_library("content_shell_lib") {
   testonly = true
   sources = [
@@ -68,8 +159,6 @@ static_library("content_shell_lib") {
     "app/paths_mac.mm",
     "app/shell_crash_reporter_client.cc",
     "app/shell_crash_reporter_client.h",
-    "app/shell_main_delegate.cc",
-    "app/shell_main_delegate.h",
     "app/shell_main_delegate_mac.h",
     "app/shell_main_delegate_mac.mm",
     "browser/layout_test/blink_test_controller.cc",
@@ -120,13 +209,9 @@ static_library("content_shell_lib") {
     "browser/layout_test/test_info_extractor.h",
     "browser/renderer_host/shell_render_widget_host_view_mac_delegate.h",
     "browser/renderer_host/shell_render_widget_host_view_mac_delegate.mm",
-    "browser/shell.cc",
-    "browser/shell.h",
     "browser/shell_android.cc",
     "browser/shell_application_mac.h",
     "browser/shell_application_mac.mm",
-    "browser/shell_browser_context.cc",
-    "browser/shell_browser_context.h",
     "browser/shell_browser_main.cc",
     "browser/shell_browser_main.h",
     "browser/shell_browser_main_parts.cc",
@@ -138,16 +223,8 @@ static_library("content_shell_lib") {
     "browser/shell_devtools_bindings.h",
     "browser/shell_devtools_frontend.cc",
     "browser/shell_devtools_frontend.h",
-    "browser/shell_devtools_manager_delegate.cc",
-    "browser/shell_devtools_manager_delegate.h",
-    "browser/shell_download_manager_delegate.cc",
-    "browser/shell_download_manager_delegate.h",
     "browser/shell_javascript_dialog.h",
     "browser/shell_javascript_dialog_mac.mm",
-    "browser/shell_javascript_dialog_manager.cc",
-    "browser/shell_javascript_dialog_manager.h",
-    "browser/shell_javascript_dialog_neva.cc",
-    "browser/shell_javascript_dialog_neva.h",
     "browser/shell_javascript_dialog_win.cc",
     "browser/shell_login_dialog.cc",
     "browser/shell_login_dialog.h",
@@ -155,20 +232,12 @@ static_library("content_shell_lib") {
     "browser/shell_mac.mm",
     "browser/shell_net_log.cc",
     "browser/shell_net_log.h",
-    "browser/shell_network_delegate.cc",
-    "browser/shell_network_delegate.h",
-    "browser/shell_permission_manager.cc",
-    "browser/shell_permission_manager.h",
-    "browser/shell_platform_data_aura.cc",
-    "browser/shell_platform_data_aura.h",
     "browser/shell_plugin_service_filter.cc",
     "browser/shell_plugin_service_filter.h",
     "browser/shell_quota_permission_context.cc",
     "browser/shell_quota_permission_context.h",
     "browser/shell_speech_recognition_manager_delegate.cc",
     "browser/shell_speech_recognition_manager_delegate.h",
-    "browser/shell_url_request_context_getter.cc",
-    "browser/shell_url_request_context_getter.h",
     "browser/shell_web_contents_view_delegate.h",
     "browser/shell_web_contents_view_delegate_android.cc",
     "browser/shell_web_contents_view_delegate_creator.h",
@@ -179,16 +248,10 @@ static_library("content_shell_lib") {
     "common/layout_test/layout_test_messages.h",
     "common/power_monitor_test_impl.cc",
     "common/power_monitor_test_impl.h",
-    "common/shell_content_client.cc",
-    "common/shell_content_client.h",
     "common/shell_messages.cc",
     "common/shell_messages.h",
-    "common/shell_neva_switches.cc",
-    "common/shell_neva_switches.h",
     "common/shell_origin_trial_policy.cc",
     "common/shell_origin_trial_policy.h",
-    "common/shell_switches.cc",
-    "common/shell_switches.h",
     "gpu/shell_content_gpu_client.cc",
     "gpu/shell_content_gpu_client.h",
     "renderer/layout_test/blink_test_helpers.cc",
@@ -223,23 +286,11 @@ static_library("content_shell_lib") {
     "//build/config/compiler:no_size_t_to_int_warning",
   ]
 
-  defines = [ "CONTENT_SHELL_VERSION=\"$content_shell_version\"" ]
-
   public_deps = [
     ":android_shell_descriptors",
-
-    # This exposes all public content APIs.
-    "//content/public/app:both",
-    "//content/public/browser",
-    "//content/public/child",
-    "//content/public/common",
-    "//content/public/gpu",
-    "//content/public/renderer",
-    "//content/public/utility",
-    "//ipc",
-    "//services/network:network_service",
   ]
   deps = [
+    ":content_shell_nontest_lib",
     ":content_shell_packaged_services_manifest_overlay",
     ":layout_test_switches",
     ":mojo_bindings",
@@ -290,7 +341,6 @@ static_library("content_shell_lib") {
     "//services/service_manager/public/cpp",
     "//services/test/echo:lib",
     "//services/test/echo/public/mojom",
-    "//skia",
     "//storage/browser",
     "//testing/gmock",
     "//testing/gtest",
@@ -375,36 +425,14 @@ static_library("content_shell_lib") {
 
   if (use_aura) {
     deps += [
-      "//ui/aura",
       "//ui/aura:test_support",
-      "//ui/events",
-      "//ui/strings",
-      "//ui/wm",
     ]
 
     if (toolkit_views) {
-      sources += [
-        "browser/shell_views.cc",
-        "browser/shell_web_contents_view_delegate_views.cc",
-      ]
       deps += [
-        "//ui/resources",
-        "//ui/views",
-        "//ui/views:test_support",
-        "//ui/views/controls/webview",
         "//ui/wm:test_support",
       ]
-    } else {
-      sources += [
-        "browser/shell_aura.cc",
-        "browser/shell_web_contents_view_delegate_aura.cc",
-      ]
     }
-  } else {
-    sources -= [
-      "browser/shell_platform_data_aura.cc",
-      "browser/shell_platform_data_aura.h",
-    ]
   }
 
   if (is_chromeos) {

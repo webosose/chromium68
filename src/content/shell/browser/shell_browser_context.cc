@@ -22,7 +22,6 @@
 #include "content/shell/browser/shell_download_manager_delegate.h"
 #include "content/shell/browser/shell_permission_manager.h"
 #include "content/shell/common/shell_switches.h"
-#include "content/test/mock_background_sync_controller.h"
 
 #if defined(OS_WIN)
 #include "base/base_paths_win.h"
@@ -32,6 +31,9 @@
 #include "base/base_paths_mac.h"
 #elif defined(OS_FUCHSIA)
 #include "base/base_paths_fuchsia.h"
+#endif
+#if !defined(USE_CBE)
+#include "content/test/mock_background_sync_controller.h"
 #endif
 
 namespace content {
@@ -243,9 +245,13 @@ BackgroundFetchDelegate* ShellBrowserContext::GetBackgroundFetchDelegate() {
 }
 
 BackgroundSyncController* ShellBrowserContext::GetBackgroundSyncController() {
+#if !defined(USE_CBE)
   if (!background_sync_controller_)
     background_sync_controller_.reset(new MockBackgroundSyncController());
   return background_sync_controller_.get();
+#else
+  return nullptr;
+#endif
 }
 
 BrowsingDataRemoverDelegate*

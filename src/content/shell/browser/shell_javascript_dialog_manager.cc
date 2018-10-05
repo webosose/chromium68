@@ -13,6 +13,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/shell/browser/shell_javascript_dialog.h"
 #include "content/shell/browser/shell_javascript_dialog_neva.h"
+#include "content/shell/common/shell_neva_switches.h"
 #include "content/shell/common/shell_switches.h"
 
 namespace content {

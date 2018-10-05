@@ -75,7 +75,7 @@ ResourceBundle* g_shared_instance_ = NULL;
 
 base::FilePath GetResourcesPakFilePath(const std::string& pak_name) {
   base::FilePath path;
-  if (base::PathService::Get(base::DIR_MODULE, &path))
+  if (base::PathService::Get(base::DIR_ASSETS, &path))
     return path.AppendASCII(pak_name.c_str());
 
   // Return just the name of the pak file.

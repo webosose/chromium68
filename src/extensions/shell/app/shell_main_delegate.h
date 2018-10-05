@@ -21,7 +21,12 @@ class ContentRendererClient;
 
 namespace extensions {
 
+#if defined(USE_CBE)
+class __attribute__((visibility("default"))) ShellMainDelegate
+    : public content::ContentMainDelegate {
+#else
 class ShellMainDelegate : public content::ContentMainDelegate {
+#endif
  public:
   ShellMainDelegate();
   ~ShellMainDelegate() override;

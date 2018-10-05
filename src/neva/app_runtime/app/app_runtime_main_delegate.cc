@@ -104,7 +104,7 @@ void AppRuntimeMainDelegate::PreMainMessageLoopRun() {
 
 void AppRuntimeMainDelegate::InitializeResourceBundle() {
   base::FilePath pak_file;
-  bool r = base::PathService::Get(base::DIR_MODULE, &pak_file);
+  bool r = base::PathService::Get(base::DIR_ASSETS, &pak_file);
   DCHECK(r);
   pak_file = pak_file.Append(FILE_PATH_LITERAL("app_runtime_content.pak"));
   ui::ResourceBundle::InitSharedInstanceWithPakPath(pak_file);
