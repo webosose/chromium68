@@ -402,6 +402,14 @@ source_set("common") {
     "//content/public/common:interfaces",
   ]
 
+  if (use_lttng) {
+    sources += [
+      "lttng_init.cc",
+      "lttng_init.h",
+    ]
+    deps += [ "//base/trace_event/neva:chromium_lttng_provider" ]
+  }
+
   if (is_android && use_seccomp_bpf) {
     set_sources_assignment_filter([])
     sources += [

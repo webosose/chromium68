@@ -192,6 +192,8 @@
 // trace points would carry a significant performance cost of acquiring a lock
 // and resolving the category.
 
+#include "base/trace_event/trace_event_lttng.h"
+
 // Check that nobody includes this file directly.  Clients are supposed to
 // include the surrounding "trace_event.h" of their project instead.
 #if defined(TRACE_EVENT0)
@@ -207,12 +209,14 @@
 // enabled, then this does nothing.
 // - category and name strings must have application lifetime (statics or
 //   literals). They may not include " chars.
-#define TRACE_EVENT0(category_group, name)    \
+#define TRACE_EVENT0(category_group, name) \
+  LTTNG_TRACE_EVENT0(category_group, name) \
   INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name)
 #define TRACE_EVENT_WITH_FLOW0(category_group, name, bind_id, flow_flags)  \
   INTERNAL_TRACE_EVENT_ADD_SCOPED_WITH_FLOW(category_group, name, bind_id, \
                                             flow_flags)
 #define TRACE_EVENT1(category_group, name, arg1_name, arg1_val) \
+  LTTNG_TRACE_EVENT0(category_group, name)                      \
   INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name, arg1_name, arg1_val)
 #define TRACE_EVENT_WITH_FLOW1(category_group, name, bind_id, flow_flags,  \
                                arg1_name, arg1_val)                        \
@@ -220,6 +224,7 @@
                                             flow_flags, arg1_name, arg1_val)
 #define TRACE_EVENT2(category_group, name, arg1_name, arg1_val, arg2_name,   \
                      arg2_val)                                               \
+  LTTNG_TRACE_EVENT0(category_group, name)                                   \
   INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name, arg1_name, arg1_val, \
                                   arg2_name, arg2_val)
 #define TRACE_EVENT_WITH_FLOW2(category_group, name, bind_id, flow_flags,    \
@@ -331,13 +336,16 @@
 // - category and name strings must have application lifetime (statics or
 //   literals). They may not include " chars.
 #define TRACE_EVENT_END0(category_group, name)                          \
+  LTTNG_TRACE_EVENT_END0(category_group, name)                          \
   INTERNAL_TRACE_EVENT_ADD(TRACE_EVENT_PHASE_END, category_group, name, \
                            TRACE_EVENT_FLAG_NONE)
 #define TRACE_EVENT_END1(category_group, name, arg1_name, arg1_val)     \
+  LTTNG_TRACE_EVENT_END0(category_group, name)                          \
   INTERNAL_TRACE_EVENT_ADD(TRACE_EVENT_PHASE_END, category_group, name, \
                            TRACE_EVENT_FLAG_NONE, arg1_name, arg1_val)
 #define TRACE_EVENT_END2(category_group, name, arg1_name, arg1_val, arg2_name, \
                          arg2_val)                                             \
+  LTTNG_TRACE_EVENT_END0(category_group, name)                                 \
   INTERNAL_TRACE_EVENT_ADD(TRACE_EVENT_PHASE_END, category_group, name,        \
                            TRACE_EVENT_FLAG_NONE, arg1_name, arg1_val,         \
                            arg2_name, arg2_val)

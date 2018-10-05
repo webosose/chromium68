@@ -68,6 +68,9 @@ declare_args() {
 
   # Use webOS PmLog logging library
   use_pmlog = false
+
+  # Use LTTng tracing library
+  use_lttng = false
 }
 
 declare_args() {

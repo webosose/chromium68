@@ -1010,6 +1010,7 @@ jumbo_component("base") {
     "trace_event/trace_event_filter.h",
     "trace_event/trace_event_impl.cc",
     "trace_event/trace_event_impl.h",
+    "trace_event/trace_event_lttng.h",
     "trace_event/trace_event_memory_overhead.cc",
     "trace_event/trace_event_memory_overhead.h",
     "trace_event/trace_event_system_stats_monitor.cc",
@@ -1822,7 +1823,11 @@ jumbo_component("base") {
   }
 
   if (use_memory_trace) {
-    deps += [ "//base/trace_event/neva" ]
+    deps += [ "//base/trace_event/neva:memory_trace" ]
+  }
+
+  if (use_lttng && current_toolchain == default_toolchain) {
+    deps += [ "//base/trace_event/neva:lttng" ]
   }
 
   if (use_system_debugger_abort) {

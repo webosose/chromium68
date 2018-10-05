@@ -46,6 +46,10 @@
 #include "services/service_manager/zygote/common/zygote_fork_delegate_linux.h"
 #include "third_party/icu/source/i18n/unicode/timezone.h"
 
+#if defined(USE_LTTNG)
+#include "content/common/lttng_init.h"
+#endif
+
 // See
 // https://chromium.googlesource.com/chromium/src/+/master/docs/linux_zygote.md
 
@@ -473,6 +477,9 @@ int Zygote::ForkWithRealPid(const std::string& process_type,
     base::trace_event::TraceLog::GetInstance()->SetProcessID(
         static_cast<int>(real_pid));
     base::InitUniqueIdForProcessInPidNamespace(real_pid);
+#if defined(USE_LTTNG)
+    content::LttngInit();
+#endif
     return 0;
   }
 

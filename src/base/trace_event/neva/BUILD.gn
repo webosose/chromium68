@@ -16,7 +16,7 @@
 
 import("//neva/neva.gni")
 
-source_set("neva") {
+source_set("memory_trace") {
   sources = [
     "malloc_trace_provider.cc",
     "malloc_trace_provider.h",
@@ -25,5 +25,23 @@ source_set("neva") {
     "memory_trace_provider.h",
     "system_trace_provider.cc",
     "system_trace_provider.h",
+  ]
+}
+
+source_set("lttng") {
+  sources = [
+    "../../debug/chromium_lttng_provider.h",
+    "lttng/chromium_lttng_provider.c",
+  ]
+  deps = [ ":chromium_lttng_provider" ]
+}
+
+loadable_module("chromium_lttng_provider") {
+  all_dependent_configs = [
+    "//build/config/linux/lttng:lttngust",
+  ]
+  sources = [
+    "../../debug/chromium_lttng_provider.h",
+    "lttng/chromium_lttng_provider_dl.c",
   ]
 }

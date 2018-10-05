@@ -4,6 +4,7 @@
 
 import("//build/buildflag_header.gni")
 import("//build/config/nacl/config.gni")
+import("//neva/neva.gni")
 import("//services/service_manager/zygote/common/zygote_features.gni")
 
 if (is_linux) {
@@ -50,6 +51,10 @@ if (is_linux) {
       "//services/service_manager/sandbox",
       "//third_party/icu",
     ]
+
+    if (use_lttng) {
+      deps += [ "//base/trace_event/neva:chromium_lttng_provider" ]
+    }
 
     defines = [ "IS_SERVICE_MANAGER_ZYGOTE_IMPL" ]
   }

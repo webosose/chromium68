@@ -4,6 +4,7 @@
 
 import("//build/config/chrome_build.gni")
 import("//build/config/features.gni")
+import("//neva/neva.gni")
 import("//ppapi/buildflags/buildflags.gni")
 
 # Implements "content_main" given the defines and visibility. On Windows this
@@ -65,6 +66,10 @@ template("implement_content_app") {
       "//ui/events",
       "//ui/shell_dialogs",
     ]
+  }
+
+  if (use_lttng) {
+    content_app_deps += [ "//base/trace_event/neva:chromium_lttng_provider" ]
   }
 
   if (!is_multi_dll_chrome && enable_plugins) {
