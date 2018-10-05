@@ -1895,7 +1895,9 @@ void WebLocalFrameImpl::CreateFrameView() {
   bool is_main_frame = !Parent();
 
 #if defined(USE_NEVA_APPRUNTIME)
-  if (is_main_frame && GetFrame()->IsLocalRoot() && !viewport_size_.IsEmpty())
+  if (is_main_frame && GetFrame()->IsLocalRoot() &&
+      !viewport_size_.IsEmpty() &&
+      GetFrame()->View()->GetRootFrameViewport()->LayoutViewport().Layer())
     web_view->Resize(viewport_size_);
 #endif
 
