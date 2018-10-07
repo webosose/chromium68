@@ -261,6 +261,7 @@ class CORE_EXPORT LayoutText : public LayoutObject {
   scoped_refptr<AbstractInlineTextBox> FirstAbstractInlineTextBox();
 
   float HyphenWidth(const Font&, TextDirection);
+  void UpdateTextIfNecessary();
 
   LayoutRect DebugRect() const override;
 
@@ -388,6 +389,7 @@ class CORE_EXPORT LayoutText : public LayoutObject {
   float last_line_line_min_width_;
 
   String text_;
+  String previous_text_;
 
   // The line boxes associated with this object.
   // Read the LINE BOXES OWNERSHIP section in the class header comment.

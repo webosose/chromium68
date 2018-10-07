@@ -76,6 +76,7 @@ struct SameSizeAsLayoutText : public LayoutObject {
   uint32_t bitfields : 12;
   float widths[4];
   String text;
+  String previous_text;
   void* pointers[2];
 };
 
@@ -2241,6 +2242,16 @@ void LayoutText::InvalidateDisplayItemClients(
       paint_invalidator.InvalidateDisplayItemClient(*ellipsis_box,
                                                     invalidation_reason);
     }
+  }
+}
+
+void LayoutText::UpdateTextIfNecessary() {
+  // If previous text is empty, and current text is 1 character then we have to
+  // again set text
+  Node* node = GetNode();
+  if (node && node->IsEditingText()) {
+    if (previous_text_.length() == 0 && GetText().Impl()->length() == 1)
+      SetText(GetText().Impl(), true);
   }
 }
 
