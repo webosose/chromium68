@@ -14,6 +14,7 @@
 #include "base/command_line.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
+#include "base/logging_pmlog.h"
 #include "base/macros.h"
 #include "base/metrics/histogram_macros.h"
 #include "base/strings/string_number_conversions.h"
@@ -975,6 +976,11 @@ bool NativeViewGLSurfaceEGL::Initialize(GLSurfaceFormat format) {
   surface_ = eglCreateWindowSurface(
       GetDisplay(), GetConfig(), window_, &egl_window_attributes[0]);
 
+  PMLOG_INFO(
+      Gpu, "NativeViewGLSurfaceEGL",
+      "egl window surface(this:%p, handle:%p) is created. error:%s at %s(%d)",
+      this, surface_, GetLastEGLErrorString(), __FUNCTION__, __LINE__);
+
   if (!surface_) {
     LOG(ERROR) << "eglCreateWindowSurface failed with error "
                << GetLastEGLErrorString();
@@ -1067,6 +1073,9 @@ void NativeViewGLSurfaceEGL::Destroy() {
       LOG(ERROR) << "eglDestroySurface failed with error "
                  << GetLastEGLErrorString();
     }
+    PMLOG_INFO(Gpu, "NativeViewGLSurfaceEGL",
+               "egl window surface(this:%p,handle:%p) is destroyed. at %s(%d)",
+               this, surface_, __FUNCTION__, __LINE__);
     surface_ = NULL;
   }
 }

@@ -30,6 +30,7 @@
 
 #include "base/bind.h"
 #include "base/files/file_path.h"
+#include "base/logging_pmlog.h"
 #include "base/message_loop/message_loop.h"
 #include "base/native_library.h"
 #include "base/stl_util.h"
@@ -224,6 +225,10 @@ intptr_t WaylandDisplay::GetNativeWindow(unsigned window_handle) {
   DCHECK(widget);
   widget->RealizeAcceleratedWidget();
 
+  PMLOG_INFO(Ozone, "WaylandDisplay",
+             "GetNativeWindow(id:%d widget:%p egl:%p) at %s(%d)", window_handle,
+             widget, widget ? widget->egl_window() : 0, __FUNCTION__, __LINE__);
+
   return reinterpret_cast<intptr_t>(widget->egl_window());
 }
 
@@ -337,6 +342,10 @@ void WaylandDisplay::InitializeDisplay() {
 WaylandWindow* WaylandDisplay::CreateAcceleratedSurface(unsigned w) {
   WaylandWindow* window = new WaylandWindow(w);
   widget_map_[w].reset(window);
+
+  PMLOG_INFO(Ozone, "WaylandDisplay",
+             "Wayland Window(id:%d widget:%p) is created. at %s(%d)", w, window,
+             __FUNCTION__, __LINE__);
 
   return window;
 }

@@ -8,6 +8,7 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "base/logging_pmlog.h"
 #include "base/trace_event/trace_event.h"
 #include "build/build_config.h"
 
@@ -294,6 +295,9 @@ bool GLContextEGL::MakeCurrent(GLSurface* surface) {
                       surface->GetHandle(),
                       surface->GetHandle(),
                       context_)) {
+    PMLOG_INFO(Gpu, "GLContextEGL", "%s %s (surface:%p, handle:%p) at %s(%d)",
+               "eglMakeCurrent failed with error", GetLastEGLErrorString(),
+               surface, surface->GetHandle(), __FUNCTION__, __LINE__);
     DVLOG(1) << "eglMakeCurrent failed with error "
              << GetLastEGLErrorString();
     return false;
@@ -315,6 +319,9 @@ bool GLContextEGL::MakeCurrent(GLSurface* surface) {
 
   if (!surface->OnMakeCurrent(this)) {
     LOG(ERROR) << "Could not make current.";
+    PMLOG_INFO(Gpu, "GLContextEGL", "%s %s (surface:%p, handle:%p) at %s(%d)",
+               "Could not make current with error", GetLastEGLErrorString(),
+               surface, surface->GetHandle(), __FUNCTION__, __LINE__);
     return false;
   }
 

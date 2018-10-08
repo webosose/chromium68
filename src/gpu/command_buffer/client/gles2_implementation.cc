@@ -21,6 +21,7 @@
 #include "base/bits.h"
 #include "base/compiler_specific.h"
 #include "base/containers/span.h"
+#include "base/logging_pmlog.h"
 #include "base/numerics/safe_math.h"
 #include "base/strings/string_split.h"
 #include "base/strings/stringprintf.h"
@@ -518,6 +519,10 @@ void GLES2Implementation::SetGLError(
   GPU_CLIENT_LOG("[" << GetLogPrefix() << "] Client Synthesized Error: "
                  << GLES2Util::GetStringError(error) << ": "
                  << function_name << ": " << msg);
+  PMLOG_INFO(Gpu, "chromium.gpu", "%s: %s : %s : %s at %s(%d)",
+             "Client Synthesized Error",
+             GLES2Util::GetStringError(error).c_str(), function_name, msg,
+             __FUNCTION__, __LINE__);
   FailGLError(error);
   if (msg) {
     last_error_ = msg;

@@ -23,6 +23,7 @@
 #include "base/containers/span.h"
 #include "base/debug/alias.h"
 #include "base/logging.h"
+#include "base/logging_pmlog.h"
 #include "base/metrics/histogram_macros.h"
 #include "base/numerics/ranges.h"
 #include "base/numerics/safe_math.h"
@@ -88,6 +89,7 @@
 #include "ui/gfx/transform.h"
 #include "ui/gl/ca_renderer_layer_params.h"
 #include "ui/gl/dc_renderer_layer_params.h"
+#include "ui/gl/egl_util.h"
 #include "ui/gl/gl_bindings.h"
 #include "ui/gl/gl_context.h"
 #include "ui/gl/gl_fence.h"
@@ -4530,6 +4532,12 @@ bool GLES2DecoderImpl::MakeCurrent() {
     return false;
   }
 
+  PMLOG_DEBUG(Gpu, "chromium.gpu", "%s %s (surface:%p, handle:%p) at %s(%d)",
+              "GLES2DecoderImpl: Context lost during MakeCurrent. EGL error",
+              ui::GetLastEGLErrorString(), surface_.get(),
+              surface_.get() ? surface_->GetHandle() : 0, __FUNCTION__,
+              __LINE__);
+
   ProcessFinishedAsyncTransfers();
 
   // Rebind the FBO if it was unbound by the context.
@@ -5502,6 +5510,12 @@ error::Error GLES2DecoderImpl::HandleResizeCHROMIUM(
     if (!context_->IsCurrent(surface_.get())) {
       LOG(ERROR) << "GLES2DecoderImpl: Context lost because context no longer "
                  << "current after resize callback.";
+      PMLOG_INFO(
+          Gpu, "chromium.gpu", "%s %s %s (surface:%p, handle:%p) at %s(%d)",
+          "GLES2DecoderImpl: Context lost because context no longer current",
+          "after resize callback. EGL error", ui::GetLastEGLErrorString(),
+          surface_.get(), surface_.get() ? surface_->GetHandle() : 0,
+          __FUNCTION__, __LINE__);
       return error::kLostContext;
     }
     if (surface_->BuffersFlipped()) {
@@ -18302,6 +18316,8 @@ void GLES2DecoderImpl::DoDrawBuffersEXT(GLsizei count,
 }
 
 void GLES2DecoderImpl::DoLoseContextCHROMIUM(GLenum current, GLenum other) {
+  PMLOG_INFO(Gpu, "chromium.gpu", "%s current:%u other:%u at %s(%d)",
+             "DoLoseContextCHROMIUM", current, other, __FUNCTION__, __LINE__);
   MarkContextLost(GetContextLostReasonFromResetStatus(current));
   group_->LoseContexts(GetContextLostReasonFromResetStatus(other));
   reset_by_robustness_extension_ = true;
@@ -18797,6 +18813,8 @@ void GLES2DecoderImpl::OnContextLostError() {
     CheckResetStatus();
     group_->LoseContexts(error::kUnknown);
     reset_by_robustness_extension_ = true;
+    PMLOG_INFO(Gpu, "chromium.gpu", "LostContext at %s(%d)", __FUNCTION__,
+               __LINE__);
   }
 }
 
