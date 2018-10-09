@@ -56,12 +56,10 @@ Watchdog::WatchdogThread::WatchdogThread(const base::TimeDelta& duration,
 
 void Watchdog::WatchdogThread::Alarm() {
   // kill process
-#if defined(USE_PMLOG)
   PMLOG_INFO(Raw,
       "WatchdogThread",
       "Detected stuck thread %d in process %d! Killing process with SIGABRT",
       watchdog_->GetWatchingThreadTid(), getpid(), getpid());
-#endif
   kill(getpid(), SIGABRT);
 }
 
