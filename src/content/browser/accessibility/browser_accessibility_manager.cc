@@ -359,6 +359,7 @@ void BrowserAccessibilityManager::OnAccessibilityEvents(
   if (delegate_ && !use_custom_device_scale_factor_for_testing_)
     device_scale_factor_ = delegate_->AccessibilityGetDeviceScaleFactor();
 
+  bool should_send_initial_focus = false;
   // Process all changes to the accessibility tree first.
   for (uint32_t index = 0; index < details.size(); ++index) {
     const AXEventNotificationDetails& detail = details[index];
@@ -370,6 +371,13 @@ void BrowserAccessibilityManager::OnAccessibilityEvents(
         CHECK(false) << tree_->error();
       }
       return;
+    }
+
+    // Set focus to the root if it's not anywhere else.
+    // For webos, allow initial focus event only when tree root changed
+    if (!last_focused_node_ && !last_focused_manager_) {
+      last_focused_node_ = GetRoot();
+      should_send_initial_focus = true;
     }
   }
 
@@ -393,11 +401,32 @@ void BrowserAccessibilityManager::OnAccessibilityEvents(
     connected_to_parent_tree_node_ = false;
   }
 
+  // Fire alert event first.
+  for (uint32_t index = 0; index < details.size(); index++) {
+    const AXEventNotificationDetails& detail = details[index];
+
+    // Find the node corresponding to the id that's the target of the
+    // event (which may not be the root of the update tree).
+    ui::AXNode* node = tree_->GetFromId(detail.id);
+    if (!node)
+      continue;
+
+    if (detail.event_type == ax::mojom::Event::kAlert) {
+      BrowserAccessibility* event_target = GetFromAXNode(node);
+      if (event_target)
+        FireBlinkEvent(ax::mojom::Event::kAlert, event_target);
+    }
+  }
+
   // Based on the changes to the tree, fire focus events if needed.
   // Screen readers might not do the right thing if they're not aware of what
   // has focus, so always try that first. Nothing will be fired if the window
   // itself isn't focused or if focus hasn't changed.
-  GetRootManager()->FireFocusEventsIfNeeded();
+
+  // For webos, send initial focus when it's allowed
+  if (should_send_initial_focus &&
+      (!delegate_ || delegate_->AccessibilityViewHasFocus()))
+    GetRootManager()->FireFocusEventsIfNeeded();
 
   // Fire any events related to changes to the tree.
   for (auto targeted_event : *this) {
@@ -413,9 +442,18 @@ void BrowserAccessibilityManager::OnAccessibilityEvents(
   for (uint32_t index = 0; index < details.size(); index++) {
     const AXEventNotificationDetails& detail = details[index];
 
-    // We already handled all focus events above.
-    if (delegate_ && !delegate_->AccessibilityViewHasFocus())
+    if (detail.event_type == ax::mojom::Event::kAlert)
       continue;
+
+    if (detail.event_type == ax::mojom::Event::kFocus ||
+        detail.event_type == ax::mojom::Event::kBlur) {
+      if (should_send_initial_focus)
+        continue;
+
+      // We already handled all focus events above.
+      if (delegate_ && !delegate_->AccessibilityViewHasFocus())
+        continue;
+    }
 
     // Fire the native event.
     BrowserAccessibility* event_target = GetFromID(detail.id);
