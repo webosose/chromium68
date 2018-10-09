@@ -1364,6 +1364,11 @@ int InputMethodController::TextInputFlags() const {
 #if defined(USE_NEVA_APPRUNTIME)
   if (IsHTMLInputElement(element)) {
     HTMLInputElement* input = ToHTMLInputElement(element);
+    if (input->isSensitive())
+      flags |= kWebTextInputFlagSensitiveOn;
+    else
+      flags |= kWebTextInputFlagSensitiveOff;
+
     if (input->UseSystemKeyboard())
       flags |= kWebTextInputFlagSystemKeyboardOn;
     else

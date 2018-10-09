@@ -259,6 +259,7 @@ class CORE_EXPORT HTMLInputElement
   void setWidth(unsigned);
 
 #if defined(USE_NEVA_APPRUNTIME)
+  bool isSensitive() const { return sensitive_; }
   bool UseSystemKeyboard() const { return use_system_keyboard_; }
 #endif
 
@@ -426,6 +427,7 @@ class CORE_EXPORT HTMLInputElement
   unsigned needs_to_update_view_value_ : 1;
   unsigned is_placeholder_visible_ : 1;
 #if defined(USE_NEVA_APPRUNTIME)
+  unsigned sensitive_ : 1;
   unsigned use_system_keyboard_ : 1;
 #endif
   unsigned has_been_password_field_ : 1;

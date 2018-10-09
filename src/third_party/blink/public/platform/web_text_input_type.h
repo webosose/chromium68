@@ -92,12 +92,14 @@ enum WebTextInputFlags {
   // Whether an input field is or has ever been a password. For such an input
   // type we don't want autocomplete or a keyboard to memorize the content.
   kWebTextInputFlagHasBeenPasswordField = 1 << 12,
-///@name USE_NEVA_APPRUNTIME
-///@{
+  ///@name USE_NEVA_APPRUNTIME
+  ///@{
+  kWebTextInputFlagSensitiveOn = 1 << 13,
+  kWebTextInputFlagSensitiveOff = 1 << 14,
   // Neva system keyboard
-  kWebTextInputFlagSystemKeyboardOn = 1 << 13,
-  kWebTextInputFlagSystemKeyboardOff = 1 << 14
-///@}
+  kWebTextInputFlagSystemKeyboardOn = 1 << 15,
+  kWebTextInputFlagSystemKeyboardOff = 1 << 16
+  ///@}
 };
 
 }  // namespace blink

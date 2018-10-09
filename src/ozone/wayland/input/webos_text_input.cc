@@ -63,11 +63,8 @@ uint32_t ContentHintFromInputContentType(ui::InputContentType content_type,
   // hint from flags
   // TODO TEXT_INPUT_FLAG_SPELLCHECK_ON remains.
   //      The wayland-text-client doesn't offer the spellcheck yet.
-  // For WebOS
-  // FIXME: The functionality related to SENSITIVE_ON and SENSITIVE_OFF should be revised due
-  // to it was not fully implemented yet
-  //if (input_flags & ui::TEXT_INPUT_FLAG_SENSITIVE_ON)
-  //  wl_hint |= TEXT_MODEL_CONTENT_HINT_SENSITIVE_DATA;
+  if (input_flags & ui::TEXT_INPUT_FLAG_SENSITIVE_ON)
+    wl_hint |= TEXT_MODEL_CONTENT_HINT_SENSITIVE_DATA;
   if (input_flags & ui::TEXT_INPUT_FLAG_AUTOCOMPLETE_ON)
     wl_hint |= TEXT_MODEL_CONTENT_HINT_AUTO_COMPLETION;
   if (input_flags & ui::TEXT_INPUT_FLAG_AUTOCORRECT_ON)

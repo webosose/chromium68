@@ -114,6 +114,7 @@ HTMLInputElement::HTMLInputElement(Document& document,
       needs_to_update_view_value_(true),
       is_placeholder_visible_(false),
 #if defined(USE_NEVA_APPRUNTIME)
+      sensitive_(false),
       use_system_keyboard_(true),
 #endif
       has_been_password_field_(false),
@@ -842,6 +843,8 @@ void HTMLInputElement::ParseAttribute(
     TextControlElement::ParseAttribute(params);
     UseCounter::Count(GetDocument(), WebFeature::kPrefixedDirectoryAttribute);
 #if defined(USE_NEVA_APPRUNTIME)
+  } else if (name == sensitiveAttr) {
+    sensitive_ = value.IsEmpty() || DeprecatedEqualIgnoringCase(value, "true");
   } else if (name == systemkeyboardAttr) {
     use_system_keyboard_ =
         value.IsEmpty() || !DeprecatedEqualIgnoringCase(value, "false");

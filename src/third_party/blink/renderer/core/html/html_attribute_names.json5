@@ -292,6 +292,7 @@
     "summary",
 ///@name USE_NEVA_APPRUNTIME
 ///@{
+    "sensitive",
     // Neva system keyboard
     "systemkeyboard",
 ///@}
