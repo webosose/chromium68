@@ -2187,8 +2187,24 @@ void RenderFrameImpl::OnSetAccessibilityMode(ui::AXMode new_mode) {
     render_accessibility_ = nullptr;
   }
 
+  if (accessibility_mode_.is_mode_off()) {
+    GetRenderView()
+        ->GetWebView()
+        ->GetSettings()
+        ->SetAccessibilityExploreByMouseEnabled(false);
+    return;
+  }
+
   for (auto& observer : observers_)
     observer.AccessibilityModeChanged();
+
+  if (accessibility_mode_ == ui::kAXModeComplete) {
+    if (GetWebkitPreferences().accessibility_explore_by_mouse_enabled)
+      GetRenderView()
+          ->GetWebView()
+          ->GetSettings()
+          ->SetAccessibilityExploreByMouseEnabled(true);
+  }
 }
 
 void RenderFrameImpl::OnSnapshotAccessibilityTree(int callback_id,

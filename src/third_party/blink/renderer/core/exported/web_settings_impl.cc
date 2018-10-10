@@ -161,6 +161,10 @@ void WebSettingsImpl::SetAccessibilityEnabled(bool enabled) {
   settings_->SetAccessibilityEnabled(enabled);
 }
 
+void WebSettingsImpl::SetAccessibilityExploreByMouseEnabled(bool enabled) {
+  settings_->SetAccessibilityExploreByMouseEnabled(enabled);
+}
+
 void WebSettingsImpl::SetAccessibilityPasswordValuesEnabled(bool enabled) {
   settings_->SetAccessibilityPasswordValuesEnabled(enabled);
 }
@@ -600,6 +604,10 @@ void WebSettingsImpl::SetMultiTargetTapNotificationEnabled(bool enabled) {
 
 bool WebSettingsImpl::ViewportEnabled() const {
   return settings_->GetViewportEnabled();
+}
+
+bool WebSettingsImpl::GetAccessibilityExploreByMouseEnabled() {
+  return settings_->GetAccessibilityExploreByMouseEnabled();
 }
 
 bool WebSettingsImpl::ViewportMetaEnabled() const {

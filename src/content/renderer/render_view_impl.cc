@@ -881,6 +881,10 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
       static_cast<WebSettings::SavePreviousDocumentResources>(
           prefs.save_previous_document_resources));
 
+  settings->SetAccessibilityExploreByMouseEnabled(
+      settings->GetAccessibilityExploreByMouseEnabled() &&
+      prefs.accessibility_explore_by_mouse_enabled);
+
 #if defined(OS_ANDROID)
   settings->SetAllowCustomScrollbarInMainFrame(false);
   settings->SetTextAutosizingEnabled(prefs.text_autosizing_enabled);

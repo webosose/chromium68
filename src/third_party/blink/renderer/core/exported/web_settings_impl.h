@@ -51,11 +51,13 @@ class CORE_EXPORT WebSettingsImpl final : public WebSettingsImplNeva {
 
   bool ShrinksViewportContentToFit() const override;
   bool ViewportEnabled() const override;
+  bool GetAccessibilityExploreByMouseEnabled() override;
   void SetAccelerated2dCanvasMSAASampleCount(int) override;
   void SetAcceleratedCompositingEnabled(bool) override;
   void SetAutoplayPolicy(AutoplayPolicy) override;
   void SetPreferCompositingToLCDTextEnabled(bool) override;
   void SetAccessibilityEnabled(bool) override;
+  void SetAccessibilityExploreByMouseEnabled(bool) override;
   void SetAccessibilityPasswordValuesEnabled(bool) override;
   void SetAllowFileAccessFromFileURLs(bool) override;
   void SetAllowCustomScrollbarInMainFrame(bool) override;

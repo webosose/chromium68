@@ -152,6 +152,7 @@ EventHandler::EventHandler(LocalFrame& frame)
           &EventHandler::CursorUpdateTimerFired),
       event_handler_will_reset_capturing_mouse_events_node_(0),
       should_only_fire_drag_over_event_(false),
+      force_focus_on_mouse_move_(false),
       event_handler_registry_(
           frame_->IsLocalRoot()
               ? new EventHandlerRegistry(*frame_)
@@ -749,9 +750,28 @@ WebInputEventResult EventHandler::HandleMouseMoveEvent(
     const WebMouseEvent& event,
     const Vector<WebMouseEvent>& coalesced_events) {
   TRACE_EVENT0("blink", "EventHandler::handleMouseMoveEvent");
+
+  force_focus_on_mouse_move_ = false;
+
+  if (frame_->GetSettings() &&
+      frame_->GetSettings()->GetAccessibilityExploreByMouseEnabled())
+    force_focus_on_mouse_move_ = true;
+
   HitTestResult hovered_node = HitTestResult();
   WebInputEventResult result =
       HandleMouseMoveOrLeaveEvent(event, coalesced_events, &hovered_node);
+
+  if (force_focus_on_mouse_move_) {
+    InputDeviceCapabilities* source_capabilities =
+        frame_->GetDocument()
+            ->domWindow()
+            ->GetInputDeviceCapabilities()
+            ->FiresTouchEvents(false);
+
+    mouse_event_manager_->HandleMouseFocus(
+        MouseEventWithHitTestResults(event, hovered_node).GetHitTestResult(),
+        source_capabilities);
+  }
 
   Page* page = frame_->GetPage();
   if (!page)
@@ -1201,6 +1221,12 @@ Node* EventHandler::EffectiveMouseEventTargetNode(Node* target_node) {
     if (new_node_under_mouse && new_node_under_mouse->IsTextNode())
       new_node_under_mouse = FlatTreeTraversal::Parent(*new_node_under_mouse);
   }
+
+  if (frame_->GetSettings() &&
+      frame_->GetSettings()->GetAccessibilityExploreByMouseEnabled() &&
+      !force_focus_on_mouse_move_)
+    force_focus_on_mouse_move_ = true;
+
   return new_node_under_mouse;
 }
 

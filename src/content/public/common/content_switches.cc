@@ -959,6 +959,12 @@ const char kRendererWaitForJavaDebugger[] = "renderer-wait-for-java-debugger";
 const char kEnableOSKOverscroll[]               = "enable-osk-overscroll";
 #endif
 
+// Enable exploring by mouse feature for accessibility.
+// This feature read out describing the node under the mouse cursor on screen
+// when accessiblity is enabled.
+const char kEnableAccessibilityExploreByMouse[] =
+    "enable-accessibility-explore-by-mouse";
+
 // Enable the aggressive flushing of DOM Storage to minimize data loss.
 const char kEnableAggressiveDOMStorageFlushing[] =
     "enable-aggressive-domstorage-flushing";

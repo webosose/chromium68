@@ -566,6 +566,9 @@ WebPreferences RenderViewHostImpl::ComputeWebkitPrefs() {
   prefs.picture_in_picture_enabled =
       base::FeatureList::IsEnabled(media::kUseSurfaceLayerForVideo);
 
+  prefs.accessibility_explore_by_mouse_enabled =
+      command_line.HasSwitch(switches::kEnableAccessibilityExploreByMouse);
+
   GetContentClient()->browser()->OverrideWebkitPrefs(this, &prefs);
   return prefs;
 }

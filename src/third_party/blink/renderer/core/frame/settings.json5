@@ -965,5 +965,9 @@
       name: "shouldThrottlePushState",
       initial: true,
     },
+    {
+      name: "accessibilityExploreByMouseEnabled",
+      initial: "false",
+    },
   ],
 }

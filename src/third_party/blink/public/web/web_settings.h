@@ -126,6 +126,7 @@ class WebSettings : public WebSettingsNeva {
 
   virtual bool ShrinksViewportContentToFit() const = 0;
   virtual bool ViewportEnabled() const = 0;
+  virtual bool GetAccessibilityExploreByMouseEnabled() = 0;
   virtual void SetAccelerated2dCanvasMSAASampleCount(int) = 0;
   virtual void SetAcceleratedCompositingEnabled(bool) = 0;
   virtual void SetPreferCompositingToLCDTextEnabled(bool) = 0;
@@ -136,6 +137,7 @@ class WebSettings : public WebSettingsNeva {
   // LocalFrameClient set to the frame may override the value set by this
   // method.
   virtual void SetAccessibilityEnabled(bool) = 0;
+  virtual void SetAccessibilityExploreByMouseEnabled(bool) = 0;
   virtual void SetAccessibilityPasswordValuesEnabled(bool) = 0;
   virtual void SetAllowFileAccessFromFileURLs(bool) = 0;
   virtual void SetAllowCustomScrollbarInMainFrame(bool) = 0;

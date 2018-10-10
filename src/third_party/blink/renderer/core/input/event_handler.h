@@ -391,6 +391,7 @@ class CORE_EXPORT EventHandler final
 
   Member<Node> drag_target_;
   bool should_only_fire_drag_over_event_;
+  bool force_focus_on_mouse_move_;
 
   Member<HTMLFrameSetElement> frame_set_being_resized_;
 
