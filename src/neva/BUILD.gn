@@ -84,4 +84,8 @@ config("config") {
   if (use_pmlog && current_toolchain == default_toolchain) {
     defines += [ "USE_PMLOG=1" ]
   }
+
+  if (enable_in_process_stacktraces) {
+    defines += [ "ENABLE_IN_PROCESS_STACKTRACES=1" ]
+  }
 }

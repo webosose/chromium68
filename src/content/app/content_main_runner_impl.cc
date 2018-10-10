@@ -871,7 +871,7 @@ int ContentMainRunnerImpl::Initialize(const ContentMainParams& params) {
           return nullptr;
         }));
 
-#if !defined(OFFICIAL_BUILD)
+#if !defined(OFFICIAL_BUILD) && defined(ENABLE_IN_PROCESS_STACKTRACES)
 #if defined(OS_WIN)
     bool should_enable_stack_dump = !process_type.empty();
 #else
@@ -887,7 +887,7 @@ int ContentMainRunnerImpl::Initialize(const ContentMainParams& params) {
             service_manager::switches::kDisableInProcessStackTraces)) {
       base::debug::EnableInProcessStackDumping();
     }
-#endif  // !defined(OFFICIAL_BUILD)
+#endif  // !defined(OFFICIAL_BUILD) && defined(ENABLE_IN_PROCESS_STACKTRACES)
 
     if (delegate_)
       delegate_->PreSandboxStartup();

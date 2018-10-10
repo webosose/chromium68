@@ -108,6 +108,7 @@ class ServiceProcessLauncherDelegateImpl
 
 // Setup signal-handling state: resanitize most signals, ignore SIGPIPE.
 void SetupSignalHandlers() {
+#if defined(ENABLE_IN_PROCESS_STACKTRACES)
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kDisableInProcessStackTraces)) {
     // Don't interfere with sanitizer signal handlers.
@@ -132,6 +133,7 @@ void SetupSignalHandlers() {
 
   // Always ignore SIGPIPE.  We check the return value of write().
   CHECK_NE(SIG_ERR, signal(SIGPIPE, SIG_IGN));
+#endif  // defined(ENABLE_IN_PROCESS_STACKTRACES)
 }
 
 void PopulateFDsFromCommandLine() {
@@ -187,7 +189,7 @@ void CommonSubprocessInit() {
 void NonEmbedderProcessInit() {
   service_manager::InitializeLogging();
 
-#if !defined(OFFICIAL_BUILD)
+#if !defined(OFFICIAL_BUILD) && defined(ENABLE_IN_PROCESS_STACKTRACES)
   // Initialize stack dumping before initializing sandbox to make sure symbol
   // names in all loaded libraries will be cached.
   // NOTE: On Chrome OS, crash reporting for the root process and non-browser
