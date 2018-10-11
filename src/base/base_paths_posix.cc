@@ -44,6 +44,7 @@ bool PathProviderPosix(int key, FilePath* result) {
         *result = base::FilePath(info.dli_fname);
         return true;
       }
+      FALLTHROUGH;
 #endif  // defined(USE_CBE)
 
     case FILE_EXE: {  // TODO(evanm): is this correct?
