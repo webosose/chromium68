@@ -341,7 +341,7 @@ void FillGPUInfoFromSystemInfo(GPUInfo* gpu_info,
 
 void CollectGraphicsInfoForTesting(GPUInfo* gpu_info) {
   DCHECK(gpu_info);
-#if defined(OS_ANDROID)
+#if defined(OS_ANDROID) || defined(USE_WEBOS_GPU_INFO_COLLECTOR)
   CollectContextGraphicsInfo(gpu_info);
 #else
   CollectBasicGraphicsInfo(gpu_info);

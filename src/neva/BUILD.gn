@@ -109,4 +109,8 @@ config("config") {
   if (use_lttng && current_toolchain == default_toolchain) {
     configs += [ "//build/config/linux/lttng:lttngust" ]
   }
+
+  if (use_webos_gpu_info_collector) {
+    defines += [ "USE_WEBOS_GPU_INFO_COLLECTOR=1" ]
+  }
 }

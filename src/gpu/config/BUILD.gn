@@ -176,4 +176,8 @@ source_set("config_sources") {
   if (is_linux || is_mac) {
     deps += [ "//third_party/angle:angle_gpu_info_util" ]
   }
+  if (use_webos_gpu_info_collector) {
+    sources -= [ "gpu_info_collector_linux.cc" ]
+    sources += [ "gpu_info_collector_webos.cc" ]
+  }
 }
