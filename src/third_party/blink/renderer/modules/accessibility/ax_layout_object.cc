@@ -302,6 +302,10 @@ AccessibilityRole AXLayoutObject::DetermineAccessibilityRole() {
 
 void AXLayoutObject::Init() {
   AXNodeObject::Init();
+
+  // Notify if the layoutObject has the alert role.
+  if (RoleValue() == kAlertRole || RoleValue() == kAlertDialogRole)
+    AXObjectCache().PostNotification(this, AXObjectCacheImpl::kAXAlert);
 }
 
 void AXLayoutObject::Detach() {

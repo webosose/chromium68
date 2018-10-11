@@ -826,6 +826,14 @@ void AXObjectCacheImpl::PostNotification(AXObject* object,
   if (!object)
     return;
 
+  // User creates alert event first but spokes later than focus event
+  // because the focus event fired as sync event.
+  // So, to meet enyo's requirement, AlertRole should be sync event.
+  if (notification == kAXAlert) {
+    PostPlatformNotification(object, notification);
+    return;
+  }
+
   modification_count_++;
   notifications_to_post_.push_back(std::make_pair(object, notification));
   if (!notification_post_timer_.IsActive())
@@ -962,6 +970,10 @@ void AXObjectCacheImpl::HandlePossibleRoleChange(Node* node) {
     if (parent)
       ChildrenChanged(parent, parent->GetNode());
     modification_count_++;
+
+    // Notify when the node gets the alert role.
+    if (obj->RoleValue() == kAlertRole || obj->RoleValue() == kAlertDialogRole)
+      PostNotification(obj, kAXAlert);
   }
 }
 
@@ -1346,6 +1358,7 @@ void AXObjectCacheImpl::Trace(blink::Visitor* visitor) {
 
 STATIC_ASSERT_ENUM(kWebAXEventActiveDescendantChanged,
                    AXObjectCacheImpl::kAXActiveDescendantChanged);
+STATIC_ASSERT_ENUM(kWebAXEventAlert, AXObjectCacheImpl::kAXAlert);
 STATIC_ASSERT_ENUM(kWebAXEventAriaAttributeChanged,
                    AXObjectCacheImpl::kAXAriaAttributeChanged);
 STATIC_ASSERT_ENUM(kWebAXEventAutocorrectionOccured,
