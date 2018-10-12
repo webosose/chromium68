@@ -1,0 +1,90 @@
+# Copyright (c) 2018 LG Electronics, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+webos_locales = [
+  "af",
+  "am",
+  "ar",
+  "as",
+  "az",
+  "bg",
+  "bn",
+  "bs",
+  "cs",
+  "da",
+  "de",
+  "el",
+  "en-GB",
+  "en-US",
+  "es-419",
+  "es",
+  "et",
+  "eu",
+  "fa",
+  "fake-bidi",
+  "fi",
+  "fr-CA",
+  "fr",
+  "ga",
+  "gu",
+  "ha",
+  "he",
+  "hi",
+  "hr",
+  "hu",
+  "id",
+  "it",
+  "ja",
+  "kk",
+  "km",
+  "kn",
+  "ko",
+  "ku",
+  "lt",
+  "lv",
+  "mk",
+  "ml",
+  "mn",
+  "mr",
+  "ms",
+  "nb",
+  "nl",
+  "or",
+  "pa",
+  "pl",
+  "ps",
+  "pt-BR",
+  "pt-PT",
+  "ro",
+  "ru",
+  "sk",
+  "sl",
+  "sq",
+  "sr",
+  "sv",
+  "ta",
+  "te",
+  "th",
+  "tr",
+  "uk",
+  "ur",
+  "uz",
+  "vi",
+  "zh-CN",
+  "zh-HK",
+  "zh-TW",
+  "zu",
+]

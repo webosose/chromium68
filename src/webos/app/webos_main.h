@@ -32,6 +32,7 @@ class WEBOS_EXPORT WebOSMain {
   int Run(int argc, const char** argv);
 
  private:
+  void InitializeWebOSLunaService();
   WebOSMainDelegate* delegate_;
 };
 

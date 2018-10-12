@@ -22,6 +22,10 @@
 #include "components/watchdog/watchdog.h"
 #include "content/public/renderer/content_renderer_client.h"
 
+namespace error_page {
+class Error;
+}  // namespace error_page
+
 namespace app_runtime {
 
 class AppRuntimeContentRendererClient : public content::ContentRendererClient {
@@ -30,8 +34,37 @@ class AppRuntimeContentRendererClient : public content::ContentRendererClient {
 
   void RenderThreadStarted() override;
 
+  bool ShouldSuppressErrorPage(content::RenderFrame* render_frame,
+                               const GURL& url) override;
+  void PrepareErrorPage(content::RenderFrame* render_frame,
+                        const blink::WebURLRequest& failed_request,
+                        const blink::WebURLError& error,
+                        std::string* error_html,
+                        base::string16* error_description) override;
+  void PrepareErrorPageForHttpStatusError(
+      content::RenderFrame* render_frame,
+      const blink::WebURLRequest& failed_request,
+      const GURL& unreachable_url,
+      int http_status,
+      std::string* error_html,
+      base::string16* error_description) override;
+  void GetErrorDescription(const blink::WebURLRequest& failed_request,
+                           const blink::WebURLError& error,
+                           base::string16* error_description) override;
+  bool HasErrorPage(int http_status_code) override;
+  void OnLocaleChanged(const std::string& new_locale) override;
+
  private:
   void ArmWatchdog();
+  void PrepareErrorPageInternal(content::RenderFrame* render_frame,
+                                const blink::WebURLRequest& failed_request,
+                                const error_page::Error& error,
+                                std::string* error_html,
+                                base::string16* error_description);
+
+  void GetErrorDescriptionInternal(const blink::WebURLRequest& failed_request,
+                                   const error_page::Error& error,
+                                   base::string16* error_description);
   std::unique_ptr<watchdog::Watchdog> watchdog_;
 };
 

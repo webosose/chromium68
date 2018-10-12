@@ -416,6 +416,16 @@
     "includes": [28900],
   },
 
+  # neva network error resources
+  "neva/app_runtime/app/resources/network_error_strings.grd": {
+    "messages": [35000],
+  },
+
+  # neva network error pages
+  "neva/app_runtime/browser/resources/network_error_pages.grd": {
+    "includes": [60000],
+  },
+
   # END "everything else" section.
   # Everything but chrome/, components/, content/, and ios/
 

@@ -49,12 +49,14 @@ namespace logging {
   BASE_EXPORT bool Context##PmLogEnabled(int level);
 #endif  // defined(USE_PMLOG)
 
+// Declare context in alpha order
 DECLARE_PMLOG_HEADER(Browser)
 DECLARE_PMLOG_HEADER(Gpu)
 DECLARE_PMLOG_HEADER(Memory)
 DECLARE_PMLOG_HEADER(Network)
 DECLARE_PMLOG_HEADER(Ozone)
 DECLARE_PMLOG_HEADER(Raw)
+DECLARE_PMLOG_HEADER(WebOSLunaService)
 
 }  // namespace logging
 

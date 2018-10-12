@@ -209,6 +209,8 @@ class BLINK_EXPORT WebFrame {
 
   // Sets the viewport size of root frame on creating view.
   virtual void SetViewportSize(const WebSize&) = 0;
+  // Get the viewport size
+  virtual WebSize viewportSize() { return WebSize(0, 0); }
 #endif
 
  protected:

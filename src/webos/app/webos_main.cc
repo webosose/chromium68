@@ -23,6 +23,7 @@
 #include "webos/browser/net/webos_network_delegate.h"
 #include "webos/common/webos_runtime_delegate.h"
 #include "webos/public/runtime.h"
+#include "webos/browser/luna_service/webos_luna_service.h"
 
 namespace webos {
 
@@ -42,8 +43,16 @@ int WebOSMain::Run(int argc, const char** argv) {
   params.argv = argv;
 
   content::SetRuntimeDelegateWebOS(new webos::WebOSRuntimeDelegate());
+  InitializeWebOSLunaService();
 
   return content::ContentMain(params);
+}
+
+void WebOSMain::InitializeWebOSLunaService() {
+  // TODO: Put WebOSLunaService Initialize into delegate
+  webos::WebOSLunaService::GetInstance()->Initialize();
+  webos::Runtime::GetInstance()->InitializeLunaService(
+      webos::WebOSLunaService::GetInstance());
 }
 
 }  // namespace webos

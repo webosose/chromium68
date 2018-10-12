@@ -261,6 +261,7 @@ class CORE_EXPORT WebLocalFrameImpl final
   void ReplaceBaseURL(const WebString& url) const override;
   void ResetStateToMarkNextPaintForContainer() override;
   void SetViewportSize(const WebSize& size) override { viewport_size_ = size; }
+  WebSize viewportSize() override { return viewport_size_; }
 #endif
 #if defined(USE_NEVA_MEDIA)
   void SetSuppressMediaPlay(bool suppress) override;

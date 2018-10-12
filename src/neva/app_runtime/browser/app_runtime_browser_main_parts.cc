@@ -25,6 +25,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/result_codes.h"
+#include "net/base/network_change_notifier_factory_neva.h"
 #include "neva/app_runtime/browser/app_runtime_browser_context_adapter.h"
 #include "neva/app_runtime/browser/app_runtime_browser_main_extra_parts.h"
 #include "neva/app_runtime/browser/app_runtime_devtools_manager_delegate.h"
@@ -118,6 +119,12 @@ void AppRuntimeBrowserMainParts::PreMainMessageLoopRun() {
 
   ui::MaterialDesignController::Initialize();
   CreateOSCryptConfig();
+
+  // Replace the default NetworkChangeNotifierFactory with browser
+  // implementation. This must be done before BrowserMainLoop calls
+  // net::NetworkChangeNotifier::Create() in MainMessageLoopStart().
+  net::NetworkChangeNotifier::SetFactory(
+      new neva::NetworkChangeNotifierFactoryNeva());
 
   for (auto* extra_part : app_runtime_extra_parts_)
     extra_part->PreMainMessageLoopRun();

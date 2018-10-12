@@ -2237,6 +2237,15 @@ component("net") {
       sources += [ "filter/brotli_source_stream_disabled.cc" ]
     }
   }
+
+  if (use_neva_appruntime) {
+    sources += [
+      "base/network_change_notifier_factory_neva.cc",
+      "base/network_change_notifier_factory_neva.h",
+      "base/network_change_notifier_neva.cc",
+      "base/network_change_notifier_neva.h",
+    ]
+  }
 }
 
 grit("net_resources") {

@@ -50,6 +50,7 @@ class MojoAppRuntimeHostImpl : public mojom::AppRuntimeHost {
   void DidFirstMeaningfulPaint(double fmp_detected) override;
   void DidNonFirstMeaningfulPaint() override;
   void DidClearWindowObject() override;
+  void DoLaunchSettingsApplication(int target_id) override;
 
  private:
   void LoadVisuallyCommitted();

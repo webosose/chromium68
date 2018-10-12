@@ -27,14 +27,24 @@ class NET_EXPORT_PRIVATE NetworkChangeNotifierLinux
   explicit NetworkChangeNotifierLinux(
       const std::unordered_set<std::string>& ignored_interfaces);
 
+#if defined(USE_NEVA_APPRUNTIME)
+ protected:
+  ~NetworkChangeNotifierLinux() override;
+  ConnectionType GetCurrentConnectionType() const override;
+#endif
+
  private:
   class Thread;
 
+#if !defined(USE_NEVA_APPRUNTIME)
   ~NetworkChangeNotifierLinux() override;
+#endif
   static NetworkChangeCalculatorParams NetworkChangeCalculatorParamsLinux();
 
+#if !defined(USE_NEVA_APPRUNTIME)
   // NetworkChangeNotifier:
   ConnectionType GetCurrentConnectionType() const override;
+#endif
 
   const internal::AddressTrackerLinux* GetAddressTrackerInternal()
       const override;

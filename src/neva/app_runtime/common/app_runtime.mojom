@@ -31,5 +31,6 @@ interface AppRuntimeHost {
   DidFirstMeaningfulPaint(double fmp_detected);
   DidNonFirstMeaningfulPaint();
   DidClearWindowObject();
+  DoLaunchSettingsApplication(int32 target_id);
 };
 

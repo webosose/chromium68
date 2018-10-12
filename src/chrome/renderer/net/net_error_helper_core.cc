@@ -769,7 +769,9 @@ void NetErrorHelperCore::PrepareErrorPageForMainFrame(
     // will just get the results for the next page load.
     last_probe_status_ = error_page::DNS_PROBE_POSSIBLE;
     pending_error_page_info->needs_dns_updates = true;
+#if !defined(USE_NEVA_APPRUNTIME)
     error = GetUpdatedError(error);
+#endif
   }
   if (error_html) {
     delegate_->GenerateLocalizedErrorPage(
@@ -934,6 +936,12 @@ void NetErrorHelperCore::PauseAutoReloadTimer() {
 void NetErrorHelperCore::NetworkStateChanged(bool online) {
   bool was_online = online_;
   online_ = online;
+
+#if defined(USE_NEVA_APPRUNTIME)
+  if (online_ && committed_error_page_info_)
+    Reload(committed_error_page_info_->was_ignoring_cache);
+#endif
+
   if (!was_online && online) {
     // Transitioning offline -> online
     if (auto_reload_paused_)

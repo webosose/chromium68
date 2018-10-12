@@ -61,6 +61,7 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
 
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
+  std::string GetApplicationLocale() override { return current_locale_; }
 
   void OverrideWebkitPrefs(content::RenderViewHost* render_view_host,
                            content::WebPreferences* prefs) override;
@@ -78,6 +79,7 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
   void SetV8SnapshotPath(int child_process_id, const std::string& path);
   void SetV8ExtraFlags(int child_process_id, const std::string& flags);
   void SetUseNativeScroll(int child_process_id, bool use_native_scroll);
+  void SetApplicationLocale(const std::string& locale);
 
  private:
   class MainURLRequestContextGetter;
@@ -100,6 +102,7 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
   // related to native scroll when use_native_scroll flag for the render process
   // is true.
   std::map<int, bool> use_native_scroll_map_;
+  std::string current_locale_;
 };
 
 }  // namespace app_runtime

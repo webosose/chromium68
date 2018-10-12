@@ -51,11 +51,13 @@ namespace logging {
     g_free(escaped_string);                                                    \
   }
 
+// Declare context in alpha order
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Browser, "chromium.browser")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Gpu, "chromium.gpu")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Memory, "chromium.memory")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Network, "chromium.network")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Ozone, "chromium.ozone")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Raw, "chromium.raw")
+DECLARE_PMLOG_FOR_CONTEXT_IMPL(WebOSLunaService, "chromium.weboslunaservice")
 
 }  // namespace logging

@@ -16,6 +16,9 @@
 
 #include "webos_platform.h"
 
+#include "net/base/network_change_notifier_factory_neva.h"
+#include "net/base/network_change_notifier_neva.h"
+#include "neva/app_runtime/app/app_runtime_main_delegate.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/window.h"
 #include "ozone/wayland/shell/webos_shell_surface.h"
@@ -45,13 +48,16 @@ void WebOSPlatform::OnCursorVisibilityChanged(bool visible) {
 }
 
 void WebOSPlatform::OnNetworkStateChanged(bool is_connected) {
-  NOTIMPLEMENTED();
+  neva::NetworkChangeNotifierNeva* network_change_notifier =
+      neva::NetworkChangeNotifierFactoryNeva::GetInstance();
+  if (network_change_notifier)
+    network_change_notifier->OnNetworkStateChanged(is_connected);
 }
 
 void WebOSPlatform::OnLocaleInfoChanged(std::string language) {
   std::string locale = webos::MapWebOsToChromeLocales(language);
-  NOTIMPLEMENTED() << " webos language: " << language
-                   << ", chrome locale: " << locale;
+  app_runtime::GetAppRuntimeContentBrowserClient()->SetApplicationLocale(
+      locale);
 }
 
 void WebOSPlatform::SetInputPointer(InputPointer* input_pointer) {

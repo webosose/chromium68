@@ -37,6 +37,7 @@
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/plugin_service.h"
 #include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/resource_context.h"
@@ -71,6 +72,10 @@
 #include "ui/events/event_constants.h"
 #include "ui/events/event_utils.h"
 #include "ui/gfx/font_render_params.h"
+
+#if defined(OS_WEBOS)
+#include "webos/browser/luna_service/webos_luna_service.h"
+#endif
 
 #if defined(USE_APPDRM)
 #include "net/appdrm/appdrm_file_manager.h"
@@ -150,6 +155,12 @@ void MojoAppRuntimeHostImpl::LoadVisuallyCommittedIfNeed() {
 void MojoAppRuntimeHostImpl::DidClearWindowObject() {
   if (web_view_delegate_)
     web_view_delegate_->DidClearWindowObject();
+}
+
+void MojoAppRuntimeHostImpl::DoLaunchSettingsApplication(int target_id) {
+#if defined(OS_WEBOS)
+  webos::WebOSLunaService::GetInstance()->LaunchSettingsApplication(target_id);
+#endif
 }
 
 WebView::WebView(int width, int height, WebViewProfile* profile)
@@ -1024,6 +1035,18 @@ void WebView::DidFailLoad(content::RenderFrameHost* render_frame_host,
 }
 
 void WebView::RenderProcessCreated(base::ProcessHandle handle) {
+  // Helps in initializing resources for the renderer process
+  std::string locale =
+      GetAppRuntimeContentBrowserClient()->GetApplicationLocale();
+  for (content::RenderProcessHost::iterator it(
+           content::RenderProcessHost::AllHostsIterator());
+       !it.IsAtEnd(); it.Advance()) {
+    if (it.GetCurrentValue()->GetProcess().Handle() == handle) {
+      it.GetCurrentValue()->OnLocaleChanged(locale);
+      break;
+    }
+  }
+
   if (webview_delegate_)
     webview_delegate_->RenderProcessCreated(handle);
 }

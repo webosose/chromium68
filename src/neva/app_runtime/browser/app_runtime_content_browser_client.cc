@@ -25,6 +25,7 @@
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/devtools_manager_delegate.h"
 #include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_neva_switches.h"
 #include "content/public/common/content_switches.h"
 #include "neva/app_runtime/browser/app_runtime_browser_main_parts.h"
@@ -209,6 +210,19 @@ void AppRuntimeContentBrowserClient::SetV8SnapshotPath(
 void AppRuntimeContentBrowserClient::SetV8ExtraFlags(int child_process_id,
                                                      const std::string& flags) {
   v8_extra_flags_.insert(std::make_pair(child_process_id, flags));
+}
+
+void AppRuntimeContentBrowserClient::SetApplicationLocale(
+    const std::string& locale) {
+  if (current_locale_ == locale)
+    return;
+
+  current_locale_ = locale;
+  for (content::RenderProcessHost::iterator it(
+           content::RenderProcessHost::AllHostsIterator());
+       !it.IsAtEnd(); it.Advance()) {
+    it.GetCurrentValue()->OnLocaleChanged(locale);
+  }
 }
 
 }  // namespace app_runtime

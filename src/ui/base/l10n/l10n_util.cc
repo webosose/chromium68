@@ -490,6 +490,10 @@ std::string GetApplicationLocaleInternal(const std::string& pref_locale) {
     candidates.push_back(base::i18n::GetCanonicalLocale(*languages));
   }
 
+#if defined(OS_WEBOS)
+  if (!pref_locale.empty())
+    candidates.push_back(pref_locale);
+#endif  // defined(OS_WEBOS)
 #else
 
   // By default, use the application locale preference. This applies to ChromeOS
