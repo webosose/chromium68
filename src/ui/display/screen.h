@@ -14,11 +14,20 @@
 namespace gfx {
 class Point;
 class Rect;
+class Size;
 }
 
 namespace display {
 class Display;
 class DisplayObserver;
+
+class DISPLAY_EXPORT ScreenDelegate {
+ public:
+  virtual gfx::Point GetCursorScreenPoint() = 0;
+  virtual gfx::Size GetPreferredScreenSize(const gfx::Size requested_size) = 0;
+  virtual int GetPreferredScreenRotationAsDegrees(
+      int requested_rotation_as_degrees) = 0;
+};
 
 // A utility class for getting various info about screen size, displays,
 // cursor position, etc.
@@ -94,6 +103,8 @@ class DISPLAY_EXPORT Screen {
   // display in |display|. Otherwise returns false and |display| remains
   // untouched.
   bool GetDisplayWithDisplayId(int64_t display_id, Display* display) const;
+
+  virtual void SetDelegate(ScreenDelegate* delegate) {}
 
  private:
   static gfx::NativeWindow GetWindowForView(gfx::NativeView view);

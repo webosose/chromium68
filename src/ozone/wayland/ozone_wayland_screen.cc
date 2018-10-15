@@ -39,12 +39,14 @@ void OzoneWaylandScreen::LookAheadOutputGeometry() {
   wl_registry_add_listener(registry, &registry_output, this);
 
   if (wl_display_roundtrip(display) > 0) {
-    while (look_ahead_screen_->Geometry().IsEmpty())
+    while (look_ahead_screen_->Geometry().IsEmpty() ||
+           !look_ahead_screen_->GetOutputTransform().has_value())
       wl_display_roundtrip(display);
 
     unsigned width = look_ahead_screen_->Geometry().width();
     unsigned height = look_ahead_screen_->Geometry().height();
-    observer_->OnOutputSizeChanged(width, height);
+    int rotation = look_ahead_screen_->GetOutputTransformDegrees();
+    observer_->OnScreenChanged(width, height, rotation);
   }
 
   if (look_ahead_screen_) {

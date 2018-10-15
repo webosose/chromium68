@@ -265,7 +265,7 @@ void WindowManagerWayland::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandInput_KeyboardLeave, KeyboardLeave)
   IPC_MESSAGE_HANDLER(WaylandInput_KeyNotify, KeyNotify)
   IPC_MESSAGE_HANDLER(WaylandInput_VirtualKeyNotify, VirtualKeyNotify)
-  IPC_MESSAGE_HANDLER(WaylandInput_OutputSize, OutputSizeChanged)
+  IPC_MESSAGE_HANDLER(WaylandOutput_ScreenChanged, ScreenChanged)
   IPC_MESSAGE_HANDLER(WaylandInput_InitializeXKB, InitializeXKB)
   IPC_MESSAGE_HANDLER(WaylandInput_DragEnter, DragEnter)
   IPC_MESSAGE_HANDLER(WaylandInput_DragData, DragData)
@@ -369,12 +369,13 @@ void WindowManagerWayland::CloseWidget(unsigned handle) {
           weak_ptr_factory_.GetWeakPtr(), handle));
 }
 
-void WindowManagerWayland::OutputSizeChanged(unsigned width,
-                                             unsigned height) {
+void WindowManagerWayland::ScreenChanged(unsigned width,
+                                         unsigned height,
+                                         int rotation) {
   base::ThreadTaskRunnerHandle::Get()->PostTask(
       FROM_HERE,
-      base::Bind(&WindowManagerWayland::NotifyOutputSizeChanged,
-          weak_ptr_factory_.GetWeakPtr(), width, height));
+      base::Bind(&WindowManagerWayland::NotifyScreenChanged,
+                 weak_ptr_factory_.GetWeakPtr(), width, height, rotation));
 }
 
 void WindowManagerWayland::WindowResized(unsigned handle,
@@ -587,10 +588,11 @@ void WindowManagerWayland::NotifyTouchEvent(EventType type,
   DispatchEvent(&touchev);
 }
 
-void WindowManagerWayland::NotifyOutputSizeChanged(unsigned width,
-                                                   unsigned height) {
+void WindowManagerWayland::NotifyScreenChanged(unsigned width,
+                                               unsigned height,
+                                               int rotation) {
   if (platform_screen_)
-    platform_screen_->GetDelegate()->OnOutputSizeChanged(width, height);
+    platform_screen_->GetDelegate()->OnScreenChanged(width, height, rotation);
 }
 
 void WindowManagerWayland::NotifyDragEnter(

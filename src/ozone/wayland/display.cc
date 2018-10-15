@@ -1080,8 +1080,10 @@ void WaylandDisplay::TouchNotify(ui::EventType type,
   Dispatch(new WaylandInput_TouchNotify(type, x, y, touch_id, time_stamp));
 }
 
-void WaylandDisplay::OutputSizeChanged(unsigned width, unsigned height) {
-  Dispatch(new WaylandInput_OutputSize(width, height));
+void WaylandDisplay::OutputScreenChanged(unsigned width,
+                                         unsigned height,
+                                         int rotation) {
+  Dispatch(new WaylandOutput_ScreenChanged(width, height, rotation));
 }
 
 void WaylandDisplay::WindowResized(unsigned handle,

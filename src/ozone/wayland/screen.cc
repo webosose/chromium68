@@ -12,22 +12,41 @@
 namespace ozonewayland {
 
 WaylandScreen::WaylandScreen(wl_registry* registry, uint32_t id)
-    : output_(NULL),
-      refresh_(0),
-      rect_(0, 0, 0, 0) {
+    : output_(NULL), rect_(0, 0, 0, 0) {
   static const wl_output_listener kOutputListener = {
-    WaylandScreen::OutputHandleGeometry,
-    WaylandScreen::OutputHandleMode,
+      WaylandScreen::OutputHandleGeometry, WaylandScreen::OutputHandleMode,
+      WaylandScreen::OutputDone,
   };
 
   output_ = static_cast<wl_output*>(
-      wl_registry_bind(registry, id, &wl_output_interface, 1));
+      wl_registry_bind(registry, id, &wl_output_interface, 2));
   wl_output_add_listener(output_, &kOutputListener, this);
   DCHECK(output_);
 }
 
 WaylandScreen::~WaylandScreen() {
   wl_output_destroy(output_);
+}
+
+int WaylandScreen::GetOutputTransformDegrees() const {
+  int rotation = 0;
+  auto transform = transform_.value_or(WL_OUTPUT_TRANSFORM_NORMAL);
+
+  switch (transform) {
+    case WL_OUTPUT_TRANSFORM_90:
+      rotation = 90;
+      break;
+    case WL_OUTPUT_TRANSFORM_180:
+      rotation = 180;
+      break;
+    case WL_OUTPUT_TRANSFORM_270:
+      rotation = 270;
+      break;
+    default:
+      rotation = 0;
+      break;
+  }
+  return rotation;
 }
 
 // static
@@ -42,7 +61,9 @@ void WaylandScreen::OutputHandleGeometry(void *data,
                                          const char* model,
                                          int32_t output_transform) {
   WaylandScreen* screen = static_cast<WaylandScreen*>(data);
-  screen->rect_.set_origin(gfx::Point(x, y));
+  screen->pending_rect_.set_origin(
+      gfx::Point(x, y));  // We don't really support other than (0,0) origin
+  screen->pending_transform_ = output_transform;
 }
 
 // static
@@ -54,14 +75,31 @@ void WaylandScreen::OutputHandleMode(void* data,
                                      int32_t refresh) {
   WaylandScreen* screen = static_cast<WaylandScreen*>(data);
   if (flags & WL_OUTPUT_MODE_CURRENT) {
-    screen->rect_.set_width(width);
-    screen->rect_.set_height(height);
-    screen->refresh_ = refresh;
+    WaylandScreen* screen = static_cast<WaylandScreen*>(data);
+    screen->pending_rect_.set_size(gfx::Size(width, height));
+  }
+}
 
-    if (!WaylandDisplay::GetInstance())
-      return;
+// static
+void WaylandScreen::OutputDone(void* data, struct wl_output* wl_output) {
+  WaylandScreen* screen = static_cast<WaylandScreen*>(data);
+  if (screen->rect_ != screen->pending_rect_ ||
+      screen->pending_transform_ != screen->transform_) {
+    screen->rect_ = screen->pending_rect_;
+    screen->transform_ = screen->pending_transform_;
 
-    WaylandDisplay::GetInstance()->OutputSizeChanged(width, height);
+    unsigned width = screen->rect_.width();
+    unsigned height = screen->rect_.height();
+    int rotation = screen->GetOutputTransformDegrees();
+
+    // In case of OzoneWaylandScreen::LookAheadOutputGeometry we reach this
+    // point and WaylandDisplay instance is still null. That is intentional
+    // because we need to ensure we have fetched geometry before continuing
+    // ozone
+    // initialization.
+    if (WaylandDisplay::GetInstance())
+      WaylandDisplay::GetInstance()->OutputScreenChanged(width, height,
+                                                         rotation);
   }
 }
 

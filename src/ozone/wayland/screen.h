@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 
+#include "base/optional.h"
 #include "ui/gfx/geometry/rect.h"
 
 struct wl_output;
@@ -26,6 +27,8 @@ class WaylandScreen {
 
   // Returns the active allocation of the screen.
   gfx::Rect Geometry() const { return rect_; }
+  base::Optional<int32_t> GetOutputTransform() const { return transform_; }
+  int GetOutputTransformDegrees() const;
 
  private:
   // Callback functions that allows the display to initialize the screen's
@@ -48,12 +51,17 @@ class WaylandScreen {
                                int32_t height,
                                int32_t refresh);
 
+  static void OutputDone(void* data, struct wl_output* wl_output);
+
   // The Wayland output this object wraps
   wl_output* output_;
 
-  // Rect and Refresh rate of active mode.
-  int32_t refresh_;
+  // Rect and transform of active mode.
   gfx::Rect rect_;
+  base::Optional<int32_t> transform_;
+
+  gfx::Rect pending_rect_;
+  int32_t pending_transform_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandScreen);
 };

@@ -112,7 +112,7 @@ class WindowManagerWayland
                    uint32_t time_stamp);
   void CloseWidget(unsigned handle);
 
-  void OutputSizeChanged(unsigned width, unsigned height);
+  void ScreenChanged(unsigned width, unsigned height, int rotation);
   void WindowResized(unsigned windowhandle,
                      unsigned width,
                      unsigned height);
@@ -162,8 +162,7 @@ class WindowManagerWayland
                         float y,
                         int32_t touch_id,
                         uint32_t time_stamp);
-  void NotifyOutputSizeChanged(unsigned width,
-                               unsigned height);
+  void NotifyScreenChanged(unsigned width, unsigned height, int rotation);
 
   void NotifyDragEnter(unsigned windowhandle,
                        float x,

@@ -109,9 +109,10 @@ IPC_MESSAGE_CONTROL3(WaylandInput_PointerLeave,  // NOLINT(readability/fn_size)
                      float /*x*/,
                      float /*y*/)
 
-IPC_MESSAGE_CONTROL2(WaylandInput_OutputSize,  // NOLINT(readability/fn_size)
+IPC_MESSAGE_CONTROL3(WaylandOutput_ScreenChanged,  // NOLINT(readability/fn_size)
                      unsigned /*width*/,
-                     unsigned /*height*/)
+                     unsigned /*height*/,
+                     int /*rotation*/)
 
 IPC_MESSAGE_CONTROL1(WaylandInput_CloseWidget,  // NOLINT(readability/fn_size)
                      unsigned /*handle*/)

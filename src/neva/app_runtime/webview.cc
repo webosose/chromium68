@@ -60,6 +60,8 @@
 #include "third_party/blink/public/mojom/page/page_visibility_state.mojom.h"
 #include "ui/aura/window.h"
 #include "ui/aura/client/screen_position_client.h"
+#include "ui/display/display.h"
+#include "ui/display/screen.h"
 #include "ui/events/blink/web_input_event.h"
 #include "ui/events/event.h"
 #include "ui/events/event_constants.h"
@@ -137,6 +139,17 @@ WebView::WebView(int width, int height, WebViewProfile* profile)
       enable_skip_frame_(false),
       ssl_cert_error_policy_(SSL_CERT_ERROR_POLICY_DEFAULT),
       profile_(profile ? profile : WebViewProfile::GetDefaultProfile()) {
+  if (display::Screen::GetScreen()->GetNumDisplays() > 0) {
+    // WebView constructor width and height params have default values in
+    // webview.h. If screen is rotated then initial size might be different
+    // and default values may lead to incorrectly scaled view for the first
+    // rendered frame.
+    gfx::Size displaySize =
+        display::Screen::GetScreen()->GetPrimaryDisplay().bounds().size();
+    width_ = displaySize.width();
+    height_ = displaySize.height();
+  }
+
   CreateWebContents();
   web_contents_->SetDelegate(this);
   Observe(web_contents_.get());

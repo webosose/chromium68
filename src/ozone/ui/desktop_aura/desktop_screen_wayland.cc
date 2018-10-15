@@ -15,7 +15,9 @@ namespace views {
 DesktopScreenWayland::DesktopScreenWayland()
     : display::Screen(),
       rect_(0, 0, 0, 0),
-      displays_() {
+      rotation_(0),
+      displays_(),
+      delegate_(nullptr) {
   platform_Screen_ = CreatePlatformScreen(this);
 }
 
@@ -44,6 +46,9 @@ void DesktopScreenWayland::SetGeometry(const gfx::Rect& geometry) {
 }
 
 gfx::Point DesktopScreenWayland::GetCursorScreenPoint() {
+  if (delegate_)
+    return delegate_->GetCursorScreenPoint();
+
   return platform_Screen_->GetCursorScreenPoint();
 }
 
@@ -148,9 +153,50 @@ void DesktopScreenWayland::RemoveObserver(display::DisplayObserver* observer) {
   change_notifier_.RemoveObserver(observer);
 }
 
-void DesktopScreenWayland::OnOutputSizeChanged(unsigned width,
-                                               unsigned height) {
-  SetGeometry(gfx::Rect(0, 0, width, height));
+void DesktopScreenWayland::SetDelegate(display::ScreenDelegate* delegate) {
+  delegate_ = delegate;
+
+  if (delegate_) {
+    gfx::Size preferredSize = delegate_->GetPreferredScreenSize(rect_.size());
+    int preferredRotation =
+        delegate_->GetPreferredScreenRotationAsDegrees(rotation_);
+    OnScreenChanged(preferredSize.width(), preferredSize.height(),
+                    preferredRotation);
+  }
+}
+
+void DesktopScreenWayland::OnScreenChanged(unsigned width,
+                                           unsigned height,
+                                           int rotation) {
+  gfx::Size size = gfx::Size(width, height);
+  if (delegate_) {
+    size = delegate_->GetPreferredScreenSize(size);
+    rotation = delegate_->GetPreferredScreenRotationAsDegrees(rotation);
+  }
+
+  if (rect_.width() != size.width() || rect_.height() != size.height() ||
+      rotation_ != rotation) {
+    rect_ = gfx::Rect(0, 0, size.width(), size.height());
+    rotation_ = rotation;
+
+    std::vector<display::Display> old_displays = displays_;
+    std::vector<display::Display> new_displays;
+
+    if (!displays_.size())
+      displays_.push_back(display::Display(displays_.size(), rect_));
+
+    for (std::vector<display::Display>::iterator it = displays_.begin();
+         it != displays_.end(); ++it) {
+      display::Display display = *it;
+      display.set_bounds(gfx::Rect(0, 0, rect_.width(), rect_.height()));
+      display.set_work_area(gfx::Rect(0, 0, rect_.width(), rect_.height()));
+      display.SetRotationAsDegree(rotation);
+      new_displays.push_back(display);
+    }
+
+    displays_ = new_displays;
+    change_notifier_.NotifyDisplaysChanged(old_displays, displays_);
+  }
 }
 
 }  // namespace views
