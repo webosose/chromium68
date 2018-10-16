@@ -65,9 +65,14 @@ gfx::SwapResult GLSurfaceWayland::SwapBuffers(
 }
 
 GLSurfaceWayland::~GLSurfaceWayland() {
-  WaylandDisplay::GetInstance()->DestroyWindow(widget_);
-  WaylandDisplay::GetInstance()->FlushDisplay();
+  // Destroy surface first
   Destroy();
+  // Then wl egl window if window instance is still around
+  WaylandWindow* window = WaylandDisplay::GetInstance()->GetWindow(widget_);
+  if (window) {
+    window->DestroyAcceleratedWidget();
+    WaylandDisplay::GetInstance()->FlushDisplay();
+  }
 }
 
 }  // namespace ozonewayland

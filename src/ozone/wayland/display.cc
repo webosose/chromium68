@@ -992,6 +992,7 @@ bool WaylandDisplay::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandDisplay_State, SetWidgetState)
   IPC_MESSAGE_HANDLER(WaylandDisplay_Create, CreateWidget)
   IPC_MESSAGE_HANDLER(WaylandDisplay_InitWindow, InitWindow)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_DestroyWindow, DestroyWindow)
   IPC_MESSAGE_HANDLER(WaylandDisplay_MoveWindow, MoveWindow)
   IPC_MESSAGE_HANDLER(WaylandDisplay_Title, SetWidgetTitle)
   IPC_MESSAGE_HANDLER(WaylandDisplay_AddRegion, AddRegion)
