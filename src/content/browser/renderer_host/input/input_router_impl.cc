@@ -66,6 +66,13 @@ ui::WebScopedInputEvent ScaleEvent(const WebInputEvent& event, double scale) {
   return ui::WebInputEventTraits::Clone(event);
 }
 
+bool IsKeyEventThrottlingEnabled() {
+  const base::CommandLine& command_line =
+      *base::CommandLine::ForCurrentProcess();
+
+  return command_line.HasSwitch(switches::kEnableKeyEventThrottling);
+}
+
 }  // namespace
 
 InputRouterImpl::InputRouterImpl(
@@ -76,6 +83,7 @@ InputRouterImpl::InputRouterImpl(
     : client_(client),
       disposition_handler_(disposition_handler),
       frame_tree_node_id_(-1),
+      throttle_key_events_(IsKeyEventThrottlingEnabled()),
       active_renderer_fling_count_(0),
       touch_scroll_started_sent_(false),
       wheel_scroll_latching_enabled_(base::FeatureList::IsEnabled(
@@ -121,8 +129,38 @@ void InputRouterImpl::SendWheelEvent(
 
 void InputRouterImpl::SendKeyboardEvent(
     const NativeWebKeyboardEventWithLatencyInfo& key_event) {
+  if (throttle_key_events_) {
+    // Clear pending repeated key downs.
+    // Following code block is adapted from WEBOS WebKit implementation
+    if (key_event.event.GetType() == WebInputEvent::kKeyUp &&
+        key_queue_.size() > 1) {
+      KeyQueue new_key_queue;
+      // preserve last sent event. (if not crash occurs)
+      new_key_queue.push_back(key_queue_.front());
+      key_queue_.pop_front();
+
+      int key = key_event.event.windows_key_code;
+      while (!key_queue_.empty()) {
+        NativeWebKeyboardEventWithLatencyInfo q = key_queue_.front();
+        key_queue_.pop_front();
+        if ((q.event.GetType() == WebInputEvent::kKeyDown ||
+             q.event.GetType() == WebInputEvent::kRawKeyDown) &&
+            q.event.windows_key_code == key)
+          continue;
+        new_key_queue.push_back(q);
+      }
+      key_queue_.swap(new_key_queue);
+    }
+  }
+
+  key_queue_.push_back(key_event);
+
   gesture_event_queue_.StopFling();
   gesture_event_queue_.FlingHasBeenHalted();
+
+  if (throttle_key_events_ && key_queue_.size() > 1)
+    return;
+
   mojom::WidgetInputHandler::DispatchEventCallback callback = base::BindOnce(
       &InputRouterImpl::KeyboardEventHandled, weak_this_, key_event);
   FilterAndSendWebInputEvent(key_event.event, key_event.latency,
@@ -476,12 +514,22 @@ void InputRouterImpl::KeyboardEventHandled(
   if (source != InputEventAckSource::BROWSER)
     client_->DecrementInFlightEventCount(source);
   event.latency.AddNewLatencyFrom(latency);
+  key_queue_.pop_front();
   disposition_handler_->OnKeyboardEventAck(event, source, state);
 
   // WARNING: This InputRouterImpl can be deallocated at this point
   // (i.e.  in the case of Ctrl+W, where the call to
   // HandleKeyboardEvent destroys this InputRouterImpl).
   // TODO(jdduke): crbug.com/274029 - Make ack-triggered shutdown async.
+
+  if (throttle_key_events_ && !key_queue_.empty()) {
+    NativeWebKeyboardEventWithLatencyInfo key_event = key_queue_.front();
+    key_event.latency.AddNewLatencyFrom(latency);
+    mojom::WidgetInputHandler::DispatchEventCallback callback = base::BindOnce(
+        &InputRouterImpl::KeyboardEventHandled, weak_this_, key_event);
+    FilterAndSendWebInputEvent(key_event.event, key_event.latency,
+                               std::move(callback));
+  }
 }
 
 void InputRouterImpl::MouseEventHandled(

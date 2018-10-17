@@ -363,6 +363,12 @@ const char kEnableGpuMemoryBufferCompositorResources[] =
 const char kEnableGpuMemoryBufferVideoFrames[] =
     "enable-gpu-memory-buffer-video-frames";
 
+// Enable key event throttling, which sends next key event to renderer
+// only after receiving ack from previous event to avoid spamming renderer
+// with excessive key events that may cause application to choke on heavy
+// tasks which are triggered by key pressed.
+const char kEnableKeyEventThrottling[] = "enable-key-event-throttling";
+
 // When using CPU rasterizing generate low resolution tiling. Low res
 // tiles may be displayed during fast scrolls especially on slower devices.
 const char kEnableLowResTiling[] = "enable-low-res-tiling";

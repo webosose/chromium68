@@ -204,6 +204,12 @@ class CONTENT_EXPORT InputRouterImpl : public InputRouter,
   InputDispositionHandler* disposition_handler_;
   int frame_tree_node_id_;
 
+  // True if key event queue is handled one by one. Which means that next event
+  // is only sent after receiving ACK from previous event.
+  bool throttle_key_events_;
+  typedef std::deque<NativeWebKeyboardEventWithLatencyInfo> KeyQueue;
+  KeyQueue key_queue_;
+
   // Whether there are any active flings in the renderer. As the fling
   // end notification is asynchronous, we use a count rather than a boolean
   // to avoid races in bookkeeping when starting a new fling.
