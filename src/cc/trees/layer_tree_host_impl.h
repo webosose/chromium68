@@ -1006,6 +1006,11 @@ class CC_EXPORT LayerTreeHostImpl
 
   RenderingStatsInstrumentation* rendering_stats_instrumentation_;
   MicroBenchmarkControllerImpl micro_benchmark_controller_;
+
+  base::MemoryPressureListener::MemoryPressureLevel memory_pressure_level_;
+  size_t bytes_limit_reduction_factor_ = 1;
+  ManagedMemoryPolicy low_memory_policy_;
+
   std::unique_ptr<SynchronousTaskGraphRunner>
       single_thread_synchronous_task_graph_runner_;
 

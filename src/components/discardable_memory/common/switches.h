@@ -14,21 +14,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef CC_BASE_SWITCHES_NEVA_H_
-#define CC_BASE_SWITCHES_NEVA_H_
+#ifndef COMPONENTS_DISCARDABLE_MEMORY_COMMON_SWITCHES_H_
+#define COMPONENTS_DISCARDABLE_MEMORY_COMMON_SWITCHES_H_
 
-#include "cc/base/base_export.h"
-
-namespace cc {
+namespace discardable_memory {
 namespace switches {
 
-CC_BASE_EXPORT extern const char kDecodedImageWorkingSetBudgetMB[];
-CC_BASE_EXPORT extern const char kEnableWebOSNativeScroll[];
-CC_BASE_EXPORT extern const char kMemPressureGPUCacheSizeReductionFactor[];
-CC_BASE_EXPORT extern const char
-    kTileManagerLowMemPolicyBytesLimitReductionFactor[];
+extern const char kSharedMemMinimalLimitMB[];
+extern const char kSharedMemPressureDivider[];
+extern const char kSharedMemSystemMemReductionFactor[];
 
 }  // namespace switches
-}  // namespace cc
+}  // namespace discardable_memory
 
-#endif  // CC_BASE_SWITCHES_NEVA_H_
+#endif  // COMPONENTS_DISCARDABLE_MEMORY_COMMON_SWITCHES_H_

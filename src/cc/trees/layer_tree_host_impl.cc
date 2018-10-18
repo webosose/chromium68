@@ -111,6 +111,7 @@
 
 #if defined(USE_NEVA_APPRUNTIME)
 #include "base/command_line.h"
+#include "base/strings/string_number_conversions.h"
 #include "cc/base/switches_neva.h"
 #endif
 
@@ -306,6 +307,9 @@ LayerTreeHostImpl::LayerTreeHostImpl(
       mutator_host_(std::move(mutator_host)),
       rendering_stats_instrumentation_(rendering_stats_instrumentation),
       micro_benchmark_controller_(this),
+      memory_pressure_level_(
+          base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_NONE),
+      low_memory_policy_(cached_managed_memory_policy_),
       task_graph_runner_(task_graph_runner),
       id_(id),
       requires_high_res_to_draw_(false),
@@ -353,6 +357,21 @@ LayerTreeHostImpl::LayerTreeHostImpl(
   memory_pressure_listener_.reset(
       new base::MemoryPressureListener(base::BindRepeating(
           &LayerTreeHostImpl::OnMemoryPressure, base::Unretained(this))));
+
+#if defined(USE_NEVA_APPRUNTIME)
+  base::CommandLine& cmd_line = *base::CommandLine::ForCurrentProcess();
+  if (cmd_line.HasSwitch(
+          cc::switches::kTileManagerLowMemPolicyBytesLimitReductionFactor)) {
+    size_t bytes_limit_reduction_factor;
+    if (base::StringToSizeT(
+            cmd_line.GetSwitchValueASCII(
+                cc::switches::
+                    kTileManagerLowMemPolicyBytesLimitReductionFactor),
+            &bytes_limit_reduction_factor))
+      bytes_limit_reduction_factor_ = bytes_limit_reduction_factor;
+  }
+#endif
+  low_memory_policy_.bytes_limit_when_visible /= bytes_limit_reduction_factor_;
 }
 
 LayerTreeHostImpl::~LayerTreeHostImpl() {
@@ -1463,6 +1482,10 @@ void LayerTreeHostImpl::UpdateTileManagerMemoryPolicy(
         (static_cast<int64_t>(global_tile_state_.hard_memory_limit_in_bytes) *
          settings_.max_memory_for_prepaint_percentage) /
         100;
+    if (memory_pressure_level_ !=
+        base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_NONE) {
+      global_tile_state_.soft_memory_limit_in_bytes = 0;
+    }
   }
   global_tile_state_.memory_limit_policy =
       ManagedMemoryPolicy::PriorityCutoffToTileMemoryLimitPolicy(
@@ -1676,6 +1699,8 @@ void LayerTreeHostImpl::SetManagedMemoryPolicy(
 
   ManagedMemoryPolicy old_policy = ActualManagedMemoryPolicy();
   cached_managed_memory_policy_ = policy;
+  low_memory_policy_ = cached_managed_memory_policy_;
+  low_memory_policy_.bytes_limit_when_visible /= bytes_limit_reduction_factor_;
   ManagedMemoryPolicy actual_policy = ActualManagedMemoryPolicy();
 
   if (old_policy == actual_policy)
@@ -2712,14 +2737,23 @@ void LayerTreeHostImpl::ActivateStateForImages() {
 
 void LayerTreeHostImpl::OnMemoryPressure(
     base::MemoryPressureListener::MemoryPressureLevel level) {
+  memory_pressure_level_ = level;
+#if !defined(OS_WEBOS)
   // Only work for low-end devices for now.
   if (!base::SysInfo::IsLowEndDevice())
     return;
-
+#endif
   switch (level) {
     case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_NONE:
+#if !defined(OS_WEBOS)
     case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_MODERATE:
+      UpdateTileManagerMemoryPolicy(ActualManagedMemoryPolicy());
       break;
+#else   // defined(OS_WEBOS)
+      UpdateTileManagerMemoryPolicy(ActualManagedMemoryPolicy());
+      break;
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_MODERATE:
+#endif  // !defined(OS_WEBOS)
     case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_CRITICAL:
       ReleaseTileResources();
       ReleaseTreeResources();
@@ -2730,6 +2764,11 @@ void LayerTreeHostImpl::OnMemoryPressure(
       }
       if (resource_pool_)
         resource_pool_->OnPurgeMemory();
+      if (visible_) {
+        UpdateTileManagerMemoryPolicy(low_memory_policy_);
+        SetFullViewportDamage();
+        SetNeedsRedraw();
+      }
       break;
   }
 }

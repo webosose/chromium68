@@ -172,6 +172,9 @@ SoftwareImageDecodeCache::SoftwareImageDecodeCache(
   }
   // Register this component with base::MemoryCoordinatorClientRegistry.
   base::MemoryCoordinatorClientRegistry::GetInstance()->Register(this);
+  memory_pressure_listener_.reset(new base::MemoryPressureListener(
+      base::BindRepeating(&SoftwareImageDecodeCache::OnMemoryPressure,
+                          base::Unretained(this))));
 }
 
 SoftwareImageDecodeCache::~SoftwareImageDecodeCache() {
@@ -668,6 +671,26 @@ void SoftwareImageDecodeCache::OnMemoryStateChange(base::MemoryState state) {
 void SoftwareImageDecodeCache::OnPurgeMemory() {
   base::AutoLock lock(lock_);
   ReduceCacheUsageUntilWithinLimit(0);
+}
+
+void SoftwareImageDecodeCache::OnMemoryPressure(
+    base::MemoryPressureListener::MemoryPressureLevel level) {
+  base::AutoLock lock(lock_);
+  switch (level) {
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_NONE:
+#if !defined(OS_WEBOS)
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_MODERATE:
+      break;
+#else   // defined(OS_WEBOS)
+      max_items_in_cache_ = kNormalMaxItemsInCacheForSoftware;
+      break;
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_MODERATE:
+#endif  // !defined(OS_WEBOS)
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_CRITICAL:
+      max_items_in_cache_ = kSuspendedMaxItemsInCacheForSoftware;
+      ReduceCacheUsageUntilWithinLimit(0);
+      break;
+  }
 }
 
 SoftwareImageDecodeCache::CacheEntry* SoftwareImageDecodeCache::AddCacheEntry(

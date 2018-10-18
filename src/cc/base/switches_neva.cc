@@ -19,8 +19,22 @@
 namespace cc {
 namespace switches {
 
+// Layer tree setting for decoded image working set budget in MB
+const char kDecodedImageWorkingSetBudgetMB[] =
+    "decoded-image-working-set-budget-mb";
+
 // Enable native-scroll feature
 const char kEnableWebOSNativeScroll[] = "enable-native-scroll";
+
+// The factor by which to reduce the GPU memory size of the cache when under
+// memory pressure.
+const char kMemPressureGPUCacheSizeReductionFactor[] =
+    "mem-pressure-gpu-cache-size-reduction-factor";
+
+// The factor by which to reduce the tile manager low memory policy bytes
+// limit when under memory pressure.
+const char kTileManagerLowMemPolicyBytesLimitReductionFactor[] =
+    "tile-manager-low-mem-policy-bytes-limit-reduction-factor";
 
 }  // namespace switches
 }  // namespace cc

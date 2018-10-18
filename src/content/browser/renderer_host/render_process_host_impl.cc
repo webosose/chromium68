@@ -248,6 +248,14 @@
 #include "media/base/media_switches_neva.h"
 #endif
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "cc/base/switches_neva.h"
+#endif
+
+#if defined(OS_WEBOS)
+#include "components/discardable_memory/common/switches.h"
+#endif
+
 #if BUILDFLAG(ENABLE_PLUGINS)
 #include "content/browser/plugin_service_impl.h"
 #include "ppapi/shared_impl/ppapi_switches.h"  // nogncheck
@@ -2867,6 +2875,16 @@ void RenderProcessHostImpl::PropagateBrowserCommandLineToRenderer(
 #endif
 #if defined(USE_NEVA_MEDIA)
     switches::kDisableWebMediaPlayerNeva,
+#endif
+#if defined(USE_NEVA_APPRUNTIME)
+    cc::switches::kDecodedImageWorkingSetBudgetMB,
+    cc::switches::kMemPressureGPUCacheSizeReductionFactor,
+    cc::switches::kTileManagerLowMemPolicyBytesLimitReductionFactor,
+#endif
+#if defined(OS_WEBOS)
+    discardable_memory::switches::kSharedMemMinimalLimitMB,
+    discardable_memory::switches::kSharedMemPressureDivider,
+    discardable_memory::switches::kSharedMemSystemMemReductionFactor,
 #endif
 #if defined(ENABLE_IPC_FUZZER)
     switches::kIpcDumpDirectory,

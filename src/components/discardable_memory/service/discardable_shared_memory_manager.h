@@ -155,6 +155,10 @@ class DISCARDABLE_MEMORY_EXPORT DiscardableSharedMemoryManager
   // a heap. The LRU memory segment always first.
   using MemorySegmentVector = std::vector<scoped_refptr<MemorySegment>>;
   MemorySegmentVector segments_;
+#if defined(OS_WEBOS)
+  size_t memory_pressure_divider_ = 4;
+  size_t minimal_limit_mb_ = 8;
+#endif
   size_t default_memory_limit_;
   size_t memory_limit_;
   size_t bytes_allocated_;

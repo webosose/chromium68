@@ -34,6 +34,12 @@
 #include "ui/gfx/skia_util.h"
 #include "ui/gl/trace_util.h"
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "base/command_line.h"
+#include "base/strings/string_number_conversions.h"
+#include "cc/base/switches_neva.h"
+#endif
+
 namespace cc {
 namespace {
 // The number or entries to keep in the cache, depending on the memory state of
@@ -597,6 +603,22 @@ GpuImageDecodeCache::GpuImageDecodeCache(viz::RasterContextProvider* context,
   }
   // Register this component with base::MemoryCoordinatorClientRegistry.
   base::MemoryCoordinatorClientRegistry::GetInstance()->Register(this);
+
+#if defined(USE_NEVA_APPRUNTIME)
+  base::CommandLine& cmd_line = *base::CommandLine::ForCurrentProcess();
+  if (cmd_line.HasSwitch(
+          cc::switches::kMemPressureGPUCacheSizeReductionFactor)) {
+    size_t cache_size_reduction_factor;
+    if (base::StringToSizeT(
+            cmd_line.GetSwitchValueASCII(
+                cc::switches::kMemPressureGPUCacheSizeReductionFactor),
+            &cache_size_reduction_factor))
+      mem_pressure_cache_size_reduction_factor_ = cache_size_reduction_factor;
+  }
+#endif
+  memory_pressure_listener_.reset(
+      new base::MemoryPressureListener(base::BindRepeating(
+          &GpuImageDecodeCache::OnMemoryPressure, base::Unretained(this))));
 }
 
 GpuImageDecodeCache::~GpuImageDecodeCache() {
@@ -1276,9 +1298,18 @@ bool GpuImageDecodeCache::EnsureCapacity(size_t required_size) {
 bool GpuImageDecodeCache::CanFitInWorkingSet(size_t size) const {
   lock_.AssertAcquired();
 
+  size_t bytes_limit;
+  if (memory_pressure_level_ ==
+      base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_NONE) {
+    bytes_limit = max_working_set_bytes_;
+  } else {
+    bytes_limit =
+        max_working_set_bytes_ / mem_pressure_cache_size_reduction_factor_;
+  }
+
   base::CheckedNumeric<uint32_t> new_size(working_set_bytes_);
   new_size += size;
-  return new_size.IsValid() && new_size.ValueOrDie() <= max_working_set_bytes_;
+  return new_size.IsValid() && new_size.ValueOrDie() <= bytes_limit;
 }
 
 bool GpuImageDecodeCache::ExceedsPreferredCount() const {
@@ -1295,6 +1326,13 @@ bool GpuImageDecodeCache::ExceedsPreferredCount() const {
     DCHECK_EQ(base::MemoryState::SUSPENDED, memory_state_);
     items_limit = kSuspendedMaxItemsInCacheForGpu;
   }
+#if defined(OS_WEBOS)
+  if (memory_pressure_level_ !=
+          base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_NONE &&
+      items_limit > kThrottledMaxItemsInCacheForGpu) {
+    items_limit = kThrottledMaxItemsInCacheForGpu;
+  }
+#endif  // defined(OS_WEBOS)
 
   return persistent_cache_.size() > items_limit;
 }
@@ -1807,6 +1845,24 @@ void GpuImageDecodeCache::OnPurgeMemory() {
   base::AutoReset<base::MemoryState> reset(&memory_state_,
                                            base::MemoryState::SUSPENDED);
   EnsureCapacity(0);
+}
+
+void GpuImageDecodeCache::OnMemoryPressure(
+    base::MemoryPressureListener::MemoryPressureLevel level) {
+  memory_pressure_level_ = level;
+  switch (level) {
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_NONE:
+#if !defined(OS_WEBOS)
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_MODERATE:
+      break;
+#else  // defined(OS_WEBOS)
+      break;
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_MODERATE:
+#endif
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_CRITICAL:
+      OnPurgeMemory();
+      break;
+  }
 }
 
 bool GpuImageDecodeCache::SupportsColorSpaceConversion() const {

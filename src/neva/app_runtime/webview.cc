@@ -17,11 +17,13 @@
 #include "neva/app_runtime/webview.h"
 
 #include "base/files/file_path.h"
+#include "base/logging_pmlog.h"
+#include "base/memory/memory_pressure_listener.h"
 #include "base/strings/utf_string_conversions.h"
 #include "browser/app_runtime_browser_context_adapter.h"
 #include "components/media_capture_util/devices_dispatcher.h"
-#include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/frame_host/frame_tree_node.h"
+#include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/renderer_host/render_widget_host_view_aura.h"
 #include "content/common/frame_messages.h"
@@ -60,8 +62,8 @@
 #include "neva/logging.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
 #include "third_party/blink/public/mojom/page/page_visibility_state.mojom.h"
-#include "ui/aura/window.h"
 #include "ui/aura/client/screen_position_client.h"
+#include "ui/aura/window.h"
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
 #include "ui/events/blink/web_input_event.h"
@@ -711,7 +713,9 @@ void WebView::SetViewportSize(int width, int height) {
 
 void WebView::NotifyMemoryPressure(
     base::MemoryPressureListener::MemoryPressureLevel level) {
-  NOTIMPLEMENTED();
+  PMLOG_DEBUG(Memory, "[MemoryPressure] %s => Level: %d", __PRETTY_FUNCTION__,
+              level);
+  base::MemoryPressureListener::NotifyMemoryPressure(level);
 }
 
 void WebView::SetVisible(bool visible) {

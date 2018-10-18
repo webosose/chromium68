@@ -7,6 +7,12 @@
 #include "components/viz/common/resources/platform_color.h"
 #include "third_party/khronos/GLES2/gl2.h"
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "base/command_line.h"
+#include "base/strings/string_number_conversions.h"
+#include "cc/base/switches_neva.h"
+#endif
+
 namespace cc {
 
 LayerTreeSettings::LayerTreeSettings()
@@ -15,7 +21,18 @@ LayerTreeSettings::LayerTreeSettings()
       minimum_occlusion_tracking_size(gfx::Size(160, 160)),
       memory_policy(64 * 1024 * 1024,
                     gpu::MemoryAllocation::CUTOFF_ALLOW_EVERYTHING,
-                    ManagedMemoryPolicy::kDefaultNumResourcesLimit) {}
+                    ManagedMemoryPolicy::kDefaultNumResourcesLimit) {
+#if defined(USE_NEVA_APPRUNTIME)
+  base::CommandLine& cmd_line = *base::CommandLine::ForCurrentProcess();
+  if (cmd_line.HasSwitch(cc::switches::kDecodedImageWorkingSetBudgetMB)) {
+    size_t budget_bytes_mb;
+    if (base::StringToSizeT(cmd_line.GetSwitchValueASCII(
+                                cc::switches::kDecodedImageWorkingSetBudgetMB),
+                            &budget_bytes_mb))
+      decoded_image_working_set_budget_bytes = budget_bytes_mb * 1024 * 1024;
+  }
+#endif
+}
 
 LayerTreeSettings::LayerTreeSettings(const LayerTreeSettings& other) = default;
 LayerTreeSettings::~LayerTreeSettings() = default;

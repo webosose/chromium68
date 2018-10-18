@@ -38,9 +38,14 @@
 #include "base/metrics/histogram_macros.h"
 #endif
 
+#if defined(OS_WEBOS)
+#include "components/discardable_memory/common/switches.h"
+#endif
+
 namespace discardable_memory {
 namespace {
 
+const int kMegabyte = 1024 * 1024;
 const int kInvalidUniqueClientID = -1;
 
 // mojom::DiscardableSharedMemoryManager implementation. It contains the
@@ -146,18 +151,59 @@ class DiscardableMemoryImpl : public base::DiscardableMemory {
   DISALLOW_COPY_AND_ASSIGN(DiscardableMemoryImpl);
 };
 
+// Returns the reduction factor to be applied to overall system memory when
+// calculating the default memory limit to use for discardable memory.
+size_t GetSystemMemReductionFactor() {
+  size_t system_mem_reduction_factor = 10;
+#if defined(OS_WEBOS)
+  base::CommandLine& cmd_line = *base::CommandLine::ForCurrentProcess();
+  if (cmd_line.HasSwitch(
+          discardable_memory::switches::kSharedMemSystemMemReductionFactor)) {
+    size_t reduction_factor;
+    if (base::StringToSizeT(cmd_line.GetSwitchValueASCII(
+                                discardable_memory::switches::
+                                    kSharedMemSystemMemReductionFactor),
+                            &reduction_factor))
+      system_mem_reduction_factor = reduction_factor;
+  }
+#endif
+  return system_mem_reduction_factor;
+}
+
 // Returns the default memory limit to use for discardable memory, taking
 // the amount physical memory available and other platform specific constraints
 // into account.
 int64_t GetDefaultMemoryLimit() {
-  const int kMegabyte = 1024 * 1024;
+#if defined(OS_WEBOS)
+  // This limit is mostly used for texture memory and following calculation
+  // matches webOS ch44 GpuMemoryManager limits, however in ch53 the
+  // GpuMemoryManager logic was merged to DiscardableSharedMemoryManager which
+  // is also used for other means.
+  //
+  // Currently there are not many users:
+  // 1. CC image decoding (old GpuMemoryManager limits)
+  // 2. Blink shared memory (usually ~ 20 MB at max,  but depends on app)
+  // 3. Skia SkDiscardableMemory (seems not used by webOS, though compiled)
+  //
+  // In webOS the additional memory pool user compared to cr44 is Blink.
+  // But it has no significant effect, usually around ~5 MB but likely depends
+  // on application.
 
+  // (jani) Should this be based on shmem dir space?
+  base::SystemMemoryInfoKB info;
+  int64_t webos_system_memory_mb =
+      base::GetSystemMemoryInfo(&info) ? info.total / 1024 : 1024;
+  webos_system_memory_mb =
+      webos_system_memory_mb / GetSystemMemReductionFactor();
+  int64_t webos_memory_limit_bytes = webos_system_memory_mb * kMegabyte;
+  return webos_memory_limit_bytes;
+#else  // !defined(OS_WEBOS)
 #if defined(OS_ANDROID)
   // Limits the number of FDs used to 32, assuming a 4MB allocation size.
   int64_t max_default_memory_limit = 128 * kMegabyte;
 #else
   int64_t max_default_memory_limit = 512 * kMegabyte;
-#endif
+#endif  // defined(OS_ANDROID)
 
   // Use 1/8th of discardable memory on low-end devices.
   if (base::SysInfo::IsLowEndDevice())
@@ -187,11 +233,12 @@ int64_t GetDefaultMemoryLimit() {
     max_default_memory_limit =
         std::min(max_default_memory_limit, shmem_dir_amount_of_free_space / 2);
   }
-#endif
+#endif  // defined(OS_LINUX)
 
   // Allow 25% of physical memory to be used for discardable memory.
   return std::min(max_default_memory_limit,
                   base::SysInfo::AmountOfPhysicalMemory() / 4);
+#endif  // defined(OS_WEBOS)
 }
 
 const int kEnforceMemoryPolicyDelayMs = 1000;
@@ -229,6 +276,27 @@ DiscardableSharedMemoryManager::DiscardableSharedMemoryManager()
       this, "DiscardableSharedMemoryManager",
       base::ThreadTaskRunnerHandle::Get());
   base::MemoryCoordinatorClientRegistry::GetInstance()->Register(this);
+#if defined(OS_WEBOS)
+  base::CommandLine& cmd_line = *base::CommandLine::ForCurrentProcess();
+  if (cmd_line.HasSwitch(
+          discardable_memory::switches::kSharedMemPressureDivider)) {
+    size_t pressure_divider;
+    if (base::StringToSizeT(
+            cmd_line.GetSwitchValueASCII(
+                discardable_memory::switches::kSharedMemPressureDivider),
+            &pressure_divider))
+      memory_pressure_divider_ = pressure_divider;
+  }
+  if (cmd_line.HasSwitch(
+          discardable_memory::switches::kSharedMemMinimalLimitMB)) {
+    size_t minimal_limit;
+    if (base::StringToSizeT(
+            cmd_line.GetSwitchValueASCII(
+                discardable_memory::switches::kSharedMemMinimalLimitMB),
+            &minimal_limit))
+      minimal_limit_mb_ = minimal_limit;
+  }
+#endif  // defined(OS_WEBOS)
 }
 
 DiscardableSharedMemoryManager::~DiscardableSharedMemoryManager() {
@@ -520,6 +588,20 @@ void DiscardableSharedMemoryManager::OnMemoryPressure(
     base::MemoryPressureListener::MemoryPressureLevel memory_pressure_level) {
   base::AutoLock lock(lock_);
 
+#if defined(OS_WEBOS)
+  switch (memory_pressure_level) {
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_NONE:
+      break;
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_MODERATE:
+      ReduceMemoryUsageUntilWithinLimit(
+          std::max(memory_limit_ / memory_pressure_divider_,
+                   minimal_limit_mb_ * kMegabyte));
+      break;
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_CRITICAL:
+      ReduceMemoryUsageUntilWithinLimit(minimal_limit_mb_ * kMegabyte);
+      break;
+  }
+#else
   switch (memory_pressure_level) {
     case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_NONE:
       break;
@@ -532,6 +614,7 @@ void DiscardableSharedMemoryManager::OnMemoryPressure(
       ReduceMemoryUsageUntilWithinLimit(0);
       break;
   }
+#endif
 }
 
 void DiscardableSharedMemoryManager::ReduceMemoryUsageUntilWithinMemoryLimit() {

@@ -4,6 +4,8 @@
 
 import("//testing/test.gni")
 
+import("//neva/neva.gni")
+
 component("common") {
   output_name = "discardable_memory_common"
 
@@ -14,6 +16,13 @@ component("common") {
     "discardable_shared_memory_heap.cc",
     "discardable_shared_memory_heap.h",
   ]
+
+  if (is_webos) {
+    sources += [
+      "switches.h",
+      "switches.cc",
+    ]
+  }
 
   deps = [
     "//base",

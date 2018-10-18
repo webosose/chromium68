@@ -147,6 +147,10 @@ StagingBufferPool::StagingBufferPool(
   base::trace_event::MemoryDumpManager::GetInstance()->RegisterDumpProvider(
       this, "cc::StagingBufferPool", base::ThreadTaskRunnerHandle::Get());
   base::MemoryCoordinatorClientRegistry::GetInstance()->Register(this);
+  memory_pressure_listener_.reset(new base::MemoryPressureListener(
+      base::BindRepeating(&StagingBufferPool::OnMemoryPressure,
+                          weak_ptr_factory_.GetWeakPtr())));
+
   reduce_memory_usage_callback_ = base::Bind(
       &StagingBufferPool::ReduceMemoryUsage, weak_ptr_factory_.GetWeakPtr());
 }
@@ -431,6 +435,29 @@ void StagingBufferPool::OnPurgeMemory() {
   base::AutoLock lock(lock_);
   // Release all buffers, regardless of how recently they were used.
   ReleaseBuffersNotUsedSince(base::TimeTicks() + base::TimeDelta::Max());
+}
+
+void StagingBufferPool::OnMemoryPressure(
+    base::MemoryPressureListener::MemoryPressureLevel level) {
+  base::AutoLock lock(lock_);
+  switch (level) {
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_NONE:
+#if !defined(OS_WEBOS)
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_MODERATE:
+      break;
+#else   // defined(OS_WEBOS)
+      break;
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_MODERATE:
+#endif  // !defined(OS_WEBOS)
+    case base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_CRITICAL: {
+      // Release all resources, regardless of how recently they were used.
+      ReleaseBuffersNotUsedSince(base::TimeTicks() + base::TimeDelta::Max());
+      break;
+    }
+    default:
+      // NOT_REACHED
+      break;
+  }
 }
 
 }  // namespace cc

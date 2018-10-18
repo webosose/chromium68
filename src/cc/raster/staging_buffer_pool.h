@@ -13,6 +13,7 @@
 #include "base/containers/circular_deque.h"
 #include "base/macros.h"
 #include "base/memory/memory_coordinator_client.h"
+#include "base/memory/memory_pressure_listener.h"
 #include "base/memory/weak_ptr.h"
 #include "base/sequenced_task_runner.h"
 #include "base/synchronization/lock.h"
@@ -91,6 +92,10 @@ class CC_EXPORT StagingBufferPool
   void ScheduleReduceMemoryUsage();
   void ReduceMemoryUsage();
   void ReleaseBuffersNotUsedSince(base::TimeTicks time);
+  // TODO(gyuyoung): OnMemoryPressure is deprecated. So this should be removed
+  // when the memory coordinator is enabled by default.
+  void OnMemoryPressure(
+      base::MemoryPressureListener::MemoryPressureLevel level);
 
   std::unique_ptr<base::trace_event::ConvertableToTraceFormat> StateAsValue()
       const;
@@ -118,6 +123,8 @@ class CC_EXPORT StagingBufferPool
   const base::TimeDelta staging_buffer_expiration_delay_;
   bool reduce_memory_usage_pending_;
   base::Closure reduce_memory_usage_callback_;
+
+  std::unique_ptr<base::MemoryPressureListener> memory_pressure_listener_;
 
   base::WeakPtrFactory<StagingBufferPool> weak_ptr_factory_;
 

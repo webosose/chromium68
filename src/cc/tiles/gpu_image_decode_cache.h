@@ -12,6 +12,7 @@
 #include "base/containers/mru_cache.h"
 #include "base/memory/discardable_memory.h"
 #include "base/memory/memory_coordinator_client.h"
+#include "base/memory/memory_pressure_listener.h"
 #include "base/synchronization/lock.h"
 #include "base/trace_event/memory_dump_provider.h"
 #include "cc/cc_export.h"
@@ -134,6 +135,11 @@ class CC_EXPORT GpuImageDecodeCache
   // base::MemoryCoordinatorClient overrides.
   void OnMemoryStateChange(base::MemoryState state) override;
   void OnPurgeMemory() override;
+
+  // TODO(gyuyoung): OnMemoryPressure is deprecated. So this should be removed
+  // when the memory coordinator is enabled by default.
+  void OnMemoryPressure(
+      base::MemoryPressureListener::MemoryPressureLevel level);
 
   // Called by Decode / Upload tasks.
   void DecodeImageInTask(const DrawImage& image, TaskType task_type);
@@ -463,6 +469,7 @@ class CC_EXPORT GpuImageDecodeCache
       std::unordered_map<InUseCacheKey, InUseCacheEntry, InUseCacheKeyHash>;
   InUseCache in_use_cache_;
 
+  size_t mem_pressure_cache_size_reduction_factor_ = 1;
   size_t max_working_set_bytes_ = 0;
   size_t working_set_bytes_ = 0;
   base::MemoryState memory_state_ = base::MemoryState::NORMAL;
@@ -480,6 +487,10 @@ class CC_EXPORT GpuImageDecodeCache
   // Records the maximum number of items in the cache over the lifetime of the
   // cache. This is updated anytime we are requested to reduce cache usage.
   size_t lifetime_max_items_in_cache_ = 0u;
+
+  base::MemoryPressureListener::MemoryPressureLevel memory_pressure_level_ =
+      base::MemoryPressureListener::MEMORY_PRESSURE_LEVEL_NONE;
+  std::unique_ptr<base::MemoryPressureListener> memory_pressure_listener_;
 };
 
 }  // namespace cc
