@@ -25,9 +25,7 @@
 #include <string>
 #include <time.h>
 
-#if ENABLE_LTTNG
 #include "pmtracer.h"
-#endif
 
 namespace extensions_v8 {
 
@@ -711,43 +709,35 @@ void PalmSystemInjection::NativePmLogString(
 
 void PalmSystemInjection::NativePmTrace(
     const InjectionWrapper::CallbackInfoValue& args) {
-#if ENABLE_LTTNG
   if (!args.Length() || !args[0]->IsString())
     return;
   v8::String::Utf8Value arg0(args[0]);
-  PMTRACE(*arg0);
-#endif
+  PMTRACE_LOG(*arg0);
 }
 
 void PalmSystemInjection::NativePmTraceItem(
     const InjectionWrapper::CallbackInfoValue& args) {
-#if ENABLE_LTTNG
   if (args.Length() < 2 || !args[0]->IsString() || !args[1]->IsString())
     return;
   v8::String::Utf8Value arg0(args[0]);
   v8::String::Utf8Value arg1(args[1]);
   PMTRACE_ITEM(*arg0, *arg1);
-#endif
 }
 
 void PalmSystemInjection::NativePmTraceBefore(
     const InjectionWrapper::CallbackInfoValue& args) {
-#if ENABLE_LTTNG
   if (!args.Length() || !args[0]->IsString())
     return;
   v8::String::Utf8Value arg0(args[0]);
   PMTRACE_BEFORE(*arg0);
-#endif
 }
 
 void PalmSystemInjection::NativePmTraceAfter(
     const InjectionWrapper::CallbackInfoValue& args) {
-#if ENABLE_LTTNG
   if (!args.Length() || !args[0]->IsString())
     return;
   v8::String::Utf8Value arg0(args[0]);
   PMTRACE_AFTER(*arg0);
-#endif
 }
 
 void PalmSystemInjection::AddBannerMessage(

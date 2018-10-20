@@ -1,22 +1,36 @@
+// Copyright (c) 2015-2018 LG Electronics, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 /*
- * pm_tracer.h
+ * pmtracer.h
  *
  * Tracepoint API for using LTTng UST tracing in palmsystem-injection
  *
- * Copyright (c) 2015 LG Electronics, Inc.
  */
 
-#ifndef PMTRACER_H
-#define PMTRACER_H
+#ifndef NEVA_INJECTION_PALMSYSTEM_PMTRACER_H_
+#define NEVA_INJECTION_PALMSYSTEM_PMTRACER_H_
 
-#ifdef ENABLE_LTTNG
+#if defined(USE_LTTNG)
 
 #include "pmtrace_bundle_provider.h"
 
-/* PMTRACE is for free form tracing. Provide a string in
+/* PMTRACE_LOG is for free form tracing. Provide a string in
    "label" which uniquely identifies your trace point. */
-#define PMTRACE(label) \
-    tracepoint(pmtrace_bundle, message, label)
+#define PMTRACE_LOG(label) tracepoint(pmtrace_bundle, message, label)
 
 /* PMTRACE_ITEM is for tracing (name, value) pairs.
    Both name and value are strings. */
@@ -101,18 +115,19 @@ private:
     PmTraceTraceFunction& operator=(const PmTraceTraceFunction&);
 };
 
-#else // ENABLE_LTTNG
+#else  // !defined(USE_LTTNG)
 
 #define PMTRACE_LOG(label)
+#define PMTRACE_ITEM(name, value)
 #define PMTRACE_BEFORE(label)
 #define PMTRACE_AFTER(label)
 #define PMTRACE_SCOPE_ENTRY(label)
-#define PMTRACE_SCOPE_EXIT(labe)l
+#define PMTRACE_SCOPE_EXIT(label)
 #define PMTRACE_SCOPE(label)
 #define PMTRACE_FUNCTION_ENTRY(label)
 #define PMTRACE_FUNCTION_EXIT(label)
 #define PMTRACE_FUNCTION
 
-#endif // ENABLE_LTTNG
+#endif  // defined(USE_LTTNG)
 
-#endif // PMTRACER_H
+#endif  // NEVA_INJECTION_PALMSYSTEM_PMTRACER_H_
