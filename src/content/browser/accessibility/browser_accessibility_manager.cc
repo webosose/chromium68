@@ -413,6 +413,10 @@ void BrowserAccessibilityManager::OnAccessibilityEvents(
   for (uint32_t index = 0; index < details.size(); index++) {
     const AXEventNotificationDetails& detail = details[index];
 
+    // We already handled all focus events above.
+    if (delegate_ && !delegate_->AccessibilityViewHasFocus())
+      continue;
+
     // Fire the native event.
     BrowserAccessibility* event_target = GetFromID(detail.id);
     if (!event_target)
