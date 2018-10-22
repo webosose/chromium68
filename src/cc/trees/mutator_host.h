@@ -92,6 +92,12 @@ class MutatorHost {
       ElementId element_id,
       ElementListType list_type) const = 0;
 
+#if defined(USE_NEVA_APPRUNTIME)
+  virtual bool HasPotentiallyRunningScrollAnimation(
+      ElementId element_id,
+      ElementListType list_type) const = 0;
+#endif
+
   virtual bool HasAnyAnimationTargetingProperty(
       ElementId element_id,
       TargetProperty::Type property) const = 0;

@@ -60,6 +60,7 @@
     "crossorigin",
     "csp",
     "data",
+    "data-preventscrollonfocus",
     "datetime",
     "declare",
     "decoding",

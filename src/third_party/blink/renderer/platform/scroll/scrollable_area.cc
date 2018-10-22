@@ -208,6 +208,16 @@ void ScrollableArea::SetScrollOffset(const ScrollOffset& offset,
   if (behavior == kScrollBehaviorAuto)
     behavior = ScrollBehaviorStyle();
 
+#if defined(USE_NEVA_APPRUNTIME) && defined(OS_WEBOS)
+  // Cadbury browser does not use CompositorScroll and
+  // ProgrammaticScrollAnimator simultaneously.
+  // It works only for wam's native scroll feature.
+  if (scroll_type == kCompositorScroll &&
+      ExistingProgrammaticScrollAnimator() &&
+      ExistingProgrammaticScrollAnimator()->is_waiting_to_cancel_on_compositor())
+    return;
+#endif
+
   switch (scroll_type) {
     case kCompositorScroll:
     case kClampingScroll:

@@ -77,6 +77,7 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
 
   void SetV8SnapshotPath(int child_process_id, const std::string& path);
   void SetV8ExtraFlags(int child_process_id, const std::string& flags);
+  void SetUseNativeScroll(int child_process_id, bool use_native_scroll);
 
  private:
   class MainURLRequestContextGetter;
@@ -94,6 +95,11 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
 
   std::map<int, std::string> v8_snapshot_pathes_;
   std::map<int, std::string> v8_extra_flags_;
+
+  // Stores (int child_process_id, bool use_native_scroll) and apply the flags
+  // related to native scroll when use_native_scroll flag for the render process
+  // is true.
+  std::map<int, bool> use_native_scroll_map_;
 };
 
 }  // namespace app_runtime

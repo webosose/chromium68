@@ -30,6 +30,16 @@ class PLATFORM_EXPORT CompositorScrollOffsetAnimationCurve
     kScrollDurationInverseDelta
   };
 
+  enum ScrollEaseType { EASE_IN_OUT = 0, EASE_OUT };
+
+  static std::unique_ptr<CompositorScrollOffsetAnimationCurve> Create(
+      FloatPoint targetValue,
+      CompositorScrollOffsetAnimationCurve::ScrollDurationBehavior
+          durationBehavior,
+      CompositorScrollOffsetAnimationCurve::ScrollEaseType ease_type) {
+    return base::WrapUnique(new CompositorScrollOffsetAnimationCurve(
+        targetValue, durationBehavior, ease_type));
+  }
   static std::unique_ptr<CompositorScrollOffsetAnimationCurve> Create(
       FloatPoint target_value,
       CompositorScrollOffsetAnimationCurve::ScrollDurationBehavior
@@ -55,6 +65,9 @@ class PLATFORM_EXPORT CompositorScrollOffsetAnimationCurve
   std::unique_ptr<cc::AnimationCurve> CloneToAnimationCurve() const override;
 
  private:
+  CompositorScrollOffsetAnimationCurve(FloatPoint,
+                                       ScrollDurationBehavior,
+                                       ScrollEaseType);
   CompositorScrollOffsetAnimationCurve(FloatPoint, ScrollDurationBehavior);
   CompositorScrollOffsetAnimationCurve(cc::ScrollOffsetAnimationCurve*);
 

@@ -10,6 +10,7 @@
 
 using blink::CompositorScrollOffsetAnimationCurve;
 using DurationBehavior = cc::ScrollOffsetAnimationCurve::DurationBehavior;
+using EaseType = cc::CubicBezierTimingFunction::EaseType;
 
 namespace blink {
 
@@ -29,6 +30,27 @@ static DurationBehavior GetDurationBehavior(
   NOTREACHED();
   return DurationBehavior::DELTA_BASED;
 }
+
+static EaseType GetEaseType(
+    CompositorScrollOffsetAnimationCurve::ScrollEaseType web_ease_type) {
+  switch (web_ease_type) {
+    case CompositorScrollOffsetAnimationCurve::EASE_IN_OUT:
+      return EaseType::EASE_IN_OUT;
+    case CompositorScrollOffsetAnimationCurve::EASE_OUT:
+      return EaseType::EASE_OUT;
+  }
+  NOTREACHED();
+  return EaseType::EASE_IN_OUT;
+}
+
+CompositorScrollOffsetAnimationCurve::CompositorScrollOffsetAnimationCurve(
+    FloatPoint target_value,
+    ScrollDurationBehavior duration_behavior,
+    ScrollEaseType ease_type)
+    : curve_(cc::ScrollOffsetAnimationCurve::Create(
+          gfx::ScrollOffset(target_value.X(), target_value.Y()),
+          cc::CubicBezierTimingFunction::CreatePreset(GetEaseType(ease_type)),
+          GetDurationBehavior(duration_behavior))) {}
 
 CompositorScrollOffsetAnimationCurve::CompositorScrollOffsetAnimationCurve(
     FloatPoint target_value,

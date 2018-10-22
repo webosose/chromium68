@@ -355,6 +355,11 @@ class CC_EXPORT LayerTreeHostImpl
   gfx::ScrollOffset GetScrollOffsetForAnimation(
       ElementId element_id) const override;
 
+#if defined(USE_NEVA_APPRUNTIME)
+  void ClearCurrentlyScrollingLayerWebOS() override;
+  void SetCurrentlyScrollingElementWebOS(ElementId element_id) override;
+#endif
+
   virtual bool PrepareTiles();
 
   // Returns DRAW_SUCCESS unless problems occured preparing the frame, and we

@@ -499,6 +499,8 @@ class CORE_EXPORT PaintLayerScrollableArea final
 
   void Trace(blink::Visitor*) override;
 
+  bool IsWebOSNativeScrollEnabled();
+
  private:
   explicit PaintLayerScrollableArea(PaintLayer&);
 

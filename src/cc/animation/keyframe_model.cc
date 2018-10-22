@@ -272,4 +272,13 @@ void KeyframeModel::SetIsImplOnly() {
   // controlling instance.
   is_controlling_instance_ = true;
 }
+
+#if defined(USE_NEVA_APPRUNTIME)
+void KeyframeModel::SetStartTimeToCurrentIfNeed() {
+  if (!has_set_start_time() && !needs_synchronized_start_time()) {
+    set_start_time(base::TimeTicks::Now());
+  }
+}
+#endif
+
 }  // namespace cc

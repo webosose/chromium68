@@ -105,6 +105,7 @@ static_library("app_runtime") {
 
   deps = [
     "//base/third_party/dynamic_annotations",
+    "//cc/base",
     "//content",
     "//content/public/app:browser",
     "//content/public/browser",

@@ -221,6 +221,7 @@ class WEBOS_EXPORT WebViewBase
   void SetBackHistoryAPIDisabled(const bool on);
   void SetV8SnapshotPath(const std::string& v8_snapshot_path);
   void SetV8ExtraFlags(const std::string& v8_extra_flags);
+  void SetUseNativeScroll(bool use_native_scroll);
 
   // WebViewDelegate
   void DidFirstNonBlankPaint() override {};

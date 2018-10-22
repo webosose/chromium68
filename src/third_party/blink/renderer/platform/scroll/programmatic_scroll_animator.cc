@@ -6,6 +6,10 @@
 
 #include <memory>
 #include "third_party/blink/public/platform/platform.h"
+#include "third_party/blink/renderer/core/frame/local_frame.h"
+#include "third_party/blink/renderer/core/frame/settings.h"
+#include "third_party/blink/renderer/core/layout/layout_box.h"
+#include "third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h"
 #include "third_party/blink/renderer/platform/animation/compositor_keyframe_model.h"
 #include "third_party/blink/renderer/platform/animation/compositor_scroll_offset_animation_curve.h"
 #include "third_party/blink/renderer/platform/geometry/int_size.h"
@@ -54,9 +58,32 @@ void ProgrammaticScrollAnimator::AnimateToOffset(const ScrollOffset& offset,
   start_time_ = 0.0;
   target_offset_ = offset;
   is_sequenced_scroll_ = is_sequenced_scroll;
+
+#if defined(USE_NEVA_APPRUNTIME)
+  if (IsWebOSNativeScrollEnabled()) {
+    // If scrollTo() invokes very frequently, scroll velocity keeps very slow.
+    // So in that case, we use animation curve EASE_OUT, otherwise EASE_IN_OUT
+    bool ease_out_animation = true;
+    if (run_state_ == RunState::kIdle ||
+        run_state_ == RunState::kPostAnimationCleanup)
+      ease_out_animation = false;
+
+    animation_curve_ = CompositorScrollOffsetAnimationCurve::Create(
+        CompositorOffsetFromBlinkOffset(target_offset_),
+        CompositorScrollOffsetAnimationCurve::kScrollDurationDeltaBased,
+        ease_out_animation ? CompositorScrollOffsetAnimationCurve::EASE_OUT
+                         : CompositorScrollOffsetAnimationCurve::EASE_IN_OUT);
+  } else {
+    animation_curve_ = CompositorScrollOffsetAnimationCurve::Create(
+        CompositorOffsetFromBlinkOffset(target_offset_),
+        CompositorScrollOffsetAnimationCurve::kScrollDurationDeltaBased,
+        CompositorScrollOffsetAnimationCurve::EASE_IN_OUT);
+  }
+#else
   animation_curve_ = CompositorScrollOffsetAnimationCurve::Create(
       CompositorOffsetFromBlinkOffset(target_offset_),
       CompositorScrollOffsetAnimationCurve::kScrollDurationDeltaBased);
+#endif
 
   scrollable_area_->RegisterForAnimation();
   if (!scrollable_area_->ScheduleAnimation()) {
@@ -200,5 +227,24 @@ void ProgrammaticScrollAnimator::Trace(blink::Visitor* visitor) {
   visitor->Trace(scrollable_area_);
   ScrollAnimatorCompositorCoordinator::Trace(visitor);
 }
+
+#if defined(USE_NEVA_APPRUNTIME)
+bool ProgrammaticScrollAnimator::IsWebOSNativeScrollEnabled() {
+  if (scrollable_area_->IsLocalFrameView()) {
+    LocalFrameView* frame_view = ToLocalFrameView(scrollable_area_.Get());
+    if (Settings* settings = frame_view->GetFrame().GetSettings())
+      return settings->WebOSNativeScrollEnabled();
+  }
+
+  if (scrollable_area_->IsPaintLayerScrollableArea()) {
+    PaintLayerScrollableArea* plsa =
+        ToPaintLayerScrollableArea(scrollable_area_.Get());
+    if (Settings* settings = plsa->GetLayoutBox()->GetFrame()->GetSettings())
+      return settings->WebOSNativeScrollEnabled();
+  }
+
+  return false;
+}
+#endif
 
 }  // namespace blink

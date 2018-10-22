@@ -496,6 +496,18 @@ bool AnimationHost::HasPotentiallyRunningTransformAnimation(
              : false;
 }
 
+#if defined(USE_NEVA_APPRUNTIME)
+bool AnimationHost::HasPotentiallyRunningScrollAnimation(
+    ElementId element_id,
+    ElementListType list_type) const {
+  auto element_animations = GetElementAnimationsForElementId(element_id);
+  return element_animations
+             ? element_animations->IsPotentiallyAnimatingProperty(
+                   TargetProperty::SCROLL_OFFSET, list_type)
+             : false;
+}
+#endif
+
 bool AnimationHost::HasAnyAnimationTargetingProperty(
     ElementId element_id,
     TargetProperty::Type property) const {

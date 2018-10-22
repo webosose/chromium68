@@ -3147,7 +3147,8 @@ void Element::UpdateFocusAppearanceWithOptions(
     if (!options.preventScroll())
       frame->Selection().RevealSelection();
   } else if (GetLayoutObject() &&
-             !GetLayoutObject()->IsLayoutEmbeddedContent()) {
+             !GetLayoutObject()->IsLayoutEmbeddedContent() &&
+             !IsPreventScrollOnFocus()) {
     if (!options.preventScroll()) {
       GetLayoutObject()->ScrollRectToVisible(BoundingBoxForScrollIntoView(),
                                              WebScrollIntoViewParams());
@@ -4927,6 +4928,14 @@ const NamesMap* Element::PartNamesMap() const {
   return RuntimeEnabledFeatures::CSSPartPseudoElementEnabled() && HasRareData()
              ? GetElementRareData()->PartNamesMap()
              : nullptr;
+}
+
+bool Element::IsPreventScrollOnFocus() {
+  const AtomicString& value = FastGetAttribute(data_preventscrollonfocusAttr);
+  if (value != g_null_atom && DeprecatedEqualIgnoringCase(value, "true") &&
+      GetDocument().GetSettings()->WebOSNativeScrollEnabled())
+    return true;
+  return false;
 }
 
 }  // namespace blink

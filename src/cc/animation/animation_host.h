@@ -130,6 +130,12 @@ class CC_ANIMATION_EXPORT AnimationHost : public MutatorHost,
       ElementId element_id,
       ElementListType list_type) const override;
 
+#if defined(USE_NEVA_APPRUNTIME)
+  bool HasPotentiallyRunningScrollAnimation(
+      ElementId element_id,
+      ElementListType list_type) const override;
+#endif
+
   bool HasAnyAnimationTargetingProperty(
       ElementId element_id,
       TargetProperty::Type property) const override;

@@ -20,10 +20,12 @@
 #include "base/logging.h"
 #include "base/neva/base_switches.h"
 #include "base/strings/utf_string_conversions.h"
+#include "cc/base/switches_neva.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/devtools_manager_delegate.h"
 #include "content/public/browser/render_frame_host.h"
+#include "content/public/common/content_neva_switches.h"
 #include "content/public/common/content_switches.h"
 #include "neva/app_runtime/browser/app_runtime_browser_main_parts.h"
 #include "neva/app_runtime/browser/app_runtime_devtools_manager_delegate.h"
@@ -135,6 +137,50 @@ void AppRuntimeContentBrowserClient::AppendExtraCommandLineSwitches(
     command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);
     v8_extra_flags_.erase(iter);
   }
+
+  // Append native scroll related flags if native scroll is on by appinfo.json
+  auto iter_ns = use_native_scroll_map_.find(child_process_id);
+  if (iter_ns != use_native_scroll_map_.end()) {
+    bool use_native_scroll = iter_ns->second;
+    if (use_native_scroll) {
+      // Enables EnableNativeScroll, which is only enabled when there is
+      // 'useNativeScroll': true in appinfo.json. If this flag is enabled,
+      // Duration of the scroll offset animation is modified.
+      if (!command_line->HasSwitch(cc::switches::kEnableWebOSNativeScroll))
+        command_line->AppendSwitch(cc::switches::kEnableWebOSNativeScroll);
+
+      // Enables SmoothScrolling, which is mandatory to enable
+      // CSSOMSmoothScroll.
+      if (!command_line->HasSwitch(switches::kEnableSmoothScrolling))
+        command_line->AppendSwitch(switches::kEnableSmoothScrolling);
+
+      // Adds CSSOMSmoothScroll to EnableBlinkFeatures.
+      std::string enable_blink_features_flags = "CSSOMSmoothScroll";
+      if (command_line->HasSwitch(switches::kEnableBlinkFeatures)) {
+        enable_blink_features_flags.append(",");
+        enable_blink_features_flags.append(
+            command_line->GetSwitchValueASCII(switches::kEnableBlinkFeatures));
+      }
+      command_line->AppendSwitchASCII(switches::kEnableBlinkFeatures,
+                                      enable_blink_features_flags);
+
+      // Enables PreferCompositingToLCDText. If this flag is enabled, Compositor
+      // thread handles scrolling and disable LCD-text(AntiAliasing) in the
+      // scroll area.
+      // See PaintLayerScrollableArea.cpp::layerNeedsCompositingScrolling()
+      if (!command_line->HasSwitch(switches::kEnablePreferCompositingToLCDText))
+        command_line->AppendSwitch(switches::kEnablePreferCompositingToLCDText);
+    }
+
+    use_native_scroll_map_.erase(iter_ns);
+  }
+}
+
+void AppRuntimeContentBrowserClient::SetUseNativeScroll(
+    int child_process_id,
+    bool use_native_scroll) {
+  use_native_scroll_map_.insert(
+      std::pair<int, bool>(child_process_id, use_native_scroll));
 }
 
 content::DevToolsManagerDelegate*

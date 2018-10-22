@@ -162,6 +162,10 @@ class CC_ANIMATION_EXPORT KeyframeModel {
   }
   bool affects_pending_elements() const { return affects_pending_elements_; }
 
+#if defined(USE_NEVA_APPRUNTIME)
+  void SetStartTimeToCurrentIfNeed();
+#endif
+
  private:
   KeyframeModel(std::unique_ptr<AnimationCurve> curve,
                 int keyframe_model_id,

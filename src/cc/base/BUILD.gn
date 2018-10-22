@@ -48,6 +48,12 @@ component("base") {
     "unique_notifier.h",
   ]
 
+  # Neva's files
+  sources += [
+    "switches_neva.cc",
+    "switches_neva.h",
+  ]
+
   deps = [
     "//base",
     "//base/third_party/dynamic_annotations",

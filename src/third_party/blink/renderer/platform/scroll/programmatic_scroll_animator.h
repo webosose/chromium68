@@ -54,6 +54,13 @@ class ProgrammaticScrollAnimator : public ScrollAnimatorCompositorCoordinator {
 
   void Trace(blink::Visitor*) override;
 
+#if defined(USE_NEVA_APPRUNTIME)
+  bool IsWebOSNativeScrollEnabled();
+  bool is_waiting_to_cancel_on_compositor() {
+    return run_state_ == RunState::kWaitingToCancelOnCompositor;
+  }
+#endif
+
  private:
   explicit ProgrammaticScrollAnimator(ScrollableArea*);
 

@@ -52,6 +52,11 @@ class MutatorHostClient {
   virtual void ScrollOffsetAnimationFinished() = 0;
   virtual gfx::ScrollOffset GetScrollOffsetForAnimation(
       ElementId element_id) const = 0;
+
+#if defined(USE_NEVA_APPRUNTIME)
+  virtual void ClearCurrentlyScrollingLayerWebOS() {}
+  virtual void SetCurrentlyScrollingElementWebOS(ElementId element_id) {}
+#endif
 };
 
 }  // namespace cc

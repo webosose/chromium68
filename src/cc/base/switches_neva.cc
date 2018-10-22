@@ -14,18 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef THIRD_PARTY_BLINK_PUBLIC_WEB_NEVA_WEB_SETTINGS_NEVA_H_
-#define THIRD_PARTY_BLINK_PUBLIC_WEB_NEVA_WEB_SETTINGS_NEVA_H_
+#include "cc/base/switches_neva.h"
 
-namespace blink {
+namespace cc {
+namespace switches {
 
-class WebSettingsNeva {
- public:
-  virtual void SetNotifyFMPDirectly(bool) = 0;
-  virtual void SetNetworkStableTimeout(double) = 0;
-  virtual void SetWebOSNativeScrollEnabled(bool) = 0;
-};
+// Enable native-scroll feature
+const char kEnableWebOSNativeScroll[] = "enable-native-scroll";
 
-}  // namespace blink
-
-#endif  // THIRD_PARTY_BLINK_PUBLIC_WEB_NEVA_WEB_SETTINGS_NEVA_H_
+}  // namespace switches
+}  // namespace cc

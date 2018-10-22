@@ -20,6 +20,11 @@
 #include "cc/trees/mutator_host_client.h"
 #include "ui/gfx/geometry/box_f.h"
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "base/command_line.h"
+#include "cc/base/switches_neva.h"
+#endif
+
 namespace cc {
 
 scoped_refptr<ElementAnimations> ElementAnimations::Create() {
@@ -294,6 +299,36 @@ void ElementAnimations::NotifyClientScrollOffsetAnimated(
   if (KeyframeModelAffectsPendingElements(keyframe_model))
     OnScrollOffsetAnimated(ElementListType::PENDING, scroll_offset);
 }
+
+#if defined(USE_NEVA_APPRUNTIME)
+void ElementAnimations::NotifyClientScrollOffsetAnimated(
+    const gfx::ScrollOffset& scroll_offset,
+    int target_property_id,
+    KeyframeModel* keyframe_model,
+    bool is_last_tick) {
+  NotifyClientScrollOffsetAnimated(scroll_offset, target_property_id,
+                                   keyframe_model);
+
+  if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
+          cc::switches::kEnableWebOSNativeScroll) ||
+      !animation_host())
+    return;
+
+  if (is_last_tick) {
+    animation_host()
+        ->mutator_host_client()
+        ->ClearCurrentlyScrollingLayerWebOS();
+  } else {
+    // This is for having SMOOTHNESS_TAKES_PRIORITY property.
+    // If cc tree has this property, impl thread is scheduled for invoked
+    // immediately. This mechanism is used on touch smoothness scrolling.
+    // See ProxyImpl::RenewTreePriority(),
+    // SchedulerStateMachine::ImplLatencyTakesPriority()
+    animation_host()->mutator_host_client()->SetCurrentlyScrollingElementWebOS(
+        element_id());
+  }
+}
+#endif
 
 void ElementAnimations::UpdateClientAnimationState() {
   if (!element_id())

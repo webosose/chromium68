@@ -1158,4 +1158,9 @@ void WebView::SetV8ExtraFlags(const std::string& v8_extra_flags) {
       web_contents_->GetMainFrame()->GetProcess()->GetID(), v8_extra_flags);
 }
 
+void WebView::SetUseNativeScroll(bool use_native_scroll) {
+  GetAppRuntimeContentBrowserClient()->SetUseNativeScroll(
+      web_contents_->GetMainFrame()->GetProcess()->GetID(), use_native_scroll);
+}
+
 }  // namespace app_runtime

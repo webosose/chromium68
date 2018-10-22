@@ -60,6 +60,7 @@ void WebViewBase::Initialize(const std::string& app_id,
   SetAppId(app_id);
   SetV8SnapshotPath(v8_snapshot_path);
   SetV8ExtraFlags(v8_extra_flags);
+  SetUseNativeScroll(use_native_scroll);
 
   if (GetWebContents()) {
     // The arcitecture of using WebContentsImpl is not good way and is not what
@@ -684,6 +685,10 @@ void WebViewBase::SetV8SnapshotPath(const std::string& v8_snapshot_path) {
 
 void WebViewBase::SetV8ExtraFlags(const std::string& v8_extra_flags) {
   webview_->SetV8ExtraFlags(v8_extra_flags);
+}
+
+void WebViewBase::SetUseNativeScroll(bool use_native_scroll) {
+  webview_->SetUseNativeScroll(use_native_scroll);
 }
 
 }  // namespace webos

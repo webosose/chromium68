@@ -34,6 +34,10 @@ class WebSettingsImplNeva : public WebSettings {
     settings_->SetNetworkStableTimeout(timeout);
   }
 
+  void SetWebOSNativeScrollEnabled(bool enabled) override {
+    settings_->SetWebOSNativeScrollEnabled(enabled);
+  }
+
  private:
   Settings* settings_;
 };

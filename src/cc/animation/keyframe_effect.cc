@@ -16,6 +16,11 @@
 #include "cc/animation/transform_operations.h"
 #include "cc/trees/property_animation_state.h"
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "base/command_line.h"
+#include "cc/base/switches_neva.h"
+#endif
+
 namespace cc {
 
 namespace {
@@ -113,17 +118,29 @@ void KeyframeEffect::Tick(base::TimeTicks monotonic_time) {
     StartKeyframeModels(monotonic_time);
 
   for (auto& keyframe_model : keyframe_models_) {
+#if defined(USE_NEVA_APPRUNTIME)
+    TickKeyframeModel(monotonic_time, last_tick_time_, keyframe_model.get(),
+                      element_animations_.get());
+#else
     TickKeyframeModel(monotonic_time, keyframe_model.get(),
                       element_animations_.get());
+#endif
   }
 
   last_tick_time_ = monotonic_time;
   element_animations_->UpdateClientAnimationState();
 }
 
+#if defined(USE_NEVA_APPRUNTIME)
+void KeyframeEffect::TickKeyframeModel(base::TimeTicks monotonic_time,
+                                       base::TimeTicks last_tick_time,
+                                       KeyframeModel* keyframe_model,
+                                       AnimationTarget* target) {
+#else
 void KeyframeEffect::TickKeyframeModel(base::TimeTicks monotonic_time,
                                        KeyframeModel* keyframe_model,
                                        AnimationTarget* target) {
+#endif
   if ((keyframe_model->run_state() != KeyframeModel::STARTING &&
        keyframe_model->run_state() != KeyframeModel::RUNNING &&
        keyframe_model->run_state() != KeyframeModel::PAUSED) ||
@@ -157,10 +174,30 @@ void KeyframeEffect::TickKeyframeModel(base::TimeTicks monotonic_time,
           keyframe_model->target_property_id(), keyframe_model);
       break;
     case AnimationCurve::SCROLL_OFFSET:
+#if defined(USE_NEVA_APPRUNTIME)
+    {
+      if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+              cc::switches::kEnableWebOSNativeScroll) &&
+          last_tick_time > monotonic_time)
+        break;
+
+      const ScrollOffsetAnimationCurve* scroll_offset_animation_curve =
+          curve->ToScrollOffsetAnimationCurve();
+      const gfx::ScrollOffset scroll_offset =
+          scroll_offset_animation_curve->GetValue(trimmed);
+
+      const bool is_last_tick =
+          scroll_offset == scroll_offset_animation_curve->target_value();
+      target->NotifyClientScrollOffsetAnimated(
+          curve->ToScrollOffsetAnimationCurve()->GetValue(trimmed),
+          keyframe_model->target_property_id(), keyframe_model, is_last_tick);
+    }
+#else
       target->NotifyClientScrollOffsetAnimated(
           curve->ToScrollOffsetAnimationCurve()->GetValue(trimmed),
           keyframe_model->target_property_id(), keyframe_model);
-      break;
+#endif
+    break;
     case AnimationCurve::SIZE:
       target->NotifyClientSizeAnimated(
           curve->ToSizeAnimationCurve()->GetValue(trimmed),
@@ -907,12 +944,34 @@ void KeyframeEffect::StartKeyframeModels(base::TimeTicks monotonic_time) {
       if (null_intersection) {
         keyframe_model_waiting_for_target->SetRunState(KeyframeModel::STARTING,
                                                        monotonic_time);
+#if defined(USE_NEVA_APPRUNTIME)
+        // This is for corner case.
+        // Without this code, start time is initialized by monotonic_time at
+        // later. But monotonic_time can be long time ago. So jank will be
+        // triggered. Setting current time in this case is more reasonable.
+        if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+                cc::switches::kEnableWebOSNativeScroll)) {
+          if (keyframe_model_waiting_for_target->target_property_id() ==
+              TargetProperty::SCROLL_OFFSET)
+            keyframe_model_waiting_for_target
+                ->SetStartTimeToCurrentIfNeed();
+        }
+#endif
         for (size_t j = keyframe_model_index + 1; j < keyframe_models_.size();
              ++j) {
           if (keyframe_model_waiting_for_target->group() ==
               keyframe_models_[j]->group()) {
             keyframe_models_[j]->SetRunState(KeyframeModel::STARTING,
                                              monotonic_time);
+#if defined(USE_NEVA_APPRUNTIME)
+            // This is for corner case too.
+            if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+                    cc::switches::kEnableWebOSNativeScroll)) {
+              if (keyframe_models_[j]->target_property_id() ==
+                  TargetProperty::SCROLL_OFFSET)
+                keyframe_models_[j]->SetStartTimeToCurrentIfNeed();
+            }
+#endif
           }
         }
       } else {

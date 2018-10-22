@@ -109,6 +109,11 @@
 #include "ui/gfx/geometry/vector2d_conversions.h"
 #include "ui/gfx/skia_util.h"
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "base/command_line.h"
+#include "cc/base/switches_neva.h"
+#endif
+
 namespace cc {
 namespace {
 
@@ -3519,6 +3524,33 @@ InputHandler::ScrollStatus LayerTreeHostImpl::ScrollAnimatedBegin(
   ScrollTree& scroll_tree = active_tree_->property_trees()->scroll_tree;
   ScrollNode* scroll_node = scroll_tree.CurrentlyScrollingNode();
   if (scroll_node) {
+#if defined(USE_NEVA_APPRUNTIME)
+    // Sometimes scrolling layer still exists even though layer tree
+    // was changed. Ensure running scroll offset animation before update.
+    // See https://jira2.lgsvl.com/browse/PLAT-46834
+    if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+            cc::switches::kEnableWebOSNativeScroll) &&
+        !mutator_host_->HasPotentiallyRunningScrollAnimation(
+            scroll_node->element_id, ElementListType::ACTIVE) &&
+        !mutator_host_->HasPotentiallyRunningScrollAnimation(
+            scroll_node->element_id, ElementListType::PENDING)) {
+      ClearCurrentlyScrollingNode();
+      scroll_node = nullptr;
+    } else {
+      gfx::Vector2dF delta;
+
+      if (ScrollAnimationUpdateTarget(scroll_node, delta, base::TimeDelta())) {
+        scroll_status.thread = SCROLL_ON_IMPL_THREAD;
+      } else {
+        TRACE_EVENT_INSTANT0("cc", "Failed to create animation",
+                             TRACE_EVENT_SCOPE_THREAD);
+        scroll_status.thread = SCROLL_IGNORED;
+        scroll_status.main_thread_scrolling_reasons =
+            MainThreadScrollingReason::kNotScrollable;
+      }
+      return scroll_status;
+    }
+#else
     gfx::Vector2dF delta;
 
     if (ScrollAnimationUpdateTarget(scroll_node, delta, base::TimeDelta())) {
@@ -3531,6 +3563,7 @@ InputHandler::ScrollStatus LayerTreeHostImpl::ScrollAnimatedBegin(
           MainThreadScrollingReason::kNotScrollable;
     }
     return scroll_status;
+#endif
   }
 
   // ScrollAnimated is used for animated wheel scrolls. We find the first layer
@@ -5303,6 +5336,24 @@ gfx::ScrollOffset LayerTreeHostImpl::GetScrollOffsetForAnimation(
 
   return gfx::ScrollOffset();
 }
+
+#if defined(USE_NEVA_APPRUNTIME)
+void LayerTreeHostImpl::ClearCurrentlyScrollingLayerWebOS() {
+  ClearCurrentlyScrollingNode();
+}
+
+void LayerTreeHostImpl::SetCurrentlyScrollingElementWebOS(
+    ElementId element_id) {
+  DCHECK(active_tree_);
+  auto& scroll_tree = active_tree_->property_trees()->scroll_tree;
+  const auto* scroll_node = scroll_tree.FindNodeFromElementId(element_id);
+  if (scroll_node) {
+    active_tree_->SetCurrentlyScrollingNode(scroll_node);
+    did_lock_scrolling_layer_ = true;
+    SetNeedsRedraw();
+  }
+}
+#endif
 
 bool LayerTreeHostImpl::SupportsImplScrolling() const {
   // Supported in threaded mode.

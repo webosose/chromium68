@@ -1054,6 +1054,8 @@ class CORE_EXPORT Element : public ContainerNode {
   void DetachAttrNodeFromElementWithValue(Attr*, const AtomicString& value);
   void DetachAttrNodeAtIndex(Attr*, size_t index);
 
+  bool IsPreventScrollOnFocus();
+
   Member<ElementData> element_data_;
 };
 

@@ -7,9 +7,11 @@
 #include <algorithm>
 #include <cmath>
 
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "base/memory/ptr_util.h"
 #include "cc/animation/timing_function.h"
+#include "cc/base/switches_neva.h"
 #include "cc/base/time_util.h"
 #include "ui/gfx/animation/tween.h"
 
@@ -17,6 +19,8 @@ using DurationBehavior = cc::ScrollOffsetAnimationCurve::DurationBehavior;
 
 const double kConstantDuration = 9.0;
 const double kDurationDivisor = 60.0;
+
+const int64_t kDurationOnNativeScroll = 500000;
 
 const double kInverseDeltaRampStartPx = 120.0;
 const double kInverseDeltaRampEndPx = 480.0;
@@ -77,6 +81,11 @@ base::TimeDelta ScrollOffsetAnimationCurve::SegmentDuration(
     const gfx::Vector2dF& delta,
     DurationBehavior behavior,
     base::TimeDelta delayed_by) {
+  // This is for meet UX requirement on native scroll.
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          cc::switches::kEnableWebOSNativeScroll))
+    return base::TimeDelta::FromMicroseconds(kDurationOnNativeScroll);
+
   double duration = kConstantDuration;
   switch (behavior) {
     case DurationBehavior::CONSTANT:

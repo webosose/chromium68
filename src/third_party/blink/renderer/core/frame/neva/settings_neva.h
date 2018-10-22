@@ -23,6 +23,7 @@ class SettingsNeva {
  public:
   SettingsNeva()
       : notify_fmp_directly_(false),
+        webos_native_scroll_enabled_(false),
         network_stable_timeout_(0.f) {}
 
   void SetNotifyFMPDirectly(bool directly) { notify_fmp_directly_ = directly; }
@@ -33,8 +34,14 @@ class SettingsNeva {
   }
   double NetworkStableTimeout() { return network_stable_timeout_; }
 
+  void SetWebOSNativeScrollEnabled(bool enable) {
+    webos_native_scroll_enabled_ = enable;
+  }
+  bool WebOSNativeScrollEnabled() { return webos_native_scroll_enabled_; }
+
  private:
   bool notify_fmp_directly_ : 1;
+  bool webos_native_scroll_enabled_ : 1;
   double network_stable_timeout_;
 };
 

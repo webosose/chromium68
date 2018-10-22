@@ -212,6 +212,10 @@
 #include "media/base/neva/media_platform_api.h"
 #endif
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "cc/base/switches_neva.h"
+#endif
+
 using blink::WebAXObject;
 using blink::WebApplicationCacheHost;
 using blink::WebApplicationCacheHostClient;
@@ -653,6 +657,14 @@ void RenderViewImpl::Initialize(
 
   nav_state_sync_timer_.SetTaskRunner(task_runner);
   check_preferred_size_timer_.SetTaskRunner(std::move(task_runner));
+
+#if defined(USE_NEVA_APPRUNTIME)
+  // This is for checking condition whether native scroll is enabled
+  // on blink side. In initial phase of this feature, all related changes
+  // are blocked inside this condition.
+  webview()->GetSettings()->SetWebOSNativeScrollEnabled(
+      command_line.HasSwitch(cc::switches::kEnableWebOSNativeScroll));
+#endif
 }
 
 RenderViewImpl::~RenderViewImpl() {
