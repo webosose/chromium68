@@ -48,10 +48,12 @@ void AppRuntimePageLoadTimingRenderFrameObserver::DidChangePerformanceTiming() {
     return;
 
   if (PageLoadTimingIsFirstMeaningful()) {
+    const blink::WebPerformance& perf =
+        render_frame()->GetWebFrame()->Performance();
     mojom::AppRuntimeHostAssociatedPtr interface;
     render_frame()->GetRemoteAssociatedInterfaces()->GetInterface(&interface);
     if (interface)
-      interface->DidFirstMeaningfulPaint();
+      interface->DidFirstMeaningfulPaint(perf.FirstMeaningfulPaint());
   }
 }
 

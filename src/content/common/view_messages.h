@@ -709,6 +709,10 @@ IPC_MESSAGE_ROUTED1(ViewHostMsg_FocusedNodeTouched,
 // after the frame widget has painted something.
 IPC_MESSAGE_ROUTED0(ViewHostMsg_DidFirstVisuallyNonEmptyPaint)
 
+// Notifies a frame for meaningful paint will be swapped soon
+IPC_MESSAGE_ROUTED1(ViewHostMsg_WillSwapMeaningfulPaint,
+                    double /* detected_time */)
+
 // Sent in reply to ViewMsg_WaitForNextFrameForTests.
 IPC_MESSAGE_ROUTED0(ViewHostMsg_WaitForNextFrameForTests_ACK)
 

@@ -93,6 +93,7 @@ class LayerTreeHostClient {
   // renders in a different process its ancestors; this returns true in
   // that case.
   virtual bool IsForSubframe() = 0;
+  virtual void WillSwapOnImplThread() = 0;
 
  protected:
   virtual ~LayerTreeHostClient() {}

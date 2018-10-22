@@ -99,16 +99,25 @@ void WebView::SetFileAccessBlocked(bool blocked) {
 MojoAppRuntimeHostImpl::MojoAppRuntimeHostImpl(
     content::WebContents* web_contents)
     : bindings_(web_contents, this),
-      load_visually_committed_(false) {
-}
+      first_meaningful_paint_detected_(0.),
+      arriving_meaningful_paint_(0.),
+      load_visually_committed_(false) {}
 
 MojoAppRuntimeHostImpl::~MojoAppRuntimeHostImpl() = default;
 
 void MojoAppRuntimeHostImpl::ResetStateToMarkNextPaintForContainer() {
+  first_meaningful_paint_detected_ = 0;
+  arriving_meaningful_paint_ = 0;
   load_visually_committed_ = false;
 }
 
-void MojoAppRuntimeHostImpl::DidFirstMeaningfulPaint() {
+void MojoAppRuntimeHostImpl::WillSwapMeaningfulPaint(double detected_time) {
+  arriving_meaningful_paint_ = detected_time;
+  LoadVisuallyCommittedIfNeed();
+}
+
+void MojoAppRuntimeHostImpl::DidFirstMeaningfulPaint(double fmp_detected) {
+  first_meaningful_paint_detected_ = fmp_detected;
   LoadVisuallyCommitted();
 }
 
@@ -121,6 +130,15 @@ void MojoAppRuntimeHostImpl::LoadVisuallyCommitted() {
     return;
   if (web_view_delegate_) {
     web_view_delegate_->LoadVisuallyCommitted();
+    load_visually_committed_ = true;
+  }
+}
+
+void MojoAppRuntimeHostImpl::LoadVisuallyCommittedIfNeed() {
+  if (load_visually_committed_ || first_meaningful_paint_detected_ == .0)
+    return;
+  if (first_meaningful_paint_detected_ <= arriving_meaningful_paint_) {
+    LoadVisuallyCommitted();
     load_visually_committed_ = true;
   }
 }
@@ -986,6 +1004,10 @@ void WebView::DocumentLoadedInFrame(
 void WebView::DidReceiveCompositorFrame() {
   if (webview_delegate_)
     webview_delegate_->DidSwapCompositorFrame();
+}
+
+void WebView::WillSwapMeaningfulPaint(double detected_time) {
+  host_interface_->WillSwapMeaningfulPaint(detected_time);
 }
 
 bool WebView::OnMessageReceived(const IPC::Message& message) {

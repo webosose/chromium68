@@ -28,7 +28,7 @@ interface AppRuntimeClient {
 };
 
 interface AppRuntimeHost {
-  DidFirstMeaningfulPaint();
+  DidFirstMeaningfulPaint(double fmp_detected);
   DidNonFirstMeaningfulPaint();
   DidClearWindowObject();
 };

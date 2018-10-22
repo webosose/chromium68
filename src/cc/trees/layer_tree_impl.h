@@ -20,6 +20,7 @@
 #include "cc/layers/layer_impl.h"
 #include "cc/layers/layer_list_iterator.h"
 #include "cc/resources/ui_resource_client.h"
+#include "cc/trees/layer_tree_host_client.h"
 #include "cc/trees/layer_tree_host_impl.h"
 #include "cc/trees/property_tree.h"
 #include "cc/trees/swap_promise.h"
@@ -566,6 +567,11 @@ class CC_EXPORT LayerTreeImpl {
   void InvalidateRegionForImages(
       const PaintImageIdFlatSet& images_to_invalidate);
 
+  void PrepareNotifyWillSwap(LayerTreeHostClient* client) {
+    source_host_client_ = client;
+  }
+  void NotifyWillSwapToHostClient();
+
   LayerTreeLifecycle& lifecycle() { return lifecycle_; }
 
   bool request_presentation_time() const { return request_presentation_time_; }
@@ -700,6 +706,8 @@ class CC_EXPORT LayerTreeImpl {
   // If true LayerTreeHostImpl requests a presentation token for the current
   // frame.
   bool request_presentation_time_ = false;
+
+  LayerTreeHostClient* source_host_client_;
 
   DISALLOW_COPY_AND_ASSIGN(LayerTreeImpl);
 };

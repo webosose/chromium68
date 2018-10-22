@@ -1255,6 +1255,10 @@ bool RenderWidgetCompositor::IsForSubframe() {
   return is_for_oopif_;
 }
 
+void RenderWidgetCompositor::WillSwapOnImplThread() {
+  delegate_->WillSwapOnImplThread();
+}
+
 void RenderWidgetCompositor::RequestScheduleAnimation() {
   delegate_->RequestScheduleAnimation();
 }

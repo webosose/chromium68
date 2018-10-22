@@ -316,6 +316,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {
   // paint after a non-empty layout.
   virtual void DidFirstVisuallyNonEmptyPaint() {}
 
+  // This method is invoked when the renderer process has completed its
+  // swap for meaningful paint.
+  virtual void WillSwapMeaningfulPaint(double detected_time) {}
+
   // When WebContents::Stop() is called, the WebContents stops loading and then
   // invokes this method. If there are ongoing navigations, their respective
   // failure methods will also be invoked.

@@ -268,6 +268,7 @@ class CONTENT_EXPORT RenderWidget
   void RequestScheduleAnimation() override;
   void UpdateVisualState(VisualStateUpdate requested_update) override;
   void WillBeginCompositorFrame() override;
+  void WillSwapOnImplThread() override;
   std::unique_ptr<cc::SwapPromise> RequestCopyOfOutputForLayoutTest(
       std::unique_ptr<viz::CopyOutputRequest> request) override;
 
@@ -978,6 +979,11 @@ class CONTENT_EXPORT RenderWidget
   base::Optional<bool> has_touch_handlers_;
 
   uint32_t last_capture_sequence_number_ = 0u;
+
+  // Meaningful Paint detected time in sec
+  double meaningful_paint_detected_;
+  double meaningful_paint_sent_;
+  IPC::Sender* sender_for_impl_thread_;
 
   base::WeakPtrFactory<RenderWidget> weak_ptr_factory_;
 
