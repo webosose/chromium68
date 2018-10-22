@@ -110,6 +110,7 @@ class CORE_EXPORT EmptyChromeClient : public ChromeClient {
                      const cc::OverscrollBehavior&) override {}
 
   void BeginLifecycleUpdates() override {}
+  void PauseLifecycleUpdates() override {}
 
   bool HadFormInteraction() const override { return false; }
 

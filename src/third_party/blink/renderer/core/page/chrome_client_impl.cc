@@ -899,6 +899,12 @@ void ChromeClientImpl::BeginLifecycleUpdates() {
   }
 }
 
+void ChromeClientImpl::PauseLifecycleUpdates() {
+  if (WebLayerTreeView* tree_view = web_view_->LayerTreeView()) {
+    tree_view->SetDeferCommits(true);
+  }
+}
+
 WebEventListenerProperties ChromeClientImpl::EventListenerProperties(
     LocalFrame* frame,
     WebEventListenerClass event_class) const {

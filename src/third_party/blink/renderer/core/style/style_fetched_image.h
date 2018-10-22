@@ -80,6 +80,9 @@ class StyleFetchedImage final : public StyleImage,
   Member<ImageResourceContent> image_;
   Member<const Document> document_;
   const KURL url_;
+#if defined(OS_WEBOS)
+  bool commit_deferred_ = false;
+#endif
 };
 
 DEFINE_STYLE_IMAGE_TYPE_CASTS(StyleFetchedImage, IsImageResource());

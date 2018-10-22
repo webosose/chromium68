@@ -1412,6 +1412,9 @@ class CORE_EXPORT Document : public ContainerNode,
 
   SlotAssignmentEngine& GetSlotAssignmentEngine();
 
+  bool AddDeferredBackgroundImage();
+  void RemoveDeferredBackgroundImage();
+
 #if DCHECK_IS_ON()
   bool IsSlotAssignmentRecalcForbidden() {
     return slot_assignment_recalc_forbidden_recursion_depth_ > 0;
@@ -1829,6 +1832,8 @@ class CORE_EXPORT Document : public ContainerNode,
   Member<Policy> policy_;
 
   Member<SlotAssignmentEngine> slot_assignment_engine_;
+
+  int deferred_background_image_count_ = 0;
 };
 
 extern template class CORE_EXTERN_TEMPLATE_EXPORT Supplement<Document>;
