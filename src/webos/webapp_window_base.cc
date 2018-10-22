@@ -57,13 +57,16 @@ WebAppWindowBase::~WebAppWindowBase() {
 }
 
 void WebAppWindowBase::InitWindow(int width, int height) {
-  if (webapp_window_)
+  if (webapp_window_) {
+    webapp_window_->SetDelegate(nullptr);
     webapp_window_->Close();
+  }
 
   app_runtime::WebAppWindowBase::CreateParams params;
   params.width = width;
   params.height = height;
-  params.show_state = app_runtime::WebAppWindowBase::CreateParams::WindowShowState::kFullscreen;
+  params.show_state =
+      app_runtime::WebAppWindowBase::CreateParams::WindowShowState::kDefault;
   params.type = app_runtime::WebAppWindowBase::CreateParams::WidgetType::kWindowFrameless;
   webapp_window_ = new WebAppWindow(params);
   webapp_window_->SetDelegate(this);

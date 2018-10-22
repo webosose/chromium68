@@ -2171,6 +2171,17 @@ void RenderWidgetHostViewAura::InternalSetBounds(const gfx::Rect& rect) {
   if (!in_bounds_changed_)
     window_->SetBounds(rect);
 
+#if defined(USE_NEVA_APPRUNTIME)
+  // Calculate scale ratio only for non popup window
+  if (!popup_parent_host_view_ && rect.height()) {
+    window_scale_ratio_ = static_cast<float>(display::Screen::GetScreen()
+                                                 ->GetPrimaryDisplay()
+                                                 .bounds()
+                                                 .height()) /
+                          rect.height();
+  }
+#endif
+
   SyncSurfaceProperties(cc::DeadlinePolicy::UseDefaultDeadline());
 
 #if defined(OS_WIN)
@@ -2425,6 +2436,10 @@ void RenderWidgetHostViewAura::EnableAggressiveReleasePolicy(bool enable) {
   delegated_frame_host_->EnableAggressiveReleasePolicy(enable);
 }
 
+gfx::Size RenderWidgetHostViewAura::GetCompositorViewportPixelSize() const {
+  return gfx::ScaleToCeiledSize(GetRequestedRendererSize(),
+                                GetDeviceScaleFactor() * window_scale_ratio_);
+}
 #endif
 
 void RenderWidgetHostViewAura::OnSelectionBoundsChanged(

@@ -329,6 +329,7 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
   void SetEnableHtmlSystemKeyboardAttr(bool enable);
   bool SystemKeyboardDisabled() const override;
   void EnableAggressiveReleasePolicy(bool enable);
+  gfx::Size GetCompositorViewportPixelSize() const override;
 #endif
 
   // RenderWidgetHostViewEventHandler::Delegate:
@@ -639,6 +640,7 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
   bool has_snapped_to_boundary_;
 #if defined(USE_NEVA_APPRUNTIME)
   bool enable_html_systemkeyboard_attr_ = false;
+  float window_scale_ratio_ = 1.0f;
 #endif
 
   // The last selection bounds reported to the view.
