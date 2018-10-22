@@ -865,6 +865,8 @@ void MediaSource::ScheduleEvent(const AtomicString& event_name) {
   Event* event = Event::Create(event_name);
   event->SetTarget(this);
 
+  BLINK_MSLOG << __func__ << " this=" << this << " - scheduling '"
+              << event->type() << "'";
   async_event_queue_->EnqueueEvent(FROM_HERE, event);
 }
 

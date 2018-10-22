@@ -132,6 +132,7 @@ void WebMediaPlayerMSE::Load(LoadType load_type,
 }
 
 void WebMediaPlayerMSE::Play() {
+  DVLOG(1) << __func__ << "play()";
   DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (is_suspended_) {
     status_on_suspended_ = PlayingStatus;
@@ -141,6 +142,7 @@ void WebMediaPlayerMSE::Play() {
 }
 
 void WebMediaPlayerMSE::Pause() {
+  DVLOG(1) << __func__ << "pause()";
   DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (is_suspended_) {
     status_on_suspended_ = PausedStatus;

@@ -1220,8 +1220,16 @@ void HTMLMediaElement::LoadResource(const WebMediaPlayerSource& source,
     // Conditionally defer the load if effective preload is 'none'.
     // Skip this optional deferral for MediaStream sources or any blob URL,
     // including MediaSource blob URLs.
+
+#if defined(OS_WEBOS)
+    // Creating multiple MSE players can cause resource problems.
+    // In the case of MSE, it blocks the player creation on webOS.
+    if (!source.IsMediaStream() &&
+        EffectivePreloadType() == WebMediaPlayer::kPreloadNone) {
+#else
     if (!source.IsMediaStream() && !url.ProtocolIs("blob") &&
         EffectivePreloadType() == WebMediaPlayer::kPreloadNone) {
+#endif
       BLINK_MEDIA_LOG << "loadResource(" << (void*)this
                       << ") : Delaying load because preload == 'none'";
       DeferLoad();
@@ -2471,7 +2479,12 @@ void HTMLMediaElement::PlayInternal() {
   BLINK_MEDIA_LOG << "playInternal(" << (void*)this << ")";
 
   // 4.8.12.8. Playing the media resource
+#if defined(OS_WEBOS)
+  if ((GetWebMediaPlayer() && PreloadType() != WebMediaPlayer::kPreloadNone) ||
+      (network_state_ == kNetworkEmpty))
+#else
   if (network_state_ == kNetworkEmpty)
+#endif
     InvokeResourceSelectionAlgorithm();
 
   // Generally "ended" and "looping" are exclusive. Here, the loop attribute
