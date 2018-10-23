@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <memory>
 #include <utility>
 
@@ -53,6 +54,7 @@
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_features.h"
+#include "content/public/common/content_neva_switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/page_importance_signals.h"
 #include "content/public/common/page_state.h"
@@ -576,6 +578,17 @@ void RenderViewImpl::Initialize(
     webview()->GetSettings()->SetPassiveEventListenerDefault(passiveDefault);
   }
 
+  std::string network_stable_timeout =
+      command_line.GetSwitchValueASCII(switches::kNetworkStableTimeout);
+  if (!network_stable_timeout.empty()) {
+    double network_stable_seconds = 0.0;
+    if (!base::StringToDouble(network_stable_timeout, &network_stable_seconds))
+      LOG(ERROR) << "Failed to parse the network stable timeout"
+                 << network_stable_timeout;
+    DCHECK(network_stable_seconds >= 0.0);
+    webview()->GetSettings()->SetNetworkStableTimeout(network_stable_seconds);
+  }
+
   ApplyBlinkSettings(command_line, webview()->GetSettings());
 
   if (params->main_frame_routing_id != MSG_ROUTING_NONE) {
@@ -1006,6 +1019,10 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
 
 #if defined(USE_NEVA_APPRUNTIME)
   settings->SetNotifyFMPDirectly(prefs.notify_fmp_directly);
+
+  if (!isnan(prefs.network_stable_timeout) &&
+      prefs.network_stable_timeout >= 0.0f)
+    settings->SetNetworkStableTimeout(prefs.network_stable_timeout);
 #endif
 }
 

@@ -22,6 +22,7 @@ namespace blink {
 class WebSettingsNeva {
  public:
   virtual void SetNotifyFMPDirectly(bool) = 0;
+  virtual void SetNetworkStableTimeout(double) = 0;
 };
 
 }  // namespace blink

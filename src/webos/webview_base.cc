@@ -529,7 +529,8 @@ void WebViewBase::SetNotifyFMPDirectly(const bool on) {
 }
 
 void WebViewBase::SetNetworkStableTimeout(const double timeout) {
-  NOTIMPLEMENTED();
+  webview_->UpdatePreferencesAttribute(
+      app_runtime::WebView::Attribute::NetworkStableTimeout, timeout);
 }
 
 // FontFamily

@@ -589,6 +589,17 @@ void WebView::UpdatePreferencesAttribute(WebView::Attribute attribute,
     rvh->UpdateWebkitPreferences(*web_preferences_);
 }
 
+void WebView::UpdatePreferencesAttribute(WebView::Attribute attribute,
+                                         double value) {
+  switch (attribute) {
+    case Attribute::NetworkStableTimeout:
+      web_preferences_->network_stable_timeout = value;
+      break;
+    default:
+      return;
+  }
+}
+
 void WebView::SetFontFamily(WebView::FontFamily font_family,
                             const std::string& font) {
   switch (font_family) {

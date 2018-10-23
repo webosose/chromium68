@@ -22,13 +22,20 @@ namespace blink {
 class SettingsNeva {
  public:
   SettingsNeva()
-      : notify_fmp_directly_(false) {}
+      : notify_fmp_directly_(false),
+        network_stable_timeout_(0.f) {}
 
   void SetNotifyFMPDirectly(bool directly) { notify_fmp_directly_ = directly; }
   bool NotifyFMPDirectly() const { return notify_fmp_directly_; }
 
+  void SetNetworkStableTimeout(double timeout) {
+    network_stable_timeout_ = timeout;
+  }
+  double NetworkStableTimeout() { return network_stable_timeout_; }
+
  private:
   bool notify_fmp_directly_ : 1;
+  double network_stable_timeout_;
 };
 
 }  // namespace blink

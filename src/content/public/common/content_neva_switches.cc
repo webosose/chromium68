@@ -25,6 +25,10 @@ const char kEnableBrowserControlInjection[]
 // Loads sample injection
 const char kEnableSampleInjection[]     = "enable-sample-injection";
 
+// Overrides the timeout, in seconds, that FirstMeaningfulPaintDetector waits
+// for a network stable timer to be fired.
+const char kNetworkStableTimeout[] = "network-stable-timeout";
+
 // Use platform implementation for Input Controls (File picker,
 // Color chooser, e.t.c.)
 const char kUseExternalInputControls[]  = "use-external-input-controls";

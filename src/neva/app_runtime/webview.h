@@ -92,6 +92,7 @@ class WebView : public content::WebContentsDelegate,
     BackHistoryAPIDisabled,
     ForceVideoTexture,
     NotifyFMPDirectly,
+    NetworkStableTimeout,
   };
 
   enum FontFamily {
@@ -159,6 +160,7 @@ class WebView : public content::WebContentsDelegate,
   void SetSearchKeywordForCustomPlayer(bool enabled);
   void SetSupportDolbyHDRContents(bool support);
   void UpdatePreferencesAttribute(WebView::Attribute attribute, bool enable);
+  void UpdatePreferencesAttribute(WebView::Attribute attribute, double value);
   void SetFontFamily(WebView::FontFamily fontFamily, const std::string& font);
   void SetFontHintingNone();
   void SetFontHintingSlight();

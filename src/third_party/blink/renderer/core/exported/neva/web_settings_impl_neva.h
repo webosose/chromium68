@@ -30,6 +30,10 @@ class WebSettingsImplNeva : public WebSettings {
     settings_->SetNotifyFMPDirectly(directly);
   }
 
+  void SetNetworkStableTimeout(double timeout) override {
+    settings_->SetNetworkStableTimeout(timeout);
+  }
+
  private:
   Settings* settings_;
 };

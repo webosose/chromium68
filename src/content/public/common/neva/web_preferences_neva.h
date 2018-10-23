@@ -21,8 +21,10 @@ namespace content {
 
 struct WebPreferencesNeva {
   WebPreferencesNeva()
-      : notify_fmp_directly(false) {}
+      : notify_fmp_directly(false),
+        network_stable_timeout(std::numeric_limits<double>::quiet_NaN()) {}
   bool notify_fmp_directly;
+  double network_stable_timeout;
 };
 
 }  // namespace content

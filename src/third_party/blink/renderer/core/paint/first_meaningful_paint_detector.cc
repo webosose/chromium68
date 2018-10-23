@@ -141,8 +141,11 @@ void FirstMeaningfulPaintDetector::SetNetworkQuietTimers(
     // If activeConnections < 2 and the timer is already running, current
     // 2-quiet window continues; the timer shouldn't be restarted.
     if (active_connections == 2 || !network2_quiet_timer_.IsActive()) {
-      network2_quiet_timer_.StartOneShot(kNetwork2QuietWindowSeconds,
-                                         FROM_HERE);
+      double timeout = kNetwork2QuietWindowSeconds;
+      Settings* settings = GetDocument()->GetSettings();
+      if (settings && settings->NetworkStableTimeout() > 0)
+        timeout = settings->NetworkStableTimeout();
+      network2_quiet_timer_.StartOneShot(timeout, FROM_HERE);
     }
   }
   if (!network0_quiet_reached_ && active_connections == 0) {
