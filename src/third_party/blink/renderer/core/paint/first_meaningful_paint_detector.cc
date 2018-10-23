@@ -16,6 +16,7 @@
 
 #if defined(USE_NEVA_APPRUNTIME)
 #include "third_party/blink/renderer/core/dom/document.h"
+#include "third_party/blink/renderer/core/frame/settings.h"
 #include "third_party/blink/renderer/core/loader/document_loader.h"
 #endif
 
@@ -307,6 +308,16 @@ void FirstMeaningfulPaintDetector::ReportSwapTime(
     paint_timing_->SetFirstMeaningfulPaintCandidate(
         provisional_first_meaningful_paint_swap_);
   }
+
+#if defined(USE_NEVA_APPRUNTIME)
+  if (GetDocument()->GetSettings()->NotifyFMPDirectly()) {
+    first_meaningful_paint2_quiet_ = CurrentTimeTicks();
+    network2_quiet_reached_ = true;
+    SetFirstMeaningfulPaint(first_meaningful_paint2_quiet_,
+                            provisional_first_meaningful_paint_swap_);
+    return;
+  }
+#endif
 
   if (defer_first_meaningful_paint_ == kDeferOutstandingSwapPromises &&
       outstanding_swap_promise_count_ == 0) {

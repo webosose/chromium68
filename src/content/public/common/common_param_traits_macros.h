@@ -237,6 +237,9 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
   IPC_STRUCT_TRAITS_MEMBER(presentation_receiver)
   IPC_STRUCT_TRAITS_MEMBER(media_controls_enabled)
   IPC_STRUCT_TRAITS_MEMBER(do_not_update_selection_on_mutating_selection_range)
+#if defined(USE_NEVA_APPRUNTIME)
+  IPC_STRUCT_TRAITS_MEMBER(notify_fmp_directly)
+#endif
 #if defined(USE_NEVA_MEDIA)
   IPC_STRUCT_TRAITS_MEMBER(max_timeupdate_event_frequency)
 #endif

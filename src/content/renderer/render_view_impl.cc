@@ -1003,6 +1003,10 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
 #if defined(OS_WIN)
   WebRuntimeFeatures::EnableMiddleClickAutoscroll(true);
 #endif
+
+#if defined(USE_NEVA_APPRUNTIME)
+  settings->SetNotifyFMPDirectly(prefs.notify_fmp_directly);
+#endif
 }
 
 /*static*/

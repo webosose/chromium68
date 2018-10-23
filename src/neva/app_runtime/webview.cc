@@ -571,6 +571,9 @@ void WebView::UpdatePreferencesAttributeForPrefs(
       // TODO(jose.dapena): patches not ported
       NOTIMPLEMENTED() << "patches not ported";
       return;
+    case Attribute::NotifyFMPDirectly:
+      preferences->notify_fmp_directly = enable;
+      break;
     default:
       return;
   }
