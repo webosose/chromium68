@@ -26,6 +26,12 @@ class WebSettingsImplNeva : public WebSettings {
  public:
   explicit WebSettingsImplNeva(Settings* settings) : settings_(settings) {}
 
+  void SetKeepAliveWebApp(bool keep_alive) override {
+    settings_->SetKeepAliveWebApp(keep_alive);
+  }
+
+  bool KeepAliveWebApp() override { return settings_->KeepAliveWebApp(); }
+
   void SetNotifyFMPDirectly(bool directly) override {
     settings_->SetNotifyFMPDirectly(directly);
   }

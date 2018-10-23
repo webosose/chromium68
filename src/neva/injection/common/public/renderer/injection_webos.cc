@@ -19,6 +19,8 @@
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/strings/string_util.h"
+#include "content/public/renderer/render_view.h"
+#include "third_party/blink/public/web/web_local_frame.h"
 
 namespace extensions_v8 {
 
@@ -46,9 +48,13 @@ std::string InjectionWebOS::checkFileValidation(const std::string& file,
 }
 
 void InjectionWebOS::setKeepAliveWebApp(bool keepAlive) {
-  // TODO: need to migrate appropriate patch
-  LOG(WARNING) << __func__ << "(): Not implemented";
-  return;
+  blink::WebLocalFrame* frame = blink::WebLocalFrame::FrameForCurrentContext();
+  if (!frame)
+    return;
+  content::RenderView* view = content::RenderView::FromWebView(frame->View());
+  if (!view)
+    return;
+  view->SetKeepAliveWebApp(keepAlive);
 }
 
 }  // namespace extensions_v8

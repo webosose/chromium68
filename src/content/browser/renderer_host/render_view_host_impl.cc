@@ -843,6 +843,16 @@ void RenderViewHostImpl::OnUpdateTargetURL(const GURL& url) {
 }
 
 void RenderViewHostImpl::OnClose() {
+#if defined(USE_NEVA_APPRUNTIME)
+  if (GetWebkitPreferences().keep_alive_webapp) {
+    // this is keepAlive app, window.close() should't close this app.
+    // Just notify about this 'trying close' without any setting for real view
+    // closing
+    delegate_->Close(this);
+    return;
+  }
+#endif
+
   // If the renderer is telling us to close, it has already run the unload
   // events, and we can take the fast path.
   ClosePageIgnoringUnloadEvents();

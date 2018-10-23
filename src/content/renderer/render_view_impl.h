@@ -243,6 +243,8 @@ class CONTENT_EXPORT RenderViewImpl : public RenderWidget,
   // NEVA app runtime specific ------------------------------------------------
 
   bool is_app_preload_hint_set() const { return is_app_preload_hint_set_; }
+  void SetKeepAliveWebApp(bool keepAlive) override;
+  void DoDeferredClose() override;
 #endif  // defined(USE_NEVA_APPRUNTIME)
 
   // IPC::Listener implementation ----------------------------------------------

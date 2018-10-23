@@ -560,10 +560,12 @@ void WebView::UpdatePreferencesAttributeForPrefs(
     case Attribute::WebSecurityEnabled:
       preferences->web_security_enabled = enable;
       break;
+    case Attribute::KeepAliveWebApp:
+      preferences->keep_alive_webapp = enable;
+      break;
     case Attribute::RequestQuotaEnabled:
     case Attribute::DisallowScrollingInMainFrame:
     case Attribute::V8DateUseSystemLocaloffset:
-    case Attribute::KeepAliveWebApp:
     case Attribute::AdditionalFontFamilyEnabled:
       // TODO(jose.dapena): patches not ported
       NOTIMPLEMENTED() << "patches not ported";

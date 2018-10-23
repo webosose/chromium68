@@ -391,6 +391,11 @@ void DOMWindow::close(LocalDOMWindow* incumbent_window) {
 
   page->CloseSoon();
 
+#if defined(USE_NEVA_APPRUNTIME)
+  if (settings && settings->KeepAliveWebApp())
+    return;
+#endif
+
   // So as to make window.closed return the expected result
   // after window.close(), separately record the to-be-closed
   // state of this window. Scripts may access window.closed

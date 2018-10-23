@@ -26,6 +26,9 @@ class SettingsNeva {
         webos_native_scroll_enabled_(false),
         network_stable_timeout_(0.f) {}
 
+  void SetKeepAliveWebApp(bool keep_alive) { keep_alive_web_app_ = keep_alive; }
+  bool KeepAliveWebApp() const { return keep_alive_web_app_; }
+
   void SetNotifyFMPDirectly(bool directly) { notify_fmp_directly_ = directly; }
   bool NotifyFMPDirectly() const { return notify_fmp_directly_; }
 
@@ -40,6 +43,7 @@ class SettingsNeva {
   bool WebOSNativeScrollEnabled() { return webos_native_scroll_enabled_; }
 
  private:
+  bool keep_alive_web_app_ : 1;
   bool notify_fmp_directly_ : 1;
   bool webos_native_scroll_enabled_ : 1;
   double network_stable_timeout_;

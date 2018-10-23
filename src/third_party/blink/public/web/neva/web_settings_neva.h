@@ -21,6 +21,8 @@ namespace blink {
 
 class WebSettingsNeva {
  public:
+  virtual void SetKeepAliveWebApp(bool) = 0;
+  virtual bool KeepAliveWebApp() = 0;
   virtual void SetNotifyFMPDirectly(bool) = 0;
   virtual void SetNetworkStableTimeout(double) = 0;
   virtual void SetWebOSNativeScrollEnabled(bool) = 0;

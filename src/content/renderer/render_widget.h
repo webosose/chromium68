@@ -531,7 +531,7 @@ class CONTENT_EXPORT RenderWidget
   // are no other active RenderWidgets.
   void WasSwappedOut();
 
-  void DoDeferredClose();
+  virtual void DoDeferredClose();
   void NotifyOnClose();
 
   gfx::Size GetSizeForWebWidget() const;

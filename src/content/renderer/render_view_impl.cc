@@ -1039,6 +1039,7 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
 #endif
 
 #if defined(USE_NEVA_APPRUNTIME)
+  settings->SetKeepAliveWebApp(prefs.keep_alive_webapp);
   settings->SetNotifyFMPDirectly(prefs.notify_fmp_directly);
 
   if (!isnan(prefs.network_stable_timeout) &&
@@ -2485,6 +2486,17 @@ void RenderViewImpl::OnResolveTapDisambiguation(
 }
 
 #if defined(USE_NEVA_APPRUNTIME)
+void RenderViewImpl::DoDeferredClose() {
+  if (!webkit_preferences_.keep_alive_webapp)
+    WillCloseLayerTreeView();
+  Send(new ViewHostMsg_Close(routing_id_));
+}
+
+void RenderViewImpl::SetKeepAliveWebApp(bool keepAlive) {
+  if (webview() && webview()->GetSettings())
+    webview()->GetSettings()->SetKeepAliveWebApp(keepAlive);
+}
+
 void RenderViewImpl::OnReplaceBaseURL(const GURL& newUrl) {
   if (!webview())
     return;

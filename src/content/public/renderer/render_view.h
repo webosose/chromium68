@@ -122,6 +122,12 @@ class CONTENT_EXPORT RenderView : public IPC::Sender {
   virtual gfx::RectF ElementBoundsInWindow(const blink::WebElement& element)
       = 0;
 
+#if defined(USE_NEVA_APPRUNTIME)
+  // Set WebSettingsImpl::m_keepAliveWebApp to meet timing.
+  // The injection calls this function directly
+  virtual void SetKeepAliveWebApp(bool keepAlive) = 0;
+#endif
+
  protected:
   ~RenderView() override {}
 
