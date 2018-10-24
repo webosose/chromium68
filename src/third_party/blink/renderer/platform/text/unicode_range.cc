@@ -36,6 +36,10 @@
 
 namespace blink {
 
+static const char* const kUnicodeRangeToLangTable[] = {
+    0,    "el", "tr", "he", "ar", 0, "th", "ko", "ja", "zh-CN", "zh-TW",
+    "hi", "ta", "hy", "bn", 0,    0, "ka", "gu", "pa", "km",    "ml"};
+
 /**********************************************************************
  * Unicode subranges as defined in unicode 3.0
  * x-western, x-central-euro, tr, x-baltic  -> latin
@@ -431,6 +435,16 @@ unsigned FindCharUnicodeRange(UChar32 ch) {
 
   // Yet another table to look at : U+0700 - U+16FF : 128 code point blocks
   return kGUnicodeTertiaryRangeTable[(ch - 0x0700) >> 7];
+}
+
+static const char* GuessLangFromUnicodeRange(unsigned char unicode_range) {
+  if (kCRangeSpecificItemNum > unicode_range)
+    return kUnicodeRangeToLangTable[unicode_range];
+  return 0;
+}
+
+const char* GuessLangFromChar(UChar32 ch) {
+  return GuessLangFromUnicodeRange(FindCharUnicodeRange(ch));
 }
 
 }  // namespace blink

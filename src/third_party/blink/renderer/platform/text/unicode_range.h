@@ -114,6 +114,7 @@ const unsigned char kCRangeTertiaryTable = 145;  // leave room for 16 subtable
                                                  // .. cRangeTableBase + 16)
 
 PLATFORM_EXPORT unsigned FindCharUnicodeRange(UChar32);
+PLATFORM_EXPORT const char* GuessLangFromChar(UChar32);
 
 }  // namespace blink
 

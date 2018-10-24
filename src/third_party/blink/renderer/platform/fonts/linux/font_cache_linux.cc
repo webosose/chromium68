@@ -30,6 +30,8 @@
 #include "third_party/blink/public/platform/platform.h"
 #include "third_party/blink/renderer/platform/fonts/font_platform_data.h"
 #include "third_party/blink/renderer/platform/fonts/simple_font_data.h"
+#include "third_party/blink/renderer/platform/language.h"
+#include "third_party/blink/renderer/platform/text/unicode_range.h"
 #include "third_party/blink/renderer/platform/wtf/text/cstring.h"
 #include "ui/gfx/font_fallback_linux.h"
 
@@ -82,6 +84,10 @@ void FontCache::GetFontForCharacter(
   }
 }
 
+static AtomicString GuessLocaleFromChar(UChar32 c) {
+  return AtomicString(GuessLangFromChar(c));
+}
+
 scoped_refptr<SimpleFontData> FontCache::PlatformFallbackFontForCharacter(
     const FontDescription& font_description,
     UChar32 c,
@@ -112,6 +118,18 @@ scoped_refptr<SimpleFontData> FontCache::PlatformFallbackFontForCharacter(
     c = kFamilyCharacter;
   }
 
+  FontDescription description(font_description);
+  // Guess language from character script
+  AtomicString locale = GuessLocaleFromChar(c);
+  if (!locale.IsEmpty()) {
+    description.SetLocale(LayoutLocale::Get(locale));
+    FontFaceCreationParams creation_params(description.Family().Family());
+    FontPlatformData* platform_data =
+        GetFontPlatformData(description, creation_params);
+    if (platform_data && platform_data->FontContainsCharacter(c))
+      return FontDataFromFontPlatformData(platform_data, kDoNotRetain);
+  }
+
   // First try the specified font with standard style & weight.
   if (fallback_priority != FontFallbackPriority::kEmojiEmoji &&
       (font_description.Style() == ItalicSlopeValue() ||
@@ -124,7 +142,11 @@ scoped_refptr<SimpleFontData> FontCache::PlatformFallbackFontForCharacter(
 
   FontCache::PlatformFallbackFont fallback_font;
   FontCache::GetFontForCharacter(
-      c, font_description.LocaleOrDefault().Ascii().data(), &fallback_font);
+      c,
+      (!description.Locale() || description.Locale()->LocaleString().IsEmpty())
+          ? DefaultLanguage().Ascii().data()
+          : description.LocaleOrDefault().Ascii().data(),
+      &fallback_font);
   if (fallback_font.name.IsEmpty())
     return nullptr;
 
@@ -138,7 +160,6 @@ scoped_refptr<SimpleFontData> FontCache::PlatformFallbackFontForCharacter(
   // of the given character. See http://crbug.com/32109 for details.
   bool should_set_synthetic_bold = false;
   bool should_set_synthetic_italic = false;
-  FontDescription description(font_description);
   if (fallback_font.is_bold && description.Weight() < BoldThreshold())
     description.SetWeight(BoldWeightValue());
   if (!fallback_font.is_bold && description.Weight() >= BoldThreshold()) {
