@@ -187,6 +187,5 @@ webos/webapp_window_base.h
 webos/webapp_window_delegate.h
 webos/webos_platform.h
 webos/webview_base.h
-webos/webview_delegate.h
 webos/webview_profile.h
 webos/window_group_configuration.h
