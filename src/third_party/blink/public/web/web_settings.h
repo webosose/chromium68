@@ -38,6 +38,7 @@
 #include "third_party/blink/public/platform/web_effective_connection_type.h"
 #include "third_party/blink/public/platform/web_size.h"
 #include "third_party/blink/public/platform/web_viewport_style.h"
+#include "third_party/blink/public/web/neva/web_settings_neva.h"
 
 namespace blink {
 
@@ -47,7 +48,7 @@ class WebString;
 // for the WebView's page without any knowledge of WebCore itself.  For the most
 // part, these functions have a 1:1 mapping with the methods in
 // WebCore/page/Settings.h.
-class WebSettings {
+class WebSettings : public WebSettingsNeva {
  public:
   enum ImageAnimationPolicy {
     kImageAnimationPolicyAllowed,
