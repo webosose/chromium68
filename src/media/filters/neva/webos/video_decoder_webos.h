@@ -44,6 +44,7 @@ class MEDIA_EXPORT VideoDecoderWebOS : public HoleFrameVideoDecoder {
       const scoped_refptr<DecoderBuffer>& buffer) override;
 
  private:
+  void ConfigureDecoder(bool low_delay);
   scoped_refptr<MediaPlatformAPI> media_platform_api_;
 
   DISALLOW_COPY_AND_ASSIGN(VideoDecoderWebOS);

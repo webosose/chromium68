@@ -32,6 +32,8 @@
 #include "third_party/blink/public/platform/web_media_player_client.h"
 #include "ui/gfx/geometry/rect_f.h"
 
+#define FUNC_LOG(x) DVLOG(x) << __func__
+#define THIS_FUNC_LOG(x) DVLOG(x) << "[" << this << "] " << __func__
 namespace media {
 
 namespace {
@@ -75,6 +77,7 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
       is_suspended_(false),
       is_video_offscreen_(false),
       is_fullscreen_(false) {
+  THIS_FUNC_LOG(1);
   // Use the null sink for our MSE player
   audio_source_provider_ = new media::WebAudioSourceProviderImpl(
       new media::NullAudioSink(media_task_runner_), media_log_.get());
@@ -110,6 +113,7 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
 }
 
 WebMediaPlayerMSE::~WebMediaPlayerMSE() {
+  THIS_FUNC_LOG(1);
   DCHECK(main_task_runner_->BelongsToCurrentThread());
 
   if (video_layer_)
@@ -127,12 +131,13 @@ WebMediaPlayerMSE::~WebMediaPlayerMSE() {
 void WebMediaPlayerMSE::Load(LoadType load_type,
                              const blink::WebMediaPlayerSource& source,
                              CORSMode cors_mode) {
+  THIS_FUNC_LOG(1);
   // call base-class implementation
   media::WebMediaPlayerImpl::Load(load_type, source, cors_mode);
 }
 
 void WebMediaPlayerMSE::Play() {
-  DVLOG(1) << __func__ << "play()";
+  THIS_FUNC_LOG(1);
   DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (is_suspended_) {
     status_on_suspended_ = PlayingStatus;
@@ -142,7 +147,7 @@ void WebMediaPlayerMSE::Play() {
 }
 
 void WebMediaPlayerMSE::Pause() {
-  DVLOG(1) << __func__ << "pause()";
+  THIS_FUNC_LOG(1);
   DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (is_suspended_) {
     status_on_suspended_ = PausedStatus;
@@ -152,6 +157,7 @@ void WebMediaPlayerMSE::Pause() {
 }
 
 void WebMediaPlayerMSE::SetRate(double rate) {
+  THIS_FUNC_LOG(1);
   DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (is_suspended_)
     return;
@@ -159,6 +165,7 @@ void WebMediaPlayerMSE::SetRate(double rate) {
 }
 
 void WebMediaPlayerMSE::SetVolume(double volume) {
+  THIS_FUNC_LOG(1);
   DCHECK(main_task_runner_->BelongsToCurrentThread());
 
   media::WebMediaPlayerImpl::SetVolume(volume);
@@ -181,6 +188,7 @@ void WebMediaPlayerMSE::OnSuppressedMediaPlay(bool suppressed) {
 }
 
 void WebMediaPlayerMSE::Suspend() {
+  THIS_FUNC_LOG(1) << " is_suspended_ was " << is_suspended_;
   if (is_suspended_)
     return;
 
@@ -203,6 +211,7 @@ void WebMediaPlayerMSE::Suspend() {
 }
 
 void WebMediaPlayerMSE::Resume() {
+  THIS_FUNC_LOG(1) << " is_suspended_ was " << is_suspended_;
   if (!is_suspended_)
     return;
   is_suspended_ = false;
@@ -294,13 +303,17 @@ void WebMediaPlayerMSE::UpdateVideoHoleBoundary(bool forced) {
             additional_contents_scale_, client_->WebWidgetViewRect(),
             client_->ScreenRect(), source_rect_in_video_space_,
             visible_rect_in_screen_space_, is_fullscreen_)) {
-        // visibile_rect_in_screen_space_ will be empty
-        // when video position is out of the screen.
-        if (visible_rect_in_screen_space_.IsEmpty() && HasVisibility()) {
-          is_video_offscreen_ = true;
-          SetVisibility(false);
-        }
-      return;
+      // visibile_rect_in_screen_space_ will be empty
+      // when video position is out of the screen.
+      if (visible_rect_in_screen_space_.IsEmpty() && HasVisibility()) {
+        is_video_offscreen_ = true;
+        SetVisibility(false);
+        return;
+      }
+      // If forced update is used or video was offscreen, it needs to update
+      // even though position is not changed.
+      if (!forced && !is_video_offscreen_)
+        return;
     }
 
     if (is_video_offscreen_) {
@@ -326,7 +339,7 @@ void WebMediaPlayerMSE::UpdateVideoHoleBoundary(bool forced) {
           FROM_HERE,
           base::TimeDelta::FromMilliseconds(kMinVideoHoleUpdateInterval),
           base::Bind(&WebMediaPlayerMSE::UpdateVideoHoleBoundary,
-                     base::Unretained(this), true));
+                     base::Unretained(this), false));
     }
   }
 }

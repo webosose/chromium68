@@ -62,6 +62,8 @@ void VideoDecoderWebOS::Initialize(const VideoDecoderConfig& config,
     return;
   }
 
+  ConfigureDecoder(low_delay);
+
   output_cb_ = BindToCurrentLoop(output_cb);
 
   state_ = kNormal;
@@ -77,6 +79,11 @@ bool VideoDecoderWebOS::FeedForPlatformMediaVideoDecoder(
     return false;
 
   return media_platform_api_->Feed(buffer, MediaPlatformAPI::Video);
+}
+
+void VideoDecoderWebOS::ConfigureDecoder(bool low_delay) {
+  if (media_platform_api_ && state_ != kUninitialized)
+    media_platform_api_->UpdateVideoConfig(config_);
 }
 
 }  // namespace media

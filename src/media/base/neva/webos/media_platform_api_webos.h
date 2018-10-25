@@ -38,17 +38,17 @@ class MEDIA_EXPORT MediaPlatformAPIWebOS : public MediaPlatformAPI {
  public:
   typedef base::Callback<void(const blink::WebRect&)> ActiveRegionCB;
   MediaPlatformAPIWebOS() {}
-  static MediaPlatformAPIWebOS* Create(
+  static scoped_refptr<MediaPlatformAPIWebOS> Create(
       const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
       bool video,
       const std::string& app_id,
       const ActiveRegionCB& active_region_cb,
       const PipelineStatusCB& error_cb);
 
+  // MediaPlatformAPI
   virtual void Initialize(const AudioDecoderConfig& audio_config,
                           const VideoDecoderConfig& video_config,
                           const PipelineStatusCB& init_cb) = 0;
-  virtual void SwitchToAutoLayout() = 0;
   virtual void SetDisplayWindow(const gfx::Rect& rect,
                                 const gfx::Rect& in_rect,
                                 bool fullscreen) = 0;
@@ -64,16 +64,12 @@ class MEDIA_EXPORT MediaPlatformAPIWebOS : public MediaPlatformAPI {
   virtual bool AllowedFeedVideo() = 0;
   virtual bool AllowedFeedAudio() = 0;
   virtual void Finalize() = 0;
-#if defined(ENABLE_LG_SVP)
-  virtual void SetKeySystem(const std::string key_system) = 0;
-#endif
+  virtual void SetKeySystem(const std::string& key_system) = 0;
   virtual bool IsEOSReceived() = 0;
+  virtual void UpdateVideoConfig(const VideoDecoderConfig& video_config) {}
+  // End of MediaPlatformAPI
 
-  virtual void SetNaturalSize(const gfx::Size& size) = 0;
-  virtual bool Loaded() = 0;
-  virtual std::string GetMediaID(void) = 0;
-  virtual bool IsReleasedMediaResource() = 0;
-
+  virtual void SwitchToAutoLayout() = 0;
   virtual void SetVisibility(bool visible) = 0;
   virtual bool Visibility() = 0;
 

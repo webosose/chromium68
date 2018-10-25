@@ -26,6 +26,13 @@ pkg_config("media_base_webos_config") {
     "luna-service2",
     "umedia_api",
   ]
+
+  if (use_gst_media) {
+    packages += [
+      "gmp-player-client",
+      "gstreamer-1.0",
+    ]
+  }
 }
 
 source_set("webos") {
@@ -38,10 +45,16 @@ source_set("webos") {
     "media_platform_api_webos.h",
     "neva_mime_util_internal_webos.cc",
   ]
-  sources += [
-    "media_platform_api_webos_stub.cc",
-    "media_platform_api_webos_stub.h",
-  ]
-
+  if (use_gst_media) {
+    sources += [
+      "media_platform_api_webos_gmp.cc",
+      "media_platform_api_webos_gmp.h",
+    ]
+  } else {
+    sources += [
+      "media_platform_api_webos_stub.cc",
+      "media_platform_api_webos_stub.h",
+    ]
+  }
   configs += [ ":media_base_webos_config" ]
 }

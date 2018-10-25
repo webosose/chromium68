@@ -51,6 +51,8 @@ declare_args() {
 
   enable_webm_video_codecs = true
 
+  use_gst_media = false
+
   # Use memory trace feature
   use_memory_trace = false
 
