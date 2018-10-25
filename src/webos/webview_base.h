@@ -197,7 +197,6 @@ class WEBOS_EXPORT WebViewBase
   void SetDatabaseIdentifier(const std::string& identifier);
   void SetWebSecurityEnabled(bool enable);
   void SetXFrameOptionsCrossOriginAllowed(bool enable);
-  void SetFixedPositionCreatesStackingContext(bool enable);
   void SetKeepAliveWebApp(bool enable);
   void SetAdditionalFontFamilyEnabled(bool enable);
   void SetForceVideoTexture(bool enable);

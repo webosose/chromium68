@@ -558,10 +558,6 @@ void WebView::UpdatePreferencesAttributeForPrefs(
     case Attribute::WebSecurityEnabled:
       preferences->web_security_enabled = enable;
       break;
-    case Attribute::FixedPositionCreatesStackingContext:
-      NOTIMPLEMENTED()
-          << "Attribute::FixedPositionCreatesStackingContext is not supported";
-      return;
     case Attribute::RequestQuotaEnabled:
     case Attribute::DisallowScrollingInMainFrame:
     case Attribute::V8DateUseSystemLocaloffset:

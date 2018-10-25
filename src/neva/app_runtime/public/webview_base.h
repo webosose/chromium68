@@ -141,7 +141,6 @@ class APP_RUNTIME_EXPORT WebViewBase : public WebViewDelegate,
   void SetLocalStorageEnabled(bool enable);
   void SetDatabaseIdentifier(const std::string& identifier);
   void SetWebSecurityEnabled(bool enable);
-  void SetFixedPositionCreatesStackingContext(bool enable);
   void SetKeepAliveWebApp(bool enable);
   void SetAdditionalFontFamilyEnabled(bool enable);
 

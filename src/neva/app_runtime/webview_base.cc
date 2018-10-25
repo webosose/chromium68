@@ -398,11 +398,6 @@ void WebViewBase::SetWebSecurityEnabled(bool enable) {
                                        enable);
 }
 
-void WebViewBase::SetFixedPositionCreatesStackingContext(bool enable) {
-  webview_->UpdatePreferencesAttribute(
-      WebView::Attribute::FixedPositionCreatesStackingContext, enable);
-}
-
 void WebViewBase::SetKeepAliveWebApp(bool enable) {
   webview_->UpdatePreferencesAttribute(WebView::Attribute::KeepAliveWebApp,
                                        enable);
