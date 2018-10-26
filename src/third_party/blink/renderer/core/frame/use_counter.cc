@@ -1138,6 +1138,16 @@ int UseCounter::MapCSSPropertyIdToCSSSampleIdForHistogram(
       return 592;
     case CSSPropertyViewportFit:
       return 593;
+    case CSSPropertyNavRight:
+      return 594;
+    case CSSPropertyNavLeft:
+      return 595;
+    case CSSPropertyNavUp:
+      return 596;
+    case CSSPropertyNavDown:
+      return 597;
+    case CSSPropertyNavIndex:
+      return 598;
     // 1. Add new features above this line (don't change the assigned numbers of
     // the existing items).
     // 2. Update kMaximumCSSSampleId (defined in

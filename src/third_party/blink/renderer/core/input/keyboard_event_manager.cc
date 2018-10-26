@@ -345,7 +345,9 @@ void KeyboardEventManager::DefaultArrowEventHandler(
     return;
 
   WebFocusType type = FocusDirectionForKey(event);
-  if (type != kWebFocusTypeNone && IsSpatialNavigationEnabled(frame_) &&
+  if (type != kWebFocusTypeNone &&
+      (RuntimeEnabledFeatures::CSSNavigationEnabled() ||
+       IsSpatialNavigationEnabled(frame_)) &&
       !frame_->GetDocument()->InDesignMode()) {
     if (page->GetFocusController().AdvanceFocus(type)) {
       event->SetDefaultHandled();

@@ -863,6 +863,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
 
   settings->SetSpatialNavigationEnabled(prefs.spatial_navigation_enabled);
 
+  WebRuntimeFeatures::EnableCSSNavigation(prefs.css_navigation_enabled);
+
   settings->SetSelectionIncludesAltImageText(true);
 
   settings->SetV8CacheOptions(

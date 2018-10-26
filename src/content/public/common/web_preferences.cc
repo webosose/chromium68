@@ -188,6 +188,7 @@ WebPreferences::WebPreferences()
       text_track_margin_percentage(0.0f),
       immersive_mode_enabled(false),
       accessibility_explore_by_mouse_enabled(false),
+      css_navigation_enabled(false),
 #if defined(OS_ANDROID)
       text_autosizing_enabled(true),
       font_scale_factor(1.0f),

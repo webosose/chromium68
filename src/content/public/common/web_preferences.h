@@ -226,6 +226,7 @@ struct CONTENT_EXPORT WebPreferences : public WebPreferencesNeva {
   bool immersive_mode_enabled;
 
   bool accessibility_explore_by_mouse_enabled;
+  bool css_navigation_enabled;
 
 #if defined(OS_ANDROID)
   bool text_autosizing_enabled;

@@ -134,6 +134,7 @@ CONTENT_EXPORT extern const char kEnableSlimmingPaintV175[];
 CONTENT_EXPORT extern const char kEnableSlimmingPaintV2[];
 CONTENT_EXPORT extern const char kEnableSmoothScrolling[];
 CONTENT_EXPORT extern const char kEnableSpatialNavigation[];
+CONTENT_EXPORT extern const char kEnableCSSNavigation[];
 CONTENT_EXPORT extern const char kEnableStrictMixedContentChecking[];
 CONTENT_EXPORT extern const char kEnableStrictPowerfulFeatureRestrictions[];
 CONTENT_EXPORT extern const char kEnableThreadedCompositing[];

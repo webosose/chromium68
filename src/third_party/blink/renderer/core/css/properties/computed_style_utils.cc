@@ -2341,4 +2341,40 @@ CSSValue* ComputedStyleUtils::ValueForGapLength(const GapLength& gap_length,
   return ZoomAdjustedPixelValueForLength(gap_length.GetLength(), style);
 }
 
+CSSValue* ComputedStyleUtils::ValueForNavigationDataList(
+    const ComputedStyle& style,
+    CSSPropertyID property_id) {
+  const scoped_refptr<StyleNavigationData> navigation =
+      style.Navigation(property_id);
+  if (!navigation || !navigation->flag)
+    return CSSIdentifierValue::Create(CSSValueAuto);
+
+  CSSValue* value_id =
+      CSSCustomIdentValue::Create(AtomicString(navigation->id));
+  if (navigation->flag == StyleNavigationData::NAVIGATION_TARGET_CURRENT)
+    return value_id;
+
+  CSSValueList* list = CSSValueList::CreateSpaceSeparated();
+  list->Append(*value_id);
+  if (navigation->flag == StyleNavigationData::NAVIGATION_TARGET_NAME) {
+    list->Append(
+        *CSSCustomIdentValue::Create(AtomicString(navigation->target)));
+  } else {
+    list->Append(*CSSIdentifierValue::Create(CSSValueRoot));
+  }
+
+  return list;
+}
+
+CSSValue* ComputedStyleUtils::ValueForNavigationIndex(
+    const ComputedStyle& style,
+    CSSPropertyID) {
+  const scoped_refptr<StyleNavigationIndex> navigation_index =
+      style.NavigationIndex();
+  if (!navigation_index || navigation_index->is_auto)
+    return CSSIdentifierValue::Create(CSSValueAuto);
+  return CSSPrimitiveValue::Create(navigation_index->index,
+                                   CSSPrimitiveValue::UnitType::kNumber);
+}
+
 }  // namespace blink

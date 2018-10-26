@@ -524,6 +524,9 @@ WebPreferences RenderViewHostImpl::ComputeWebkitPrefs() {
   prefs.spatial_navigation_enabled = command_line.HasSwitch(
       switches::kEnableSpatialNavigation);
 
+  prefs.css_navigation_enabled =
+      command_line.HasSwitch(switches::kEnableCSSNavigation);
+
   prefs.disable_reading_from_canvas = command_line.HasSwitch(
       switches::kDisableReadingFromCanvas);
 

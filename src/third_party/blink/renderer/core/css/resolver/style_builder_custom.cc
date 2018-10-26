@@ -113,6 +113,88 @@ static inline bool IsValidVisitedLinkProperty(CSSPropertyID id) {
   }
 }
 
+static inline bool IsCSSNavigationProperty(CSSPropertyID id) {
+  switch (id) {
+    case CSSPropertyNavIndex:
+    case CSSPropertyNavLeft:
+    case CSSPropertyNavRight:
+    case CSSPropertyNavUp:
+    case CSSPropertyNavDown:
+      return true;
+    default:
+      return false;
+  }
+}
+
+void ApplyCSSNavigationProperty(CSSPropertyID id,
+                                StyleResolverState& state,
+                                const CSSValue& value,
+                                bool is_initial,
+                                bool is_inherit) {
+  if (is_inherit) {
+    state.Style()->InheritNavigation(id, state.ParentStyle());
+    return;
+  }
+
+  if (id == CSSPropertyNavIndex) {
+    bool is_auto = (value.IsIdentifierValue() &&
+                    ToCSSIdentifierValue(value).GetValueID() == CSSValueAuto);
+    is_auto = (is_initial || is_auto);
+
+    scoped_refptr<StyleNavigationIndex> navigation_index =
+        state.Style()->AccessNavigationIndex();
+    DCHECK(navigation_index.get());
+
+    if (is_auto) {
+      navigation_index->is_auto = true;
+      return;
+    }
+
+    navigation_index->is_auto = false;
+    navigation_index->index =
+        std::max(static_cast<int>(std::numeric_limits<short>::min()),
+                 std::min(ToCSSPrimitiveValue(value).GetIntValue(),
+                          static_cast<int>(std::numeric_limits<short>::max())));
+
+    state.GetElement()->setTabIndex(navigation_index->index);
+  } else if (id == CSSPropertyNavLeft || id == CSSPropertyNavRight ||
+             id == CSSPropertyNavUp || id == CSSPropertyNavDown) {
+    scoped_refptr<StyleNavigationData> navigation =
+        state.Style()->AccessNavigation(id);
+    DCHECK(navigation.get());
+
+    if (value.IsIdentifierValue() &&
+        ToCSSIdentifierValue(value).GetValueID() == CSSValueAuto) {
+      navigation->flag = StyleNavigationData::NAVIGATION_TARGET_NONE;
+      return;
+    }
+
+    if (value.IsCustomIdentValue()) {
+      navigation->flag = StyleNavigationData::NAVIGATION_TARGET_CURRENT;
+      navigation->id = ToCSSCustomIdentValue(value).Value();
+    } else if (value.IsValueList()) {
+      const CSSValueList& list = ToCSSValueList(value);
+      DCHECK_EQ(list.length(), 2U);
+      const CSSValue& item0 = list.Item(0);
+      if (!item0.IsCustomIdentValue())
+        return;
+      navigation->id = ToCSSCustomIdentValue(item0).Value();
+
+      const CSSValue& item1 = list.Item(1);
+      if (item1.IsPrimitiveValue() &&
+          ToCSSIdentifierValue(value).GetValueID() == CSSValueRoot) {
+        navigation->flag = StyleNavigationData::NAVIGATION_TARGET_ROOT;
+      } else if (item1.IsCustomIdentValue()) {
+        navigation->flag = StyleNavigationData::NAVIGATION_TARGET_NAME;
+        navigation->target = ToCSSCustomIdentValue(item1).Value();
+      } else {
+        navigation->flag = StyleNavigationData::NAVIGATION_TARGET_CURRENT;
+      }
+    }
+  } else
+    NOTREACHED();
+}
+
 }  // namespace
 
 void StyleBuilder::ApplyProperty(const CSSProperty& property,
@@ -164,6 +246,11 @@ void StyleBuilder::ApplyProperty(const CSSProperty& property,
       is_inherit = true;
     else
       is_initial = true;
+  }
+
+  if (IsCSSNavigationProperty(id)) {
+    ApplyCSSNavigationProperty(id, state, value, is_initial, is_inherit);
+    return;
   }
 
   StyleBuilder::ApplyProperty(property, state, value, is_initial, is_inherit);

@@ -4361,7 +4361,36 @@
       inherited: true,
       builder_skip: true,
     },
-
+    {
+      name: "nav-index",
+      property_methods: ["ParseSingleValue", "CSSValueFromComputedStyleInternal"],
+      inherited: true,
+      builder_skip: true,
+    },
+    {
+      name: "nav-up",
+      property_methods: ["ParseSingleValue", "CSSValueFromComputedStyleInternal"],
+      inherited: true,
+      builder_skip: true,
+    },
+    {
+      name: "nav-down",
+      property_methods: ["ParseSingleValue", "CSSValueFromComputedStyleInternal"],
+      inherited: true,
+      builder_skip: true,
+    },
+    {
+      name: "nav-left",
+      property_methods: ["ParseSingleValue", "CSSValueFromComputedStyleInternal"],
+      inherited: true,
+      builder_skip: true,
+    },
+    {
+      name: "nav-right",
+      property_methods: ["ParseSingleValue", "CSSValueFromComputedStyleInternal"],
+      inherited: true,
+      builder_skip: true,
+    },
     // Descriptor only names
     {
       name: "font-display",

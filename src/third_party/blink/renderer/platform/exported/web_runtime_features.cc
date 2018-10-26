@@ -112,6 +112,10 @@ void WebRuntimeFeatures::EnableCSSHexAlphaColor(bool enable) {
   RuntimeEnabledFeatures::SetCSSHexAlphaColorEnabled(enable);
 }
 
+void WebRuntimeFeatures::EnableCSSNavigation(bool enable) {
+  RuntimeEnabledFeatures::SetCSSNavigationEnabled(enable);
+}
+
 void WebRuntimeFeatures::EnableScrollTopLeftInterop(bool enable) {
   RuntimeEnabledFeatures::SetScrollTopLeftInteropEnabled(enable);
 }

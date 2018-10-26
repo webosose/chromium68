@@ -191,6 +191,9 @@ class ComputedStyleUtils {
   static CSSValue* ScrollCustomizationFlagsToCSSValue(
       ScrollCustomization::ScrollDirection);
   static CSSValue* ValueForGapLength(const GapLength&, const ComputedStyle&);
+  static CSSValue* ValueForNavigationDataList(const ComputedStyle&,
+                                              CSSPropertyID);
+  static CSSValue* ValueForNavigationIndex(const ComputedStyle&, CSSPropertyID);
 };
 
 }  // namespace blink

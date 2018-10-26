@@ -38,6 +38,8 @@
 #include "third_party/blink/renderer/core/style/computed_style_initial_values.h"
 #include "third_party/blink/renderer/core/style/cursor_list.h"
 #include "third_party/blink/renderer/core/style/data_ref.h"
+#include "third_party/blink/renderer/core/style/style_navigation_data.h"
+#include "third_party/blink/renderer/core/style/style_navigation_index.h"
 #include "third_party/blink/renderer/core/style/svg_computed_style.h"
 #include "third_party/blink/renderer/core/style/transform_origin.h"
 #include "third_party/blink/renderer/platform/geometry/layout_rect_outsets.h"
@@ -2156,6 +2158,12 @@ class ComputedStyle : public ComputedStyleBase,
     }
     return false;
   }
+
+  const scoped_refptr<StyleNavigationData> Navigation(int property_id) const;
+  scoped_refptr<StyleNavigationData> AccessNavigation(int property_id);
+  const scoped_refptr<StyleNavigationIndex> NavigationIndex() const;
+  scoped_refptr<StyleNavigationIndex> AccessNavigationIndex();
+  void InheritNavigation(int property_id, const ComputedStyle* inherit_parent);
 
   // Border utility functions.
   bool BorderObscuresBackground() const;
