@@ -695,13 +695,24 @@ jumbo_component("views") {
           "widget/desktop_aura/desktop_window_tree_host_win.h",
         ]
       } else if (use_ozone) {
-        public += [ "widget/desktop_aura/desktop_screen_ozone.h" ]
         sources += [
           "widget/desktop_aura/desktop_factory_ozone.cc",
           "widget/desktop_aura/desktop_factory_ozone.h",
           "widget/desktop_aura/desktop_screen_ozone.cc",
-          "widget/desktop_aura/desktop_window_tree_host_ozone.cc",
+          "widget/desktop_aura/desktop_screen_ozone.h",
         ]
+        if (ozone_platform_wayland_external) {
+          sources += [
+            "widget/desktop_aura/desktop_factory_ozone.cc",
+            "widget/desktop_aura/desktop_factory_ozone.h",
+            "widget/desktop_aura/desktop_window_tree_host_ozone.cc",
+          ]
+        } else {
+          sources += [
+            "widget/desktop_aura/desktop_drag_drop_client_ozone.cc",
+            "widget/desktop_aura/desktop_drag_drop_client_ozone.h",
+          ]
+        }
       }
       if (is_linux) {
         sources += [
@@ -1151,8 +1162,10 @@ test("views_unittests") {
   }
 
   if (is_linux && !is_chromeos && !use_x11) {
-    sources +=
-        [ "widget/desktop_aura/desktop_window_tree_host_platform_unittest.cc" ]
+    sources += [
+      "widget/desktop_aura/desktop_drag_drop_client_ozone_unittest.cc",
+      "widget/desktop_aura/desktop_window_tree_host_platform_unittest.cc",
+    ]
   }
 
   if (!is_chromeos) {
@@ -1162,6 +1175,7 @@ test("views_unittests") {
   deps = [
     ":views_unittests_sources",
     "//mojo/edk",
+    "//ui/platform_window/platform_window_handler",
   ]
 }
 
