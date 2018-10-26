@@ -562,6 +562,10 @@ class NET_EXPORT_PRIVATE HttpCache::Transaction : public HttpTransaction {
   // Saves network transaction info using |transaction|.
   void SaveNetworkTransactionInfo(const HttpTransaction& transaction);
 
+#if defined(USE_NEVA_APPRUNTIME)
+  bool ShouldSkipWrites() const;
+#endif
+
   State next_state_;
 
   // Initial request with which Start() was invoked.

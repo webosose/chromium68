@@ -123,6 +123,10 @@ class URLRequestContextFactory {
   std::unique_ptr<net::NetworkDelegate> network_delegate_;
   std::unique_ptr<net::CookieStore> cookie_store_;
   std::unique_ptr<net::HttpNetworkSession> network_session_;
+
+#if defined(ENABLE_EMMC_OPTIMIZATIONS)
+  static const int64_t kCacheMinContentLength = 16 * 1024;
+#endif
 };
 
 }  // namespace app_runtime

@@ -107,7 +107,7 @@ config("config") {
   }
 
   if (enable_emmc_optimizations) {
-    defines += [ "ENABLE_EMMC_OPTIMIZATIONS" ]
+    defines += [ "ENABLE_EMMC_OPTIMIZATIONS=1" ]
   }
 
   if (use_lttng && current_toolchain == default_toolchain) {

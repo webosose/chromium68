@@ -431,6 +431,11 @@ net::URLRequestContext* URLRequestContextFactory::CreateMainRequestContext(
 
   InitializeMainContextDependencies(
       new net::HttpCache(network_session_.get(), std::move(main_backend),
+#if defined(ENABLE_EMMC_OPTIMIZATIONS)
+                         kCacheMinContentLength, true,
+#else
+                         0, false,
+#endif
                          false),
       protocol_handlers, std::move(request_interceptors));
 

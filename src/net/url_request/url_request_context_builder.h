@@ -114,6 +114,13 @@ class NET_EXPORT URLRequestContextBuilder {
 
     // The cache path (when type is DISK).
     base::FilePath path;
+
+#if defined(USE_NEVA_APPRUNTIME)
+    // Content-length smaller than this will be excluded from this cache.
+    int min_content_length;
+    // Do not store media files
+    bool exclude_media;
+#endif
   };
 
   URLRequestContextBuilder();

@@ -156,12 +156,20 @@ class NET_EXPORT HttpCache : public HttpTransactionFactory {
   // TODO(zhongyi): remove |is_main_cache| when we get rid of cache split.
   HttpCache(HttpNetworkSession* session,
             std::unique_ptr<BackendFactory> backend_factory,
+#if defined(USE_NEVA_APPRUNTIME)
+            int min_content_length,
+            bool exclude_media,
+#endif
             bool is_main_cache);
 
   // Initialize the cache from its component parts. |network_layer| and
   // |backend_factory| will be destroyed when the HttpCache is.
   HttpCache(std::unique_ptr<HttpTransactionFactory> network_layer,
             std::unique_ptr<BackendFactory> backend_factory,
+#if defined(USE_NEVA_APPRUNTIME)
+            int min_content_length,
+            bool exclude_media,
+#endif
             bool is_main_cache);
 
   ~HttpCache() override;
@@ -202,6 +210,12 @@ class NET_EXPORT HttpCache : public HttpTransactionFactory {
   // Get/Set the cache's clock. These are public only for testing.
   void SetClockForTesting(base::Clock* clock) { clock_ = clock; }
   base::Clock* clock() const { return clock_; }
+
+#if defined(USE_NEVA_APPRUNTIME)
+  // Get the minimum content length stored in the cache.
+  int min_content_length() const { return min_content_length_; }
+  bool exclude_media() const { return exclude_media_; }
+#endif
 
   // Close currently active sockets so that fresh page loads will not use any
   // recycled connections.  For sockets currently in use, they may not close
@@ -598,6 +612,13 @@ class NET_EXPORT HttpCache : public HttpTransactionFactory {
 
   // A clock that can be swapped out for testing.
   base::Clock* clock_;
+
+#if defined(USE_NEVA_APPRUNTIME)
+  // Content-length smaller than this will be excluded from this cache.
+  int min_content_length_;
+  // Do not store media files
+  bool exclude_media_;
+#endif
 
   THREAD_CHECKER(thread_checker_);
 

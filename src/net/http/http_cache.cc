@@ -305,13 +305,26 @@ void HttpCache::MetadataWriter::OnIOComplete(int result) {
 //-----------------------------------------------------------------------------
 HttpCache::HttpCache(HttpNetworkSession* session,
                      std::unique_ptr<BackendFactory> backend_factory,
+#if defined(USE_NEVA_APPRUNTIME)
+                     int min_content_length,
+                     bool exclude_media,
+#endif
                      bool is_main_cache)
     : HttpCache(std::make_unique<HttpNetworkLayer>(session),
                 std::move(backend_factory),
-                is_main_cache) {}
+#if defined(USE_NEVA_APPRUNTIME)
+                min_content_length,
+                exclude_media,
+#endif
+                is_main_cache) {
+}
 
 HttpCache::HttpCache(std::unique_ptr<HttpTransactionFactory> network_layer,
                      std::unique_ptr<BackendFactory> backend_factory,
+#if defined(USE_NEVA_APPRUNTIME)
+                     int min_content_length,
+                     bool exclude_media,
+#endif
                      bool is_main_cache)
     : net_log_(nullptr),
       backend_factory_(std::move(backend_factory)),
@@ -322,6 +335,10 @@ HttpCache::HttpCache(std::unique_ptr<HttpTransactionFactory> network_layer,
       mode_(NORMAL),
       network_layer_(std::move(network_layer)),
       clock_(base::DefaultClock::GetInstance()),
+#if defined(USE_NEVA_APPRUNTIME)
+      min_content_length_(min_content_length),
+      exclude_media_(exclude_media),
+#endif
       weak_factory_(this) {
   HttpNetworkSession* session = network_layer_->GetSession();
   // Session may be NULL in unittests.

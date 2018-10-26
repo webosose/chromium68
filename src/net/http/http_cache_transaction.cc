@@ -32,6 +32,7 @@
 #include "net/base/auth.h"
 #include "net/base/load_flags.h"
 #include "net/base/load_timing_info.h"
+#include "net/base/mime_util.h"
 #include "net/base/trace_constants.h"
 #include "net/base/upload_data_stream.h"
 #include "net/cert/cert_status_flags.h"
@@ -2995,6 +2996,41 @@ int HttpCache::Transaction::WriteToEntry(int index, int offset,
   return rv;
 }
 
+#if defined(USE_NEVA_APPRUNTIME)
+// Several strategies to reduce writes to cache, targetted to devices
+// using eMMC storage.
+bool HttpCache::Transaction::ShouldSkipWrites() const {
+  std::string mime_type;
+  response_.headers->GetMimeType(&mime_type);
+
+  // Never skip cache manifest, even if it is smaller than the minimum
+  // content lenght. Otherwise it will break cache and several sites.
+  if (MatchesMimeType("text/cache-manifest", mime_type))
+    return false;
+
+  // Store to cache if content length is 0 (as in domain requests)
+  // unless it is already going to require revalidation.
+  bool no_cache =
+      response_.headers->HasHeaderValue("cache-control", "no-cache") ||
+      response_.headers->HasHeaderValue("cache-control", "no-store") ||
+      response_.headers->HasHeaderValue("pragma", "no-cache");
+  if (response_.headers->GetContentLength() == 0 && !no_cache)
+    return false;
+
+  // If the content length is not big enough, we avoid storing to disk too
+  // assuming the effort to fetch from network is not going to be big.
+  if (response_.headers->GetContentLength() < cache_->min_content_length())
+    return true;
+
+  // If it is a media file and we excluded it from the cache
+  if (cache_->exclude_media() && !MatchesMimeType("image/*", mime_type)) {
+    return true;
+  }
+
+  return false;
+}
+#endif
+
 int HttpCache::Transaction::WriteResponseInfoToEntry(bool truncated) {
   if (!entry_)
     return OK;
@@ -3012,6 +3048,9 @@ int HttpCache::Transaction::WriteResponseInfoToEntry(bool truncated) {
   // blocking page is shown.  An alternative would be to reverse-map the cert
   // status to a net error and replay the net error.
   if ((response_.headers->HasHeaderValue("cache-control", "no-store")) ||
+#if defined(USE_NEVA_APPRUNTIME)
+      ShouldSkipWrites() ||
+#endif
       IsCertStatusError(response_.ssl_info.cert_status)) {
     bool stopped = StopCachingImpl(false);
     DCHECK(stopped);
