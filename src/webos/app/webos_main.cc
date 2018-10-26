@@ -17,9 +17,11 @@
 #include "webos/app/webos_main.h"
 
 #include "content/public/app/content_main.h"
+#include "content/public/browser/runtime_delegate_webos.h"
 #include "neva/app_runtime/app/app_runtime_main_delegate.h"
 #include "webos/app/webos_content_main_delegate.h"
 #include "webos/browser/net/webos_network_delegate.h"
+#include "webos/common/webos_runtime_delegate.h"
 #include "webos/public/runtime.h"
 
 namespace webos {
@@ -38,6 +40,8 @@ int WebOSMain::Run(int argc, const char** argv) {
 
   params.argc = argc;
   params.argv = argv;
+
+  content::SetRuntimeDelegateWebOS(new webos::WebOSRuntimeDelegate());
 
   return content::ContentMain(params);
 }

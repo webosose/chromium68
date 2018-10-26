@@ -23,7 +23,7 @@ import("//build/config/ui.gni")
 if (use_cbe) {
   component("weboswebruntime") {
     deps = [
-      ":webos_impl"
+      ":webos_impl",
     ]
   }
 } else {
@@ -31,7 +31,7 @@ if (use_cbe) {
     output_name = "cbe"
 
     deps = [
-      ":webos_impl"
+      ":webos_impl",
     ]
   }
 }
@@ -58,12 +58,14 @@ source_set("webos_impl") {
     "common/webos_constants.h",
     "common/webos_content_client.cc",
     "common/webos_content_client.h",
+    "common/webos_event.h",
     "common/webos_export.h",
     "common/webos_locales_mapping.cc",
     "common/webos_locales_mapping.h",
     "common/webos_native_event_delegate.h",
     "common/webos_native_window_state.h",
-    "common/webos_event.h",
+    "common/webos_runtime_delegate.cc",
+    "common/webos_runtime_delegate.h",
     "public/runtime.cc",
     "public/runtime.h",
     "public/runtime_delegates.h",
@@ -73,23 +75,22 @@ source_set("webos_impl") {
     "webapp_window_base.h",
     "webapp_window_delegate.cc",
     "webapp_window_delegate.h",
-    "webview_profile.cc",
-    "webview_profile.h",
     "webos_platform.cc",
     "webos_platform.h",
     "webview_base.cc",
     "webview_base.h",
+    "webview_profile.cc",
+    "webview_profile.h",
     "window_group_configuration.cc",
     "window_group_configuration.h",
   ]
 
   deps = [
     "//neva/app_runtime",
-    "//third_party/leveldatabase",
     "//third_party/blink/public:blink",
+    "//third_party/leveldatabase",
     "//ui/gl",
   ]
-
 
   include_dirs = [ "." ]
 }
