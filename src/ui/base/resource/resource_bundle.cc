@@ -366,6 +366,7 @@ std::string ResourceBundle::LoadLocaleResources(
     return std::string();
   }
 
+  loaded_locale_ = app_locale;
   locale_resources_data_ = std::move(data_pack);
   return app_locale;
 }
@@ -436,6 +437,16 @@ base::string16 ResourceBundle::MaybeMangleLocalizedString(
 std::string ResourceBundle::ReloadLocaleResources(
     const std::string& pref_locale) {
   base::AutoLock lock_scope(*locale_resources_data_lock_);
+
+#if defined(OS_WEBOS)
+  // When zygote is running the locales are loaded in zygote process and
+  // are shared across for renderer process. Render process can not keep track
+  // as locale has been reloaded for language change or not. This check will
+  // prevent multiple reload of resources for the zygote process
+  std::string app_locale = l10n_util::GetApplicationLocale(pref_locale);
+  if (loaded_locale_ == app_locale)
+    return app_locale;
+#endif
 
   // Remove all overriden strings, as they will not be valid for the new locale.
   overridden_locale_strings_.clear();

@@ -263,4 +263,7 @@ interface Renderer {
 
   // Tells the renderer process to purge and suspend.
   ProcessPurgeAndSuspend();
+
+  // Notification for the renderer process about locale changes
+  OnLocaleChanged(string new_locale);
 };

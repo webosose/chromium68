@@ -2294,6 +2294,10 @@ void RenderProcessHostImpl::PurgeAndSuspend() {
   GetRendererInterface()->ProcessPurgeAndSuspend();
 }
 
+void RenderProcessHostImpl::OnLocaleChanged(const std::string& new_locale) {
+  GetRendererInterface()->OnLocaleChanged(new_locale);
+}
+
 void RenderProcessHostImpl::Resume() {}
 
 mojom::Renderer* RenderProcessHostImpl::GetRendererInterface() {

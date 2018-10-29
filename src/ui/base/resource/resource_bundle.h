@@ -426,6 +426,7 @@ class UI_BASE_EXPORT ResourceBundle {
 
   gfx::Image empty_image_;
 
+  std::string loaded_locale_;
   // The various font lists used, as a map from a signed size delta from the
   // platform base font size, plus style, to the FontList. Cached to avoid
   // repeated GDI creation/destruction and font derivation.

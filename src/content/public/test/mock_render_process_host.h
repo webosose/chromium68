@@ -130,6 +130,7 @@ class MockRenderProcessHost : public RenderProcessHost {
   void DisableKeepAliveRefCount() override;
   bool IsKeepAliveRefCountDisabled() override;
   void PurgeAndSuspend() override;
+  void OnLocaleChanged(const std::string& new_locale) override {}
   void Resume() override;
   mojom::Renderer* GetRendererInterface() override;
   resource_coordinator::ProcessResourceCoordinator*

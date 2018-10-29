@@ -416,6 +416,8 @@ class CONTENT_EXPORT ContentRendererClient {
   // from outside of the browsing instance.
   virtual blink::WebFrame* FindFrame(blink::WebLocalFrame* relative_to_frame,
                                      const std::string& name);
+
+  virtual void OnLocaleChanged(const std::string& new_locale) {}
 };
 
 }  // namespace content

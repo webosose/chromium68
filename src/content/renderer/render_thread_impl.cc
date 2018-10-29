@@ -2329,6 +2329,11 @@ void RenderThreadImpl::OnSystemColorsChanged(
 #endif
 }
 
+void RenderThreadImpl::OnLocaleChanged(const std::string& new_locale) {
+  if (GetContentClient()->renderer())
+    GetContentClient()->renderer()->OnLocaleChanged(new_locale);
+}
+
 void RenderThreadImpl::PurgePluginListCache(bool reload_pages) {
 #if BUILDFLAG(ENABLE_PLUGINS)
   // The call below will cause a GetPlugins call with refresh=true, but at this

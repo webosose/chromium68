@@ -381,6 +381,8 @@ class CONTENT_EXPORT RenderProcessHost : public IPC::Sender,
   // Purges and suspends the renderer process.
   virtual void PurgeAndSuspend() = 0;
 
+  virtual void OnLocaleChanged(const std::string& new_locale) = 0;
+
   // Resumes the renderer process.
   virtual void Resume() = 0;
 
