@@ -384,6 +384,10 @@ class CONTENT_EXPORT RenderFrameHostDelegate {
   // Returns the visibility of the delegate.
   virtual Visibility GetVisibility() const;
 
+  // Notifies the delegate that history.back() is called but there is
+  // nowhere to go back
+  virtual void DidHistoryBackOnTopPage() {}
+
  protected:
   virtual ~RenderFrameHostDelegate() {}
 };

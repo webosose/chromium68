@@ -869,6 +869,7 @@ class CONTENT_EXPORT RenderFrameHostImpl
                      blink::WebTextDirection title_direction);
   void OnDidBlockFramebust(const GURL& url);
   void OnAbortNavigation();
+  void OnDidHistoryBackOnTopPage();
   void OnForwardResourceTimingToParent(
       const ResourceTimingInfo& resource_timing);
   void OnDispatchLoad();

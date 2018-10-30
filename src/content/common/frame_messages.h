@@ -1617,6 +1617,10 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_DidBlockFramebust, GURL /* url */)
 // used when the page calls document.open.
 IPC_MESSAGE_ROUTED0(FrameHostMsg_AbortNavigation)
 
+// history.back() is called when there is nowhere to go,
+// platform should do platform back action.
+IPC_MESSAGE_ROUTED0(FrameHostMsg_DidHistoryBackOnTopPage)
+
 // Sent as a response to FrameMsg_VisualStateRequest.
 // The message is delivered using RenderWidget::QueueMessage.
 IPC_MESSAGE_ROUTED1(FrameHostMsg_VisualStateResponse, uint64_t /* id */)

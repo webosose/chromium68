@@ -1175,6 +1175,11 @@ void WebView::OverrideWebkitPrefs(content::WebPreferences* prefs) {
       web_preferences_->fantasy_font_family_map[content::kCommonScript];
 }
 
+void WebView::DidHistoryBackOnTopPage() {
+  if (webview_delegate_)
+    webview_delegate_->DidHistoryBackOnTopPage();
+}
+
 void WebView::SetV8SnapshotPath(const std::string& v8_snapshot_path) {
   GetAppRuntimeContentBrowserClient()->SetV8SnapshotPath(
       web_contents_->GetMainFrame()->GetProcess()->GetID(), v8_snapshot_path);

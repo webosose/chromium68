@@ -4245,6 +4245,11 @@ void WebContentsImpl::ResourceLoadComplete(
   }
 }
 
+void WebContentsImpl::DidHistoryBackOnTopPage() {
+  if (delegate_)
+    delegate_->DidHistoryBackOnTopPage();
+}
+
 void WebContentsImpl::PrintCrossProcessSubframe(
     const gfx::Rect& rect,
     int document_cookie,

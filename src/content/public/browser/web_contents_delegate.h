@@ -608,6 +608,10 @@ class CONTENT_EXPORT WebContentsDelegate {
   // Picture-in-Picture mode has ended.
   virtual void ExitPictureInPicture();
 
+  // Notifies the delegate that history.back() is called but there is
+  // nowhere to go back
+  virtual void DidHistoryBackOnTopPage() {}
+
  protected:
   virtual ~WebContentsDelegate();
 

@@ -677,8 +677,11 @@ bool LocalFrameClientImpl::NavigateBackForward(int offset) const {
   DCHECK(offset);
   if (offset > webview->Client()->HistoryForwardListCount())
     return false;
-  if (offset < -webview->Client()->HistoryBackListCount())
+  if (offset < -webview->Client()->HistoryBackListCount()) {
+    if (web_frame_->Client())
+      web_frame_->Client()->DidHistoryBackOnTopPage(web_frame_);
     return false;
+  }
   webview->Client()->NavigateBackForwardSoon(offset);
   return true;
 }

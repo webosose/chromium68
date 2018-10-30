@@ -237,6 +237,8 @@ class WebView : public content::WebContentsDelegate,
                                const base::string16& statusText) override;
   void OverrideWebkitPrefs(content::WebPreferences* prefs) override;
 
+  void DidHistoryBackOnTopPage() override;
+
   // WebContentsObserver
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
   void DidStartLoading() override;

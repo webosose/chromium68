@@ -611,6 +611,7 @@ class CONTENT_EXPORT WebContentsImpl : public WebContents,
   void ResourceLoadComplete(
       RenderFrameHost* render_frame_host,
       mojom::ResourceLoadInfoPtr resource_load_information) override;
+  void DidHistoryBackOnTopPage() override;
   // RenderViewHostDelegate ----------------------------------------------------
   RenderViewHostDelegateView* GetDelegateView() override;
   bool OnMessageReceived(RenderViewHostImpl* render_view_host,
