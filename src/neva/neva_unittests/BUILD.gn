@@ -17,9 +17,18 @@
 import("//testing/test.gni")
 
 test("neva_unittests") {
+  output_name = "neva_unittests"
+
+  sources = [
+    "app_runtime_unittest.cc",
+  ]
+
   deps = [
     "//base/test:run_all_unittests",
     # --- Add your component's unittests refs below this line ---
-    "../emulator:unittests"
+    "../emulator:unittests",
+    "//content/public/common",
+    "//neva/app_runtime:app_runtime",
+    "//testing/gtest",
   ]
 }

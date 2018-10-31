@@ -1079,6 +1079,11 @@ const char kV2SandboxedEnabled[] = "v2-sandbox-enabled";
 #if defined(USE_NEVA_MEDIA)
 const char kMaxTimeupdateEventFrequency[] = "max-timeupdate-event-frequency";
 #endif
+
+#if defined(OS_WEBOS)
+// Specify User Agent Suffix such as SmartTv, SmartWatch if required
+const char kUserAgentSuffix[] = "user-agent-suffix";
+#endif
 // Don't dump stuff here, follow the same order as the header.
 
 }  // namespace switches

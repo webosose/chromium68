@@ -312,6 +312,11 @@ extern const char kV2SandboxedEnabled[];
 #if defined(USE_NEVA_MEDIA)
 CONTENT_EXPORT extern const char kMaxTimeupdateEventFrequency[];
 #endif
+
+#if defined(OS_WEBOS)
+CONTENT_EXPORT extern const char kUserAgentSuffix[];
+#endif
+
 // DON'T ADD RANDOM STUFF HERE. Put it in the main section above in
 // alphabetical order, or in one of the ifdefs (also in order in each section).
 

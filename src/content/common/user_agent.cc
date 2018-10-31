@@ -19,6 +19,11 @@
 #include <sys/utsname.h>
 #endif
 
+#if defined(OS_WEBOS)
+#include "base/command_line.h"
+#include "content/public/common/content_switches.h"
+#endif
+
 namespace content {
 
 std::string GetWebKitVersion() {
@@ -93,6 +98,16 @@ std::string BuildOSCpuInfo() {
   } else {
     cputype.assign(unixinfo.machine);
   }
+#if defined(OS_WEBOS)
+  std::string webos_os_cpu = unixinfo.sysname;
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kUserAgentSuffix)) {
+    std::string suffix =
+        command_line->GetSwitchValueASCII(switches::kUserAgentSuffix);
+    if (!suffix.empty())
+      webos_os_cpu += "/" + suffix;
+  }
+#endif  // defined(OS_WEBOS)
 #endif
 
   base::StringAppendF(
@@ -107,6 +122,9 @@ std::string BuildOSCpuInfo() {
       os_major_version,
       os_minor_version,
       os_bugfix_version
+#elif defined(OS_WEBOS)
+                      "%s",
+                      webos_os_cpu.c_str()
 #elif defined(OS_CHROMEOS)
       "CrOS "
       "%s %d.%d.%d",
@@ -134,6 +152,8 @@ std::string getUserAgentPlatform() {
       "";
 #elif defined(OS_MACOSX)
       "Macintosh; ";
+#elif defined(OS_WEBOS)
+      "webOS; ";
 #elif defined(USE_X11) || defined(USE_OZONE)
       "X11; ";           // strange, but that's what Firefox uses
 #elif defined(OS_ANDROID)
