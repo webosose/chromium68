@@ -620,7 +620,7 @@ void WamDemoService::DataUpdated(const std::string& url,
     } else if (cmd == command::kDecidePolicyForResponse) {
       webpage->SetDecidePolicyForResponse();
     } else if (cmd == command::kDeleteWebStorages) {
-      webpage->DeleteWebStorages(appid);
+      webpage->DeleteWebStorages(wam_demo_app_prefix_ + appid);
     } else if (cmd == command::kGoBack) {
       webpage->GoBack();
     } else if (cmd == command::kCanGoBack) {
@@ -1069,6 +1069,7 @@ void WamDemoService::LaunchApp(const std::string& value,
   std::string full_appid = wam_demo_app_prefix_ + appid;
   webpage->SetAppId(full_appid);
   webapp->SetWindowProperty("appId", full_appid);
+  webpage->SetSecurityOrigin(full_appid);
 
   webpage->LoadUrl(appurl.c_str());
   webapp->AttachWebContents(webpage->GetWebContents());

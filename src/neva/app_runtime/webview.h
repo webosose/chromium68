@@ -149,6 +149,11 @@ class WebView : public content::WebContentsDelegate,
   void SetAllowFakeBoldText(bool allow);
   void SetShouldSuppressDialogs(bool suppress);
   void SetAppId(const std::string& app_id);
+
+  // SetSecurityOrigin is used for changing the security origin for local
+  // URLs (kFileScheme). It's needed to set the unique application origin
+  // of local storage. This works only for renderer per application model.
+  void SetSecurityOrigin(const std::string& identifier);
   void SetAcceptLanguages(const std::string& languages);
   void SetUseLaunchOptimization(bool enabled, int delay_ms);
   void SetUseEnyoOptimization(bool enabled);

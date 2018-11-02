@@ -253,6 +253,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::RendererPreferences)
   IPC_STRUCT_TRAITS_MEMBER(media_codec_capability)
   IPC_STRUCT_TRAITS_MEMBER(board_type)
   IPC_STRUCT_TRAITS_MEMBER(allow_fake_bold_text)
+  IPC_STRUCT_TRAITS_MEMBER(security_origin)
 ///@}
 IPC_STRUCT_TRAITS_END()
 

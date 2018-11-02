@@ -166,6 +166,7 @@ class WEBOS_EXPORT WebViewBase
   // RenderPreference
   void SetAllowFakeBoldText(bool allow);
   void SetAppId(const std::string& appId);
+  void SetSecurityOrigin(const std::string& identifier);
   void SetAcceptLanguages(const std::string& lauguages);
   void SetBoardType(const std::string& board_type);
   void SetMediaCodecCapability(const std::string& capability);

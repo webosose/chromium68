@@ -208,6 +208,10 @@
 #endif
 ///@}
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "third_party/blink/renderer/platform/weborigin/security_origin.h"
+#endif
+
 #if defined(USE_NEVA_MEDIA)
 #include "media/base/neva/media_platform_api.h"
 #endif
@@ -1939,6 +1943,12 @@ void RenderViewImpl::OnSetRendererPrefs(
   std::string media_codec_capability = renderer_preferences_.media_codec_capability;
   if(!media_codec_capability.empty())
     media::MediaPlatformAPI::SetMediaCodecCapability(media_codec_capability);
+#endif
+
+#if defined(USE_NEVA_APPRUNTIME)
+  if (!renderer_prefs.security_origin.empty())
+    url::Origin::SetFileOriginChanged(true);
+  blink::SecurityOrigin::MutableLocalOrigin() = renderer_prefs.security_origin;
 #endif
 
 #if BUILDFLAG(USE_DEFAULT_RENDER_THEME)

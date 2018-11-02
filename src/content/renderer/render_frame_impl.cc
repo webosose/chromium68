@@ -5451,8 +5451,15 @@ RenderFrameImpl::MakeDidCommitProvisionalLoadParams(
     if (params->origin.scheme() != url::kFileScheme ||
         !render_view_->GetWebkitPreferences()
              .allow_universal_access_from_file_urls) {
+#if defined(USE_NEVA_APPRUNTIME)
+      if (!(params->origin.scheme() == url::kFileScheme &&
+            !render_view_->renderer_preferences_.security_origin.empty())) {
+#endif
       CHECK(params->origin.IsSameOriginWith(url::Origin::Create(params->url)))
           << " url:" << params->url << " origin:" << params->origin;
+#if defined(USE_NEVA_APPRUNTIME)
+      }
+#endif
     }
   }
 

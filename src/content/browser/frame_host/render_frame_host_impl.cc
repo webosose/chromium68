@@ -178,6 +178,10 @@
 #include "content/public/browser/android/java_interfaces.h"
 #endif
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "content/public/browser/web_contents.h"
+#endif
+
 #if defined(OS_MACOSX)
 #include "content/browser/frame_host/popup_menu_helper_mac.h"
 #endif
@@ -3527,6 +3531,12 @@ bool RenderFrameHostImpl::CanCommitOrigin(
 
   // file: URLs can be allowed to access any other origin, based on settings.
   if (origin.scheme() == url::kFileScheme) {
+#if defined(USE_NEVA_APPRUNTIME)
+    content::RendererPreferences* renderer_prefs =
+        delegate_->GetAsWebContents()->GetMutableRendererPrefs();
+    if (!renderer_prefs->security_origin.empty())
+      return true;
+#endif
     WebPreferences prefs = render_view_host_->GetWebkitPreferences();
     if (prefs.allow_universal_access_from_file_urls)
       return true;

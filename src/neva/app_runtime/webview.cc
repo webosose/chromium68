@@ -40,6 +40,7 @@
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/content_switches.h"
 #include "content/public/common/favicon_url.h"
 #include "content/public/common/page_zoom.h"
 #include "content/public/common/renderer_preferences.h"
@@ -56,6 +57,7 @@
 #include "neva/app_runtime/public/webview_delegate.h"
 #include "neva/app_runtime/webapp_injection_manager.h"
 #include "neva/app_runtime/webview_profile.h"
+#include "neva/logging.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
 #include "third_party/blink/public/mojom/page/page_visibility_state.mojom.h"
 #include "ui/aura/window.h"
@@ -448,6 +450,29 @@ void WebView::SetAppId(const std::string& app_id) {
   content::RenderViewHost* rvh = web_contents_->GetRenderViewHost();
   if (rvh)
     rvh->SyncRendererPrefs();
+}
+
+void WebView::SetSecurityOrigin(const std::string& identifier) {
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  NEVA_DCHECK(!command_line->HasSwitch(switches::kProcessPerSite) &&
+              !command_line->HasSwitch(switches::kProcessPerTab) &&
+              !command_line->HasSwitch(switches::kSingleProcess))
+      << "Wrong process model for calling WebView::SetSecurityOrigin() method!";
+
+  content::RendererPreferences* renderer_prefs =
+      web_contents_->GetMutableRendererPrefs();
+  if (!renderer_prefs->security_origin.compare(identifier))
+    return;
+
+  renderer_prefs->security_origin = identifier;
+
+  content::RenderViewHost* rvh = web_contents_->GetRenderViewHost();
+  if (rvh)
+    rvh->SyncRendererPrefs();
+
+  // Set changed origin mode for browser process
+  if (!identifier.empty())
+    url::Origin::SetFileOriginChanged(true);
 }
 
 void WebView::SetAcceptLanguages(const std::string& languages) {

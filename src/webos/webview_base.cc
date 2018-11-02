@@ -149,6 +149,10 @@ void WebViewBase::SetAppId(const std::string& app_id) {
   webview_->SetAppId(app_id);
 }
 
+void WebViewBase::SetSecurityOrigin(const std::string& identifier) {
+  webview_->SetSecurityOrigin(identifier);
+}
+
 void WebViewBase::SetAcceptLanguages(const std::string& languages) {
   webview_->SetAcceptLanguages(languages);
 }

@@ -86,6 +86,10 @@ class PLATFORM_EXPORT SecurityOrigin : public RefCounted<SecurityOrigin> {
   static bool ShouldUseInnerURL(const KURL&);
   static KURL ExtractInnerURL(const KURL&);
 
+#if defined(USE_NEVA_APPRUNTIME)
+  static std::string& MutableLocalOrigin();
+#endif
+
   // Create a deep copy of this SecurityOrigin. This method is useful
   // when marshalling a SecurityOrigin to another thread.
   scoped_refptr<SecurityOrigin> IsolatedCopy() const;

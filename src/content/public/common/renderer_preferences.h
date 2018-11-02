@@ -179,6 +179,9 @@ struct CONTENT_EXPORT RendererPreferences {
 
   // Allows fake bold text
   bool allow_fake_bold_text;
+
+  // Security Origin
+  std::string security_origin;
 ///@}
 };
 

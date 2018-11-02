@@ -117,6 +117,10 @@ class URL_EXPORT Origin {
                                           std::string host,
                                           uint16_t port);
 
+#if defined(USE_NEVA_APPRUNTIME)
+  static void SetFileOriginChanged(bool changed);
+#endif
+
   ~Origin();
 
   // For unique origins, these return ("", "", 0).
@@ -159,6 +163,10 @@ class URL_EXPORT Origin {
  private:
   // |tuple| must be valid, implying that the created Origin is never unique.
   explicit Origin(SchemeHostPort tuple);
+
+#if defined(USE_NEVA_APPRUNTIME)
+  static bool file_origin_changed_;
+#endif
 
   SchemeHostPort tuple_;
   bool unique_;
