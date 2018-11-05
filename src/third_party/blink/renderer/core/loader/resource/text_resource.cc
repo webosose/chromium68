@@ -32,6 +32,14 @@ WTF::TextEncoding TextResource::Encoding() const {
 String TextResource::DecodedText() const {
   DCHECK(Data());
 
+#if defined(OS_WEBOS)
+  if (Url().IsLocalFile()) {
+    String text = decoder_->Decode(Data()->Data(), EncodedSize());
+    text.append(decoder_->Flush());
+    return text;
+  }
+#endif
+
   StringBuilder builder;
   const char* segment;
   size_t position = 0;
