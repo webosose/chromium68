@@ -48,15 +48,17 @@ void WindowManagerWayland::OnRootWindowCreated(
 void WindowManagerWayland::OnRootWindowClosed(
     OzoneWaylandWindow* window) {
   open_windows().remove(window);
-  if (active_window_ == window)
-     active_window_ = NULL;
+  if (active_window_ == window) {
+    active_window_ = NULL;
+    OnActivationChanged(open_windows().front()->GetHandle(), true);
+  }
 
   if (event_grabber_ == gfx::AcceleratedWidget(window->GetHandle()))
     event_grabber_ = gfx::kNullAcceleratedWidget;
 
   if (current_capture_ == gfx::AcceleratedWidget(window->GetHandle())) {
-     OzoneWaylandWindow* window = GetWindow(current_capture_);
-     window->GetDelegate()->OnLostCapture();
+    OzoneWaylandWindow* window = GetWindow(current_capture_);
+    window->GetDelegate()->OnLostCapture();
     current_capture_ = gfx::kNullAcceleratedWidget;
   }
 
@@ -66,10 +68,6 @@ void WindowManagerWayland::OnRootWindowClosed(
     return;
   }
 
-  // Set first top level window in the list of open windows as dispatcher.
-  // This is just a guess of the window which would eventually be focussed.
-  // We should set the correct root window as dispatcher in OnWindowFocused.
-  OnActivationChanged(open_windows().front()->GetHandle(), true);
 }
 
 void WindowManagerWayland::Restore(OzoneWaylandWindow* window) {
