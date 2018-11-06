@@ -115,7 +115,7 @@ static uint32_t serial = 0;
 WaylandTextInput::WaylandTextInput(WaylandSeat* seat)
     : input_panel_rect_(0, 0, 0, 0),
       text_model_(NULL),
-      is_visible_(false),
+      activated_(false),
       state_(InputPanelUnknownState),
       input_content_type_(ui::INPUT_CONTENT_TYPE_NONE),
       text_input_flags_(0),
@@ -125,7 +125,7 @@ WaylandTextInput::WaylandTextInput(WaylandSeat* seat)
 
 WaylandTextInput::~WaylandTextInput() {
   if (text_model_)
-    text_model_destroy(text_model_);
+    DeactivateTextModel();
 }
 
 void WaylandTextInput::ResetIme() {
@@ -136,13 +136,23 @@ void WaylandTextInput::ResetIme() {
   }
 }
 
-void WaylandTextInput::ActivateTextModel(WaylandWindow* window, wl_seat* input_seat) {
-  text_model_activate(text_model_, serial, input_seat,
-                      window->ShellSurface()->GetWLSurface());
-  text_model_set_content_type(text_model_,
-                              ContentHintFromInputContentType(input_content_type_,
-                                                              text_input_flags_),
-                              ContentPurposeFromInputContentType(input_content_type_));
+void WaylandTextInput::ActivateTextModel() {
+  if (text_model_ && active_window_ && !activated_) {
+    text_model_activate(text_model_, serial, seat_->GetWLSeat(),
+                        active_window_->ShellSurface()->GetWLSurface());
+    activated_ = true;
+  }
+}
+
+void WaylandTextInput::DeactivateTextModel() {
+  if (text_model_ && activated_) {
+    SetHiddenState();
+    text_model_reset(text_model_, serial);
+    text_model_deactivate(text_model_, seat_->GetWLSeat());
+    text_model_destroy(text_model_);
+    text_model_ = NULL;
+    activated_ = false;
+  }
 }
 
 bool WaylandTextInput::CreateTextModel() {
@@ -159,33 +169,22 @@ bool WaylandTextInput::CreateTextModel() {
 }
 
 void WaylandTextInput::ShowInputPanel(wl_seat* input_seat, unsigned handle) {
-  if (is_visible_)
-    return;
+  if (!text_model_)
+    CreateTextModel();
 
-  if (!text_model_) {
-    if (!CreateTextModel()) {
-      return;
-    }
-  }
-
-  if (active_window_ &&
-      active_window_->Handle() == handle) {
-    ActivateTextModel(active_window_, input_seat);
-    is_visible_ = true;
+  if (text_model_ && active_window_ && active_window_->Handle() == handle) {
+    activated_ ? text_model_show_input_panel(text_model_) : ActivateTextModel();
+    text_model_set_content_type(
+        text_model_,
+        ContentHintFromInputContentType(input_content_type_, text_input_flags_),
+        ContentPurposeFromInputContentType(input_content_type_));
   }
 }
 
 void WaylandTextInput::HideInputPanel(wl_seat* input_seat) {
-  if (!is_visible_)
-    return;
-
   if (text_model_) {
     SetHiddenState();
-    text_model_reset(text_model_, serial);
-    text_model_deactivate(text_model_, input_seat);
-    text_model_destroy(text_model_);
-    text_model_ = NULL;
-    is_visible_ = false;
+    text_model_hide_input_panel(text_model_);
   }
 }
 
@@ -209,14 +208,13 @@ void WaylandTextInput::SetHiddenState() {
 void WaylandTextInput::SetInputContentType(ui::InputContentType content_type,
                                            int text_input_flags,
                                            unsigned handle) {
-  input_content_type_ = content_type;
-  text_input_flags_ = text_input_flags;
-  if (text_model_ && active_window_ && active_window_->Handle() == handle) {
-    if (is_visible_)
-      text_model_set_content_type(
-          text_model_,
-          ContentHintFromInputContentType(input_content_type_, text_input_flags_),
-          ContentPurposeFromInputContentType(input_content_type_));
+  if (active_window_ && active_window_->Handle() == handle) {
+    input_content_type_ = content_type;
+    text_input_flags_ = text_input_flags;
+    text_model_set_content_type(
+        text_model_,
+        ContentHintFromInputContentType(input_content_type_, text_input_flags_),
+        ContentPurposeFromInputContentType(input_content_type_));
   }
 }
 
@@ -423,6 +421,8 @@ void WaylandTextInput::OnEnter(void* data,
 
 void WaylandTextInput::OnLeave(void* data,
                                struct text_model* text_input) {
+  WaylandTextInput* instance = static_cast<WaylandTextInput*>(data);
+  instance->DeactivateTextModel();
 }
 
 void WaylandTextInput::OnInputPanelState(void* data,
@@ -441,7 +441,6 @@ void WaylandTextInput::OnInputPanelState(void* data,
       break;
     case InputPanelHidden:
       instance->SetHiddenState();
-      dispatcher->PrimarySeat()->HideInputPanel();
       break;
     default:
       break;

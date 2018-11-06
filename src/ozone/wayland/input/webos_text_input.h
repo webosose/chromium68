@@ -118,9 +118,10 @@ class WaylandTextInput {
                       uint32_t width,
                       uint32_t height);
 
-private:
-  void ActivateTextModel(WaylandWindow* window, wl_seat* input_seat);
+ private:
+  void ActivateTextModel();
   bool CreateTextModel();
+  void DeactivateTextModel();
   enum InputPanelState {
     InputPanelUnknownState = 0xffffffff,
     InputPanelHidden = 0,
@@ -132,7 +133,7 @@ private:
 
   gfx::Rect input_panel_rect_;
   struct text_model* text_model_;
-  bool is_visible_;
+  bool activated_;
   InputPanelState state_;
   ui::InputContentType input_content_type_;
   int text_input_flags_;
