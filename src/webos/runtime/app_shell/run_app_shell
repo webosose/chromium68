@@ -118,6 +118,15 @@ CHROME_FLAGS=" \
 
 CHROME_FLAGS="${CHROME_COMPOSITING_FLAGS} ${CHROME_FLAGS}"
 
+JS_FLAGS=" \
+  --configure_heap_details\
+  --heap_growing_percent=1\
+  --minimum_allocation_limit_growing_step_size=2\
+  --high_fragmentation_slack=0\
+  --external_allocation_hard_limit=64\
+  --external_allocation_soft_limit=16\
+"
+
 EXTRA_CONF=${CACHE_DIR}/extra_conf
 if [ -f ${EXTRA_CONF} ]; then
     source ${EXTRA_CONF}
@@ -141,4 +150,4 @@ echo "                       Launching App Shell                          "
 echo "----------------------------------------------------------------------"
 echo ""
 
-exec ${DEPLOY_DIR}/app_shell ${CHROME_FLAGS} --launch-args="${EXTRA_PARAMS_JSON}" "$@"
+exec ${DEPLOY_DIR}/app_shell ${CHROME_FLAGS} --launch-args="${EXTRA_PARAMS_JSON}" --js-flags="${JS_FLAGS}" "$@"

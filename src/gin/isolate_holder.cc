@@ -75,6 +75,9 @@ IsolateHolder::IsolateHolder(
     params.constraints.ConfigureDefaults(
         base::SysInfo::AmountOfPhysicalMemory(),
         base::SysInfo::AmountOfVirtualMemory());
+    // It passes now 0 values as params, but if each webapp wants to configure
+    // details for its own, the configured values have to be passed.
+    params.constraints.ConfigureDetails(0, 0, 0, 0);
     params.array_buffer_allocator = allocator;
     params.allow_atomics_wait =
         atomics_wait_mode == AllowAtomicsWaitMode::kAllowAtomicsWait;
