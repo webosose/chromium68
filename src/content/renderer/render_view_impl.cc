@@ -128,6 +128,7 @@
 #include "third_party/blink/public/platform/web_point.h"
 #include "third_party/blink/public/platform/web_rect.h"
 #include "third_party/blink/public/platform/web_runtime_features.h"
+#include "third_party/blink/public/platform/web_security_origin.h"
 #include "third_party/blink/public/platform/web_size.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
@@ -1946,9 +1947,9 @@ void RenderViewImpl::OnSetRendererPrefs(
 #endif
 
 #if defined(USE_NEVA_APPRUNTIME)
-  if (!renderer_prefs.security_origin.empty())
+  if (!renderer_prefs.file_security_origin.empty())
     url::Origin::SetFileOriginChanged(true);
-  blink::SecurityOrigin::MutableLocalOrigin() = renderer_prefs.security_origin;
+  blink::SetMutableLocalOrigin(renderer_prefs.file_security_origin);
 #endif
 
 #if BUILDFLAG(USE_DEFAULT_RENDER_THEME)

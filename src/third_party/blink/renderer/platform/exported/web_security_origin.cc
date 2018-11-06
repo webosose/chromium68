@@ -37,6 +37,12 @@
 
 namespace blink {
 
+#if defined(USE_NEVA_APPRUNTIME)
+void SetMutableLocalOrigin(const std::string& origin) {
+  SecurityOrigin::MutableLocalOrigin() = origin;
+}
+#endif
+
 WebSecurityOrigin WebSecurityOrigin::CreateFromString(const WebString& origin) {
   return WebSecurityOrigin(SecurityOrigin::CreateFromString(origin));
 }

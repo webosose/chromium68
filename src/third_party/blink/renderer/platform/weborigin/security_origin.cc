@@ -60,6 +60,7 @@ static SecurityOrigin* GetOriginFromMap(const KURL& url) {
 }
 
 #if defined(USE_NEVA_APPRUNTIME)
+// static
 std::string& SecurityOrigin::MutableLocalOrigin() {
   DEFINE_THREAD_SAFE_STATIC_LOCAL(std::string, local_origin, ());
   return local_origin;
@@ -131,8 +132,8 @@ SecurityOrigin::SecurityOrigin(const KURL& url)
       block_local_access_from_local_origin_(false),
       is_opaque_origin_potentially_trustworthy_(false) {
 #if defined(USE_NEVA_APPRUNTIME)
-  if (IsLocal() && !MutableLocalOrigin().empty() &&
-      !(url.IsEmpty() || ToString() == url.GetString()))
+  if (IsLocal() && !MutableLocalOrigin().empty() && !url.IsEmpty() &&
+      ToString() != url.GetString())
     host_ = MutableLocalOrigin().c_str();
 #endif
 

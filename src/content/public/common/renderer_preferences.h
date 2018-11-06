@@ -181,8 +181,8 @@ struct CONTENT_EXPORT RendererPreferences {
   bool allow_fake_bold_text;
 
   // Security Origin
-  std::string security_origin;
-///@}
+  std::string file_security_origin;
+  ///@}
 };
 
 }  // namespace content

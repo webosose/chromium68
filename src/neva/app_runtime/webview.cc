@@ -461,10 +461,10 @@ void WebView::SetSecurityOrigin(const std::string& identifier) {
 
   content::RendererPreferences* renderer_prefs =
       web_contents_->GetMutableRendererPrefs();
-  if (!renderer_prefs->security_origin.compare(identifier))
+  if (!renderer_prefs->file_security_origin.compare(identifier))
     return;
 
-  renderer_prefs->security_origin = identifier;
+  renderer_prefs->file_security_origin = identifier;
 
   content::RenderViewHost* rvh = web_contents_->GetRenderViewHost();
   if (rvh)

@@ -20,6 +20,7 @@ namespace url {
 #if defined(USE_NEVA_APPRUNTIME)
 bool Origin::file_origin_changed_ = false;
 
+// static
 void Origin::SetFileOriginChanged(bool changed) {
   file_origin_changed_ = changed;
 }
