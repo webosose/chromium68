@@ -2480,7 +2480,7 @@ void HTMLMediaElement::PlayInternal() {
 
   // 4.8.12.8. Playing the media resource
 #if defined(OS_WEBOS)
-  if ((GetWebMediaPlayer() && PreloadType() != WebMediaPlayer::kPreloadNone) ||
+  if ((!GetWebMediaPlayer() && PreloadType() != WebMediaPlayer::kPreloadNone) ||
       (network_state_ == kNetworkEmpty))
 #else
   if (network_state_ == kNetworkEmpty)
