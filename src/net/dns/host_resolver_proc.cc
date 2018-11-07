@@ -7,6 +7,7 @@
 #include "build/build_config.h"
 
 #include "base/logging.h"
+#include "base/logging_pmlog.h"
 #include "base/sys_byteorder.h"
 #include "base/threading/scoped_blocking_call.h"
 #include "net/base/address_list.h"
@@ -216,6 +217,13 @@ int SystemHostResolverCall(const std::string& host,
       should_retry = true;
     }
   }
+  if (err == EAI_SYSTEM) {
+    PMLOG_INFO(Network, "Network",
+               "getaddrinfo(host:%s) error(code:%d, str:%s), system "
+               "error(code:%d, str:%s)",
+               host.c_str(), err, gai_strerror(err), errno, strerror(errno));
+    should_retry = true;
+  }
   if (should_retry) {
     if (ai != NULL) {
       freeaddrinfo(ai);
@@ -224,7 +232,11 @@ int SystemHostResolverCall(const std::string& host,
     err = getaddrinfo(host.c_str(), NULL, &hints, &ai);
   }
 
-  if (err) {
+  if (err == EAI_SYSTEM) {
+    PMLOG_INFO(Network, "Network",
+               "retry getaddrinfo(host:%s) error(code:%d, str:%s), system "
+               "error(code:%d, str:%s)",
+               host.c_str(), err, gai_strerror(err), errno, strerror(errno));
 #if defined(OS_WIN)
     err = WSAGetLastError();
 #endif
