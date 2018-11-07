@@ -68,6 +68,7 @@
 #include "content/common/view_messages.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_features.h"
+#include "content/public/common/content_neva_switches.h"
 #include "content/public/common/content_paths.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/renderer_preferences.h"
@@ -1387,6 +1388,10 @@ void RenderThreadImpl::IdleHandler() {
     if (idle_notifications_to_skip_ > 0) {
       --idle_notifications_to_skip_;
     } else {
+      if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+              switches::kEnableAggressiveForegroundGC))
+        v8::Isolate::GetCurrent()->LowMemoryNotification();
+
       ReleaseFreeMemory();
     }
     ScheduleIdleHandler(kLongIdleHandlerDelayMs);

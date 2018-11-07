@@ -18,6 +18,9 @@
 
 namespace switches {
 
+// Enable aggressive GC on foreground tabs
+const char kEnableAggressiveForegroundGC[] = "enable-aggressive-foreground-gc";
+
 // Loads browser control injection
 const char kEnableBrowserControlInjection[]
     = "enable-browser-control-injection";

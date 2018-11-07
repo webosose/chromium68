@@ -19,6 +19,7 @@
 
 namespace switches {
 
+extern const char kEnableAggressiveForegroundGC[];
 extern const char kEnableBrowserControlInjection[];
 extern const char kEnableSampleInjection[];
 extern const char kNetworkStableTimeout[];

@@ -69,6 +69,7 @@
 #include "content/public/common/bindings_policy.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_features.h"
+#include "content/public/common/content_neva_switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/context_menu_params.h"
 #include "content/public/common/favicon_url.h"
@@ -4348,6 +4349,11 @@ void RenderFrameImpl::DidFailLoad(const WebURLError& error,
                                                       &error_description);
   Send(new FrameHostMsg_DidFailLoadWithError(
       routing_id_, failed_request.Url(), error.reason(), error_description));
+
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableAggressiveForegroundGC) &&
+      IsMainFrame())
+    v8::Isolate::GetCurrent()->LowMemoryNotification();
 }
 
 void RenderFrameImpl::DidFinishLoad() {
@@ -4364,6 +4370,11 @@ void RenderFrameImpl::DidFinishLoad() {
   WebDocumentLoader* document_loader = frame_->GetDocumentLoader();
   Send(new FrameHostMsg_DidFinishLoad(routing_id_,
                                       document_loader->GetRequest().Url()));
+
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableAggressiveForegroundGC) &&
+      IsMainFrame())
+    v8::Isolate::GetCurrent()->LowMemoryNotification();
 
   if (!RenderThreadImpl::current())
     return;
@@ -5795,6 +5806,11 @@ void RenderFrameImpl::DidStopLoading() {
 
   render_view_->FrameDidStopLoading(frame_);
   Send(new FrameHostMsg_DidStopLoading(routing_id_));
+
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableAggressiveForegroundGC) &&
+      IsMainFrame())
+    v8::Isolate::GetCurrent()->LowMemoryNotification();
 }
 
 void RenderFrameImpl::DidChangeLoadProgress(double load_progress) {
