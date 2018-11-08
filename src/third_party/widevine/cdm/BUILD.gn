@@ -6,12 +6,13 @@ import("//build/config/chrome_build.gni")
 import("//build/config/features.gni")
 import("//media/cdm/library_cdm/cdm_paths.gni")
 import("//media/media_options.gni")
+import("//neva/neva.gni")
 import("//third_party/widevine/cdm/widevine.gni")
 
 # Internal Cast builds set enable_widevine=true to bring in Widevine support.
 # TODO(xhwang): Support component updated CDM on other platforms and remove this
 # assert.
-assert(!enable_widevine || is_win || is_mac || is_chromecast,
+assert(!enable_widevine || is_win || is_mac || is_chromecast || is_webos,
        "Component updated CDM only supported on Windows and Mac for now.")
 
 widevine_arch = current_cpu
@@ -47,6 +48,8 @@ if (should_bundle_widevine_cdm) {
 } else if (is_android) {
   # Always available on Android regardless of branding.
   widevine_cdm_version_h_file = "android/widevine_cdm_version.h"
+} else if (enable_widevine && is_webos) {
+  widevine_cdm_version_h_file = "webos/widevine_cdm_version.h"
 } else if (enable_widevine) {
   # TODO(crbug.com/349182): Remove after we replace WIDEVINE_CDM_AVAILABLE with
   # ENABLE_WIDEVINE build flag.

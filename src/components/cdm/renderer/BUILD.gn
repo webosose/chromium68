@@ -20,6 +20,7 @@ static_library("renderer") {
   deps = [
     "//base",
     "//components/cdm/common",
+    "//components/cdm/renderer/neva",
     "//content/public/renderer",
     "//media",
     "//media:media_buildflags",

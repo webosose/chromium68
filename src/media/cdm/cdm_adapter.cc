@@ -128,6 +128,29 @@ CdmPromise::Exception ToMediaExceptionType(cdm::Exception exception) {
   return CdmPromise::Exception::INVALID_STATE_ERROR;
 }
 
+cdm::Exception ToCdmExceptionType(cdm::Error error) {
+  switch (error) {
+    case cdm::kNotSupportedError:
+      return cdm::kExceptionNotSupportedError;
+    case cdm::kInvalidStateError:
+      return cdm::kExceptionInvalidStateError;
+    case cdm::kInvalidAccessError:
+      return cdm::kExceptionTypeError;
+    case cdm::kQuotaExceededError:
+      return cdm::kExceptionQuotaExceededError;
+
+    // TODO(jrummell): Remove these once CDM_8 is no longer supported.
+    // https://crbug.com/737296.
+    case cdm::kUnknownError:
+    case cdm::kClientError:
+    case cdm::kOutputError:
+      return cdm::kExceptionNotSupportedError;
+  }
+
+  NOTREACHED() << "Unexpected cdm::Error " << error;
+  return cdm::kExceptionInvalidStateError;
+}
+
 CdmMessageType ToMediaMessageType(cdm::MessageType message_type) {
   switch (message_type) {
     case cdm::kLicenseRequest:
@@ -418,7 +441,7 @@ void* GetCdmHost(int host_interface_version, void* user_data) {
     return nullptr;
 
   static_assert(
-      CheckSupportedCdmHostVersions(cdm::Host_9::kVersion,
+      CheckSupportedCdmHostVersions(cdm::Host_8::kVersion,
                                     cdm::Host_11::kVersion),
       "Mismatch between GetCdmHost() and IsSupportedCdmHostVersion()");
 
@@ -427,6 +450,8 @@ void* GetCdmHost(int host_interface_version, void* user_data) {
   CdmAdapter* cdm_adapter = static_cast<CdmAdapter*>(user_data);
   DVLOG(1) << "Create CDM Host with version " << host_interface_version;
   switch (host_interface_version) {
+    case cdm::Host_8::kVersion:
+      return static_cast<cdm::Host_8*>(cdm_adapter);
     case cdm::Host_9::kVersion:
       return static_cast<cdm::Host_9*>(cdm_adapter);
     case cdm::Host_10::kVersion:
@@ -726,7 +751,8 @@ void CdmAdapter::Decrypt(StreamType stream_type,
   std::unique_ptr<DecryptedBlockImpl> decrypted_block(new DecryptedBlockImpl());
 
   ToCdmInputBuffer(*encrypted, &subsamples, &input_buffer);
-  cdm::Status status = cdm_->Decrypt(input_buffer, decrypted_block.get());
+  cdm::Status status = cdm_->Decrypt(input_buffer, decrypted_block.get(),
+                                     ToCdmStreamType(stream_type));
 
   if (status != cdm::kSuccess) {
     DVLOG(1) << __func__ << ": status = " << status;
@@ -739,6 +765,10 @@ void CdmAdapter::Decrypt(StreamType stream_type,
                               decrypted_block->DecryptedBuffer()->Size()));
   decrypted_buffer->set_timestamp(
       base::TimeDelta::FromMicroseconds(decrypted_block->Timestamp()));
+
+  // TODO(neva): Upstreamable
+  decrypted_buffer->set_duration(encrypted->duration());
+
   decrypt_cb.Run(Decryptor::kSuccess, std::move(decrypted_buffer));
 }
 
@@ -976,6 +1006,17 @@ void CdmAdapter::OnRejectPromise(uint32_t promise_id,
       std::string(error_message, error_message_size));
 }
 
+void CdmAdapter::OnRejectPromise(uint32_t promise_id,
+                                 cdm::Error error,
+                                 uint32_t system_code,
+                                 const char* error_message,
+                                 uint32_t error_message_size) {
+  // cdm::Host_8 version. Remove when CDM_8 no longer supported.
+  // https://crbug.com/737296.
+  OnRejectPromise(promise_id, ToCdmExceptionType(error), system_code,
+                  error_message, error_message_size);
+}
+
 void CdmAdapter::OnSessionMessage(const char* session_id,
                                   uint32_t session_id_size,
                                   cdm::MessageType message_type,
@@ -987,6 +1028,19 @@ void CdmAdapter::OnSessionMessage(const char* session_id,
       std::string(session_id, session_id_size),
       ToMediaMessageType(message_type),
       std::vector<uint8_t>(message_ptr, message_ptr + message_size));
+}
+
+void CdmAdapter::OnSessionMessage(const char* session_id,
+                                  uint32_t session_id_size,
+                                  cdm::MessageType message_type,
+                                  const char* message,
+                                  uint32_t message_size,
+                                  const char* /* legacy_destination_url */,
+                                  uint32_t /* legacy_destination_url_size */) {
+  // cdm::Host_8 version. Remove when CDM_8 no longer supported.
+  // https://crbug.com/737296.
+  OnSessionMessage(session_id, session_id_size, message_type, message,
+                   message_size);
 }
 
 void CdmAdapter::OnSessionKeysChange(const char* session_id,
@@ -1016,6 +1070,17 @@ void CdmAdapter::OnSessionKeysChange(const char* session_id,
 
   session_keys_change_cb_.Run(std::string(session_id, session_id_size),
                               has_additional_usable_key, std::move(keys));
+}
+
+void CdmAdapter::OnLegacySessionError(const char* session_id,
+                                      uint32_t session_id_size,
+                                      cdm::Error error,
+                                      uint32_t system_code,
+                                      const char* error_message,
+                                      uint32_t error_message_size) {
+  // cdm::Host_8 version. Remove when CDM_8 no longer supported.
+  // https://crbug.com/737296.
+  DCHECK(task_runner_->BelongsToCurrentThread());
 }
 
 void CdmAdapter::OnExpirationChange(const char* session_id,

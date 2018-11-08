@@ -43,6 +43,9 @@ class ShellContentRendererClient : public content::ContentRendererClient {
                        GURL* new_url,
                        bool* attach_same_site_cookies) override;
   bool IsExternalPepperPlugin(const std::string& module_name) override;
+  void AddSupportedKeySystems(
+      std::vector<std::unique_ptr<media::KeySystemProperties>>* key_systems)
+      override;
   content::BrowserPluginDelegate* CreateBrowserPluginDelegate(
       content::RenderFrame* render_frame,
       const content::WebPluginInfo& info,

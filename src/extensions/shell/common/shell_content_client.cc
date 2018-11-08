@@ -6,6 +6,7 @@
 
 #include "base/strings/string_piece.h"
 #include "base/strings/utf_string_conversions.h"
+#include "components/cdm/common/neva/cdm_info_util.h"
 #include "components/nacl/common/buildflags.h"
 #include "content/public/common/user_agent.h"
 #include "extensions/common/constants.h"
@@ -73,6 +74,13 @@ void ShellContentClient::AddPepperPlugins(
   nacl.permissions = ppapi::PERMISSION_PRIVATE | ppapi::PERMISSION_DEV;
   plugins->push_back(nacl);
 #endif  // BUILDFLAG(ENABLE_NACL)
+}
+
+void ShellContentClient::AddContentDecryptionModules(
+    std::vector<content::CdmInfo>* cdms,
+    std::vector<media::CdmHostFilePath>* cdm_host_file_paths) {
+  if (cdms)
+    cdm::AddContentDecryptionModules(*cdms);
 }
 
 void ShellContentClient::AddAdditionalSchemes(Schemes* schemes) {

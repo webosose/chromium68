@@ -20,15 +20,12 @@
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
+#include "components/cdm/common/neva/cdm_info_util.h"
 #include "content/public/common/pepper_plugin_info.h"
 #include "content/public/common/user_agent.h"
 #include "neva/app_runtime/common/app_runtime_user_agent.h"
 #include "ppapi/shared_impl/ppapi_permissions.h"
 #include "ui/base/resource/resource_bundle.h"
-
-#if defined(WIDEVINE_CDM_AVAILABLE)
-#include "third_party/widevine/cdm/webos/widevine_cdm_version.h"
-#endif
 
 #if defined(ENABLE_PLAYREADY_CDM)
 #include "third_party/playready/cdm/playready_cdm_version.h"
@@ -63,53 +60,6 @@ std::string WebOSContentClient::GetUserAgent() const {
 void WebOSContentClient::AddPepperPlugins(
     std::vector<content::PepperPluginInfo>* plugins) {
   base::FilePath path;
-#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
-  static bool skip_widevine_cdm_file_check = false;
-  std::string widevine_lib_path(getenv("CDM_LIB_PATH"));
-  std::string widevine_lib_file("/libwidevinecdmadapter.so");
-  path = base::FilePath(widevine_lib_path + widevine_lib_file);
-
-  if (skip_widevine_cdm_file_check || base::PathExists(path)) {
-    content::PepperPluginInfo widevine_cdm;
-    widevine_cdm.is_out_of_process = true;
-    widevine_cdm.path = path;
-    widevine_cdm.name = kWidevineCdmDisplayName;
-    widevine_cdm.description = kWidevineCdmDescription +
-        std::string(" (version: ") + WIDEVINE_CDM_VERSION_STRING + ")";
-    widevine_cdm.version = WIDEVINE_CDM_VERSION_STRING;
-    content::WebPluginMimeType widevine_cdm_mime_type(
-        kWidevineCdmPluginMimeType,
-        "",
-        kWidevineCdmPluginMimeTypeDescription);
-
-    // Add the supported codecs as if they came from the component manifest.
-    std::vector<std::string> codecs;
-    codecs.push_back(kCdmSupportedCodecVorbis);
-    codecs.push_back(kCdmSupportedCodecVp8);
-    codecs.push_back(kCdmSupportedCodecVp9);
-#if defined(USE_PROPRIETARY_CODECS)
-    codecs.push_back(kCdmSupportedCodecAac);
-    codecs.push_back(kCdmSupportedCodecAvc1);
-#endif
-
-    const char widevine_codecs_delimiter[] = { kCdmSupportedCodecsValueDelimiter };
-    std::string codec_string =
-        base::JoinString(codecs, widevine_codecs_delimiter);
-    widevine_cdm_mime_type.additional_param_names.push_back(
-        base::ASCIIToUTF16(kCdmSupportedCodecsParamName));
-    widevine_cdm_mime_type.additional_param_values.push_back(
-        base::ASCIIToUTF16(codec_string));
-
-    widevine_cdm.mime_types.push_back(widevine_cdm_mime_type);
-    widevine_cdm.permissions = ppapi::PERMISSION_DEV |
-                               ppapi::PERMISSION_PRIVATE;
-
-    plugins->push_back(widevine_cdm);
-
-    skip_widevine_cdm_file_check = true;
-  }
-#endif
-
 #if defined(ENABLE_PLAYREADY_CDM) && defined(ENABLE_PEPPER_CDMS)
   static bool skip_playready_cdm_file_check = false;
   std::string playready_lib_path(getenv("CDM_LIB_PATH"));
@@ -157,6 +107,13 @@ void WebOSContentClient::AddPepperPlugins(
     skip_playready_cdm_file_check = true;
   }
 #endif
+}
+
+void WebOSContentClient::AddContentDecryptionModules(
+    std::vector<content::CdmInfo>* cdms,
+    std::vector<media::CdmHostFilePath>* cdm_host_file_paths) {
+  if (cdms)
+    cdm::AddContentDecryptionModules(*cdms);
 }
 
 } // namespace webos

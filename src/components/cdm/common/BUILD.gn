@@ -13,6 +13,7 @@ static_library("common") {
 
   deps = [
     "//base",
+    "//components/cdm/common/neva",
     "//content/public/common",
     "//ipc",
     "//media",

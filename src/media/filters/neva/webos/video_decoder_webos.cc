@@ -52,7 +52,12 @@ void VideoDecoderWebOS::Initialize(const VideoDecoderConfig& config,
   config_ = config;
   InitCB initialize_cb = BindToCurrentLoop(init_cb);
 
-  if (!config.IsValidConfig() || !media_platform_api_) {
+  // Our decoder couldn't decode encrypted video. But we still have
+  // another chance for using this decoder for decrypted content,
+  // when DecryptingDemuxerStream is created.
+  // See DecoderSelector<StreamType>::InitializeDecoder().
+  if (!config.IsValidConfig() || config.is_encrypted() ||
+      !media_platform_api_) {
     initialize_cb.Run(false);
     return;
   }

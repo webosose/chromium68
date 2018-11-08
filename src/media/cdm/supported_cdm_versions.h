@@ -9,6 +9,7 @@
 
 #include "media/base/media_export.h"
 #include "media/cdm/api/content_decryption_module.h"
+#include "media/cdm/api_old/content_decryption_module_8.h"
 
 // A library CDM interface is "supported" if it's implemented by CdmAdapter and
 // CdmWrapper. Typically multiple CDM interfaces are supported:
@@ -32,18 +33,28 @@ struct SupportedVersion {
   bool enabled;
 };
 
-constexpr std::array<SupportedVersion, 3> kSupportedCdmInterfaceVersions = {{
+#if defined(OS_WEBOS)
+constexpr std::array<SupportedVersion, 4> kSupportedCdmInterfaceVersions = {{
+    {8, true},
+    {9, false},
+    {10, false},
+    {11, false},
+}};
+#else
+constexpr std::array<SupportedVersion, 4> kSupportedCdmInterfaceVersions = {{
+    {8, false},
     {9, true},
     {10, true},
     {11, false},
 }};
+#endif
 
 // In most cases CdmInterface::kVersion == CdmInterface::Host::kVersion. However
 // this is not guaranteed. For example, a newer CDM interface may use an
 // existing CDM host. So we keep CDM host support separate from CDM interface
 // support. In CdmInterfaceTraits we also static assert that for supported CDM
 // interface, CdmInterface::Host::kVersion must also be supported.
-constexpr int kMinSupportedCdmHostVersion = 9;
+constexpr int kMinSupportedCdmHostVersion = 8;
 constexpr int kMaxSupportedCdmHostVersion = 11;
 
 constexpr bool IsSupportedCdmModuleVersion(int version) {
@@ -119,6 +130,14 @@ constexpr bool CheckSupportedCdmHostVersions(int min_version, int max_version) {
 // Traits for CDM Interfaces
 template <int CdmInterfaceVersion>
 struct CdmInterfaceTraits {};
+
+template <>
+struct CdmInterfaceTraits<8> {
+  using CdmInterface = cdm::ContentDecryptionModule_8;
+  static_assert(CdmInterface::kVersion == 8, "CDM interface version mismatch");
+  static_assert(IsSupportedCdmHostVersion(CdmInterface::Host::kVersion),
+                "Host not supported");
+};
 
 template <>
 struct CdmInterfaceTraits<9> {

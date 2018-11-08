@@ -22,8 +22,8 @@
 #include "base/logging.h"
 #include "content/public/common/content_switches.h"
 #include "neva/app_runtime/browser/app_runtime_content_browser_client.h"
-#include "neva/app_runtime/renderer/app_runtime_content_renderer_client.h"
 #include "webos/common/webos_resource_delegate.h"
+#include "webos/renderer/webos_content_renderer_client.h"
 
 using base::CommandLine;
 
@@ -43,6 +43,12 @@ bool WebOSContentMainDelegate::BasicStartupComplete(int* exit_code) {
     startup_callback_.Run();
   }
   return false;
+}
+
+content::ContentRendererClient*
+WebOSContentMainDelegate::CreateContentRendererClient() {
+  content_renderer_client_.reset(new WebOSContentRendererClient());
+  return content_renderer_client_.get();
 }
 
 }  // namespace webos

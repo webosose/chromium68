@@ -71,6 +71,8 @@ source_set("webos_impl") {
     "public/runtime.cc",
     "public/runtime.h",
     "public/runtime_delegates.h",
+    "renderer/webos_content_renderer_client.cc",
+    "renderer/webos_content_renderer_client.h",
     "webapp_window.cc",
     "webapp_window.h",
     "webapp_window_base.cc",
@@ -88,6 +90,8 @@ source_set("webos_impl") {
   ]
 
   deps = [
+    "//components/cdm/common",
+    "//components/cdm/renderer",
     "//neva/app_runtime",
     "//third_party/blink/public:blink",
     "//third_party/leveldatabase",

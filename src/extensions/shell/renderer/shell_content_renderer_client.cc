@@ -4,6 +4,7 @@
 
 #include "extensions/shell/renderer/shell_content_renderer_client.h"
 
+#include "components/cdm/renderer/neva/key_systems_util.h"
 #include "components/nacl/common/buildflags.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/renderer/render_frame.h"
@@ -105,6 +106,12 @@ bool ShellContentRendererClient::IsExternalPepperPlugin(
 #else
   return false;
 #endif
+}
+
+void ShellContentRendererClient::AddSupportedKeySystems(
+    std::vector<std::unique_ptr<media::KeySystemProperties>>* key_systems) {
+  if (key_systems)
+    cdm::AddSupportedKeySystems(*key_systems);
 }
 
 content::BrowserPluginDelegate*

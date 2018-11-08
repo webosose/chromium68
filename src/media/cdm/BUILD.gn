@@ -72,6 +72,7 @@ source_set("cdm") {
       "//components/crash/core/common:crash_key",
     ]
     sources += [
+      "api_old/content_decryption_module_8.h",
       "cdm_adapter.cc",
       "cdm_adapter.h",
       "cdm_adapter_factory.cc",

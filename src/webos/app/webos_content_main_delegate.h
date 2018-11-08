@@ -17,7 +17,9 @@
 #ifndef WEBOS_APP_WEBOS_CONTENT_MAIN_DELEGATE_H_
 #define WEBOS_APP_WEBOS_CONTENT_MAIN_DELEGATE_H_
 
+#include <memory>
 
+#include "content/public/renderer/content_renderer_client.h"
 #include "neva/app_runtime/app/app_runtime_main_delegate.h"
 #include "webos/common/webos_content_client.h"
 
@@ -36,9 +38,11 @@ class WebOSContentMainDelegate : public app_runtime::AppRuntimeMainDelegate {
   void SetBrowserStartupCallback(base::Closure startup_callback) {
     startup_callback_ = startup_callback;
   }
+  content::ContentRendererClient* CreateContentRendererClient() override;
 
  protected:
   WebOSContentClient content_client_;
+  std::unique_ptr<content::ContentRendererClient> content_renderer_client_;
   base::Closure startup_callback_;
 };
 
