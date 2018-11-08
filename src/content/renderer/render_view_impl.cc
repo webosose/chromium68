@@ -1979,10 +1979,10 @@ void RenderViewImpl::OnSetRendererPrefs(
 
   if (webview() &&
       old_accept_languages != renderer_preferences_.accept_languages) {
-    webview()->AcceptLanguagesChanged();
-
     // set preferred language with accept-languages
     SetPreferredLanguages(renderer_preferences_.accept_languages);
+
+    webview()->AcceptLanguagesChanged();
   }
 }
 
