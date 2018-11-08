@@ -56,7 +56,7 @@ class HTMLMediaElement {
   void setWebosMediaFocus(bool focus);
 
  protected:
-  void ScheduleEvent(const AtomicString& eventName, const String& detail);
+  void ScheduleEvent(const AtomicString& event_name, const String& detail);
   void ParseContentType(const ContentType& contentType);
   void ApplyVisibility(const bool);
 
@@ -175,7 +175,7 @@ void HTMLMediaElement<original_t>::setWebosMediaFocus(bool focus) {
 }
 
 template <typename original_t>
-void HTMLMediaElement<original_t>::ScheduleEvent(const AtomicString& eventName,
+void HTMLMediaElement<original_t>::ScheduleEvent(const AtomicString& event_name,
                                                  const String& detail) {
   original_t* self(static_cast<original_t*>(this));
 
@@ -193,7 +193,7 @@ void HTMLMediaElement<original_t>::ScheduleEvent(const AtomicString& eventName,
 
   blink::CustomEvent* event = CustomEvent::Create();
   ScriptState::Scope script_scope(script_state);
-  event->initCustomEvent(script_state, eventName, false, true,
+  event->initCustomEvent(script_state, event_name, false, true,
                          ScriptValue::From(script_state, detail));
 
   self->async_event_queue_->EnqueueEvent(FROM_HERE, event);
@@ -251,7 +251,8 @@ template <typename original_t>
 class HTMLMediaElementExtendingWebMediaPlayerClient
     : public blink::WebMediaPlayerClient {
  public:
-  void UpdateUMSMediaInfo(const blink::WebString&) override;
+  void SendCustomMessage(const blink::WebMediaPlayer::MediaEventType,
+                         const blink::WebString&) override;
   WebString ContentMIMEType() const override;
   WebString ContentTypeCodecs() const override;
   WebString ContentCustomOption() const override;
@@ -279,12 +280,14 @@ HTMLMediaElementExtendingWebMediaPlayerClient<original_t>::WebWidgetViewRect() {
 
 template <typename original_t>
 void HTMLMediaElementExtendingWebMediaPlayerClient<
-    original_t>::UpdateUMSMediaInfo(const blink::WebString& detail) {
-  if (!RuntimeEnabledFeatures::UMSExtensionEnabled())
-    return;
-
+    original_t>::SendCustomMessage(const blink::WebMediaPlayer::MediaEventType
+                                       media_event_type,
+                                   const blink::WebString& detail) {
   original_t* self(static_cast<original_t*>(this));
-  self->ScheduleEvent(EventTypeNames::umsmediainfo, detail);
+  if ((media_event_type ==
+       blink::WebMediaPlayer::kMediaEventUpdateUMSMediaInfo) &&
+      RuntimeEnabledFeatures::UMSExtensionEnabled())
+    self->ScheduleEvent(EventTypeNames::umsmediainfo, detail);
 }
 
 template <typename original_t>

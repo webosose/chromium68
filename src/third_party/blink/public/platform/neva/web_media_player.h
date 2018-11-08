@@ -27,6 +27,12 @@ namespace neva {
 class WebMediaPlayer {
  public:
   enum RenderMode { RenderModeDefault, RenderModeHole, RenderModeTexture };
+
+  enum MediaEventType {
+    kMediaEventNone,
+    kMediaEventUpdateUMSMediaInfo,
+  };
+
   // Returns the 'timeline offset' as defined in the HTML5 spec
   // (http://www.w3.org/html/wg/drafts/html/master/embedded-content.html#timeline-offset).
   // The function should return the number of milliseconds between the

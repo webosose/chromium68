@@ -211,7 +211,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   void OnMediaPlayerPause()
       override;  // TODO(wanchang): need to check if it is required
 
-  void OnUpdateUMSMediaInfo(const std::string& detail) override;
+  void OnCustomMessage(const blink::WebMediaPlayer::MediaEventType,
+                       const std::string& detail) override;
 
   // Function called when audio focus is actually changed.
   void OnAudioFocusChanged() override;

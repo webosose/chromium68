@@ -26,7 +26,6 @@ namespace neva {
 
 class WebMediaPlayerClient {
  public:
-  virtual void UpdateUMSMediaInfo(const WebString&) = 0;
   virtual WebString ContentMIMEType() const = 0;
   virtual WebString ContentTypeCodecs() const = 0;
   virtual WebString ContentCustomOption() const = 0;
@@ -41,6 +40,8 @@ class WebMediaPlayerClient {
   virtual WebMediaPlayer::RenderMode RenderMode() const = 0;
   virtual WebRect WebWidgetViewRect() = 0;
   virtual void OnAudioFocusChanged() = 0;
+  virtual void SendCustomMessage(const blink::WebMediaPlayer::MediaEventType,
+                                 const WebString&) = 0;
 
  protected:
   ~WebMediaPlayerClient() = default;

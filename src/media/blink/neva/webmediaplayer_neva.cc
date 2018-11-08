@@ -1128,10 +1128,13 @@ void WebMediaPlayerNeva::SetVisibility(bool visibility) {
   player_api_->SetVisibility(visibility);
 }
 
-void WebMediaPlayerNeva::OnUpdateUMSMediaInfo(const std::string& detail) {
+void WebMediaPlayerNeva::OnCustomMessage(
+    const blink::WebMediaPlayer::MediaEventType media_event_type,
+    const std::string& detail) {
   FUNC_LOG(1) << __func__ << " detail: " << detail;
 
-  client_->UpdateUMSMediaInfo(blink::WebString::FromUTF8(detail));
+  client_->SendCustomMessage(media_event_type,
+                             blink::WebString::FromUTF8(detail));
 }
 
 void WebMediaPlayerNeva::OnAudioFocusChanged() {

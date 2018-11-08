@@ -345,7 +345,8 @@ void MediaPlayerUMS::OnVideoDisplayWindowChange() {
 void MediaPlayerUMS::UpdateUMSInfo(const std::string& detail) {
   FUNC_LOG(1);
   if (!detail.empty())
-    client_->OnUpdateUMSMediaInfo(detail);
+    client_->OnCustomMessage(
+        blink::WebMediaPlayer::kMediaEventUpdateUMSMediaInfo, detail);
 }
 
 void MediaPlayerUMS::OnAddAudioTrack(const std::string& id,

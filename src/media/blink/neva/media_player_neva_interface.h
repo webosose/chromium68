@@ -55,8 +55,8 @@ class MediaPlayerNevaClient {
   virtual void OnActiveRegionChanged(const blink::WebRect&) {} // for Video Texture
 
   // webos specific callbacks
-  virtual void OnCustomMessage(const std::string& detail) {}
-  virtual void OnUpdateUMSMediaInfo(const std::string& detail) = 0;
+  virtual void OnCustomMessage(const blink::WebMediaPlayer::MediaEventType,
+                               const std::string& detail) = 0;
   virtual void OnAudioFocusChanged() = 0;
 };
 
