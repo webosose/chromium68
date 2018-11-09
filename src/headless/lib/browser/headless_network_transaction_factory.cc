@@ -30,6 +30,10 @@ class HeadlessHttpCache : public net::HttpCache {
                     HeadlessBrowserContextImpl* headless_browser_context)
       : net::HttpCache(session,
                        std::make_unique<HeadlessCacheBackendFactory>(),
+#if defined(USE_NEVA_APPRUNTIME)
+                       0,
+                       false,
+#endif
                        true /* is_main_cache */),
         headless_browser_context_(headless_browser_context) {}
 

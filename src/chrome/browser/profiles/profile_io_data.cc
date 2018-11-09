@@ -1396,7 +1396,11 @@ std::unique_ptr<net::HttpCache> ProfileIOData::CreateMainHttpFactory(
     std::unique_ptr<net::HttpCache::BackendFactory> main_backend) const {
   return std::make_unique<net::HttpCache>(
       content::CreateDevToolsNetworkTransactionFactory(session),
-      std::move(main_backend), true /* is_main_cache */);
+      std::move(main_backend),
+#if defined(USE_NEVA_APPRUNTIME)
+      0, false,
+#endif
+      true /* is_main_cache */);
 }
 
 std::unique_ptr<net::HttpCache> ProfileIOData::CreateHttpFactory(
@@ -1406,7 +1410,11 @@ std::unique_ptr<net::HttpCache> ProfileIOData::CreateHttpFactory(
   net::HttpNetworkSession* shared_session = main_http_factory->GetSession();
   return std::make_unique<net::HttpCache>(
       content::CreateDevToolsNetworkTransactionFactory(shared_session),
-      std::move(backend), false /* is_main_cache */);
+      std::move(backend),
+#if defined(USE_NEVA_APPRUNTIME)
+      0, false,
+#endif
+      false /* is_main_cache */);
 }
 
 std::unique_ptr<net::NetworkDelegate> ProfileIOData::ConfigureNetworkDelegate(
