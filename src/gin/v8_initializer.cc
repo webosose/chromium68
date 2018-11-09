@@ -37,6 +37,7 @@
 
 #if defined(USE_NEVA_APPRUNTIME)
 #include "base/command_line.h"
+#include "base/logging_pmlog.h"
 #include "base/neva/base_switches.h"
 #endif
 
@@ -281,8 +282,8 @@ void V8Initializer::Initialize(IsolateHolder::ScriptMode mode,
         new base::MemoryMappedFile());
     if (custom_snapshot->Initialize(file_path)) {
       mapped_snapshot = custom_snapshot.release();
-      LOG(INFO) << __func__ << ": V8 Custom snapshot_blob loaded: "
-                << file_path.value().c_str();
+      PMLOG_DEBUG(V8, "%s(%d): V8 Custom snapshot_blob loaded: %s",
+                  __FUNCTION__, __LINE__, file_path.value().c_str());
     }
   }
 

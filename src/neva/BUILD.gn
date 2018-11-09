@@ -117,4 +117,8 @@ config("config") {
   if (use_webos_gpu_info_collector) {
     defines += [ "USE_WEBOS_GPU_INFO_COLLECTOR=1" ]
   }
+
+  if (use_webos_v8_snapshot) {
+    defines += [ "USE_WEBOS_V8_SNAPSHOT=1" ]
+  }
 }

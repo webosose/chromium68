@@ -75,6 +75,9 @@ declare_args() {
   # Use webOS specific GPU info collector
   # Needed if libpci is not available
   use_webos_gpu_info_collector = false
+
+  # Use v8 snapshot feature
+  use_webos_v8_snapshot = false
 }
 
 declare_args() {
