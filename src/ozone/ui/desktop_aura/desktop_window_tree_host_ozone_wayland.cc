@@ -1090,6 +1090,7 @@ DesktopWindowTreeHostOzone::open_windows() {
 
 gfx::Size DesktopWindowTreeHostOzone::AdjustSize(
     const gfx::Size& requested_size_in_pixels) {
+#if !defined(USE_NEVA_APPRUNTIME)
   std::vector<display::Display> displays =
       display::Screen::GetScreen()->GetAllDisplays();
   // Compare against all monitor sizes. The window manager can move the window
@@ -1100,6 +1101,7 @@ gfx::Size DesktopWindowTreeHostOzone::AdjustSize(
                        requested_size_in_pixels.height() - 1);
     }
   }
+#endif
 
   // Do not request a 0x0 window size.
   gfx::Size size_in_pixels = requested_size_in_pixels;
