@@ -131,16 +131,9 @@ void KeyframeEffect::Tick(base::TimeTicks monotonic_time) {
   element_animations_->UpdateClientAnimationState();
 }
 
-#if defined(USE_NEVA_APPRUNTIME)
-void KeyframeEffect::TickKeyframeModel(base::TimeTicks monotonic_time,
-                                       base::TimeTicks last_tick_time,
-                                       KeyframeModel* keyframe_model,
-                                       AnimationTarget* target) {
-#else
 void KeyframeEffect::TickKeyframeModel(base::TimeTicks monotonic_time,
                                        KeyframeModel* keyframe_model,
                                        AnimationTarget* target) {
-#endif
   if ((keyframe_model->run_state() != KeyframeModel::STARTING &&
        keyframe_model->run_state() != KeyframeModel::RUNNING &&
        keyframe_model->run_state() != KeyframeModel::PAUSED) ||
@@ -174,30 +167,10 @@ void KeyframeEffect::TickKeyframeModel(base::TimeTicks monotonic_time,
           keyframe_model->target_property_id(), keyframe_model);
       break;
     case AnimationCurve::SCROLL_OFFSET:
-#if defined(USE_NEVA_APPRUNTIME)
-    {
-      if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-              cc::switches::kEnableWebOSNativeScroll) &&
-          last_tick_time > monotonic_time)
-        break;
-
-      const ScrollOffsetAnimationCurve* scroll_offset_animation_curve =
-          curve->ToScrollOffsetAnimationCurve();
-      const gfx::ScrollOffset scroll_offset =
-          scroll_offset_animation_curve->GetValue(trimmed);
-
-      const bool is_last_tick =
-          scroll_offset == scroll_offset_animation_curve->target_value();
-      target->NotifyClientScrollOffsetAnimated(
-          curve->ToScrollOffsetAnimationCurve()->GetValue(trimmed),
-          keyframe_model->target_property_id(), keyframe_model, is_last_tick);
-    }
-#else
       target->NotifyClientScrollOffsetAnimated(
           curve->ToScrollOffsetAnimationCurve()->GetValue(trimmed),
           keyframe_model->target_property_id(), keyframe_model);
-#endif
-    break;
+      break;
     case AnimationCurve::SIZE:
       target->NotifyClientSizeAnimated(
           curve->ToSizeAnimationCurve()->GetValue(trimmed),
@@ -205,6 +178,44 @@ void KeyframeEffect::TickKeyframeModel(base::TimeTicks monotonic_time,
       break;
   }
 }
+
+#if defined(USE_NEVA_APPRUNTIME)
+void KeyframeEffect::TickKeyframeModel(base::TimeTicks monotonic_time,
+                                       base::TimeTicks last_tick_time,
+                                       KeyframeModel* keyframe_model,
+                                       AnimationTarget* target) {
+  if ((keyframe_model->run_state() != KeyframeModel::STARTING &&
+       keyframe_model->run_state() != KeyframeModel::RUNNING &&
+       keyframe_model->run_state() != KeyframeModel::PAUSED) ||
+      !keyframe_model->InEffect(monotonic_time)) {
+    return;
+  }
+
+  AnimationCurve* curve = keyframe_model->curve();
+  base::TimeDelta trimmed =
+      keyframe_model->TrimTimeToCurrentIteration(monotonic_time);
+
+  if (curve->Type() == AnimationCurve::SCROLL_OFFSET) {
+    if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+            cc::switches::kEnableWebOSNativeScroll) &&
+        last_tick_time > monotonic_time)
+      return;
+
+    const ScrollOffsetAnimationCurve* scroll_offset_animation_curve =
+        curve->ToScrollOffsetAnimationCurve();
+    const gfx::ScrollOffset scroll_offset =
+        scroll_offset_animation_curve->GetValue(trimmed);
+
+    const bool is_last_tick =
+        scroll_offset == scroll_offset_animation_curve->target_value();
+    target->NotifyClientScrollOffsetAnimated(
+        curve->ToScrollOffsetAnimationCurve()->GetValue(trimmed),
+        keyframe_model->target_property_id(), keyframe_model, is_last_tick);
+  } else {
+    KeyframeEffect::TickKeyframeModel(monotonic_time, keyframe_model, target);
+  }
+}
+#endif
 
 void KeyframeEffect::RemoveFromTicking() {
   is_ticking_ = false;
