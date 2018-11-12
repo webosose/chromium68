@@ -80,7 +80,7 @@ class WebOSMediaClient {
 
   virtual ~WebOSMediaClient() {}
 
-  static WebOSMediaClient* Create(
+  static std::unique_ptr<WebOSMediaClient> Create(
       const scoped_refptr<base::SingleThreadTaskRunner>& task_runner);
 
   virtual void Load(bool video,
@@ -131,9 +131,9 @@ class WebOSMediaClient {
   virtual int GetNumAudioTracks() = 0;
   virtual gfx::Size GetNaturalVideoSize() = 0;
   virtual void SetNaturalVideoSize(const gfx::Size& size) = 0;
-  virtual bool SetDisplayWindow(const gfx::Rect& outRect,
-                                const gfx::Rect& inRect,
-                                bool fullScreen,
+  virtual bool SetDisplayWindow(const gfx::Rect& out_rect,
+                                const gfx::Rect& in_rect,
+                                bool fullscreen,
                                 bool forced = false) = 0;
   virtual void SetVisibility(bool visible) = 0;
   virtual bool Visibility() = 0;

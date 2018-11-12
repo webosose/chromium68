@@ -477,13 +477,13 @@ void WebMediaPlayerNeva::SetPreload(Preload preload) {
 }
 
 bool WebMediaPlayerNeva::HasVideo() const {
-  FUNC_LOG(1);
+  FUNC_LOG(2);
   DCHECK(main_thread_checker_.CalledOnValidThread());
   return player_api_->HasVideo();
 }
 
 bool WebMediaPlayerNeva::HasAudio() const {
-  FUNC_LOG(1);
+  FUNC_LOG(2);
   DCHECK(main_thread_checker_.CalledOnValidThread());
   return player_api_->HasAudio();
 }

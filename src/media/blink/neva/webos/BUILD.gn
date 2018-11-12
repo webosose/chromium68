@@ -32,8 +32,16 @@ source_set("webos") {
     "webos_mediaclient.h",
   ]
 
-  sources += [
-    "webos_mediaclient_stub.cc",
-    "webos_mediaclient_stub.h",
-  ]
+  if (use_gst_media) {
+    sources += [
+      "umediaclient_gmp_impl.cc",
+      "umediaclient_gmp_impl.h",
+    ]
+    defines = [ "UMS_INTERNAL_API_VERSION=2" ]
+  } else {
+    sources += [
+      "webos_mediaclient_stub.cc",
+      "webos_mediaclient_stub.h",
+    ]
+  }
 }

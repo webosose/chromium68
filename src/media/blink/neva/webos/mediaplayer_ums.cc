@@ -97,7 +97,7 @@ MediaPlayerUMS::MediaPlayerUMS(
       main_loop_(base::MessageLoop::current()),
       task_runner_(task_runner) {
   LOG(ERROR) << __func__;
-  umedia_client_.reset(WebOSMediaClient::Create(task_runner_));
+  umedia_client_ = WebOSMediaClient::Create(task_runner_);
 }
 
 MediaPlayerUMS::~MediaPlayerUMS() {}
@@ -182,12 +182,12 @@ void MediaPlayerUMS::SetPreload(MediaPlayerNeva::Preload preload) {
 }
 
 bool MediaPlayerUMS::HasVideo() {
-  FUNC_LOG(1);
+  FUNC_LOG(2);
   return umedia_client_->HasVideo();
 }
 
 bool MediaPlayerUMS::HasAudio() {
-  FUNC_LOG(1);
+  FUNC_LOG(2);
   return umedia_client_->HasAudio();
 }
 
@@ -239,12 +239,10 @@ void MediaPlayerUMS::SetAudioFocus(bool focus) {
 }
 
 bool MediaPlayerUMS::HasVisibility(void) const {
-  FUNC_LOG(1);
   return umedia_client_->Visibility();
 }
 
 void MediaPlayerUMS::SetVisibility(bool visibility) {
-  FUNC_LOG(1);
   if (!is_video_offscreen_)
     umedia_client_->SetVisibility(visibility);
 }
