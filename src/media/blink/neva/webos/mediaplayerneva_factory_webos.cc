@@ -19,6 +19,10 @@
 #include "media/blink/neva/webos/mediaplayer_ums.h"
 #include "net/base/mime_util.h"
 
+#if defined(USE_GST_MEDIA)
+#include "media/blink/neva/webos/mediaplayer_camera.h"
+#endif
+
 namespace media {
 
 // also see media/base/mime_util_internal.cc(webos_codecs).
@@ -33,11 +37,15 @@ const char kPrefixOfWebOSPhotoCameraMimeType[] = "service/webos-photo-camera";
 const char kPrefixOfWebOSPhotoMimeType[] = "service/webos-photo";
 
 bool MediaPlayerNevaFactory::CanSupportMediaType(const std::string& mime_type) {
+  LOG(INFO) << __PRETTY_FUNCTION__ << " mime_type: " << mime_type;
   if (net::MatchesMimeType(kPrefixOfWebOSMediaMimeType, mime_type)) {
     if (net::MatchesMimeType(kPrefixOfWebOSExternalMimeType, mime_type))
       return true;
-    else
-      return false;
+#if defined(USE_GST_MEDIA)
+    if (net::MatchesMimeType(kPrefixOfWebOSCameraMimeType, mime_type))
+      return true;
+#endif
+    return false;
   }
   // If url has no webOS prefix than we should handle it as a normal LoadTypeURL
   return true;
@@ -47,7 +55,11 @@ MediaPlayerNeva* MediaPlayerNevaFactory::CreateMediaPlayerNeva(
     MediaPlayerNevaClient* client,
     const std::string& mime_type,
     const scoped_refptr<base::SingleThreadTaskRunner>& task_runner) {
-  LOG(INFO) << __PRETTY_FUNCTION__ << " mime_type:" << mime_type;
+  LOG(INFO) << __PRETTY_FUNCTION__ << " mime_type: " << mime_type;
+#if defined(USE_GST_MEDIA)
+  if (net::MatchesMimeType(kPrefixOfWebOSCameraMimeType, mime_type))
+    return new MediaPlayerCamera(client, task_runner);
+#endif
   return new MediaPlayerUMS(client, task_runner);
 }
 
