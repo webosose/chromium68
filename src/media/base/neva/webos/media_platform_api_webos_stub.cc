@@ -45,6 +45,9 @@ void MediaPlatformAPIWebOSStub::SetDisplayWindow(const gfx::Rect& rect,
                                                  const gfx::Rect& in_rect,
                                                  bool fullscreen) {}
 
+void MediaPlatformAPIWebOSStub::SetLoadCompletedCb(
+    const LoadCompletedCB& load_completed_cb) {}
+
 bool MediaPlatformAPIWebOSStub::Feed(const scoped_refptr<DecoderBuffer>& buffer,
                                      FeedType type) {
   return false;

@@ -58,6 +58,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSGmp : public MediaPlatformAPIWebOS {
   void SetDisplayWindow(const gfx::Rect& rect,
                         const gfx::Rect& in_rect,
                         bool fullscreen) override;
+  void SetLoadCompletedCb(const LoadCompletedCB& loaded_cb) override;
   bool Feed(const scoped_refptr<DecoderBuffer>& buffer, FeedType type) override;
   uint64_t GetCurrentTime() override;
   bool Seek(base::TimeDelta time) override;
@@ -156,6 +157,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSGmp : public MediaPlatformAPIWebOS {
   PipelineStatusCB seek_cb_;
 
   base::Closure size_change_cb_;
+  LoadCompletedCB load_completed_cb_;
 
   std::recursive_mutex recursive_mutex_;
 

@@ -192,9 +192,7 @@ void WebMediaPlayerMSE::Suspend() {
   if (is_suspended_)
     return;
 
-  status_on_suspended_ = (pipeline_controller_.GetPlaybackRate() == 0.0f)
-                             ? PausedStatus
-                             : PlayingStatus;
+  status_on_suspended_ = Paused() ? PausedStatus : PlayingStatus;
 
   if (status_on_suspended_ == PlayingStatus) {
     Pause();
@@ -226,6 +224,8 @@ void WebMediaPlayerMSE::Resume() {
     media_platform_api_->Resume(paused_time_, restore_playback_mode);
     UpdateVideoHoleBoundary(true);
   }
+
+  client_->RequestSeek(paused_time_.InSecondsF());
 
   if (status_on_suspended_ == PausedStatus) {
     Pause();

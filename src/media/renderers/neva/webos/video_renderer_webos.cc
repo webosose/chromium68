@@ -275,6 +275,11 @@ void VideoRendererWebOS::Initialize(
                               weak_factory_.GetWeakPtr()),
       base::Bind(&VideoRendererWebOS::OnWaitingForDecryptionKey,
                  weak_factory_.GetWeakPtr()));
+
+  if (media_platform_api_) {
+    media_platform_api_->SetLoadCompletedCb(base::Bind(
+        &VideoRendererWebOS::OnLoaded_Locked, weak_factory_.GetWeakPtr()));
+  }
 }
 
 scoped_refptr<VideoFrame> VideoRendererWebOS::Render(
@@ -382,6 +387,15 @@ void VideoRendererWebOS::OnBufferingStateChange(BufferingState state) {
 void VideoRendererWebOS::OnWaitingForDecryptionKey() {
   DCHECK(task_runner_->BelongsToCurrentThread());
   client_->OnWaitingForDecryptionKey();
+}
+
+void VideoRendererWebOS::OnLoaded_Locked() {
+  DCHECK(task_runner_->BelongsToCurrentThread());
+  base::AutoLock auto_lock(lock_);
+
+  // Signal buffering state if we've met our conditions.
+  if (buffering_state_ == BUFFERING_HAVE_NOTHING && HaveEnoughData_Locked())
+    TransitionToHaveEnough_Locked();
 }
 
 void VideoRendererWebOS::OnConfigChange(const VideoDecoderConfig& config) {

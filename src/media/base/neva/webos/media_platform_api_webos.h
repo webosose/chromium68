@@ -52,6 +52,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOS : public MediaPlatformAPI {
   virtual void SetDisplayWindow(const gfx::Rect& rect,
                                 const gfx::Rect& in_rect,
                                 bool fullscreen) = 0;
+  virtual void SetLoadCompletedCb(const LoadCompletedCB& loaded_cb) = 0;
   virtual bool Feed(const scoped_refptr<DecoderBuffer>& buffer,
                     FeedType type) = 0;
   virtual uint64_t GetCurrentTime() = 0;

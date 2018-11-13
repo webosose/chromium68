@@ -38,6 +38,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSStub : public MediaPlatformAPIWebOS {
   void SetDisplayWindow(const gfx::Rect& rect,
                         const gfx::Rect& in_rect,
                         bool fullscreen) override;
+  void SetLoadCompletedCb(const LoadCompletedCB& loaded_cb) override;
   bool Feed(const scoped_refptr<DecoderBuffer>& buffer, FeedType type) override;
   uint64_t GetCurrentTime() override;
   bool Seek(base::TimeDelta time) override;

@@ -250,6 +250,11 @@ void MediaPlatformAPIWebOSGmp::SetDisplayWindow(const gfx::Rect& rect,
   }
 }
 
+void MediaPlatformAPIWebOSGmp::SetLoadCompletedCb(
+    const LoadCompletedCB& load_completed_cb) {
+  load_completed_cb_ = load_completed_cb;
+}
+
 bool MediaPlatformAPIWebOSGmp::Feed(const scoped_refptr<DecoderBuffer>& buffer,
                                     FeedType type) {
   std::lock_guard<std::recursive_mutex> lock(recursive_mutex_);
@@ -769,6 +774,11 @@ void MediaPlatformAPIWebOSGmp::NotifyLoadComplete() {
                    << " play_internal_=" << play_internal_;
 
   load_completed_ = true;
+
+  // Run LoadCompletedCb to TvRenderer.
+  // It's necessary to callback on loading complete after feeding 10 secs.
+  if (!load_completed_cb_.is_null())
+    base::ResetAndReturn(&load_completed_cb_).Run();
 
   if (play_internal_)
     PlayInternal();

@@ -116,6 +116,8 @@ class MEDIA_EXPORT VideoRendererWebOS
   void OnBufferingStateChange(BufferingState state);
   void OnWaitingForDecryptionKey();
 
+  void OnLoaded_Locked();
+
   // Called by the VideoFrameStream when a config change occurs. Will notify
   // RenderClient of the new config.
   void OnConfigChange(const VideoDecoderConfig& config);
