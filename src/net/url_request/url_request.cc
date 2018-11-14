@@ -1242,4 +1242,8 @@ void URLRequest::set_status(URLRequestStatus status) {
   status_ = status;
 }
 
+void URLRequest::UpdateMetadata(scoped_refptr<IOBufferWithSize> metadata) {
+  response_info_.metadata = metadata;
+}
+
 }  // namespace net

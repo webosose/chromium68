@@ -219,6 +219,8 @@ class CORE_EXPORT WebSettingsImpl final : public WebSettingsImplNeva {
   void SetAllowLocalResourceLoad(bool) override;
   bool GetAllowLocalResourceLoad() const override;
 #endif
+  void SetLocalResourceCodeCacheEnabled(bool) override;
+  void SetCodeCacheFromFileURIsWithQueryStringDisallowed(bool) override;
 
   bool ShowFPSCounter() const { return show_fps_counter_; }
   bool ShowPaintRects() const { return show_paint_rects_; }

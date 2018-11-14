@@ -17,6 +17,7 @@
 #include "base/metrics/field_trial.h"
 #include "base/sequenced_task_runner.h"
 #include "base/stl_util.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "base/task_scheduler/post_task.h"
 #include "build/build_config.h"
@@ -62,10 +63,12 @@
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
+#include "content/public/common/content_switches.h"
 #include "extensions/browser/extension_protocols.h"
 #include "extensions/buildflags/buildflags.h"
 #include "extensions/common/constants.h"
 #include "net/base/cache_type.h"
+#include "net/code_cache/code_cache_impl.h"
 #include "net/cookies/cookie_store.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_network_session.h"
@@ -532,6 +535,21 @@ void ProfileImplIOData::OnMainRequestContextCreated(
   StoragePartitionDescriptor details(profile_path_, false);
   media_request_context_.reset(InitializeMediaRequestContext(
       main_request_context(), details, "main_media"));
+
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kEnableLocalResourceCodeCache)) {
+    int max_size = 5242880;
+    if (command_line->HasSwitch(switches::kLocalResourceCodeCacheSize))
+      base::StringToInt(command_line->GetSwitchValueASCII(
+                            switches::kLocalResourceCodeCacheSize),
+                        &max_size);
+    code_cache_.reset(new net::CodeCacheImpl(
+        profile_path_, max_size,
+        BrowserThread::GetMessageLoopProxyForThread(BrowserThread::CACHE)));
+    main_context->set_code_cache(code_cache_.get());
+  }
+
   lazy_params_.reset();
 }
 

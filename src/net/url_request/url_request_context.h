@@ -36,6 +36,7 @@ class ProcessMemoryDump;
 namespace net {
 class CertVerifier;
 class ChannelIDService;
+class CodeCache;
 class CookieStore;
 class CTPolicyEnforcer;
 class CTVerifier;
@@ -236,6 +237,8 @@ class NET_EXPORT URLRequestContext
       const HttpUserAgentSettings* http_user_agent_settings) {
     http_user_agent_settings_ = http_user_agent_settings;
   }
+  CodeCache* code_cache() const { return code_cache_; }
+  void set_code_cache(CodeCache* codecache) { code_cache_ = codecache; }
 
   // Gets the NetworkQualityEstimator associated with this context.
   // May return nullptr.
@@ -316,6 +319,7 @@ class NET_EXPORT URLRequestContext
   HttpTransactionFactory* http_transaction_factory_;
   const URLRequestJobFactory* job_factory_;
   URLRequestThrottlerManager* throttler_manager_;
+  CodeCache* code_cache_;
   NetworkQualityEstimator* network_quality_estimator_;
 #if BUILDFLAG(ENABLE_REPORTING)
   ReportingService* reporting_service_;

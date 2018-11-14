@@ -123,12 +123,17 @@ class BrowsingDataRemover {
   // Invokes NotifyAndDeleteIfDone.
   void OnClearedStoragePartitionData();
 
+  // Callback for when the code cache has been deleted. Invokes
+  // NotifyAndDeleteIfDone.
+  void OnClearedCodeCache();
+
   // Returns true if we're all done.
   bool AllDone();
 
   AppRuntimeBrowserContext* browser_context_;
   bool waiting_for_clear_channel_ids_;
   bool waiting_for_clear_cache_;
+  bool waiting_for_clear_code_cache_;
   bool waiting_for_clear_storage_partition_data_;
 
   base::WeakPtrFactory<BrowsingDataRemover> weak_ptr_factory_;

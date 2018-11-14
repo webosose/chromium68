@@ -356,7 +356,9 @@ ResourceFetcher::ResourceFetcher(FetchContext* new_context)
       auto_load_images_(true),
       images_enabled_(true),
       allow_stale_resources_(false),
-      image_fetched_(false) {
+      image_fetched_(false),
+      local_resource_code_cache_enabled_(false),
+      code_cache_from_file_uris_with_query_string_disallowed_(false) {
   InstanceCounters::IncrementCounter(InstanceCounters::kResourceFetcherCounter);
   if (IsMainThread())
     MainThreadFetchersSet().insert(this);
@@ -1747,6 +1749,21 @@ void ResourceFetcher::StopFetchingInternal(StopFetchingTarget target) {
 
 void ResourceFetcher::StopFetchingIncludingKeepaliveLoaders() {
   StopFetchingInternal(StopFetchingTarget::kIncludingKeepaliveLoaders);
+}
+
+void ResourceFetcher::SetLocalResourceCodeCacheEnabled(bool enable) {
+  if (enable == local_resource_code_cache_enabled_)
+    return;
+
+  local_resource_code_cache_enabled_ = enable;
+}
+
+void ResourceFetcher::SetCodeCacheFromFileURIsWithQueryStringDisallowed(
+    bool enable) {
+  if (enable == code_cache_from_file_uris_with_query_string_disallowed_)
+    return;
+
+  code_cache_from_file_uris_with_query_string_disallowed_ = enable;
 }
 
 void ResourceFetcher::Trace(blink::Visitor* visitor) {

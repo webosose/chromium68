@@ -314,6 +314,9 @@ class WebSettings : public WebSettingsNeva {
   virtual bool GetAllowLocalResourceLoad() const = 0;
 #endif
 
+  virtual void SetLocalResourceCodeCacheEnabled(bool) = 0;
+  virtual void SetCodeCacheFromFileURIsWithQueryStringDisallowed(bool) = 0;
+
  protected:
   ~WebSettings() = default;
 };

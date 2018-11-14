@@ -322,6 +322,10 @@ const char kDisable2dCanvasClipAntialiasing[] = "disable-2d-canvas-clip-aa";
 const char kDisableAcceleratedJpegDecoding[] =
     "disable-accelerated-jpeg-decoding";
 
+// Disallow v8 code cache when file URIs with query string were fetched.
+const char kDisallowCodeCacheFromFileURIsWithQueryString[] =
+    "disallow-code-cache-from-file-uris-with-query-string";
+
 // Logs Runtime Call Stats for Blink. --single-process also needs to be
 // used along with this for the stats to be logged.
 const char kDumpBlinkRuntimeCallStats[] = "dump-blink-runtime-call-stats";
@@ -368,6 +372,9 @@ const char kEnableGpuMemoryBufferVideoFrames[] =
 // with excessive key events that may cause application to choke on heavy
 // tasks which are triggered by key pressed.
 const char kEnableKeyEventThrottling[] = "enable-key-event-throttling";
+
+// Enables v8 code cache for local resource
+const char kEnableLocalResourceCodeCache[] = "enable-local-resource-code-cache";
 
 // When using CPU rasterizing generate low resolution tiling. Low res
 // tiles may be displayed during fast scrolls especially on slower devices.
@@ -572,6 +579,9 @@ const char kJavaScriptHarmony[]             = "javascript-harmony";
 
 // Specifies the flags passed to JS engine
 const char kJavaScriptFlags[]               = "js-flags";
+
+// Maximum size of local resources code cache in bytes.
+const char kLocalResourceCodeCacheSize[] = "local-resource-code-cache-size";
 
 // Logs GPU control list decisions when enforcing blacklist rules.
 const char kLogGpuControlListDecisions[]    = "log-gpu-control-list-decisions";
@@ -1084,6 +1094,7 @@ const char kMaxTimeupdateEventFrequency[] = "max-timeupdate-event-frequency";
 // Specify User Agent Suffix such as SmartTv, SmartWatch if required
 const char kUserAgentSuffix[] = "user-agent-suffix";
 #endif
+
 // Don't dump stuff here, follow the same order as the header.
 
 }  // namespace switches

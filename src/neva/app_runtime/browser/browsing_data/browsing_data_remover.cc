@@ -18,6 +18,7 @@
 
 #include "base/message_loop/message_loop.h"
 #include "components/web_cache/browser/web_cache_manager.h"
+#include "content/browser/browsing_data/storage_partition_code_cache_data_remover.h"
 #include "content/browser/browsing_data/storage_partition_http_cache_data_remover.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
@@ -44,6 +45,7 @@ BrowsingDataRemover::BrowsingDataRemover(
     : browser_context_(browser_context),
       waiting_for_clear_channel_ids_(false),
       waiting_for_clear_cache_(false),
+      waiting_for_clear_code_cache_(false),
       waiting_for_clear_storage_partition_data_(false),
       weak_ptr_factory_(this) {}
 
@@ -166,8 +168,13 @@ void BrowsingDataRemover::Remove(const TimeRange& time_range, int remove_mask) {
   }
 
   if (remove_mask & REMOVE_CODE_CACHE) {
-    // http://gpro.lgsvl.com/173303
-    NOTIMPLEMENTED();
+    waiting_for_clear_code_cache_ = true;
+    // StoragePartitionCodeCacheDataRemover deletes itself when it is done.
+    content::StoragePartitionCodeCacheDataRemover::CreateForRange(
+        content::BrowserContext::GetDefaultStoragePartition(browser_context_),
+        delete_begin, delete_end)
+        ->Remove(base::Bind(&BrowsingDataRemover::OnClearedCodeCache,
+                            weak_ptr_factory_.GetWeakPtr()));
   }
 
   if (storage_partition_remove_mask) {
@@ -209,6 +216,12 @@ void BrowsingDataRemover::OnClearedCache() {
   NotifyAndDeleteIfDone();
 }
 
+void BrowsingDataRemover::OnClearedCodeCache() {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+  waiting_for_clear_code_cache_ = false;
+  NotifyAndDeleteIfDone();
+}
+
 void BrowsingDataRemover::OnClearedStoragePartitionData() {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
   waiting_for_clear_storage_partition_data_ = false;
@@ -217,6 +230,7 @@ void BrowsingDataRemover::OnClearedStoragePartitionData() {
 
 bool BrowsingDataRemover::AllDone() {
   return !waiting_for_clear_channel_ids_ && !waiting_for_clear_cache_ &&
+         !waiting_for_clear_code_cache_ &&
          !waiting_for_clear_storage_partition_data_;
 }
 

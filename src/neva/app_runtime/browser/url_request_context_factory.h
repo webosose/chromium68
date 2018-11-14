@@ -22,6 +22,7 @@
 #include "net/http/http_network_session.h"
 
 namespace net {
+class CodeCache;
 class CookieStore;
 class CTPolicyEnforcer;
 class MultiLogCTVerifier;
@@ -119,6 +120,7 @@ class URLRequestContextFactory {
 
   bool media_dependencies_initialized_;
   std::unique_ptr<net::HttpTransactionFactory> media_transaction_factory_;
+  std::unique_ptr<net::CodeCache> code_cache_;
 
   std::unique_ptr<net::NetworkDelegate> network_delegate_;
   std::unique_ptr<net::CookieStore> cookie_store_;

@@ -26,6 +26,7 @@
 
 #include "third_party/blink/renderer/core/loader/resource/script_resource.h"
 
+#include "base/logging_pmlog.h"
 #include "services/network/public/mojom/request_context_frame_type.mojom-blink.h"
 #include "third_party/blink/renderer/core/dom/document.h"
 #include "third_party/blink/renderer/core/loader/subresource_integrity_helper.h"
@@ -218,6 +219,9 @@ SingleCachedMetadataHandler* ScriptResource::CacheHandler() {
 
 CachedMetadataHandler* ScriptResource::CreateCachedMetadataHandler(
     std::unique_ptr<CachedMetadataSender> send_callback) {
+  if (!CanCreateCachedMetadataHandler())
+    return nullptr;
+
   return new SingleCachedMetadataHandlerImpl(Encoding(),
                                              std::move(send_callback));
 }
@@ -229,6 +233,8 @@ void ScriptResource::SetSerializedCachedMetadata(const char* data,
       static_cast<SingleCachedMetadataHandlerImpl*>(Resource::CacheHandler());
   if (cache_handler) {
     cache_handler->SetSerializedCachedMetadata(data, size);
+    PMLOG_DEBUG(V8CodeCache, "V8CodeCache Consume %s(%d)",
+                Url().GetString().Utf8().data(), size);
   }
 }
 
@@ -259,6 +265,28 @@ bool ScriptResource::CanUseCacheValidator() const {
     return false;
 
   return Resource::CanUseCacheValidator();
+}
+
+bool ScriptResource::CanCreateCachedMetadataHandler() const {
+  KURL script_url = GetResponse().Url();
+  if (!script_url.IsLocalFile())
+    return true;
+
+  int last_dot = script_url.LastPathComponent().ReverseFind('.');
+  if (last_dot != -1) {
+    String extension = script_url.LastPathComponent().Substring(last_dot + 1);
+    String mimetype = MIMETypeRegistry::GetMIMETypeForExtension(extension);
+    if (!EqualIgnoringASCIICase(mimetype, "text/javascript") &&
+        !EqualIgnoringASCIICase(mimetype, "application/javascript")) {
+      PMLOG_DEBUG(V8CodeCache,
+                  "V8CodeCache Can't produce %s because FILE Extension: %s  "
+                  "MIMEType: %s",
+                  Url().GetString().Utf8().data(), extension.Utf8().data(),
+                  mimetype.Utf8().data());
+      return false;
+    }
+  }
+  return true;
 }
 
 }  // namespace blink

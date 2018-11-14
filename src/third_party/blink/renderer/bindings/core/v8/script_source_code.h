@@ -75,6 +75,7 @@ class CORE_EXPORT ScriptSourceCode final {
   const String& SourceMapUrl() const { return source_map_url_; }
 
   ScriptStreamer* Streamer() const { return streamer_; }
+  const bool IsLocalFile() const { return is_local_file_; }
 
  private:
   const String source_;
@@ -91,6 +92,7 @@ class CORE_EXPORT ScriptSourceCode final {
   const String source_map_url_;
   const TextPosition start_position_;
   const ScriptSourceLocationType source_location_type_;
+  const bool is_local_file_;
 };
 
 }  // namespace blink

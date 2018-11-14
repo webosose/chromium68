@@ -25,6 +25,7 @@ class DomainReliabilityMonitor;
 }  // namespace domain_reliability
 
 namespace net {
+class CodeCache;
 class CookieStore;
 struct ReportingPolicy;
 class ReportingService;
@@ -201,6 +202,8 @@ class ProfileImplIOData : public ProfileIOData {
   mutable std::unique_ptr<chrome_browser_net::Predictor> predictor_;
 
   mutable std::unique_ptr<net::URLRequestContext> media_request_context_;
+
+  mutable std::unique_ptr<net::CodeCache> code_cache_;
 
   // Parameters needed for isolated apps.
   base::FilePath profile_path_;

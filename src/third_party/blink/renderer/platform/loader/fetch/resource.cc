@@ -490,6 +490,19 @@ bool Resource::WillFollowRedirect(const ResourceRequest& new_request,
 void Resource::SetResponse(const ResourceResponse& response) {
   response_ = response;
 
+  if (Loader() && Loader()->Fetcher() &&
+      Loader()->Fetcher()->LocalResourceCodeCacheEnabled() &&
+      type_ == Resource::kScript && GetResourceRequest().Url().IsLocalFile()) {
+    if (!Loader()
+             ->Fetcher()
+             ->CodeCacheFromFileURIsWithQueryStringDisallowed() ||
+        GetResourceRequest().Url().Query().IsNull()) {
+      cache_handler_ =
+          CreateCachedMetadataHandler(CreateCachedMetadataSender());
+      return;
+    }
+  }
+
   // Currently we support the metadata caching only for HTTP family.
   if (!GetResourceRequest().Url().ProtocolIsInHTTPFamily() ||
       !GetResponse().Url().ProtocolIsInHTTPFamily()) {

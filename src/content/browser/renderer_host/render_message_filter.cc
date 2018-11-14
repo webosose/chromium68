@@ -58,6 +58,7 @@
 #include "net/base/io_buffer.h"
 #include "net/base/mime_util.h"
 #include "net/base/request_priority.h"
+#include "net/code_cache/code_cache.h"
 #include "net/http/http_cache.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_getter.h"
@@ -207,6 +208,18 @@ void RenderMessageFilter::DidGenerateCacheableMetadata(
     const GURL& url,
     base::Time expected_response_time,
     const std::vector<uint8_t>& data) {
+  bool is_javascript = (url.spec().find(".js") != std::string::npos);
+  net::CodeCache* code_cache =
+      request_context_->GetURLRequestContext()->code_cache();
+  if (code_cache && url.SchemeIsFile() && is_javascript) {
+    LOG(INFO) << "DidGenerateCacheableMetadata " << url;
+    scoped_refptr<net::IOBufferWithSize> buf(
+        new net::IOBufferWithSize(data.size()));
+    memcpy(buf->data(), &data.front(), data.size());
+    code_cache->WriteMetadata(url, buf);
+    return;
+  }
+
   if (!url.SchemeIsHTTPOrHTTPS()) {
     bad_message::ReceivedBadMessage(
         this, bad_message::RMF_BAD_URL_CACHEABLE_METADATA);

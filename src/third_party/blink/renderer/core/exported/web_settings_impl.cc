@@ -753,4 +753,13 @@ bool WebSettingsImpl::GetAllowLocalResourceLoad() const {
   return settings_->GetAllowLocalResourceLoad();
 }
 #endif
+
+void WebSettingsImpl::SetLocalResourceCodeCacheEnabled(bool enabled) {
+  settings_->SetLocalResourceCodeCacheEnabled(enabled);
+}
+
+void WebSettingsImpl::SetCodeCacheFromFileURIsWithQueryStringDisallowed(
+    bool enabled) {
+  settings_->SetCodeCacheFromFileURIsWithQueryStringDisallowed(enabled);
+}
 }  // namespace blink

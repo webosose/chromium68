@@ -177,6 +177,15 @@ class PLATFORM_EXPORT ResourceFetcher
   // counting.
   void PrepareForLeakDetection();
 
+  bool LocalResourceCodeCacheEnabled() const {
+    return local_resource_code_cache_enabled_;
+  }
+  void SetLocalResourceCodeCacheEnabled(bool);
+  bool CodeCacheFromFileURIsWithQueryStringDisallowed() const {
+    return code_cache_from_file_uris_with_query_string_disallowed_;
+  }
+  void SetCodeCacheFromFileURIsWithQueryStringDisallowed(bool);
+
   using ResourceFetcherSet = PersistentHeapHashSet<WeakMember<ResourceFetcher>>;
   static const ResourceFetcherSet& MainThreadFetchers();
 
@@ -314,11 +323,13 @@ class PLATFORM_EXPORT ResourceFetcher
 
   uint32_t inflight_keepalive_bytes_ = 0;
 
-  // 28 bits left
+  // 26 bits left
   bool auto_load_images_ : 1;
   bool images_enabled_ : 1;
   bool allow_stale_resources_ : 1;
   bool image_fetched_ : 1;
+  bool local_resource_code_cache_enabled_ : 1;
+  bool code_cache_from_file_uris_with_query_string_disallowed_ : 1;
 
   static constexpr uint32_t kKeepaliveInflightBytesQuota = 64 * 1024;
 };

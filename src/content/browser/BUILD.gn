@@ -527,6 +527,8 @@ jumbo_source_set("browser") {
     "browsing_data/clear_site_data_throttle.h",
     "browsing_data/conditional_cache_deletion_helper.cc",
     "browsing_data/conditional_cache_deletion_helper.h",
+    "browsing_data/storage_partition_code_cache_data_remover.cc",
+    "browsing_data/storage_partition_code_cache_data_remover.h",
     "browsing_data/storage_partition_http_cache_data_remover.cc",
     "browsing_data/storage_partition_http_cache_data_remover.h",
     "browsing_instance.cc",
@@ -572,6 +574,12 @@ jumbo_source_set("browser") {
     "cocoa/system_hotkey_helper_mac.mm",
     "cocoa/system_hotkey_map.h",
     "cocoa/system_hotkey_map.mm",
+    "codecache/codecache_interceptor.cc",
+    "codecache/codecache_interceptor.h",
+    "codecache/codecache_request_handler.cc",
+    "codecache/codecache_request_handler.h",
+    "codecache/codecache_url_request_job.cc",
+    "codecache/codecache_url_request_job.h",
 
     # NOTE: These files are here instead of in compositor_browser_sources
     # because the latter is not built on Android, whereas these files are

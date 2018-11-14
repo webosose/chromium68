@@ -47,6 +47,8 @@
 #include "net/cert/ct_log_verifier.h"
 #include "net/cert/ct_policy_enforcer.h"
 #include "net/cert/multi_log_ct_verifier.h"
+#include "net/code_cache/code_cache_impl.h"
+#include "net/code_cache/dummy_code_cache.h"
 #include "net/cookies/cookie_store.h"
 #include "net/proxy_resolution/proxy_config_service_fixed.h"
 #include "net/proxy_resolution/proxy_config_with_annotation.h"
@@ -463,6 +465,25 @@ net::URLRequestContext* URLRequestContextFactory::CreateMainRequestContext(
   main_context->set_http_transaction_factory(main_transaction_factory_.get());
   main_context->set_network_delegate(network_delegate_.get());
   main_context->set_job_factory(main_job_factory_.get());
+
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kEnableLocalResourceCodeCache)) {
+    int max_size = 5242880;
+    if (command_line->HasSwitch(switches::kLocalResourceCodeCacheSize))
+      base::StringToInt(command_line->GetSwitchValueASCII(
+                            switches::kLocalResourceCodeCacheSize),
+                        &max_size);
+    code_cache_.reset(
+        new net::CodeCacheImpl(browser_context->GetPath(), max_size));
+  } else {
+    code_cache_.reset(new net::DummyCodeCache(browser_context->GetPath(), 0));
+    // Delete code cache directory in storage if it exists
+    code_cache_->ClearData();
+  }
+
+  main_context->set_code_cache(code_cache_.get());
+
   return main_context;
 }
 

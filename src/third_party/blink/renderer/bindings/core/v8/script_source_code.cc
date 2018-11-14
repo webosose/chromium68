@@ -58,7 +58,8 @@ ScriptSourceCode::ScriptSourceCode(
       cache_handler_(cache_handler),
       url_(StripFragmentIdentifier(url)),
       start_position_(start_position),
-      source_location_type_(source_location_type) {
+      source_location_type_(source_location_type),
+      is_local_file_(false) {
   // External files should use a ScriptResource.
   DCHECK(source_location_type != ScriptSourceLocationType::kExternalFile);
 }
@@ -71,7 +72,8 @@ ScriptSourceCode::ScriptSourceCode(ScriptStreamer* streamer,
       url_(StripFragmentIdentifier(resource->GetResponse().Url())),
       source_map_url_(SourceMapUrlFromResponse(resource->GetResponse())),
       start_position_(TextPosition::MinimumPosition()),
-      source_location_type_(ScriptSourceLocationType::kExternalFile) {}
+      source_location_type_(ScriptSourceLocationType::kExternalFile),
+      is_local_file_(resource->Url().IsLocalFile()) {}
 
 ScriptSourceCode::~ScriptSourceCode() = default;
 

@@ -671,6 +671,12 @@ void RenderViewImpl::Initialize(
   webview()->GetSettings()->SetWebOSNativeScrollEnabled(
       command_line.HasSwitch(cc::switches::kEnableWebOSNativeScroll));
 #endif
+
+  webview()->GetSettings()->SetLocalResourceCodeCacheEnabled(
+      command_line.HasSwitch(switches::kEnableLocalResourceCodeCache));
+  webview()->GetSettings()->SetCodeCacheFromFileURIsWithQueryStringDisallowed(
+      command_line.HasSwitch(
+          switches::kDisallowCodeCacheFromFileURIsWithQueryString));
 }
 
 RenderViewImpl::~RenderViewImpl() {

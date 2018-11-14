@@ -25,6 +25,7 @@
 
 #include "third_party/blink/renderer/bindings/core/v8/v8_script_runner.h"
 
+#include "base/logging_pmlog.h"
 #include "base/optional.h"
 #include "build/build_config.h"
 #include "third_party/blink/public/platform/platform.h"
@@ -277,7 +278,12 @@ V8ScriptRunner::GetCompileOptions(V8CacheOptions cache_options,
   switch (cache_options) {
     case kV8CacheOptionsDefault:
     case kV8CacheOptionsCode:
-      if (!IsResourceHotForCaching(cache_handler, kHotHours)) {
+      // We don't check timestamp(CacheTagTimeStamp) because it is always good
+      // to produce cache for local resource. But, this policy may be changed
+      // in the future while implementing CacheTagTimeStamp handling for local
+      // resource.
+      if (!IsResourceHotForCaching(cache_handler, kHotHours) &&
+          !source.IsLocalFile()) {
         return std::make_tuple(v8::ScriptCompiler::kNoCompileOptions,
                                ProduceCacheOptions::kSetTimeStamp,
                                v8::ScriptCompiler::kNoCacheBecauseCacheTooCold);
@@ -468,6 +474,8 @@ void V8ScriptRunner::ProduceCache(
         cache_handler->SetCachedMetadata(
             V8ScriptRunner::TagForCodeCache(cache_handler), data, length,
             CachedMetadataHandler::kSendToPlatform);
+        PMLOG_DEBUG(V8CodeCache, "V8CodeCache Produce %s(%d)",
+                    source.Url().GetString().Utf8().data(), length);
       }
 
       TRACE_EVENT_END1(

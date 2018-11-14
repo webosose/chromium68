@@ -975,5 +975,17 @@
       name: "accessibilityExploreByMouseEnabled",
       initial: "false",
     },
+
+    // Enable v8 code cache for local resource
+    {
+      name: "localResourceCodeCacheEnabled",
+      initial: false,
+    },
+
+    // Disallow v8 code cache to be produced and stored when file URIs with query string
+    {
+      name: "codeCacheFromFileURIsWithQueryStringDisallowed",
+      initial: false,
+    },
   ],
 }

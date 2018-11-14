@@ -100,6 +100,7 @@ class CORE_EXPORT ScriptResource final : public TextResource {
                  const TextResourceDecoderOptions&);
 
   bool CanUseCacheValidator() const override;
+  bool CanCreateCachedMetadataHandler() const;
 
   AtomicString source_text_;
 };

@@ -712,6 +712,8 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
   void set_socket_tag(const SocketTag& socket_tag);
   const SocketTag& socket_tag() const { return socket_tag_; }
 
+  void UpdateMetadata(scoped_refptr<IOBufferWithSize> metadata);
+
  protected:
   // Allow the URLRequestJob class to control the is_pending() flag.
   void set_is_pending(bool value) { is_pending_ = value; }

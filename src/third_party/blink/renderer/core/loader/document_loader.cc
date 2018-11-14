@@ -925,6 +925,10 @@ void DocumentLoader::DidInstallNewDocument(Document* document) {
   Settings* settings = document->GetSettings();
   fetcher_->SetImagesEnabled(settings->GetImagesEnabled());
   fetcher_->SetAutoLoadImages(settings->GetLoadsImagesAutomatically());
+  fetcher_->SetLocalResourceCodeCacheEnabled(
+      settings->GetLocalResourceCodeCacheEnabled());
+  fetcher_->SetCodeCacheFromFileURIsWithQueryStringDisallowed(
+      settings->GetCodeCacheFromFileURIsWithQueryStringDisallowed());
 
   const AtomicString& dns_prefetch_control =
       response_.HttpHeaderField(HTTPNames::X_DNS_Prefetch_Control);
