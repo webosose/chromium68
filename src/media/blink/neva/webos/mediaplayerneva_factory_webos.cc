@@ -47,8 +47,7 @@ MediaPlayerNeva* MediaPlayerNevaFactory::CreateMediaPlayerNeva(
     MediaPlayerNevaClient* client,
     const std::string& mime_type,
     const scoped_refptr<base::SingleThreadTaskRunner>& task_runner) {
-  LOG(INFO) << "mime_type:" << mime_type;
-
+  LOG(INFO) << __PRETTY_FUNCTION__ << " mime_type:" << mime_type;
   return new MediaPlayerUMS(client, task_runner);
 }
 

@@ -1037,26 +1037,6 @@ blink::WebMediaPlayerClient* WebMediaPlayerNeva::GetClient() {
   return client_;
 }
 
-void WebMediaPlayerNeva::OnVideoDisplayWindowChange() {
-  FUNC_LOG(1);
-
-  LOG(INFO) << "renderTexture:" << RenderTexture();
-  if (RenderTexture()) {
-    player_api_->SwitchToAutoLayout();
-    LOG(INFO) << __func__ << " called SwitchToAutoLayout";
-  } else if (visible_rect_in_screen_space_.IsEmpty()) {
-    LOG(INFO) << __func__ << " Aborting setDisplayWindow. outRect is Empty";
-  } else {
-    LOG(INFO) << __func__ << " called SetDisplayWindow("
-              << "out=[" << visible_rect_in_screen_space_.ToString() << "]"
-              << ", in=[" << source_rect_in_video_space_.ToString() << "]"
-              << ", is_fullscreen=" << is_fullscreen_
-              << ")";
-    player_api_->SetDisplayWindow(visible_rect_in_screen_space_,
-                                  source_rect_in_video_space_, is_fullscreen_, true);
-  }
-}
-
 void WebMediaPlayerNeva::OnSuppressedMediaPlay(bool suppressed) {
   if (suppressed)
       Suspend();
@@ -1139,6 +1119,25 @@ void WebMediaPlayerNeva::OnCustomMessage(
 
 void WebMediaPlayerNeva::OnAudioFocusChanged() {
   client_->OnAudioFocusChanged();
+}
+
+void WebMediaPlayerNeva::OnVideoDisplayWindowChange() {
+  FUNC_LOG(1) << " renderTexture: " << RenderTexture();
+
+  if (RenderTexture()) {
+    player_api_->SwitchToAutoLayout();
+    LOG(INFO) << __func__ << " called SwitchToAutoLayout";
+  } else if (visible_rect_in_screen_space_.IsEmpty()) {
+    LOG(INFO) << __func__ << " Aborting setDisplayWindow. outRect is Empty";
+  } else {
+    LOG(INFO) << __func__ << " called SetDisplayWindow("
+              << "out=[" << visible_rect_in_screen_space_.ToString() << "]"
+              << ", in=[" << source_rect_in_video_space_.ToString() << "]"
+              << ", is_fullscreen=" << is_fullscreen_ << ")";
+    player_api_->SetDisplayWindow(visible_rect_in_screen_space_,
+                                  source_rect_in_video_space_, is_fullscreen_,
+                                  true);
+  }
 }
 
 void WebMediaPlayerNeva::SetRenderMode(blink::WebMediaPlayer::RenderMode mode) {

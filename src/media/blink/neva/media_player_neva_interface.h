@@ -58,6 +58,8 @@ class MediaPlayerNevaClient {
   virtual void OnCustomMessage(const blink::WebMediaPlayer::MediaEventType,
                                const std::string& detail) = 0;
   virtual void OnAudioFocusChanged() = 0;
+
+  virtual void OnVideoDisplayWindowChange() = 0;
 };
 
 class MediaPlayerNeva {

@@ -217,6 +217,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   // Function called when audio focus is actually changed.
   void OnAudioFocusChanged() override;
 
+  void OnVideoDisplayWindowChange() override;
+
   bool CopyVideoTextureToPlatformTexture(
       gpu::gles2::GLES2Interface* web_graphics_context,
       unsigned int target,
@@ -312,11 +314,6 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
 
   // Getter method to |client_|.
   blink::WebMediaPlayerClient* GetClient();
-
-  // Notifies blink of the video size change.
-  // void OnVideoSizeChange();
-
-  void OnVideoDisplayWindowChange();
 
   // for MSE implementation
   void OnMediaSourceOpened(blink::WebMediaSource* web_media_source);
