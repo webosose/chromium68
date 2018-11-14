@@ -119,6 +119,7 @@ class GlobalEventHandlers {
 ///@{
   DEFINE_STATIC_ATTRIBUTE_EVENT_LISTENER(umsmediainfo);
   DEFINE_STATIC_ATTRIBUTE_EVENT_LISTENER(webosmediafocuschange);
+  DEFINE_STATIC_ATTRIBUTE_EVENT_LISTENER(pipelinestarted);
 ///@}
 };
 

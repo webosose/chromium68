@@ -321,6 +321,7 @@
     // added for Neva HTMLMediaElement
     "texture",
     "onumsmediainfo",
+    "onpipelinestarted",
 ///@}
   ],
 }

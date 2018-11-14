@@ -126,5 +126,6 @@
     // Neva media extensions
     [RuntimeEnabled=UMSExtension] attribute EventHandler onumsmediainfo;
     [RuntimeEnabled=AudioFocusExtension] attribute EventHandler onwebosmediafocuschange;
+    attribute EventHandler onpipelinestarted;
 ///@}
 };

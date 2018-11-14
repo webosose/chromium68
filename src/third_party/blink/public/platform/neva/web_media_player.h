@@ -31,6 +31,7 @@ class WebMediaPlayer {
   enum MediaEventType {
     kMediaEventNone,
     kMediaEventUpdateUMSMediaInfo,
+    kMediaEventPipelineStarted,
   };
 
   // Returns the 'timeline offset' as defined in the HTML5 spec

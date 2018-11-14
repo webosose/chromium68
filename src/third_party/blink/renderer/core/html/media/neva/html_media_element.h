@@ -284,10 +284,17 @@ void HTMLMediaElementExtendingWebMediaPlayerClient<
                                        media_event_type,
                                    const blink::WebString& detail) {
   original_t* self(static_cast<original_t*>(this));
-  if ((media_event_type ==
-       blink::WebMediaPlayer::kMediaEventUpdateUMSMediaInfo) &&
-      RuntimeEnabledFeatures::UMSExtensionEnabled())
-    self->ScheduleEvent(EventTypeNames::umsmediainfo, detail);
+  switch (media_event_type) {
+    case blink::WebMediaPlayer::kMediaEventUpdateUMSMediaInfo:
+      if (RuntimeEnabledFeatures::UMSExtensionEnabled())
+        self->ScheduleEvent(EventTypeNames::umsmediainfo, detail);
+      break;
+    case blink::WebMediaPlayer::kMediaEventPipelineStarted:
+      self->ScheduleEvent(EventTypeNames::pipelinestarted, detail);
+      break;
+    default:
+      break;
+  }
 }
 
 template <typename original_t>

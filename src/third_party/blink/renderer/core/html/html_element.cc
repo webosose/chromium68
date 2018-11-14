@@ -534,6 +534,7 @@ AttributeTriggers* HTMLElement::TriggersForAttributeName(
       // It looks like second attribute only used for UseCounter
       {onumsmediainfoAttr, kNoWebFeature, EventTypeNames::umsmediainfo, nullptr},
       // TODO(neva): Doesn't need to add onwebosmediafocuschange at here?
+      {onpipelinestartedAttr, kNoWebFeature, EventTypeNames::pipelinestarted, nullptr},
 #endif
   };
 

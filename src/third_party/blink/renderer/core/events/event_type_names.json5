@@ -315,6 +315,7 @@
 ///@{
     "umsmediainfo",
     "webosmediafocuschange",
+    "pipelinestarted",
 ///@}
   ],
 }
