@@ -27,7 +27,7 @@
 #include "base/single_thread_task_runner.h"
 #include "base/strings/string_util.h"
 #include "media/base/bind_to_current_loop.h"
-#include "media/base/neva/webos/starfish_media_pipeline_error.h"
+#include "media/base/neva/webos/webos_media_pipeline_error.h"
 #include "third_party/jsoncpp/source/include/json/json.h"
 
 #define FUNC_LOG(x) DVLOG(x) << __func__
