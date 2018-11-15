@@ -242,6 +242,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
   IPC_STRUCT_TRAITS_MEMBER(keep_alive_webapp)
   IPC_STRUCT_TRAITS_MEMBER(notify_fmp_directly)
   IPC_STRUCT_TRAITS_MEMBER(network_stable_timeout)
+  IPC_STRUCT_TRAITS_MEMBER(disallow_scrollbars_in_main_frame)
 #endif
 #if defined(USE_NEVA_MEDIA)
   IPC_STRUCT_TRAITS_MEMBER(max_timeupdate_event_frequency)

@@ -44,6 +44,10 @@ class WebSettingsImplNeva : public WebSettings {
     settings_->SetWebOSNativeScrollEnabled(enabled);
   }
 
+  void SetDisallowScrollbarsInMainFrame(bool enabled) override {
+    settings_->SetDisallowScrollbarsInMainFrame(enabled);
+  }
+
  private:
   Settings* settings_;
 };

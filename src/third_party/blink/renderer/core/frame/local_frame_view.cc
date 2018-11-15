@@ -370,6 +370,11 @@ void LocalFrameView::Init() {
   if (frame_->Owner() &&
       frame_->Owner()->ScrollingMode() == kScrollbarAlwaysOff)
     SetCanHaveScrollbars(false);
+
+#if defined(USE_NEVA_APPRUNTIME)
+  if (frame_->IsMainFrame() && frame_->GetSettings()->DisallowScrollbarsInMainFrame())
+    SetCanHaveScrollbars(false);
+#endif
 }
 
 void LocalFrameView::SetupRenderThrottling() {

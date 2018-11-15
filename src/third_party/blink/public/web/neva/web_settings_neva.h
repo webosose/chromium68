@@ -26,6 +26,7 @@ class WebSettingsNeva {
   virtual void SetNotifyFMPDirectly(bool) = 0;
   virtual void SetNetworkStableTimeout(double) = 0;
   virtual void SetWebOSNativeScrollEnabled(bool) = 0;
+  virtual void SetDisallowScrollbarsInMainFrame(bool) = 0;
 };
 
 }  // namespace blink

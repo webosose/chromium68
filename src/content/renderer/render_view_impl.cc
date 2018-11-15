@@ -1047,6 +1047,7 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
 #if defined(USE_NEVA_APPRUNTIME)
   settings->SetKeepAliveWebApp(prefs.keep_alive_webapp);
   settings->SetNotifyFMPDirectly(prefs.notify_fmp_directly);
+  settings->SetDisallowScrollbarsInMainFrame(prefs.disallow_scrollbars_in_main_frame);
 
   if (!isnan(prefs.network_stable_timeout) &&
       prefs.network_stable_timeout >= 0.0f)

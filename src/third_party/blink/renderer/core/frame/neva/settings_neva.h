@@ -24,6 +24,7 @@ class SettingsNeva {
   SettingsNeva()
       : notify_fmp_directly_(false),
         webos_native_scroll_enabled_(false),
+        disallow_scrollbars_in_main_frame_(false),
         network_stable_timeout_(0.f) {}
 
   void SetKeepAliveWebApp(bool keep_alive) { keep_alive_web_app_ = keep_alive; }
@@ -42,10 +43,16 @@ class SettingsNeva {
   }
   bool WebOSNativeScrollEnabled() { return webos_native_scroll_enabled_; }
 
+  void SetDisallowScrollbarsInMainFrame(bool enabled) {
+    disallow_scrollbars_in_main_frame_ = enabled;
+  }
+  bool DisallowScrollbarsInMainFrame() { return disallow_scrollbars_in_main_frame_; }
+
  private:
   bool keep_alive_web_app_ : 1;
   bool notify_fmp_directly_ : 1;
   bool webos_native_scroll_enabled_ : 1;
+  bool disallow_scrollbars_in_main_frame_ : 1;
   double network_stable_timeout_;
 };
 

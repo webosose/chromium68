@@ -574,8 +574,7 @@ void WebView::UpdatePreferencesAttributeForPrefs(
           << "Attribute::SuppressesIncrementalRendering is not supported";
       return;
     case Attribute::DisallowScrollbarsInMainFrame:
-      NOTIMPLEMENTED()
-          << "Attribute::DisallowScrollbarsInMainFrame is not supported";
+      preferences->disallow_scrollbars_in_main_frame = enable;
       return;
     // According commit 5c434bb2 : Remove obsolete Blink popup blocker
     // removed javascript_can_open_windows_automatically preference.
