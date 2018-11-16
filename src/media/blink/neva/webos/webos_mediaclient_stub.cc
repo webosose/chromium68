@@ -19,9 +19,9 @@
 namespace media {
 
 // static
-WebOSMediaClient* WebOSMediaClient::Create(
+std::unique_ptr<WebOSMediaClient> WebOSMediaClient::Create(
     const scoped_refptr<base::SingleThreadTaskRunner>& task_runner) {
-  return new WebOSMediaClientStub();
+  return std::make_unique<WebOSMediaClientStub>();
 }
 
 WebOSMediaClientStub::WebOSMediaClientStub() {}
