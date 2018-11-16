@@ -21,13 +21,13 @@
 namespace media {
 
 // static
-MediaPlatformAPIWebOS* MediaPlatformAPIWebOS::Create(
+scoped_refptr<MediaPlatformAPIWebOS> MediaPlatformAPIWebOS::Create(
     const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
     bool video,
     const std::string& app_id,
     const ActiveRegionCB& active_region_cb,
     const PipelineStatusCB& error_cb) {
-  return new MediaPlatformAPIWebOSStub();
+  return base::MakeRefCounted<MediaPlatformAPIWebOSStub>();
 }
 
 MediaPlatformAPIWebOSStub::MediaPlatformAPIWebOSStub() {}
@@ -78,10 +78,16 @@ bool MediaPlatformAPIWebOSStub::AllowedFeedAudio() {
 
 void MediaPlatformAPIWebOSStub::Finalize() {}
 
-void MediaPlatformAPIWebOSStub::SetKeySystem(const std::string key_system) {}
+void MediaPlatformAPIWebOSStub::SetKeySystem(const std::string& key_system) {}
 
 bool MediaPlatformAPIWebOSStub::IsEOSReceived() {
   return false;
+}
+
+void MediaPlatformAPIWebOSStub::SetVisibility(bool visible) {}
+
+bool MediaPlatformAPIWebOSStub::Visibility() {
+  return true;
 }
 
 void MediaPlatformAPIWebOSStub::SetNaturalSize(const gfx::Size& size) {}
@@ -96,12 +102,6 @@ std::string MediaPlatformAPIWebOSStub::GetMediaID() {
 
 bool MediaPlatformAPIWebOSStub::IsReleasedMediaResource() {
   return false;
-}
-
-void MediaPlatformAPIWebOSStub::SetVisibility(bool visible) {}
-
-bool MediaPlatformAPIWebOSStub::Visibility() {
-  return true;
 }
 
 }  // namespace media

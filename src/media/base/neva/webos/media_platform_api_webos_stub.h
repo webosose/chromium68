@@ -28,7 +28,6 @@ namespace media {
 
 class MEDIA_EXPORT MediaPlatformAPIWebOSStub : public MediaPlatformAPIWebOS {
  public:
-  typedef base::Callback<void(const blink::WebRect&)> ActiveRegionCB;
   MediaPlatformAPIWebOSStub();
   ~MediaPlatformAPIWebOSStub() override;
 
@@ -50,17 +49,16 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSStub : public MediaPlatformAPIWebOS {
   bool AllowedFeedVideo() override;
   bool AllowedFeedAudio() override;
   void Finalize() override;
-  void SetKeySystem(const std::string key_system) override;
+  void SetKeySystem(const std::string& key_system) override;
   bool IsEOSReceived() override;
-
-  void SetNaturalSize(const gfx::Size& size) override;
-  bool Loaded() override;
-  std::string GetMediaID() override;
-  bool IsReleasedMediaResource() override;
 
   void SetVisibility(bool visible) override;
   bool Visibility() override;
  private:
+  void SetNaturalSize(const gfx::Size& size);
+  bool Loaded();
+  std::string GetMediaID();
+  bool IsReleasedMediaResource();
   DISALLOW_COPY_AND_ASSIGN(MediaPlatformAPIWebOSStub);
 };
 

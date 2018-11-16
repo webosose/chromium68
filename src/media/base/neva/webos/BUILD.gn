@@ -24,13 +24,13 @@ pkg_config("media_base_webos_config") {
     "gobject-2.0",
     "gthread-2.0",
     "luna-service2",
-    "umedia_api",
   ]
 
   if (use_gst_media) {
     packages += [
       "gmp-player-client",
       "gstreamer-1.0",
+      "umedia_api",
     ]
   }
 }
