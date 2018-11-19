@@ -153,7 +153,7 @@ std::string getUserAgentPlatform() {
 #elif defined(OS_MACOSX)
       "Macintosh; ";
 #elif defined(OS_WEBOS)
-      "webOS; ";
+      "Web0S; ";
 #elif defined(USE_X11) || defined(USE_OZONE)
       "X11; ";           // strange, but that's what Firefox uses
 #elif defined(OS_ANDROID)
