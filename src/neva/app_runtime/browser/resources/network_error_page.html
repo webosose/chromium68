@@ -382,7 +382,8 @@
             }
         </style>
         <script>
-            if(navigator.language == 'ja-JP') {
+            if(navigator.language == 'ja-JP' ||
+               navigator.language == 'en-JP') {
                 console.log("use jaJP_font_css");
                 document.styleSheets[ "jaJP_font_css" ].disabled = false;
                 document.styleSheets[ "urIN_font_css" ].disabled = true;
