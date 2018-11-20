@@ -951,15 +951,6 @@ void WebMediaPlayerNeva::UpdateVideoHoleBoundary(bool forced) {
   // uMediaServer's performance of video hole position update.
   // Current uMeidaServer cannot update video-hole position smoothly at times.
   if (forced || !throttle_update_video_hole_boundary_.IsRunning()) {
-    if (!UpdateBoundaryRectangle()) {
-      // UpdateBoundaryRectangle fails when video layer is not in current composition.
-      if (HasVisibility()) {
-        is_video_offscreen_ = true;
-        SetVisibility(false);
-      }
-      return;
-    }
-
     if (!ComputeVideoHoleDisplayRect(
             last_computed_rect_in_view_space_, NaturalSize(),
             additional_contents_scale_, client_->WebWidgetViewRect(),
@@ -1010,6 +1001,7 @@ void WebMediaPlayerNeva::UpdateVideoHoleBoundary(bool forced) {
 // Returning false means videolayer is not created yet
 // or layer doesn't transform on the screen space(no transform tree index).
 // In other word, this means video is not shown on the screen if it returns false.
+// Note: This api should be called only from |OnDidCommitCompositorFrame|
 bool WebMediaPlayerNeva::UpdateBoundaryRectangle() {
   // Check if video_layer_ is available.
   if (!video_layer_.get())
@@ -1198,6 +1190,14 @@ void WebMediaPlayerNeva::OnDidCommitCompositorFrame() {
   if (RenderTexture())
     return;
 #if defined(VIDEO_HOLE)
+  if (!UpdateBoundaryRectangle()) {
+    // UpdateBoundaryRectangle fails when video layer is not in current composition.
+    if (HasVisibility()) {
+      is_video_offscreen_ = true;
+      SetVisibility(false);
+    }
+    return;
+  }
   UpdateVideoHoleBoundary(false);
 #endif
 }

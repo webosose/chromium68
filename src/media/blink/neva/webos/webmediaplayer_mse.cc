@@ -289,15 +289,6 @@ void WebMediaPlayerMSE::UpdateVideoHoleBoundary(bool forced) {
   // uMediaServer's performance of video hole position update.
   // Current uMeidaServer cannot update video-hole position smoothly at times.
   if (forced || !throttleUpdateVideoHoleBoundary_.IsRunning()) {
-    if (!UpdateBoundaryRect()) {
-      // UpdateBoundaryRect fails when video layer is not in current composition.
-      if (HasVisibility()) {
-        is_video_offscreen_ = true;
-        SetVisibility(false);
-      }
-      return;
-    }
-
     if (!ComputeVideoHoleDisplayRect(
             last_computed_rect_in_view_space_, NaturalSize(),
             additional_contents_scale_, client_->WebWidgetViewRect(),
@@ -348,6 +339,7 @@ void WebMediaPlayerMSE::UpdateVideoHoleBoundary(bool forced) {
 // Returning false means videolayer is not created yet
 // or layer doesn't transform on the screen space(no transform tree index).
 // In other word, this means video is not shown on the screen if it returns false.
+// Note: This api should be called only from |OnDidCommitCompositorFrame|
 bool WebMediaPlayerMSE::UpdateBoundaryRect() {
   DCHECK(main_task_runner_->BelongsToCurrentThread());
 
@@ -378,8 +370,17 @@ bool WebMediaPlayerMSE::HasVisibility() const {
 }
 
 void WebMediaPlayerMSE::OnDidCommitCompositorFrame() {
-  if (!RenderTexture())
+  if (!RenderTexture()) {
+    if (!UpdateBoundaryRect()) {
+      // UpdateBoundaryRect fails when video layer is not in current composition.
+      if (HasVisibility()) {
+        is_video_offscreen_ = true;
+        SetVisibility(false);
+      }
+      return;
+    }
     UpdateVideoHoleBoundary(false);
+  }
 }
 
 scoped_refptr<VideoFrame> WebMediaPlayerMSE::GetCurrentFrameFromCompositor()

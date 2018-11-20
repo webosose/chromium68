@@ -77,6 +77,7 @@ UMediaClientGmpImpl::UMediaClientGmpImpl(
       buffering_(false),
       requests_play_(false),
       requests_pause_(false),
+      has_visibility_(true),
       requests_videowall_play_(false),
       playback_rate_(0),
       playback_rate_on_eos_(0),
@@ -300,10 +301,15 @@ bool UMediaClientGmpImpl::SetDisplayWindow(const gfx::Rect& out_rect,
   return true;
 }
 
-void UMediaClientGmpImpl::SetVisibility(bool visible) {}
+void UMediaClientGmpImpl::SetVisibility(bool visible) {
+  // TODO: once SetVisibility api is ready, below workaround will be removed
+  if (!visible)
+    SetDisplayWindow(gfx::Rect(0, 0, 1, 1), gfx::Rect(0, 0, 1, 1), false);
+  has_visibility_ = visible;
+}
 
 bool UMediaClientGmpImpl::Visibility() {
-  return true;
+  return has_visibility_;
 }
 
 void UMediaClientGmpImpl::SetFocus() {}

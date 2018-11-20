@@ -253,6 +253,7 @@ class UMediaClientGmpImpl : public WebOSMediaClient,
   bool requests_play_;
   bool requests_pause_;
   bool requests_videowall_play_;
+  bool has_visibility_;
   std::string media_transport_type_;
   gfx::Size natural_video_size_;
   float playback_rate_;
