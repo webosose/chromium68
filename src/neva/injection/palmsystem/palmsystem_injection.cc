@@ -380,8 +380,7 @@ class PalmSystemInjection : public InjectionWrapper, public InjectionWebOS {
  public:
   PalmSystemInjection();
 
-  // TODO(vladislav.mukulov): Migrate corresponded patch
-  //void InstallPendingFeaturesForExtensions() override;
+  void InstallPendingFeaturesForExtensions() override;
 
   static void Activate(const InjectionWrapper::CallbackInfoValue& args);
   static void Deactivate(const InjectionWrapper::CallbackInfoValue& args);
@@ -511,13 +510,12 @@ PalmSystemInjection::PalmSystemInjection()
   IW_ADDCALLBACK(PalmSystemConstruct);
 }
 
-// TODO(vladislav.mukulov): Migrate corresponded patch
-//void PalmSystemInjection::InstallPendingFeaturesForExtensions() {
-//  v8::Isolate* isolate = v8::Isolate::GetCurrent();
-//  v8::Local<v8::String> source = v8::String::NewFromUtf8(
-//      isolate, kPalmSystemInjectionPendingAPI);
-//  v8::Script::CompileExtension(isolate, source, this);
-//}
+void PalmSystemInjection::InstallPendingFeaturesForExtensions() {
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::Local<v8::String> source =
+      v8::String::NewFromUtf8(isolate, kPalmSystemInjectionPendingAPI);
+  v8::Script::CompileExtension(isolate, source, this);
+}
 
 void PalmSystemInjection::Activate(
     const InjectionWrapper::CallbackInfoValue& args) {

@@ -179,6 +179,11 @@ void LocalWindowProxy::Initialize() {
   if (World().IsMainWorld()) {
     GetFrame()->Loader().DispatchDidClearWindowObjectInMainWorld();
   }
+
+  if (GetFrame()->Client()->AllowScriptExtensions()) {
+    for (auto* extension : ScriptController::RegisteredExtensions())
+      extension->InstallPendingFeaturesForExtensions();
+  }
 }
 
 void LocalWindowProxy::CreateContext() {
