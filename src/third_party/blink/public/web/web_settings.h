@@ -305,6 +305,14 @@ class WebSettings : public WebSettingsNeva {
   virtual void SetMaxTimeupdateEventFrequency(int) = 0;
 #endif
   virtual void SetLowPriorityIframesThreshold(WebEffectiveConnectionType) = 0;
+#if defined(OS_WEBOS)
+  virtual bool GetWebSecurityEnabled() const = 0;
+#endif
+
+#if defined(USE_NEVA_APPRUNTIME)
+  virtual void SetAllowLocalResourceLoad(bool) = 0;
+  virtual bool GetAllowLocalResourceLoad() const = 0;
+#endif
 
  protected:
   ~WebSettings() = default;

@@ -339,6 +339,12 @@
       initial: true,
     },
 
+    // These settings allow to load cross origin files or local files.
+    {
+      name: "allowLocalResourceLoad",
+      initial: false,
+    },
+
     // Special keyboard navigation mode intented for platforms with no
     // proper mouse or touch support, such as a TV controller with a remote.
     {

@@ -6018,10 +6018,26 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
          info.navigation_type != blink::kWebNavigationTypeReload);
 
     if (!should_fork && url.SchemeIs(url::kFileScheme)) {
-      // Fork non-file to file opens.  Note that this may fork unnecessarily if
-      // another tab (hosting a file or not) targeted this one before its
-      // initial navigation, but that shouldn't cause a problem.
-      should_fork = !old_url.SchemeIs(url::kFileScheme);
+#if defined(USE_NEVA_APPRUNTIME)
+      // Fork non-file to file opens. Check if the opener URL is the initial
+      // navigation in a newly opened window.
+      GURL source_url(old_url);
+      if (is_initial_navigation && source_url.is_empty() && frame_->Opener())
+        source_url = frame_->Opener()->ToWebLocalFrame()->GetDocument().Url();
+      DCHECK(!source_url.is_empty());
+
+      // If |source_url| tries to access a local file from remote url, we should
+      // check if WebSecurity is disabled and LocalResourceLoad is allowed.
+      // If the condition is met, the local resource access can be permitted.
+      WebSettings* settings = render_view_->GetWebView()->GetSettings();
+      if (!source_url.SchemeIs(url::kFileScheme) &&
+          settings->GetWebSecurityEnabled() &&
+          !settings->GetAllowLocalResourceLoad())
+#endif
+        // Fork non-file to file opens.  Note that this may fork unnecessarily
+        // if another tab (hosting a file or not) targeted this one before its
+        // initial navigation, but that shouldn't cause a problem.
+        should_fork = !old_url.SchemeIs(url::kFileScheme);
     }
 
     if (!should_fork) {

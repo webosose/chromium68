@@ -66,6 +66,7 @@ class CORE_EXPORT SettingsDelegate {
     kDOMWorldsChange,
     kMediaControlsChange,
     kPluginsChange,
+    kLocalResourceLoadChange,
   };
 
   virtual void SettingsChanged(ChangeType) = 0;

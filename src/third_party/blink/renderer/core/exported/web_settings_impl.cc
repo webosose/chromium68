@@ -738,4 +738,19 @@ void WebSettingsImpl::SetLowPriorityIframesThreshold(
   settings_->SetLowPriorityIframesThreshold(effective_connection_type);
 }
 
+#if defined(OS_WEBOS)
+bool WebSettingsImpl::GetWebSecurityEnabled() const {
+  return settings_->GetWebSecurityEnabled();
+}
+#endif
+
+#if defined(USE_NEVA_APPRUNTIME)
+void WebSettingsImpl::SetAllowLocalResourceLoad(bool allow) {
+  settings_->SetAllowLocalResourceLoad(allow);
+}
+
+bool WebSettingsImpl::GetAllowLocalResourceLoad() const {
+  return settings_->GetAllowLocalResourceLoad();
+}
+#endif
 }  // namespace blink

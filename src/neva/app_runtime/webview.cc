@@ -589,8 +589,8 @@ void WebView::UpdatePreferencesAttributeForPrefs(
       break;
       return;
     case Attribute::AllowLocalResourceLoad:
-      NOTIMPLEMENTED() << "Attribute::AllowLocalResourceLoad is not supported";
-      return;
+      preferences->allow_local_resource_load = enable;
+      break;
     case Attribute::LocalStorageEnabled:
       preferences->local_storage_enabled = enable;
       break;

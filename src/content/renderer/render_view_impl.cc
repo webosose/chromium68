@@ -1045,6 +1045,7 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
 #endif
 
 #if defined(USE_NEVA_APPRUNTIME)
+  settings->SetAllowLocalResourceLoad(prefs.allow_local_resource_load);
   settings->SetKeepAliveWebApp(prefs.keep_alive_webapp);
   settings->SetNotifyFMPDirectly(prefs.notify_fmp_directly);
   settings->SetDisallowScrollbarsInMainFrame(prefs.disallow_scrollbars_in_main_frame);

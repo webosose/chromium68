@@ -638,7 +638,11 @@ void DocumentLoader::ResponseReceived(
           GetFrameLoader().RequiredCSP(),
           kContentSecurityPolicyHeaderTypeEnforce,
           kContentSecurityPolicyHeaderSourceHTTP);
-      if (!required_csp->Subsumes(*content_security_policy_)) {
+      if (!required_csp->Subsumes(*content_security_policy_)
+#if defined(USE_NEVA_APPRUNTIME)
+          && (frame_->GetSettings()->GetWebSecurityEnabled())
+#endif
+              ) {
         String message = "Refused to display '" +
                          response.Url().ElidedString() +
                          "' because it has not opted-into the following policy "
