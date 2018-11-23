@@ -50,7 +50,8 @@ void WindowManagerWayland::OnRootWindowClosed(
   open_windows().remove(window);
   if (active_window_ == window) {
     active_window_ = NULL;
-    OnActivationChanged(open_windows().front()->GetHandle(), true);
+    if (!open_windows().empty())
+      OnActivationChanged(open_windows().front()->GetHandle(), true);
   }
 
   if (event_grabber_ == gfx::AcceleratedWidget(window->GetHandle()))
