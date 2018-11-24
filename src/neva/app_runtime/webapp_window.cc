@@ -145,6 +145,7 @@ WebAppWindow::WebAppWindow(const WebAppWindowBase::CreateParams& params,
       params_(params),
       rect_(gfx::Size(params.width, params.height)),
       window_host_state_(ui::WidgetState::UNINITIALIZED),
+      current_rotation_(-1),
       window_host_state_about_to_change_(ui::WidgetState::UNINITIALIZED) {
   InitWindow();
 
@@ -153,12 +154,70 @@ WebAppWindow::WebAppWindow(const WebAppWindowBase::CreateParams& params,
   if (params.web_contents) {
     SetupWebContents(static_cast<content::WebContents*>(params.web_contents));
   }
+
+  if (display::Screen::GetScreen()->GetNumDisplays() > 0) {
+    current_rotation_ =
+        display::Screen::GetScreen()->GetPrimaryDisplay().RotationAsDegree();
+    ComputeScaleFactor();
+  }
+
+  display::Screen::GetScreen()->AddObserver(this);
 }
 
 WebAppWindow::~WebAppWindow() {
+  display::Screen::GetScreen()->RemoveObserver(this);
   if (desktop_native_widget_aura_) {
     desktop_native_widget_aura_->OnWebAppWindowRemoved();
     desktop_native_widget_aura_->SetNativeEventDelegate(nullptr);
+  }
+}
+
+void WebAppWindow::OnDisplayAdded(const display::Display& new_display) {
+  current_rotation_ =
+      display::Screen::GetScreen()->GetPrimaryDisplay().RotationAsDegree();
+  ComputeScaleFactor();
+}
+
+void WebAppWindow::OnDisplayRemoved(const display::Display& old_display) {}
+
+void WebAppWindow::OnDisplayMetricsChanged(const display::Display& display,
+                                           uint32_t metrics) {
+  if (metrics & display::DisplayObserver::DISPLAY_METRIC_ROTATION) {
+    // Get new rotation from primary display
+    int screen_rotation =
+        display::Screen::GetScreen()->GetPrimaryDisplay().RotationAsDegree();
+
+    if (screen_rotation == current_rotation_)
+      return;
+
+    // FIXME: Wayland shell surface already reports resize request but for now
+    // LSM fails to report that resize is due to rotation change. We need this
+    // information in order do swap width and height because otherwise by
+    // default resizing window is denied by allow_window_resize_ flag. If LSM
+    // would report it correctly then this width and height swapping would not
+    // need to be done here but on ozone wayland level.
+    int new_width = rect_.width();
+    int new_height = rect_.height();
+    if (rect_.width() != 0 && rect_.height() != 0) {
+      if (current_rotation_ == 0 || current_rotation_ == 180) {
+        if (screen_rotation == 90 || screen_rotation == 270) {
+          new_width = rect_.height();
+          new_height = rect_.width();
+        }
+      } else if (current_rotation_ == 90 || current_rotation_ == 270) {
+        if (screen_rotation == 0 || screen_rotation == 180) {
+          new_width = rect_.height();
+          new_height = rect_.width();
+        }
+      }
+    }
+
+    current_rotation_ = screen_rotation;
+
+    if (new_width != rect_.width() || new_height != rect_.height())
+      Resize(new_width, new_height);
+
+    ComputeScaleFactor();
   }
 }
 

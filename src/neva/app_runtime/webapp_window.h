@@ -20,6 +20,7 @@
 #include "base/timer/timer.h"
 #include "neva/app_runtime/public/app_runtime_constants.h"
 #include "neva/app_runtime/public/webapp_window_base.h"
+#include "ui/display/display_observer.h"
 #include "ui/views/widget/desktop_aura/neva/native_event_delegate.h"
 #include "ui/views/widget/desktop_aura/neva/ui_constants.h"
 #include "ui/views/widget/widget.h"
@@ -43,6 +44,7 @@ class WebAppWindowDelegate;
 class WindowGroupConfiguration;
 
 class WebAppWindow : public views::NativeEventDelegate,
+                     public display::DisplayObserver,
                      public views::WidgetDelegateView {
  public:
   WebAppWindow(const WebAppWindowBase::CreateParams& params, WebAppWindowDelegate* delegate);
@@ -121,6 +123,12 @@ class WebAppWindow : public views::NativeEventDelegate,
   void DetachGroup();
   void DeleteDelegate() override;
 
+  // Overridden from display::DisplayObserver:
+  void OnDisplayAdded(const display::Display& new_display) override;
+  void OnDisplayRemoved(const display::Display& old_display) override;
+  void OnDisplayMetricsChanged(const display::Display& display,
+                               uint32_t metrics) override;
+
   // Overridden from ui::EventHandler
   void OnMouseEvent(ui::MouseEvent* event) override;
   void OnKeyEvent(ui::KeyEvent* event) override;
@@ -167,6 +175,7 @@ class WebAppWindow : public views::NativeEventDelegate,
   WebAppWindowBase::CreateParams params_;
   gfx::Rect rect_;
   float scale_factor_;
+  int current_rotation_;
 
   base::string16 title_;
   ui::WidgetState window_host_state_;
