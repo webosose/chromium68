@@ -233,7 +233,7 @@ std::ostream &FmtHex(std::ostream &os, T value)
 #define EVENT(message, ...) (void(0))
 #endif
 
-#if defined(COMPILER_GCC) || defined(__clang__)
+#if defined(__GNUC__) || defined(__clang__)
 #define ANGLE_CRASH() __builtin_trap()
 #else
 #define ANGLE_CRASH() ((void)(*(volatile char *)0 = 0)), __assume(0)
