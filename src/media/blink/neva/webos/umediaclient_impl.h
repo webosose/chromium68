@@ -14,38 +14,42 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef MEDIA_BLINK_NEVA_WEBOS_UMEDIACLIENT_GMP_IMPL_H_
-#define MEDIA_BLINK_NEVA_WEBOS_UMEDIACLIENT_GMP_IMPL_H_
+#ifndef MEDIA_BLINK_NEVA_WEBOS_UMEDIACLIENT_IMPL_H_
+#define MEDIA_BLINK_NEVA_WEBOS_UMEDIACLIENT_IMPL_H_
 
-#include <string>
-#include <cstdint>
 #include <memory>
+#include <string>
 
-#include "base/time/time.h"
+#include <uMediaClient.h>
 #include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
-#include "base/threading/thread.h"
 #include "media/base/neva/webos/lunaservice_client.h"
 #include "media/base/pipeline.h"
+#include "media/base/ranges.h"
 #include "media/blink/neva/webos/webos_mediaclient.h"
 #include "media/blink/webmediaplayer_util.h"
 #include "third_party/blink/public/platform/web_rect.h"
 
-#include <uMediaClient.h>
+namespace base {
+class Lock;
+class SingleThreadTaskRunner;
+}
 
 namespace media {
+class LunaServiceClient;
+class SystemMediaManager;
 
-class UMediaClientGmpImpl : public WebOSMediaClient,
-                            public uMediaServer::uMediaClient,
-                            public base::SupportsWeakPtr<UMediaClientGmpImpl> {
+class UMediaClientImpl : public WebOSMediaClient,
+                         public uMediaServer::uMediaClient,
+                         public base::SupportsWeakPtr<UMediaClientImpl> {
  public:
-  UMediaClientGmpImpl(
+  UMediaClientImpl(
       const scoped_refptr<base::SingleThreadTaskRunner>& task_runner);
-  ~UMediaClientGmpImpl();
+  ~UMediaClientImpl();
 
   // WebOSMediaClient implementations
   void Load(bool video,
-            bool reload,
+            bool reload,  // TODO(wanchang): remove this
             bool is_local_source,
             const std::string& app_id,
             const std::string& url,
@@ -73,9 +77,9 @@ class UMediaClientGmpImpl : public WebOSMediaClient,
             const media::PipelineStatusCB& seek_cb) override;
   float GetPlaybackRate() const override;
   void SetPlaybackRate(float playback_rate) override;
-  double GetPlaybackVolume() const override { return playback_rate_; }
+  double GetPlaybackVolume() const override { return volume_; }
   void SetPlaybackVolume(double volume, bool forced = false) override;
-  bool SelectTrack(std::string& type, int32_t index) override { return true; }
+  bool SelectTrack(std::string& type, int32_t index) override;
   void Suspend() override;
   void Resume() override;
   void SetPreload(Preload preload) override;
@@ -86,34 +90,30 @@ class UMediaClientGmpImpl : public WebOSMediaClient,
   double GetCurrentTime() override { return current_time_; }
   void SetCurrentTime(double time) override { current_time_ = time; }
 
-  double BufferEnd() const override {
-    return static_cast<double>(buffer_end_ / 1000.0);
-  }
-
+  double BufferEnd() const override { return buffer_end_; }
   bool HasAudio() override { return has_audio_; }
   bool HasVideo() override { return has_video_; }
-
   int GetNumAudioTracks() override { return num_audio_tracks_; }
   gfx::Size GetNaturalVideoSize() override { return natural_video_size_; }
   void SetNaturalVideoSize(const gfx::Size& size) override {
     natural_video_size_ = size;
   }
 
-  bool SetDisplayWindow(const gfx::Rect& out_rect,
-                        const gfx::Rect& in_rect,
+  bool SetDisplayWindow(const gfx::Rect&,
+                        const gfx::Rect&,
                         bool fullscreen,
                         bool forced = false) override;
   void SetVisibility(bool visible) override;
   bool Visibility() override;
   void SetFocus() override;
   bool Focus() override;
-  void SwitchToAutoLayout() override {}
+  void SwitchToAutoLayout() override;
   bool DidLoadingProgress() override;
   bool UsesIntrinsicSize() const override;
   void Unload() override;
   bool IsSupportedBackwardTrickPlay() override;
   bool IsSupportedPreload() override;
-  bool CheckUseMediaPlayerManager(const std::string& media_option) override;
+  bool CheckUseMediaPlayerManager(const std::string& mediaOption) override;
 
   // uMediaServer::uMediaClient implementations
   bool onPlaying() override;
@@ -122,16 +122,16 @@ class UMediaClientGmpImpl : public WebOSMediaClient,
   bool onEndOfStream() override;
   bool onLoadCompleted() override;
   bool onPreloadCompleted() override;
+  bool onUnloadCompleted() override;
   bool onCurrentTime(int64_t currentTime) override;
 #if UMS_INTERNAL_API_VERSION == 2
-  bool onSourceInfo(const struct ums::source_info_t& sourceInfo) override;
-  bool onAudioInfo(const struct ums::audio_info_t&) override;
-  bool onVideoInfo(const struct ums::video_info_t&) override;
+  bool onAudioInfo(const struct ums::audio_info_t&);
+  bool onVideoInfo(const struct ums::video_info_t&);
+  bool onSourceInfo(const struct ums::source_info_t&);
 #else
-  bool onSourceInfo(
-      const struct uMediaServer::source_info_t& sourceInfo) override;
   bool onAudioInfo(const struct uMediaServer::audio_info_t&) override;
   bool onVideoInfo(const struct uMediaServer::video_info_t&) override;
+  bool onSourceInfo(const struct uMediaServer::source_info_t&) override;
 #endif
   bool onBufferRange(const struct uMediaServer::buffer_range_t&) override;
   bool onError(int64_t errorCode, const std::string& errorText) override;
@@ -140,17 +140,17 @@ class UMediaClientGmpImpl : public WebOSMediaClient,
   bool onUserDefinedChanged(const char* message) override;
   bool onBufferingStart() override;
   bool onBufferingEnd() override;
-  bool onFocusChanged(bool) override;
-  bool onActiveRegion(const uMediaServer::rect_t&) override;
 
   // dispatch event
   void DispatchPlaying();
   void DispatchPaused();
   void DispatchSeekDone();
-  void DispatchEndOfStream();
+  void DispatchEndOfStream(bool isForward);
   void DispatchLoadCompleted();
+  void DispatchUnloadCompleted();
   void DispatchPreloadCompleted();
   void DispatchCurrentTime(int64_t currentTime);
+  void DispatchBufferRange(const struct uMediaServer::buffer_range_t&);
 #if UMS_INTERNAL_API_VERSION == 2
   void DispatchSourceInfo(const struct ums::source_info_t&);
   void DispatchAudioInfo(const struct ums::audio_info_t&);
@@ -160,30 +160,48 @@ class UMediaClientGmpImpl : public WebOSMediaClient,
   void DispatchAudioInfo(const struct uMediaServer::audio_info_t&);
   void DispatchVideoInfo(const struct uMediaServer::video_info_t&);
 #endif
-  void DispatchBufferRange(const struct uMediaServer::buffer_range_t&);
   void DispatchError(int64_t errorCode, const std::string& errorText);
   void DispatchExternalSubtitleTrackInfo(
       const struct uMediaServer::external_subtitle_track_info_t&);
   void DispatchUserDefinedChanged(const std::string& message);
   void DispatchBufferingStart();
   void DispatchBufferingEnd();
-  void DispatchFocusChanged();
-  void dispatchActiveRegion(const uMediaServer::rect_t&);
+
+  double GetStartDate() const { return start_date_; }
+  bool IsSeekable() { return seekable_; }
+  bool IsEnded() { return ended_; }
+  bool IsReleasedMediaResource() { return released_media_resource_; }
+  media::Ranges<base::TimeDelta> GetSeekableTimeRanges();
+  void InitializeSeeking() { is_seeking_ = false; }
+  void ResetEnded() { ended_ = false; }
+  bool IsMpegDashContents();
+  bool UseVideoWindowControl() { return use_video_window_control_; }
+  bool Send(const std::string& message);
+
+ private:
+  typedef enum { PAUSED, PLAYING, SEEKING, SEEK_COMPLETED } PlayerState;
+
+  typedef enum {
+    LOADING_STATE_NONE,
+    LOADING_STATE_PRELOADING,
+    LOADING_STATE_PRELOADED,
+    LOADING_STATE_LOADING,
+    LOADING_STATE_LOADED,
+    LOADING_STATE_UNLOADING,
+    LOADING_STATE_UNLOADED
+  } LoadingState;
+
+  typedef enum {
+    LOADING_ACTION_NONE,
+    LOADING_ACTION_LOAD,
+    LOADING_ACTION_UNLOAD
+  } LoadingAction;
 
 #if UMS_INTERNAL_API_VERSION == 2
   void setVideoWallDisplay(const struct ums::video_info_t&);
 #else
   void setVideoWallDisplay(const struct uMediaServer::video_info_t&);
 #endif
-  void SetActiveRegionCB(const ActiveRegionCB& active_region_cb) {
-    active_region_cb_ = active_region_cb;
-  }
-
- private:
-  struct Media3DInfo {
-    std::string pattern;
-    std::string type;
-  };
   std::string MediaInfoToJson(const PlaybackNotification);
 
 #if UMS_INTERNAL_API_VERSION == 2
@@ -199,21 +217,37 @@ class UMediaClientGmpImpl : public WebOSMediaClient,
       const struct uMediaServer::external_subtitle_track_info_t&);
   std::string MediaInfoToJson(int64_t errorCode, const std::string& errorText);
   std::string MediaInfoToJson(const std::string& message);
+  std::string MediaInfoToJson(const struct uMediaServer::master_clock_info_t&);
+  std::string MediaInfoToJson(const struct uMediaServer::slave_clock_info_t&);
 
-  std::string UpdateMediaOption(const std::string& mediaOption, int64_t start);
-  bool IsRequiredUMSInfo() const;
+  std::string UpdateMediaOption(const std::string& mediaOption, double start);
+  bool IsRequiredUMSInfo();
   bool IsInsufficientSourceInfo();
   bool IsAdaptiveStreaming();
   bool IsNotSupportedSourceInfo();
+  bool IsAppName(const char* app_name);
   bool Is2kVideoAndOver();
   bool IsSupportedAudioOutputOnTrickPlaying();
+  bool IsSupportedSeekableRanges();
 
-  gfx::Size GetResoultionFromPAR(const std::string& par);
-  struct Media3DInfo GetMedia3DInfo(const std::string& media_3dinfo);
+  void SetMediaVideoData(const struct uMediaServer::video_info_t&,
+                         bool forced = false);
+
+  void EnableSubtitle(bool enable);
 
   bool CheckAudioOutput(float playback_rate);
+  media::PipelineStatus CheckErrorCode(int64_t errorCode);
   void LoadInternal();
-  void ReloadMediaResource();
+  bool UnloadInternal();
+  bool LoadAsyncInternal(const std::string& uri,
+                         AudioStreamClass audio_class,
+                         const std::string& media_payload);
+  bool PreloadInternal(const std::string& uri,
+                       AudioStreamClass audio_class,
+                       const std::string& media_payload);
+  void NotifyForeground();
+  inline bool is_loading() { return loading_state_ == LOADING_STATE_LOADING; }
+  inline bool is_loaded() { return loading_state_ == LOADING_STATE_LOADED; }
 
   PlaybackStateCB playback_state_cb_;
   base::Closure ended_cb_;
@@ -222,22 +256,27 @@ class UMediaClientGmpImpl : public WebOSMediaClient,
   base::Closure duration_change_cb_;
   base::Closure video_size_change_cb_;
   base::Closure video_display_window_change_cb_;
+  AddAudioTrackCB add_audio_track_cb_;
+  AddVideoTrackCB add_video_track_cb_;
   UpdateUMSInfoCB update_ums_info_cb_;
   BufferingStateCB buffering_state_cb_;
   base::Closure focus_cb_;
+  bool buffering_state_have_meta_data_;
   ActiveRegionCB active_region_cb_;
+  base::Closure waiting_for_decryption_key_cb_;
+  EncryptedCB encrypted_cb_;
   double duration_;
   double current_time_;
-  int64_t buffer_end_;
-  int64_t buffer_end_at_last_didLoadingProgress_;
+  double buffer_end_;
+  double buffer_end_at_last_didLoadingProgress_;
+  int64_t buffer_remaining_;
+  double start_date_;
   bool video_;
-  bool loaded_;
-  bool preloaded_;
-  bool load_started_;
-  bool pending_unload_;
-  bool is_reloading_;
+  bool seekable_;
+  bool ended_;
   bool has_video_;
   bool has_audio_;
+  bool fullscreen_;
   int num_audio_tracks_;
   int tile_no_;
   int tile_count_;
@@ -247,21 +286,27 @@ class UMediaClientGmpImpl : public WebOSMediaClient,
   bool is_seeking_;
   bool is_suspended_;
   bool use_umsinfo_;
+  bool use_backward_trick_;
   bool use_pipeline_preload_;
+  bool use_set_uri_;
+  bool use_video_window_control_;
+  bool use_dass_control_;
   bool updated_source_info_;
   bool buffering_;
   bool requests_play_;
   bool requests_pause_;
-  bool requests_videowall_play_;
-  bool has_visibility_;
+  bool use_force_play_on_same_rate_;
+  bool released_media_resource_;
   std::string media_transport_type_;
   gfx::Size natural_video_size_;
+  gfx::Size video_size_;
+  gfx::Size pixel_aspect_ratio_;
   float playback_rate_;
   float playback_rate_on_eos_;
   float playback_rate_on_paused_;
   double volume_;
-  const scoped_refptr<base::SingleThreadTaskRunner> media_task_runner_;
-  LunaServiceClient ls_client_;
+  const scoped_refptr<base::SingleThreadTaskRunner> main_task_runner_;
+  media::LunaServiceClient ls_client_;
   std::string app_id_;
   std::string url_;
   std::string mime_type_;
@@ -274,14 +319,25 @@ class UMediaClientGmpImpl : public WebOSMediaClient,
   std::string previous_media_video_data_;
   std::string updated_payload_;
   gfx::Rect previous_display_window_;
-  bool is_cadbury_browser_;
+  std::unique_ptr<SystemMediaManager> system_media_manager_;
+  long current_play_state_;
+
+  mutable base::Lock lock_;
+  media::Ranges<base::TimeDelta> seekable_ranges_;
+
   Preload preload_;
 
-  base::WeakPtr<UMediaClientGmpImpl> weak_ptr_;
+  bool visibility_;
 
-  DISALLOW_COPY_AND_ASSIGN(UMediaClientGmpImpl);
+  PlayerState player_state_;    // paused, playing, seeking, seek_completed
+  LoadingState loading_state_;  // unloaded, loading, loaded, unloading
+  LoadingAction pending_loading_action_;
+
+  base::WeakPtr<UMediaClientImpl> weak_ptr_;
+
+  DISALLOW_COPY_AND_ASSIGN(UMediaClientImpl);
 };
 
 }  // namespace media
 
-#endif  // MEDIA_BLINK_NEVA_WEBOS_UMEDIACLIENT_GMP_IMPL_H_
+#endif  // MEDIA_BLINK_NEVA_WEBOS_UMEDIACLIENT_IMPL_H_
