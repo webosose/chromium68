@@ -58,6 +58,7 @@ DECLARE_PMLOG_FOR_CONTEXT_IMPL(Memory, "chromium.memory")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Network, "chromium.network")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Ozone, "chromium.ozone")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Raw, "chromium.raw")
+DECLARE_PMLOG_FOR_CONTEXT_IMPL(UI, "chromium.ui")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(WebOSLunaService, "chromium.weboslunaservice")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(V8, "chromium.v8")
 

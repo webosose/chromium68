@@ -6,6 +6,7 @@
 
 #include "base/auto_reset.h"
 #include "base/logging.h"
+#include "base/logging_pmlog.h"
 #include "base/macros.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/trace_event/trace_event.h"
@@ -679,14 +680,17 @@ bool Widget::IsVisibleOnAllWorkspaces() const {
 }
 
 void Widget::Maximize() {
+  PMLOG_DEBUG(UI, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
   native_widget_->Maximize();
 }
 
 void Widget::Minimize() {
+  PMLOG_DEBUG(UI, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
   native_widget_->Minimize();
 }
 
 void Widget::Restore() {
+  PMLOG_DEBUG(UI, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
   native_widget_->Restore();
 }
 
@@ -699,9 +703,14 @@ bool Widget::IsMinimized() const {
 }
 
 void Widget::SetFullscreen(bool fullscreen) {
-  if (IsFullscreen() == fullscreen)
+  if (IsFullscreen() == fullscreen) {
+    PMLOG_DEBUG(UI, "[%s:%d] fullscreen=%d", __PRETTY_FUNCTION__, __LINE__,
+                fullscreen);
     return;
+  }
 
+  PMLOG_DEBUG(UI, "[%s:%d] fullscreen=%d", __PRETTY_FUNCTION__, __LINE__,
+              fullscreen);
   native_widget_->SetFullscreen(fullscreen);
 
   if (non_client_view_)

@@ -20,6 +20,7 @@
 #include <vector>
 #include "base/bind.h"
 #include "base/files/file.h"
+#include "base/logging_pmlog.h"
 #include "base/memory/ref_counted_memory.h"
 #include "base/message_loop/message_loop.h"
 #include "base/threading/thread_restrictions.h"
@@ -273,6 +274,7 @@ void OzoneWaylandWindow::ToggleFullscreen() {
   if (!screen)
     NOTREACHED() << "Unable to retrieve valid display::Screen";
 
+  PMLOG_DEBUG(Ozone, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
   SetBounds(screen->GetPrimaryDisplay().bounds());
   state_ = WidgetState::FULLSCREEN;
   SendWidgetState();
@@ -282,18 +284,21 @@ void OzoneWaylandWindow::Maximize() {
   display::Screen *screen = display::Screen::GetScreen();
   if (!screen)
     NOTREACHED() << "Unable to retrieve valid display::Screen";
+  PMLOG_DEBUG(Ozone, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
   SetBounds(screen->GetPrimaryDisplay().bounds());
   state_ = WidgetState::MAXIMIZED;
   SendWidgetState();
 }
 
 void OzoneWaylandWindow::Minimize() {
+  PMLOG_DEBUG(Ozone, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
   SetBounds(gfx::Rect());
   state_ = WidgetState::MINIMIZED;
   SendWidgetState();
 }
 
 void OzoneWaylandWindow::Restore() {
+  PMLOG_DEBUG(Ozone, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
   window_manager_->Restore(this);
   state_ = WidgetState::RESTORE;
   SendWidgetState();

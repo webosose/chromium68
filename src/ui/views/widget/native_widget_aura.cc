@@ -6,6 +6,7 @@
 
 #include "base/bind.h"
 #include "base/location.h"
+#include "base/logging_pmlog.h"
 #include "base/single_thread_task_runner.h"
 #include "base/strings/string_util.h"
 #include "base/threading/thread_task_runner_handle.h"
@@ -630,11 +631,13 @@ bool NativeWidgetAura::IsVisibleOnAllWorkspaces() const {
 }
 
 void NativeWidgetAura::Maximize() {
+  PMLOG_DEBUG(UI, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
   if (window_)
     window_->SetProperty(aura::client::kShowStateKey, ui::SHOW_STATE_MAXIMIZED);
 }
 
 void NativeWidgetAura::Minimize() {
+  PMLOG_DEBUG(UI, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
   if (window_)
     window_->SetProperty(aura::client::kShowStateKey, ui::SHOW_STATE_MINIMIZED);
 }
@@ -655,9 +658,13 @@ void NativeWidgetAura::Restore() {
 }
 
 void NativeWidgetAura::SetFullscreen(bool fullscreen) {
-  if (!window_ || IsFullscreen() == fullscreen)
+  if (!window_ || IsFullscreen() == fullscreen) {
+    PMLOG_DEBUG(UI, "[%s:%d] skip", __PRETTY_FUNCTION__, __LINE__);
     return;  // Nothing to do.
+  }
 
+  PMLOG_DEBUG(UI, "[%s:%d] fullscreen=%d", __PRETTY_FUNCTION__, __LINE__,
+              fullscreen);
   wm::SetWindowFullscreen(window_, fullscreen);
 }
 

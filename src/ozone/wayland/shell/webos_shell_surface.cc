@@ -16,6 +16,7 @@
 
 #include "ozone/wayland/shell/webos_shell_surface.h"
 
+#include "base/logging_pmlog.h"
 #include "base/strings/utf_string_conversions.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/seat.h"
@@ -178,8 +179,16 @@ void WebosShellSurface::HandleStateChanged(
         window->Handle(), ToWidgetState(state));
 
     WebosShellSurface* shell_surface = static_cast<WebosShellSurface* >(window->ShellSurface());
-    if (shell_surface)
-        shell_surface->OnStateChanged(ToWidgetState(state));
+    if (shell_surface) {
+      PMLOG_DEBUG(Ozone, "[%s:%d] state=%d", __PRETTY_FUNCTION__, __LINE__,
+                  state);
+      shell_surface->OnStateChanged(ToWidgetState(state));
+    } else {
+      PMLOG_DEBUG(Ozone, "[%s:%d] state=%d, but no shell surface",
+                  __PRETTY_FUNCTION__, __LINE__, state);
+    }
+  } else {
+    PMLOG_DEBUG(Ozone, "[%s:%d] window is 0", __PRETTY_FUNCTION__, __LINE__);
   }
 }
 

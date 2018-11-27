@@ -16,6 +16,7 @@
 
 #include "webos/webapp_window_base.h"
 
+#include "base/logging_pmlog.h"
 #include "neva/app_runtime/public/app_runtime_constants.h"
 #include "neva/app_runtime/public/window_group_configuration.h"
 #include "ui/display/display.h"
@@ -142,8 +143,13 @@ NativeWindowState WebAppWindowBase::GetWindowHostStateAboutToChange() const {
 }
 
 void WebAppWindowBase::SetWindowHostState(NativeWindowState state) {
-  if (webapp_window_)
+  if (webapp_window_) {
+    PMLOG_DEBUG(Ozone, "[%s:%d], state=%d", __FUNCTION__, __LINE__,
+                (uint32_t)state);
     webapp_window_->SetWindowHostState(ToWidgetState(state));
+  } else {
+    PMLOG_DEBUG(Ozone, "[%s:%d], no webapp_window_", __FUNCTION__, __LINE__);
+  }
 }
 
 void WebAppWindowBase::SetInputRegion(const std::vector<gfx::Rect>& region) {

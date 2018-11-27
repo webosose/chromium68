@@ -22,6 +22,7 @@
 
 #include "base/bind.h"
 #include "base/command_line.h"
+#include "base/logging_pmlog.h"
 #include "ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.h"
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
 #include "ui/aura/client/focus_client.h"
@@ -453,9 +454,13 @@ bool DesktopWindowTreeHostOzone::IsActive() const {
 }
 
 void DesktopWindowTreeHostOzone::Maximize() {
-  if (state_ & Maximized)
+  if (state_ & Maximized) {
+    PMLOG_DEBUG(Ozone, "[%s:%d] skip, already maximized", __PRETTY_FUNCTION__,
+                __LINE__);
     return;
+  }
 
+  PMLOG_DEBUG(Ozone, "[%s:%d]", __FUNCTION__, __LINE__);
   state_ |= Maximized;
   state_ &= ~Minimized;
   previous_bounds_ = platform_window_->GetBounds();
@@ -465,9 +470,13 @@ void DesktopWindowTreeHostOzone::Maximize() {
 }
 
 void DesktopWindowTreeHostOzone::Minimize() {
-  if (state_ & Minimized)
+  if (state_ & Minimized) {
+    PMLOG_DEBUG(Ozone, "[%s:%d] skip, already minimized", __PRETTY_FUNCTION__,
+                __LINE__);
     return;
+  }
 
+  PMLOG_DEBUG(Ozone, "[%s:%d]", __FUNCTION__, __LINE__);
   state_ |= Minimized;
   previous_bounds_ = platform_window_->GetBounds();
   ReleaseCapture();
@@ -480,8 +489,12 @@ void DesktopWindowTreeHostOzone::Minimize() {
 void DesktopWindowTreeHostOzone::Restore() {
   state_ &= ~Maximized;
   if (state_ & Minimized) {
+    PMLOG_DEBUG(Ozone, "[%s:%d] was minimized", __PRETTY_FUNCTION__, __LINE__);
     content_window_->Show();
     compositor()->SetVisible(true);
+  } else {
+    PMLOG_DEBUG(Ozone, "[%s:%d] was not minimized", __PRETTY_FUNCTION__,
+                __LINE__);
   }
 
   platform_window_->Restore();
@@ -593,14 +606,19 @@ void DesktopWindowTreeHostOzone::FrameTypeChanged() {
 }
 
 void DesktopWindowTreeHostOzone::SetFullscreen(bool fullscreen) {
-  if ((state_ & FullScreen) == fullscreen)
+  if ((state_ & FullScreen) == fullscreen) {
+    PMLOG_DEBUG(Ozone, "[%s:%d] fullscreen=%d skip, already set",
+                __PRETTY_FUNCTION__, __LINE__, (int)fullscreen);
     return;
+  }
 
   if (fullscreen)
     state_ |= FullScreen;
   else
     state_ &= ~FullScreen;
 
+  PMLOG_DEBUG(Ozone, "[%s:%d] fullscreen=%d state=%d", __PRETTY_FUNCTION__,
+              __LINE__, (int)fullscreen, state_);
   if (!(state_ & FullScreen)) {
     if (state_ & Maximized) {
       previous_bounds_ = previous_maximize_bounds_;
@@ -1324,8 +1342,14 @@ void DesktopWindowTreeHostOzone::OnWindowHostStateChanged(ui::WidgetState new_st
   views::NativeEventDelegate* native_event_delegate =
       desktop_native_widget_aura_->GetNativeEventDelegate();
 
-  if (native_event_delegate)
+  if (native_event_delegate) {
     native_event_delegate->WindowHostStateChanged(new_state);
+    PMLOG_DEBUG(Ozone, "[%s:%d] state=%d", __PRETTY_FUNCTION__, __LINE__,
+                (uint32_t)new_state);
+  } else {
+    PMLOG_DEBUG(Ozone, "[%s:%d] state=%d, but no native event delegate",
+                __PRETTY_FUNCTION__, __LINE__, (uint32_t)new_state);
+  }
 #endif
 }
 
@@ -1334,8 +1358,14 @@ void DesktopWindowTreeHostOzone::OnWindowHostStateAboutToChange(ui::WidgetState 
   views::NativeEventDelegate* native_event_delegate =
       desktop_native_widget_aura_->GetNativeEventDelegate();
 
-  if (native_event_delegate)
+  if (native_event_delegate) {
     native_event_delegate->WindowHostStateAboutToChange(state);
+    PMLOG_DEBUG(Ozone, "[%s:%d] state=%d", __PRETTY_FUNCTION__, __LINE__,
+                (uint32_t)state);
+  } else {
+    PMLOG_DEBUG(Ozone, "[%s:%d] state=%d, but no native event delegate",
+                __PRETTY_FUNCTION__, __LINE__, (uint32_t)state);
+  }
 #endif
 }
 
