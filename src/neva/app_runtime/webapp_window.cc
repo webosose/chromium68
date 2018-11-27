@@ -319,21 +319,21 @@ ui::WidgetState WebAppWindow::FromExposedWidgetStateType(WidgetState state) {
 }
 
 void WebAppWindow::SetWindowHostState(ui::WidgetState state) {
-  if (!widget_)
+  if (!host_)
     return;
 
   switch (state) {
   case ui::WidgetState::FULLSCREEN:
-    widget_->SetFullscreen(true);
+    host_->SetFullscreen(true);
     break;
   case ui::WidgetState::MAXIMIZED:
-    if (widget_->IsFullscreen())
-      widget_->SetFullscreen(false);
+    if (host_->IsFullscreen())
+      host_->SetFullscreen(false);
 
-    widget_->Maximize();
+    host_->Maximize();
     break;
   case ui::WidgetState::MINIMIZED:
-    widget_->Minimize();
+    host_->Minimize();
     break;
   default:
     break;
