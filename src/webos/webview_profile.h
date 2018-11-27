@@ -21,6 +21,10 @@
 
 #include "webos/common/webos_export.h"
 
+namespace app_runtime {
+class WebViewProfile;
+}  // namespace app_runtime
+
 namespace webos {
 
 class WebOSBrowserContextAdapter;
@@ -85,6 +89,7 @@ class WEBOS_EXPORT WebViewProfile {
   };
 
   WebViewProfile(const std::string& storage_name);
+  ~WebViewProfile();
 
   static WebViewProfile* GetDefaultProfile();
 
@@ -98,11 +103,9 @@ class WEBOS_EXPORT WebViewProfile {
  private:
   friend class WebView;
 
-  //WebViewProfile(WebOSBrowserContextAdapter* adapter);
-
-  //WebOSBrowserContextAdapter* GetBrowserContextAdapter() const;
-
-  //WebOSBrowserContextAdapter* browser_context_adapter_;
+  WebViewProfile(app_runtime::WebViewProfile* default_profile);
+  app_runtime::WebViewProfile* profile_ = nullptr;
+  bool is_default_ = false;
 };
 
 }  // namespace webos

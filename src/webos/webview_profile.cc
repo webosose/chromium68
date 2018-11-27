@@ -17,27 +17,39 @@
 #include "webos/webview_profile.h"
 
 #include "base/time/time.h"
+#include "neva/app_runtime/webview_profile.h"
 
 namespace webos {
 
-WebViewProfile::WebViewProfile(const std::string& storage_name) {}
+WebViewProfile::WebViewProfile(const std::string& storage_name)
+    : profile_(new app_runtime::WebViewProfile(storage_name)),
+      is_default_(false) {}
+
+WebViewProfile::WebViewProfile(app_runtime::WebViewProfile* default_profile)
+    : profile_(default_profile), is_default_(true) {}
 
 WebViewProfile* WebViewProfile::GetDefaultProfile() {
-  NOTIMPLEMENTED();
-  return nullptr;
+  static WebViewProfile* profile =
+      new WebViewProfile(app_runtime::WebViewProfile::GetDefaultProfile());
+  return profile;
+}
+
+WebViewProfile::~WebViewProfile() {
+  if (!is_default_)
+    delete profile_;
 }
 
 void WebViewProfile::AppendExtraWebSocketHeader(const std::string& key,
                                                 const std::string& value) {
-  NOTIMPLEMENTED();
+  profile_->AppendExtraWebSocketHeader(key, value);
 }
 
 void WebViewProfile::FlushCookieStore() {
-  NOTIMPLEMENTED();
+  profile_->FlushCookieStore();
 }
 
 void WebViewProfile::RemoveBrowsingData(int remove_browsing_data_mask) {
-  NOTIMPLEMENTED();
+  profile_->RemoveBrowsingData(remove_browsing_data_mask);
 }
 
 }  // namespace webos

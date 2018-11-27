@@ -116,6 +116,15 @@ void StoragePartitionHttpCacheDataRemover::DoClearCache(int rv) {
                                          ->http_transaction_factory()
                                          ->GetCache();
 
+#if defined(USE_NEVA_APPRUNTIME)
+        // MediaContextGetter sets non caching backend, and HttpCache is null
+        // so skip DELETE_MEDIA state
+        if (next_cache_state_ == CacheState::CREATE_MEDIA &&
+            http_cache == nullptr) {
+          next_cache_state_ = CacheState::DONE;
+          break;
+        }
+#endif
         next_cache_state_ = (next_cache_state_ == CacheState::CREATE_MAIN)
                                 ? CacheState::DELETE_MAIN
                                 : CacheState::DELETE_MEDIA;
