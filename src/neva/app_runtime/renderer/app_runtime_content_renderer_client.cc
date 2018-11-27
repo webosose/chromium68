@@ -99,15 +99,16 @@ void AppRuntimeContentRendererClient::RenderFrameCreated(
   if (render_frame->IsMainFrame()) {
     new AppRuntimeRenderFrameObserver(render_frame);
     new AppRuntimePageLoadTimingRenderFrameObserver(render_frame);
-    // create net error helper
-    new AppRuntimeNetErrorHelper(render_frame);
   }
+  // create net error helper
+  new AppRuntimeNetErrorHelper(render_frame);
 }
 
 bool AppRuntimeContentRendererClient::ShouldSuppressErrorPage(
     content::RenderFrame* render_frame,
     const GURL& url) {
   if (render_frame &&
+      AppRuntimeNetErrorHelper::Get(render_frame) &&
       AppRuntimeNetErrorHelper::Get(render_frame)
           ->ShouldSuppressErrorPage(url)) {
     return true;
