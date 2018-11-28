@@ -19,8 +19,10 @@ import("//mojo/public/tools/bindings/mojom.gni")
 import("//neva/neva.gni")
 import("//tools/grit/repack.gni")
 
-if (is_webos) {
+if (is_agl || is_webos) {
   import("//webos/webos_locales.gni")
+} else {
+  import("//build/config/locales.gni")
 }
 
 config("app_runtime_cfg") {
@@ -177,7 +179,7 @@ grit("network_error_strings") {
     "grit/network_error_strings.h",
   ]
 
-  if (is_webos) {
+  if (is_agl || is_webos) {
     locales = webos_locales
   }
 
@@ -194,7 +196,7 @@ repack_locales("repack") {
     ":network_error_strings",
   ]
 
-  if (is_webos) {
+  if (is_agl || is_webos) {
     locales = webos_locales
   }
   input_locales = locales
