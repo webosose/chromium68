@@ -15,6 +15,7 @@ pkg_config("wayland_lib") {
     "wayland-cursor",
     "wayland-egl",
   ]
+  # is_agl?
   if (is_webos) {
     packages += [
       "wayland-webos-client",
@@ -107,6 +108,7 @@ source_set("wayland") {
     "shell/ivi_shell_surface.cc",
     "shell/ivi_shell_surface.h",
   ]
+  # is_agl?
   if (is_webos) {
     sources += [
       "group/wayland_webos_surface_group.cc",

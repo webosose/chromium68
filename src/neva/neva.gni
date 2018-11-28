@@ -37,6 +37,8 @@ declare_args() {
 
   use_videotexture = false
 
+  is_agl = false
+
   is_webos = false
 
   webos_product_type = "default"
