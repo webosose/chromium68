@@ -46,8 +46,14 @@ class WebOSWebViewRendererState {
                int routing_id,
                WebViewInfo* webview_info);
 
+  // Looks up the information for the webos webview for a given frame tree node
+  // if one exists. Called on the IO thread.
+  bool GetInfoForFrameTreeNodeId(int frame_tree_node_id,
+                                 WebViewInfo* webview_info);
+
   void RegisterWebViewInfo(int render_process_id,
                            int routing_id,
+                           int frame_tree_node_id,
                            const WebViewInfo& web_view_info);
   void UnRegisterWebViewInfo(int render_process_id, int routing_id);
 
@@ -56,11 +62,20 @@ class WebOSWebViewRendererState {
 
   typedef std::pair<int, int> RenderId;
   typedef std::map<RenderId, WebViewInfo> WebViewInfoMap;
+  typedef std::map<int, RenderId> FrameTreeNodeIdToRenderIdMap;
+  typedef std::map<RenderId, int> RenderIdToFrameNodeIdMap;
 
   WebOSWebViewRendererState();
   ~WebOSWebViewRendererState();
 
+  bool GetFrameTreeNodeIdForRenderId(RenderId render_id,
+                                     int* frame_tree_node_id);
+  bool GetRenderIdForFrameTreeNodeId(int frame_tree_node_id,
+                                     RenderId* render_id);
+
   WebViewInfoMap webview_info_map_;
+  RenderIdToFrameNodeIdMap render_id_to_frame_tree_node_id_map_;
+  FrameTreeNodeIdToRenderIdMap frame_tree_node_id_to_render_id_map_;
 
   DISALLOW_COPY_AND_ASSIGN(WebOSWebViewRendererState);
 };

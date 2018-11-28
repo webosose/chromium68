@@ -126,12 +126,22 @@ bool WebOSNetworkDelegate::IsAccessAllowed(
 
   const content::ResourceRequestInfo* resource_request_info =
       content::ResourceRequestInfo::ForRequest(&request);
-  WebOSWebViewRendererState::WebViewInfo web_view_info;
-  if (!resource_request_info ||
-      !WebOSWebViewRendererState::GetInstance()->GetInfo(
-          resource_request_info->GetChildID(),
-          resource_request_info->GetRouteID(), &web_view_info))
+
+  if (!resource_request_info)
     return true;  // not a webview call, allow access???
+
+  // PlzNavigate: navigation requests are created with a valid FrameTreeNode ID
+  // and invalid RenderProcessHost and RenderFrameHost IDs.
+  WebOSWebViewRendererState::WebViewInfo web_view_info;
+  if (resource_request_info->GetFrameTreeNodeId() != -1) {
+    if (!WebOSWebViewRendererState::GetInstance()->GetInfoForFrameTreeNodeId(
+            resource_request_info->GetFrameTreeNodeId(), &web_view_info))
+      return true;  // not a webview call, allow access???
+  } else if (!WebOSWebViewRendererState::GetInstance()->GetInfo(
+                 resource_request_info->GetChildID(),
+                 resource_request_info->GetRouteID(), &web_view_info)) {
+    return true;  // not a webview call, allow access???
+  }
 
   std::string caller_path = web_view_info.app_path;
   std::string trust_level = web_view_info.trust_level;

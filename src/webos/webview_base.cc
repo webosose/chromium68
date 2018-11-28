@@ -653,6 +653,7 @@ void WebViewBase::PushStateToIOThread() {
           base::Unretained(webos::WebOSWebViewRendererState::GetInstance()),
           GetWebContents()->GetMainFrame()->GetProcess()->GetID(),
           GetWebContents()->GetRenderViewHost()->GetRoutingID(),
+          GetWebContents()->GetMainFrame()->GetFrameTreeNodeId(),
           web_view_info));
 }
 
