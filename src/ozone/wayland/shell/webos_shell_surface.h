@@ -20,7 +20,10 @@
 #include "ozone/platform/webos_constants.h"
 #include "ozone/wayland/shell/wl_shell_surface.h"
 #include "ui/views/widget/desktop_aura/neva/ui_constants.h"
+
+#if defined(OS_WEBOS)
 #include "wayland-webos-shell-client-protocol.h"
+#endif
 
 namespace ozonewayland {
 
