@@ -17,7 +17,9 @@
 #ifndef CONTENT_PUBLIC_BROWSER_RUNTIME_DELEGATE_WEBOS_H_
 #define CONTENT_PUBLIC_BROWSER_RUNTIME_DELEGATE_WEBOS_H_
 
+#if defined(OS_WEBOS)
 #include <lunaservice.h>
+#endif
 
 #include "content/common/content_export.h"
 
@@ -34,7 +36,9 @@ class CONTENT_EXPORT RuntimeDelegateWebOS {
  public:
   virtual ~RuntimeDelegateWebOS() {}
 
+#if defined(OS_WEBOS)
   virtual LSHandle* GetLunaServiceHandle() = 0;
+#endif
   virtual bool IsForegroundAppEnyo() = 0;
 };
 
