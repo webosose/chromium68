@@ -4,8 +4,6 @@
 
 #include "ozone/platform/ozone_platform_wayland.h"
 
-#include "base/at_exit.h"
-#include "base/bind.h"
 #include "base/memory/ptr_util.h"
 #include "ozone/platform/ozone_gpu_platform_support_host.h"
 #include "ozone/platform/ozone_wayland_window.h"
@@ -31,8 +29,6 @@ namespace {
 class OzonePlatformWayland : public OzonePlatform {
  public:
   OzonePlatformWayland() {
-    base::AtExitManager::RegisterTask(
-        base::Bind(&base::DeletePointer<OzonePlatformWayland>, this));
   }
 
   ~OzonePlatformWayland() override {
