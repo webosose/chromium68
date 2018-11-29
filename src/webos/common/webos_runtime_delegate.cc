@@ -22,12 +22,14 @@ namespace webos {
 
 WebOSRuntimeDelegate::~WebOSRuntimeDelegate() {}
 
+#if defined(OS_WEBOS)
 LSHandle* WebOSRuntimeDelegate::GetLunaServiceHandle() {
   LSHandle* ls_handle = webos::Runtime::GetInstance()->GetLSHandle();
   if (ls_handle)
     return ls_handle;
   return nullptr;
 }
+#endif
 
 bool WebOSRuntimeDelegate::IsForegroundAppEnyo() {
   return webos::Runtime::GetInstance()->GetIsForegroundAppEnyo();
