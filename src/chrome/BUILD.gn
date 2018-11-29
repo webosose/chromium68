@@ -19,6 +19,7 @@ import("//chrome/process_version_rc_template.gni")
 import("//components/nacl/features.gni")
 import("//extensions/buildflags/buildflags.gni")
 import("//media/media_options.gni")
+import("//neva/neva.gni")
 import("//ppapi/buildflags/buildflags.gni")
 import("//third_party/blink/public/public_features.gni")
 import("//third_party/widevine/cdm/widevine.gni")
@@ -243,59 +244,61 @@ if (!is_android && !is_mac) {
       }
 
       if (is_linux) {
-        sources += [
-          "app/chrome_dll_resource.h",
-          "app/chrome_main.cc",
-          "app/chrome_main_delegate.cc",
-          "app/chrome_main_delegate.h",
-        ]
-
-        deps += [
-          # On Linux, link the dependencies (libraries) that make up actual
-          # Chromium functionality directly into the executable.
-          ":browser_dependencies",
-          ":child_dependencies",
-
-          # Needed to use the master_preferences functions
-          "//chrome/installer/util:with_no_strings",
-          "//content/public/app:both",
-          "//content/public/common:service_names",
-
-          # For headless mode.
-          "//headless:headless_shell_lib",
-          "//services/service_manager/embedder",
-        ]
-
-        public_deps = [
-          ":xdg_mime",  # Needs to be public for installer to consume files.
-          "//chrome/common:buildflags",
-        ]
-
-        ldflags = [ "-pie" ]
-
-        # Chrome OS debug builds for arm need to pass --long-plt to the linker.
-        # See https://bugs.chromium.org/p/chromium/issues/detail?id=583532
-        if (is_chromeos && is_debug && target_cpu == "arm") {
-          ldflags += [ "-Wl,--long-plt" ]
+        if (use_cbe) {
+          configs += [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
         }
 
-        if (is_desktop_linux && !is_component_build && !using_sanitizer) {
-          version_script = "//build/linux/chrome.map"
-          inputs = [
-            version_script,
+        if (use_cbe && is_chrome_cbe) {
+          deps += ["//neva/cbe:chromium_cbe" ]
+        } else {
+          sources += [
+            "app/chrome_dll_resource.h",
+            "app/chrome_main.cc",
+            "app/chrome_main_delegate.cc",
+            "app/chrome_main_delegate.h",
           ]
-          ldflags += [ "-Wl,--version-script=" +
-                       rebase_path(version_script, root_build_dir) ]
-        }
 
-        if (use_x11) {
-          configs += [
-            "//build/config/linux:x11",
-            "//build/config/linux:xext",
+          deps += [
+            # On Linux, link the dependencies (libraries) that make up actual
+            # Chromium functionality directly into the executable.
+            ":browser_dependencies",
+            ":child_dependencies",
+
+            # Needed to use the master_preferences functions
+            "//chrome/installer/util:with_no_strings",
+            "//content/public/app:both",
+            "//content/public/common:service_names",
+
+            # For headless mode.
+            "//headless:headless_shell_lib",
+            "//services/service_manager/embedder",
           ]
-        }
-        if (enable_mus) {
-          deps += [ "//mash/common" ]
+
+          public_deps = [
+            ":xdg_mime",  # Needs to be public for installer to consume files.
+            "//chrome/common:buildflags",
+          ]
+
+          ldflags = [ "-pie" ]
+
+          if (is_desktop_linux && !is_component_build && !using_sanitizer) {
+            version_script = "//build/linux/chrome.map"
+            inputs = [
+              version_script,
+            ]
+            ldflags += [ "-Wl,--version-script=" +
+                         rebase_path(version_script, root_build_dir) ]
+          }
+
+          if (use_x11) {
+            configs += [
+              "//build/config/linux:x11",
+              "//build/config/linux:xext",
+            ]
+          }
+          if (enable_mus) {
+            deps += [ "//mash/common" ]
+          }
         }
       }
 

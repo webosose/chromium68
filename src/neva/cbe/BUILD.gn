@@ -33,10 +33,10 @@ if (use_cbe) {
 
     if (is_chrome_cbe) {
       sources += [
-        "app/chrome_dll_resource.h",
-        "app/chrome_main.cc",
-        "app/chrome_main_delegate.cc",
-        "app/chrome_main_delegate.h",
+        "../../chrome/app/chrome_dll_resource.h",
+        "../../chrome/app/chrome_main.cc",
+        "../../chrome/app/chrome_main_delegate.cc",
+        "../../chrome/app/chrome_main_delegate.h",
       ]
 
       deps += [
