@@ -221,7 +221,9 @@ int SystemHostResolverCall(const std::string& host,
     PMLOG_INFO(Network, "Network",
                "getaddrinfo(host:%s) error(code:%d, str:%s), system "
                "error(code:%d, str:%s)",
-               host.c_str(), err, gai_strerror(err), errno, strerror(errno));
+               host.c_str(), err, gai_strerror(err),
+               (err == EAI_SYSTEM) ? errno : 0,
+               (err == EAI_SYSTEM) ? strerror(errno) : "");
     should_retry = true;
   }
   if (should_retry) {
@@ -236,7 +238,9 @@ int SystemHostResolverCall(const std::string& host,
     PMLOG_INFO(Network, "Network",
                "retry getaddrinfo(host:%s) error(code:%d, str:%s), system "
                "error(code:%d, str:%s)",
-               host.c_str(), err, gai_strerror(err), errno, strerror(errno));
+               host.c_str(), err, gai_strerror(err),
+               (err == EAI_SYSTEM) ? errno : 0,
+               (err == EAI_SYSTEM) ? strerror(errno) : "");
 #if defined(OS_WIN)
     err = WSAGetLastError();
 #endif
