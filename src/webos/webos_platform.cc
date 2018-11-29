@@ -21,11 +21,14 @@
 #include "neva/app_runtime/app/app_runtime_main_delegate.h"
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/window.h"
-#include "ozone/wayland/shell/webos_shell_surface.h"
 #include "ui/views/widget/desktop_aura/neva/ui_constants.h"
 #include "webos/common/webos_locales_mapping.h"
 #include "webos/common/webos_types_conversion_utils.h"
 #include "webos/public/runtime.h"
+
+#if defined(OS_WEBOS)
+#include "ozone/wayland/shell/webos_shell_surface.h"
+#endif
 
 namespace webos {
 
@@ -70,21 +73,25 @@ InputPointer* WebOSPlatform::GetInputPointer() {
 
 void WebOSPlatform::SetInputRegion(unsigned handle,
                                    const std::vector<gfx::Rect>& region) {
+#if defined(OS_WEBOS)
   ozonewayland::WaylandDisplay* display = ozonewayland::WaylandDisplay::GetInstance();
   ozonewayland::WaylandWindow* window = display->GetWindow(handle);
 
   ozonewayland::WebosShellSurface* shellSurface =
       static_cast<ozonewayland::WebosShellSurface*>(window->ShellSurface());
   shellSurface->SetInputRegion(region);
+#endif
 }
 
 void WebOSPlatform::SetKeyMask(unsigned handle, WebOSKeyMask keyMask) {
+#if defined(OS_WEBOS)
   ozonewayland::WaylandDisplay* display = ozonewayland::WaylandDisplay::GetInstance();
   ozonewayland::WaylandWindow* window = display->GetWindow(handle);
 
   ozonewayland::WebosShellSurface* shellSurface =
       static_cast<ozonewayland::WebosShellSurface*>(window->ShellSurface());
   shellSurface->SetGroupKeyMask(ToKeyMask(keyMask));
+#endif
 }
 
 } //namespace ozonewayland
