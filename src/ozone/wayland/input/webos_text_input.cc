@@ -38,8 +38,6 @@ const uint32_t kIMEModifierFlagCtrl = 2;
 const uint32_t kIMEModifierFlagAlt = 4;
 const uint32_t kIMEModifierAllFlags = 7;
 
-const size_t kSurroundingTextMax = 4000;
-
 uint32_t GetModifierKey(uint32_t key_sym) {
   switch (key_sym) {
     case kIMEModifierFlagShft:
@@ -223,38 +221,9 @@ void WaylandTextInput::SetInputContentType(ui::InputContentType content_type,
 void WaylandTextInput::SetSurroundingText(const std::string& text,
                                           size_t cursor_position,
                                           size_t anchor_position) {
-  if (text_model_) {
-    // FIXME Retricts length of surround text to kSurroundingTextMax characters.
-    //       Usually wayland can carry parameters which is less than 4096 bytes
-    //       due to wl_buffer restriction (see wl_connection_write()/
-    //       wl_buffer_put())
-    std::string sur_text(text);
-
-    if (cursor_position != anchor_position) {
-      size_t& leftmost(cursor_position < anchor_position ? cursor_position
-                                                         : anchor_position);
-      size_t& rightmost(cursor_position < anchor_position ? anchor_position
-                                                          : cursor_position);
-      int direction(cursor_position < anchor_position ? 1 : -1);
-
-      if (rightmost - leftmost > kSurroundingTextMax)
-        anchor_position = cursor_position + direction * kSurroundingTextMax;
-
-      sur_text = text.substr(leftmost, kSurroundingTextMax);
-      rightmost -= leftmost;
-      leftmost = 0;
-    } else {
-      size_t pos(anchor_position <= kSurroundingTextMax
-                     ? 0
-                     : anchor_position - kSurroundingTextMax);
-      anchor_position = cursor_position -= pos;
-      sur_text = (pos < text.size()) ? text.substr(pos, kSurroundingTextMax)
-                                     : std::string();
-    }
-
-    text_model_set_surrounding_text(text_model_, sur_text.c_str(),
-                                    cursor_position, anchor_position);
-  }
+  if (text_model_)
+    text_model_set_surrounding_text(text_model_, text.c_str(), cursor_position,
+                                    anchor_position);
 }
 
 void WaylandTextInput::OnWindowAboutToDestroy(unsigned windowhandle) {
@@ -294,19 +263,8 @@ void WaylandTextInput::OnDeleteSurroundingText(void* data,
                                        uint32_t length) {
   WaylandDisplay* dispatcher = WaylandDisplay::GetInstance();
   WaylandTextInput* instance = static_cast<WaylandTextInput*>(data);
-  if (instance->last_active_window_) {
-    int32_t start = index;
-    uint32_t end = length;
-
-    if (length == std::numeric_limits<uint32_t>::max()) {
-      // Remove all text in the input limited by kSurroundingTextMax
-      start = 0;
-      end = kSurroundingTextMax;
-    }
-
-    dispatcher->DeleteRange(instance->last_active_window_->Handle(), start,
-                            end);
-  }
+  if (instance->last_active_window_)
+    dispatcher->DeleteRange(instance->last_active_window_->Handle(), index, length);
 }
 
 void WaylandTextInput::OnCursorPosition(void* data,

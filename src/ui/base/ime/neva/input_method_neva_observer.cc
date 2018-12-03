@@ -53,6 +53,36 @@ void InputMethodNevaObserver::OnCaretBoundsChanged(const TextInputClient* client
   size_t anchor_position = selection_range.start() - text_range.start();
   size_t cursor_position = selection_range.end() - text_range.start();
 
+  // FIXME Retricts length of surround text to 4000 characters.
+  //       Usually wayland can carry parameters which is less than 4096 bytes
+  //       due to wl_buffer restriction (see wl_connection_write()/
+  //       wl_buffer_put())
+  static const size_t kSurroundingTextMax = 4000;
+
+  if (cursor_position != anchor_position) {
+    size_t& leftmost(cursor_position < anchor_position
+                         ? cursor_position
+                         : anchor_position);
+    size_t& rightmost(cursor_position < anchor_position
+                         ? anchor_position
+                         : cursor_position);
+    int direction(cursor_position < anchor_position ? 1 : -1);
+
+    if (rightmost - leftmost > kSurroundingTextMax)
+      anchor_position = cursor_position + direction*kSurroundingTextMax;
+
+    text = text.substr(leftmost, kSurroundingTextMax);
+    rightmost -= leftmost;
+    leftmost = 0;
+  } else {
+    size_t pos(anchor_position <= kSurroundingTextMax
+                   ? 0
+                   : anchor_position - kSurroundingTextMax);
+    anchor_position = cursor_position -= pos;
+    text = (pos < text.size()) ? text.substr(pos, kSurroundingTextMax)
+                               : std::string();
+  }
+
   SetSurroundingText(text, cursor_position, anchor_position);
 }
 
