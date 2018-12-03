@@ -766,7 +766,12 @@ void GpuProcessHost::InitOzone() {
   // possible to ensure the latter always has a valid device. crbug.com/608839
   // When running with mus, the OzonePlatform may not have been created yet. So
   // defer the callback until OzonePlatform instance is created.
-  bool using_mojo = true;
+  //
+  // (msisov): this has been changed in the upstream. The ozone initialization was
+  // moved to components/viz/host/gpu_host_impl.cc due to VIZ effort. Thus,
+  // intead of fixing mojo requirement there, do it here. 
+  bool using_mojo = ui::OzonePlatform::GetInstance()
+    ->GetPlatformProperties().requires_mojo;
 #if defined(OS_CHROMEOS)
   using_mojo = features::IsOzoneDrmMojo();
 #endif
