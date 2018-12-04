@@ -75,7 +75,7 @@ if (use_cbe) {
       ]
     }
 
-    if (is_webos) {
+    if (is_webos || is_agl) {
       deps += [
         "//webos:weboswebruntime"
       ]
