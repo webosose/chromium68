@@ -101,6 +101,7 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
       window_manager_(window_manager),
       transparent_(false),
       bounds_(bounds),
+      resize_enabled_(true),
       parent_(0),
       type_(WidgetType::WINDOWFRAMELESS),
       state_(WidgetState::UNINITIALIZED),
@@ -276,6 +277,17 @@ void OzoneWaylandWindow::ToggleFullscreen() {
 
   PMLOG_DEBUG(Ozone, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
   SetBounds(screen->GetPrimaryDisplay().bounds());
+  state_ = WidgetState::FULLSCREEN;
+  SendWidgetState();
+}
+
+void OzoneWaylandWindow::ToggleFullscreenWithSize(const gfx::Size& size) {
+  if (size.width() == 0 || size.height() == 0) {
+    ToggleFullscreen();
+    return;
+  }
+  PMLOG_DEBUG(Ozone, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
+  SetBounds(gfx::Rect(size.width(), size.height()));
   state_ = WidgetState::FULLSCREEN;
   SendWidgetState();
 }
@@ -497,6 +509,10 @@ void OzoneWaylandWindow::SetSurroundingText(const std::string& text,
                                             size_t anchor_position) {
   sender_->Send(new WaylandDisplay_SetSurroundingText(text, cursor_position,
                                                       anchor_position));
+}
+
+void OzoneWaylandWindow::SetResizeEnabled(bool enabled) {
+  resize_enabled_ = enabled;
 }
 
 InputContentType OzoneWaylandWindow::InputContentTypeFromTextInputType(

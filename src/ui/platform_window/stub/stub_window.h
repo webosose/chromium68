@@ -39,6 +39,7 @@ class STUB_WINDOW_EXPORT StubWindow : public PlatformWindow {
   void SetCapture() override;
   void ReleaseCapture() override;
   void ToggleFullscreen() override;
+  void ToggleFullscreenWithSize(const gfx::Size& size) override;
   bool HasCapture() const override;
   void Maximize() override;
   void Minimize() override;

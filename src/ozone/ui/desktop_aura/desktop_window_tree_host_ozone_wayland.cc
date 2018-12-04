@@ -25,6 +25,7 @@
 #include "base/logging_pmlog.h"
 #include "ozone/ui/desktop_aura/desktop_drag_drop_client_wayland.h"
 #include "ozone/ui/desktop_aura/desktop_screen_wayland.h"
+#include "services/ui/public/interfaces/window_manager_constants.mojom.h"
 #include "ui/aura/client/focus_client.h"
 #include "ui/base/class_property.h"
 #include "ui/base/hit_test.h"
@@ -45,6 +46,7 @@
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/desktop_aura/desktop_screen_position_client.h"
 #include "ui/views/widget/desktop_aura/neva/native_event_delegate.h"
+#include "ui/views/widget/widget_delegate.h"
 #include "ui/wm/core/window_util.h"
 #include "ui/wm/public/window_move_client.h"
 
@@ -158,6 +160,10 @@ void DesktopWindowTreeHostOzone::Init(
     sanitized_params.bounds.set_height(100);
 
   InitOzoneWindow(sanitized_params);
+
+#if defined(OS_WEBOS)
+  contents_size_ = sanitized_params.bounds.size();
+#endif
 
   bool ime_enabled =
     base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableNevaIme);
@@ -632,7 +638,9 @@ void DesktopWindowTreeHostOzone::SetFullscreen(bool fullscreen) {
       previous_maximize_bounds_ = previous_bounds_;
 
     previous_bounds_ = platform_window_->GetBounds();
-    platform_window_->ToggleFullscreen();
+    if (contents_size_.IsEmpty())
+      contents_size_ = GetWorkAreaBoundsInScreen().size();
+    platform_window_->ToggleFullscreenWithSize(contents_size_);
   }
 
   Relayout();
@@ -703,6 +711,13 @@ bool DesktopWindowTreeHostOzone::IsTranslucentWindowOpacitySupported() const {
 }
 
 void DesktopWindowTreeHostOzone::SizeConstraintsChanged() {
+  int32_t behavior = ui::mojom::kResizeBehaviorNone;
+  Widget* widget = native_widget_delegate_->AsWidget();
+  if (widget->widget_delegate())
+    behavior = widget->widget_delegate()->GetResizeBehavior();
+
+  platform_window_->SetResizeEnabled(behavior &
+                                     ui::mojom::kResizeBehaviorCanResize);
 }
 
 bool DesktopWindowTreeHostOzone::ShouldUpdateWindowTransparency() const {
@@ -1070,6 +1085,7 @@ void DesktopWindowTreeHostOzone::InitOzoneWindow(
     default:
       break;
   }
+  SizeConstraintsChanged();
 
   platform_window_->InitPlatformWindow(type, parent_window);
   // If we have a delegate which is providing a default window icon, use that
@@ -1165,6 +1181,10 @@ void DesktopWindowTreeHostOzone::ResetWindowRegion() {
                     SkIntToScalar(bounds_in_pixels.height()) };
     window_mask.addRect(rect);
   }
+
+#if defined(OS_WEBOS)
+  contents_size_.SetSize(bounds_in_pixels.width(), bounds_in_pixels.height());
+#endif
 
   platform_window_->SetWindowShape(window_mask);
 }

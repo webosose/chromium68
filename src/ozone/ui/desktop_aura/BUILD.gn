@@ -41,6 +41,7 @@ source_set("views_ozone_wayland") {
     "//skia",
     "//ui/accessibility:ax_enums_mojo",
     "//ui/views:features",
+    "//services/ui/public/interfaces:interfaces",
     ":generate_desktop_factory_ozone_list",
   ]
 

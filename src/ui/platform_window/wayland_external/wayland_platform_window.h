@@ -78,6 +78,7 @@ class WaylandPlatformWindow {
   virtual void SetSurroundingText(const std::string& text,
                                   size_t cursor_position,
                                   size_t anchor_position) {}
+  virtual void SetResizeEnabled(bool enabled) {}
 ///@}
   virtual void XInputActivate(const std::string& type) {}
   virtual void XInputDeactivate() {}

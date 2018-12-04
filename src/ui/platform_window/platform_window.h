@@ -60,6 +60,7 @@ class PlatformWindow {
   virtual bool HasCapture() const = 0;
 
   virtual void ToggleFullscreen() = 0;
+  virtual void ToggleFullscreenWithSize(const gfx::Size& size) = 0;
   virtual void Maximize() = 0;
   virtual void Minimize() = 0;
   virtual void Restore() = 0;
