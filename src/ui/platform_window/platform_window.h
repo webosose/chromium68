@@ -33,7 +33,7 @@ class PlatformImeController;
 
 // Added for external ozone wayland port
 #if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
-class PlatformWindow : public WaylandPlatformWindow {
+class PlatformWindow : public WaylandPlatformWindow, public PropertyHandler {
 #else
 class PlatformWindow : public PropertyHandler {
 #endif
