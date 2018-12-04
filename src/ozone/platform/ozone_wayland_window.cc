@@ -457,6 +457,12 @@ PlatformImeController* OzoneWaylandWindow::GetPlatformImeController() {
   return nullptr;
 }
 
+void OzoneWaylandWindow::SetRestoredBoundsInPixels(const gfx::Rect& bounds) {}
+
+gfx::Rect OzoneWaylandWindow::GetRestoredBoundsInPixels() const {
+  return gfx::Rect();
+}
+
 void OzoneWaylandWindow::SetWindowProperty(const std::string& name,
                                            const std::string& value) {
   sender_->Send(new WaylandDisplay_SetWindowProperty(handle_, name, value));
