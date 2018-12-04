@@ -839,9 +839,6 @@ void DesktopWindowTreeHostOzone::OnDamageRect(const gfx::Rect& damaged_rect) {
   compositor()->ScheduleRedrawRect(damaged_rect);
 }
 
-void DesktopWindowTreeHostOzone::OnAcceleratedWidgetDestroying() {
-}
-
 void DesktopWindowTreeHostOzone::OnAcceleratedWidgetDestroyed() {
   gfx::AcceleratedWidget window = compositor()->ReleaseAcceleratedWidget();
   DCHECK_EQ(window, window_);
@@ -913,8 +910,7 @@ void DesktopWindowTreeHostOzone::OnLostCapture() {
 }
 
 void DesktopWindowTreeHostOzone::OnAcceleratedWidgetAvailable(
-      gfx::AcceleratedWidget widget,
-       float device_pixel_ratio) {
+    gfx::AcceleratedWidget widget) {
   window_ = widget;
   CreateCompositor();
   WindowTreeHost::OnAcceleratedWidgetAvailable();

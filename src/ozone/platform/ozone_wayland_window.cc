@@ -109,7 +109,7 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
   static int opaque_handle = 0;
   opaque_handle++;
   handle_ = opaque_handle;
-  delegate_->OnAcceleratedWidgetAvailable(opaque_handle, 1.0);
+  delegate_->OnAcceleratedWidgetAvailable(opaque_handle);
 
   char* env;
   if ((env = getenv("OZONE_WAYLAND_IVI_SURFACE_ID")))
