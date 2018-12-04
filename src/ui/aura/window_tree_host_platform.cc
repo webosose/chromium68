@@ -68,17 +68,16 @@ WindowTreeHostPlatform::WindowTreeHostPlatform(
 
 void WindowTreeHostPlatform::CreateAndSetPlatformWindow(
     ui::PlatformWindowInitProperties properties) {
-#if defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
+#if defined(USE_OZONE) || defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   platform_window_ =
-      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, properties.bounds);
+      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, std::move(properties));
+#if defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   bool ime_enabled =
       base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableNevaIme);
   if (ime_enabled)
     GetInputMethod()->AddObserver(this);
   SetImeEnabled(ime_enabled);
-#elif defined(USE_OZONE)
-  platform_window_ =
-      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, std::move(properties)); 
+#endif
 #elif defined(OS_WIN)
   platform_window_.reset(new ui::WinWindow(this, properties.bounds));
 #elif defined(OS_ANDROID)
