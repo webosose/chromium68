@@ -87,6 +87,9 @@ class OzoneWaylandWindow : public PlatformWindow,
   void MoveCursorTo(const gfx::Point& location) override;
   void ConfineCursorToBounds(const gfx::Rect& bounds) override;
   PlatformImeController* GetPlatformImeController() override;
+  void SetRestoredBoundsInPixels(const gfx::Rect& bounds) override;
+  gfx::Rect GetRestoredBoundsInPixels() const override;
+
   void SetWindowProperty(const std::string& name,
                          const std::string& value) override;
   void ResetCustomCursor() override;
