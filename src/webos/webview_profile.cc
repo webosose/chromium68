@@ -17,6 +17,7 @@
 #include "webos/webview_profile.h"
 
 #include "base/time/time.h"
+#include "neva/app_runtime/browser/app_runtime_browser_context_adapter.h"
 #include "neva/app_runtime/webview_profile.h"
 
 namespace webos {
@@ -37,6 +38,17 @@ WebViewProfile* WebViewProfile::GetDefaultProfile() {
 WebViewProfile::~WebViewProfile() {
   if (!is_default_)
     delete profile_;
+}
+
+app_runtime::WebViewProfile* WebViewProfile::GetProfileDelegate() {
+  return profile_;
+}
+
+void WebViewProfile::SetProxyServer(const std::string& ip,
+                                    const std::string& port,
+                                    const std::string& username,
+                                    const std::string& password) {
+  profile_->SetProxyServer(ip, port, username, password);
 }
 
 void WebViewProfile::AppendExtraWebSocketHeader(const std::string& key,

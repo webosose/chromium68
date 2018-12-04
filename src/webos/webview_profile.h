@@ -93,6 +93,14 @@ class WEBOS_EXPORT WebViewProfile {
 
   static WebViewProfile* GetDefaultProfile();
 
+  app_runtime::WebViewProfile* GetProfileDelegate();
+
+  void SetProxyServer(const std::string& ip,
+                      const std::string& port,
+                      const std::string& username,
+                      const std::string& password);
+
+
   void AppendExtraWebSocketHeader(const std::string& key,
                                   const std::string& value);
 
