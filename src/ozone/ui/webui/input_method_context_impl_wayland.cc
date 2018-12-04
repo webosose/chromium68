@@ -55,6 +55,10 @@ void InputMethodContextImplWayland::Blur() {
 void InputMethodContextImplWayland::SetCursorLocation(const gfx::Rect&) {
 }
 
+void InputMethodContextImplWayland::SetSurroundingText(
+    const base::string16& text,
+    const gfx::Range& selection_range) {}
+
 void InputMethodContextImplWayland::Commit(const std::string& text) {
   base::string16 string_commited;
   if (base::IsStringUTF8(text))
