@@ -20,6 +20,7 @@
 #include "ui/events/system_input_injector.h"
 #include "ui/ozone/common/stub_overlay_manager.h"
 #include "ui/platform_window/platform_window_delegate.h"
+#include "ui/platform_window/platform_window_init_properties.h"
 
 namespace ui {
 
@@ -69,7 +70,8 @@ class OzonePlatformWayland : public OzonePlatform {
 
   std::unique_ptr<PlatformWindow> CreatePlatformWindow(
       PlatformWindowDelegate* delegate,
-      const gfx::Rect& bounds) override {
+      PlatformWindowInitProperties properties) override {
+    const gfx::Rect& bounds = properties.bounds;
     return std::unique_ptr<PlatformWindow>(
         new OzoneWaylandWindow(delegate,
                                gpu_platform_host_.get(),

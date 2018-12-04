@@ -36,6 +36,7 @@
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/platform_window/neva/window_group_configuration.h"
 #include "ui/platform_window/platform_window.h"
+#include "ui/platform_window/platform_window_init_properties.h"
 #include "ui/views/corewm/tooltip_aura.h"
 #include "ui/views/linux_ui/linux_ui.h"
 #include "ui/views/views_delegate.h"
@@ -1008,8 +1009,10 @@ void DesktopWindowTreeHostOzone::InitOzoneWindow(
   const gfx::Rect& bounds_in_pixels = ToPixelRect(params.bounds);
   const gfx::Rect& bounds = gfx::Rect(bounds_in_pixels.origin(),
                                       AdjustSize(bounds_in_pixels.size()));
+  ui::PlatformWindowInitProperties properties;
+  properties.bounds = bounds;
   platform_window_ =
-      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, bounds);
+      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, std::move(properties));
   DCHECK(window_);
   if (pending_surface_id_) {
     LOG(INFO) << "### Setting surface_id=" << pending_surface_id_;
