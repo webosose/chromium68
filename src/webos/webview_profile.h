@@ -21,6 +21,10 @@
 
 #include "webos/common/webos_export.h"
 
+namespace app_runtime {
+class WebViewProfile;
+}
+
 namespace webos {
 
 class WebOSBrowserContextAdapter;
@@ -88,6 +92,14 @@ class WEBOS_EXPORT WebViewProfile {
 
   static WebViewProfile* GetDefaultProfile();
 
+  app_runtime::WebViewProfile* GetProfileDelegate();
+
+  void SetProxyServer(const std::string& ip,
+                      const std::string& port,
+                      const std::string& username,
+                      const std::string& password);
+
+
   void AppendExtraWebSocketHeader(const std::string& key,
                                   const std::string& value);
 
@@ -98,11 +110,9 @@ class WEBOS_EXPORT WebViewProfile {
  private:
   friend class WebView;
 
-  //WebViewProfile(WebOSBrowserContextAdapter* adapter);
+  app_runtime::WebViewProfile* profile_delegate_;
 
-  //WebOSBrowserContextAdapter* GetBrowserContextAdapter() const;
-
-  //WebOSBrowserContextAdapter* browser_context_adapter_;
+  WebViewProfile(app_runtime::WebViewProfile* profile_delegate_);
 };
 
 }  // namespace webos
