@@ -44,6 +44,7 @@
 #include "media/blink/webmediaplayer_util.h"
 #include "net/base/mime_util.h"
 #include "services/ui/public/cpp/gpu/context_provider_command_buffer.h"
+#include "third_party/blink/public/platform/web_fullscreen_video_status.h"
 #include "third_party/blink/public/platform/web_media_player_source.h"
 #include "third_party/blink/public/platform/web_rect.h"
 #include "third_party/blink/public/platform/web_size.h"
@@ -398,11 +399,35 @@ void WebMediaPlayerNeva::Pause() {
   }
 }
 
-// TODO(wanchang): need to propagate to MediaPlayerNeva
-bool WebMediaPlayerNeva::SupportsFullscreen() const {
+bool WebMediaPlayerNeva::SupportsOverlayFullscreenVideo() {
   FUNC_LOG(1);
   DCHECK(main_thread_checker_.CalledOnValidThread());
   return true;
+}
+
+void WebMediaPlayerNeva::EnteredFullscreen() {
+  FUNC_LOG(1);
+  if (!is_fullscreen_) {
+    is_fullscreen_ = true;
+    UpdateVideoHoleBoundary(false);
+  }
+}
+
+void WebMediaPlayerNeva::ExitedFullscreen() {
+  FUNC_LOG(1);
+  if (is_fullscreen_) {
+    is_fullscreen_ = false;
+    UpdateVideoHoleBoundary(false);
+  }
+}
+
+void WebMediaPlayerNeva::BecameDominantVisibleContent(bool is_dominant) {
+  FUNC_LOG(1) << "is_dominant=" << is_dominant;
+}
+
+void WebMediaPlayerNeva::SetIsEffectivelyFullscreen(
+    blink::WebFullscreenVideoStatus status) {
+  FUNC_LOG(1) << "fs status=" << (int)status;
 }
 
 void WebMediaPlayerNeva::Seek(double seconds) {

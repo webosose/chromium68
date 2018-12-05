@@ -917,7 +917,16 @@ void WebView::RequestGetCookies(const std::string& url) {
 }
 
 void WebView::SetAdditionalContentsScale(float scale_x, float scale_y) {
-  NOTIMPLEMENTED();
+#if defined(USE_NEVA_MEDIA)
+  content::RenderWidgetHostViewAura* const host_view =
+      static_cast<content::RenderWidgetHostViewAura*>(
+          web_contents_->GetRenderViewHost()->GetWidget()->GetView());
+
+  if (!host_view)
+    return;
+
+  host_view->SetAdditionalContentsScale(scale_x, scale_y);
+#endif
 }
 
 void WebView::SetHardwareResolution(int width, int height) {

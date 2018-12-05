@@ -360,6 +360,9 @@ IPC_STRUCT_TRAITS_BEGIN(content::ScreenInfo)
 #if defined(USE_NEVA_MEDIA)
   IPC_STRUCT_TRAITS_MEMBER(additional_contents_scale)
 #endif
+#if defined(USE_NEVA_MEDIA)
+  IPC_STRUCT_TRAITS_MEMBER(hardware_resolution)
+#endif
 IPC_STRUCT_TRAITS_END()
 
 // Parameters structure for mojom::FrameHost::DidCommitProvisionalLoad.
