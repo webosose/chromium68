@@ -5,6 +5,7 @@
 #include "extensions/shell/renderer/shell_content_renderer_client.h"
 
 #include "components/cdm/renderer/neva/key_systems_util.h"
+#include "components/error_page/common/localized_error.h"
 #include "components/nacl/common/buildflags.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/renderer/render_frame.h"
@@ -19,6 +20,10 @@
 #include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container.h"
 #include "extensions/shell/common/shell_extensions_client.h"
 #include "extensions/shell/renderer/shell_extensions_renderer_client.h"
+#include "neva/app_runtime/renderer/net/app_runtime_net_error_helper.h"
+#include "third_party/blink/public/platform/modules/fetch/fetch_api_request.mojom-shared.h"
+#include "third_party/blink/public/platform/web_url.h"
+#include "third_party/blink/public/platform/web_url_error.h"
 #include "third_party/blink/public/web/web_local_frame.h"
 
 #if BUILDFLAG(ENABLE_NACL)
@@ -26,9 +31,11 @@
 #include "components/nacl/renderer/nacl_helper.h"
 #endif
 
+using blink::mojom::FetchCacheMode;
 using blink::WebFrame;
 using blink::WebString;
 using content::RenderThread;
+using content::ResourceType;
 
 namespace extensions {
 
@@ -68,6 +75,9 @@ void ShellContentRendererClient::RenderFrameCreated(
 #if BUILDFLAG(ENABLE_NACL)
   new nacl::NaClHelper(render_frame);
 #endif
+
+  // Create net error helper
+  new app_runtime::AppRuntimeNetErrorHelper(render_frame);
 }
 
 bool ShellContentRendererClient::OverrideCreatePlugin(
@@ -142,6 +152,29 @@ void ShellContentRendererClient::RunScriptsAtDocumentEnd(
 
 ExtensionsClient* ShellContentRendererClient::CreateExtensionsClient() {
   return new ShellExtensionsClient;
+}
+
+void ShellContentRendererClient::PrepareErrorPage(
+    content::RenderFrame* render_frame,
+    const blink::WebURLRequest& failed_request,
+    const blink::WebURLError& error,
+    std::string* error_html,
+    base::string16* error_description) {
+  const GURL failed_url = error.url();
+  bool is_post = base::EqualsASCII(failed_request.HttpMethod().Utf16(), "POST");
+  bool is_ignoring_cache =
+      failed_request.GetCacheMode() == FetchCacheMode::kBypassCache;
+  error_page::Error net_error = error_page::Error::NetError(
+      error.url(), error.reason(), error.has_copy_in_cache());
+  if (error_html) {
+    app_runtime::AppRuntimeNetErrorHelper::Get(render_frame)
+        ->PrepareErrorPage(net_error, is_post, is_ignoring_cache, error_html);
+  }
+
+  if (error_description) {
+    *error_description = error_page::LocalizedError::GetErrorDetails(
+        net_error.domain(), net_error.reason(), is_post);
+  }
 }
 
 }  // namespace extensions

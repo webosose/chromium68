@@ -269,6 +269,26 @@ ShellContentBrowserClient::GetDevToolsManagerDelegate() {
   return new content::ShellDevToolsManagerDelegate(GetBrowserContext());
 }
 
+void ShellContentBrowserClient::AllowCertificateError(
+    content::WebContents* web_contents,
+    int cert_error,
+    const net::SSLInfo& ssl_info,
+    const GURL& request_url,
+    content::ResourceType resource_type,
+    bool strict_enforcement,
+    bool expired_previous_decision,
+    const base::Callback<void(content::CertificateRequestResultType)>&
+        callback) {
+  DCHECK(web_contents);
+  if (resource_type != content::RESOURCE_TYPE_MAIN_FRAME) {
+    // A sub-resource has a certificate error.  The user doesn't really
+    // have a context for making the right decision, so block the
+    // request hard, without an info bar to allow showing the insecure
+    // content.
+    callback.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
+  }
+}
+
 std::vector<std::unique_ptr<content::NavigationThrottle>>
 ShellContentBrowserClient::CreateThrottlesForNavigation(
     content::NavigationHandle* navigation_handle) {

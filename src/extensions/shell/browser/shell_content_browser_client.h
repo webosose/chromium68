@@ -7,7 +7,9 @@
 
 #include "base/compiler_specific.h"
 #include "base/macros.h"
+#include "content/public/browser/certificate_request_result_type.h"
 #include "content/public/browser/content_browser_client.h"
+#include "content/public/common/resource_type.h"
 
 class GURL;
 
@@ -17,6 +19,7 @@ class CommandLine;
 
 namespace content {
 class BrowserContext;
+class WebContents;
 }
 
 namespace extensions {
@@ -85,6 +88,16 @@ class ShellContentBrowserClient : public content::ContentBrowserClient {
       bool is_main_frame,
       ui::PageTransition page_transition,
       bool has_user_gesture) override;
+  void AllowCertificateError(
+      content::WebContents* web_contents,
+      int cert_error,
+      const net::SSLInfo& ssl_info,
+      const GURL& request_url,
+      content::ResourceType resource_type,
+      bool strict_enforcement,
+      bool expired_previous_decision,
+      const base::Callback<void(content::CertificateRequestResultType)>&
+          callback) override;
 
  protected:
   // Subclasses may wish to provide their own ShellBrowserMainParts.
