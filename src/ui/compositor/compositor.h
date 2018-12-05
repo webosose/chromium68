@@ -401,7 +401,6 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
   void DidCompletePageScaleAnimation() override {}
 
   bool IsForSubframe() override;
-  void WillSwapOnImplThread() override{};
 
   // cc::LayerTreeHostSingleThreadClient implementation.
   void DidSubmitCompositorFrame() override;

@@ -87,7 +87,6 @@
 #include "third_party/blink/public/web/web_local_frame.h"
 #include "third_party/blink/public/web/web_node.h"
 #include "third_party/blink/public/web/web_page_popup.h"
-#include "third_party/blink/public/web/web_performance.h"
 #include "third_party/blink/public/web/web_popup_menu_info.h"
 #include "third_party/blink/public/web/web_range.h"
 #include "third_party/blink/public/web/web_settings.h"
@@ -411,9 +410,6 @@ RenderWidget::RenderWidget(
       current_content_source_id_(0),
       widget_binding_(this, std::move(widget_request)),
       task_runner_(task_runner),
-      meaningful_paint_detected_(0.),
-      meaningful_paint_sent_(0.),
-      sender_for_impl_thread_(nullptr),
       weak_ptr_factory_(this) {
   DCHECK_NE(routing_id_, MSG_ROUTING_NONE);
   if (!swapped_out)
@@ -426,9 +422,6 @@ RenderWidget::RenderWidget(
                                           ->GetWebMainThreadScheduler()
                                           ->NewRenderWidgetSchedulingState();
     render_widget_scheduling_state_->SetHidden(is_hidden_);
-    // to send message on the impl thread directly
-    sender_for_impl_thread_ =
-        RenderThreadImpl::current()->sync_message_filter();
   }
 #if defined(USE_AURA)
   RendererWindowTreeClient::CreateIfNecessary(routing_id_);
@@ -1016,15 +1009,6 @@ void RenderWidget::UpdateVisualState(VisualStateUpdate requested_update) {
     RecordTimeToFirstActivePaint();
     first_update_visual_state_after_hidden_ = false;
   }
-  // Stores meaningful paint detected time to notice to browser process
-  blink::WebFrameWidget* frame_widget = GetFrameWidget();
-  if (!frame_widget)
-    return;
-
-  blink::WebLocalFrame* local_root = frame_widget->LocalRoot();
-  if (local_root)
-    meaningful_paint_detected_ =
-        local_root->Performance().FirstMeaningfulPaintCandidate();
 }
 
 void RenderWidget::RecordTimeToFirstActivePaint() {
@@ -1059,18 +1043,6 @@ void RenderWidget::WillBeginCompositorFrame() {
 
   for (auto& observer : render_frame_proxies_)
     observer.WillBeginCompositorFrame();
-}
-
-void RenderWidget::WillSwapOnImplThread() {
-  if (!sender_for_impl_thread_)
-    return;
-
-  // notify a frame for meaningful paint will swap soon
-  if (meaningful_paint_detected_ > meaningful_paint_sent_) {
-    sender_for_impl_thread_->Send(new ViewHostMsg_WillSwapMeaningfulPaint(
-        routing_id_, meaningful_paint_detected_));
-    meaningful_paint_sent_ = meaningful_paint_detected_;
-  }
 }
 
 std::unique_ptr<cc::SwapPromise> RenderWidget::RequestCopyOfOutputForLayoutTest(

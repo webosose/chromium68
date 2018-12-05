@@ -769,8 +769,6 @@ bool WebContentsImpl::OnMessageReceived(RenderViewHostImpl* render_view_host,
   IPC_BEGIN_MESSAGE_MAP_WITH_PARAM(WebContentsImpl, message, render_view_host)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DidFirstVisuallyNonEmptyPaint,
                         OnFirstVisuallyNonEmptyPaint)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_WillSwapMeaningfulPaint,
-                        OnWillSwapMeaningfulPaint)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GoToEntryAtOffset, OnGoToEntryAtOffset)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateZoomLimits, OnUpdateZoomLimits)
     IPC_MESSAGE_HANDLER(ViewHostMsg_PageScaleFactorChanged,
@@ -4596,11 +4594,6 @@ void WebContentsImpl::OnFirstVisuallyNonEmptyPaint(RenderViewHostImpl* source) {
       observer.DidChangeThemeColor(theme_color_);
     last_sent_theme_color_ = theme_color_;
   }
-}
-
-void WebContentsImpl::OnWillSwapMeaningfulPaint(double detected_time) {
-  for (auto& observer : observers_)
-    observer.WillSwapMeaningfulPaint(detected_time);
 }
 
 void WebContentsImpl::NotifyBeforeFormRepostWarningShow() {

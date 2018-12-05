@@ -2670,9 +2670,6 @@ void LayerTreeHostImpl::ActivateSyncTree() {
     if (!pending_tree_->LayerListIsEmpty())
       pending_tree_->property_trees()->ResetAllChangeTracking();
 
-    // Notify this tree will be swapped soon.
-    pending_tree_->NotifyWillSwapToHostClient();
-
     active_tree_->lifecycle().AdvanceTo(LayerTreeLifecycle::kNotSyncing);
 
     // Now that we've synced everything from the pending tree to the active

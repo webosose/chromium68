@@ -44,20 +44,16 @@ class MojoAppRuntimeHostImpl : public mojom::AppRuntimeHost {
 
   void SetDelegate(WebViewDelegate* delegate) { web_view_delegate_ = delegate; }
   void ResetStateToMarkNextPaintForContainer();
-  void WillSwapMeaningfulPaint(double detected_time);
 
   // mojom::AppRuntimeClient implementation.
-  void DidFirstMeaningfulPaint(double fmp_detected) override;
+  void DidFirstMeaningfulPaint() override;
   void DidNonFirstMeaningfulPaint() override;
   void DidClearWindowObject() override;
   void DoLaunchSettingsApplication(int target_id) override;
 
  private:
   void LoadVisuallyCommitted();
-  void LoadVisuallyCommittedIfNeed();
   content::WebContentsFrameBindingSet<mojom::AppRuntimeHost> bindings_;
-  double first_meaningful_paint_detected_;
-  double arriving_meaningful_paint_;
   bool load_visually_committed_;
   WebViewDelegate* web_view_delegate_ = nullptr;
 };
@@ -258,7 +254,6 @@ class WebView : public content::WebContentsDelegate,
   void RenderProcessGone(base::TerminationStatus status) override;
   void DocumentLoadedInFrame(content::RenderFrameHost* frame_host) override;
   void DidReceiveCompositorFrame() override;
-  void WillSwapMeaningfulPaint(double detected_time) override;
   void TitleWasSet(content::NavigationEntry* entry) override;
   void LoadingStateChanged(content::WebContents* source,
                            bool to_different_document) override;

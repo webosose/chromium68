@@ -99,8 +99,7 @@ LayerTreeImpl::LayerTreeImpl(
       browser_controls_shrink_blink_size_(false),
       top_controls_height_(0),
       bottom_controls_height_(0),
-      top_controls_shown_ratio_(top_controls_shown_ratio),
-      source_host_client_(nullptr) {
+      top_controls_shown_ratio_(top_controls_shown_ratio) {
   property_trees()->is_main_thread = false;
 }
 
@@ -2208,13 +2207,6 @@ void LayerTreeImpl::ResetAllChangeTracking() {
   for (auto& layer : *layers_)
     layer->ResetChangeTracking();
   property_trees_.ResetAllChangeTracking();
-}
-
-void LayerTreeImpl::NotifyWillSwapToHostClient() {
-  if (source_host_client_) {
-    source_host_client_->WillSwapOnImplThread();
-    source_host_client_ = nullptr;
-  }
 }
 
 }  // namespace cc

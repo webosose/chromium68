@@ -558,9 +558,6 @@ void ProxyImpl::ScheduledActionCommit() {
       allow_cross_thread_ref_count_access;
 
   host_impl_->BeginCommit();
-  // Should do after begin commit (pending_tree created)
-  host_impl_->pending_tree()->PrepareNotifyWillSwap(
-      blocked_main_commit().layer_tree_host->client());
   blocked_main_commit().layer_tree_host->FinishCommitOnImplThread(
       host_impl_.get());
 

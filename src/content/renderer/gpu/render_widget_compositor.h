@@ -209,7 +209,6 @@ class CONTENT_EXPORT RenderWidgetCompositor
   void DidReceiveCompositorFrameAck() override;
   void DidCompletePageScaleAnimation() override;
   bool IsForSubframe() override;
-  void WillSwapOnImplThread() override;
 
   // cc::LayerTreeHostSingleThreadClient implementation.
   void RequestScheduleAnimation() override;

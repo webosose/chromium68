@@ -87,8 +87,6 @@ class CONTENT_EXPORT RenderWidgetCompositorDelegate {
   // perform actual painting work.
   virtual void WillBeginCompositorFrame() = 0;
 
-  virtual void WillSwapOnImplThread() = 0;
-
   // For use in layout test mode only, attempts to copy the full content of the
   // compositor.
   virtual std::unique_ptr<cc::SwapPromise> RequestCopyOfOutputForLayoutTest(

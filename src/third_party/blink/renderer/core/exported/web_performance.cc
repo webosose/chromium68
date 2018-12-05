@@ -166,11 +166,6 @@ double WebPerformance::FirstMeaningfulPaint() const {
   return MillisecondsToSeconds(private_->timing()->FirstMeaningfulPaint());
 }
 
-double WebPerformance::FirstMeaningfulPaintCandidate() const {
-  return MillisecondsToSeconds(
-      private_->timing()->FirstMeaningfulPaintCandidate());
-}
-
 double WebPerformance::PageInteractive() const {
   return MillisecondsToSeconds(private_->timing()->PageInteractive());
 }

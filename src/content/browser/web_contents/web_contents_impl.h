@@ -1233,7 +1233,6 @@ class CONTENT_EXPORT WebContentsImpl : public WebContents,
   void OnUpdateFaviconURL(RenderFrameHostImpl* source,
                           const std::vector<FaviconURL>& candidates);
   void OnFirstVisuallyNonEmptyPaint(RenderViewHostImpl* source);
-  void OnWillSwapMeaningfulPaint(double detected_time);
   void OnShowValidationMessage(RenderViewHostImpl* source,
                                const gfx::Rect& anchor_in_root_view,
                                const base::string16& main_text,
