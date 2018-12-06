@@ -23,6 +23,10 @@ namespace views {
 class NativeEventDelegate;
 }
 
+namespace wm {
+class ScopedTooltipDisabler;
+}
+
 namespace app_runtime {
 class WebAppWindow;
 
@@ -34,6 +38,7 @@ class AppRuntimeDesktopNativeWidgetAura : public views::DesktopNativeWidgetAura 
   void SetNativeEventDelegate(views::NativeEventDelegate*);
   // Overridden from views::DesktopNativeWidgetAura:
   views::NativeEventDelegate* GetNativeEventDelegate() const override;
+  void InitNativeWidget(const views::Widget::InitParams& params) override;
 
  protected:
   ~AppRuntimeDesktopNativeWidgetAura() override;
@@ -41,6 +46,7 @@ class AppRuntimeDesktopNativeWidgetAura : public views::DesktopNativeWidgetAura 
  private:
   WebAppWindow* webapp_window_;
   views::NativeEventDelegate* native_event_delegate_;
+  std::unique_ptr<wm::ScopedTooltipDisabler> tooltip_disabler_;
 
   DISALLOW_COPY_AND_ASSIGN(AppRuntimeDesktopNativeWidgetAura);
 };

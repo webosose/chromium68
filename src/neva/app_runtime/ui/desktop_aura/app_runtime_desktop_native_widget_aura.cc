@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "neva/app_runtime/ui/desktop_aura/app_runtime_desktop_native_widget_aura.h"
-
 #include "neva/app_runtime/webapp_window.h"
+#include "ui/wm/public/scoped_tooltip_disabler.h"
 
 namespace app_runtime {
 
@@ -43,6 +43,13 @@ void AppRuntimeDesktopNativeWidgetAura::SetNativeEventDelegate(
 
 views::NativeEventDelegate* AppRuntimeDesktopNativeWidgetAura::GetNativeEventDelegate() const {
   return native_event_delegate_;
+}
+
+void AppRuntimeDesktopNativeWidgetAura::InitNativeWidget(
+    const views::Widget::InitParams& params) {
+  DesktopNativeWidgetAura::InitNativeWidget(params);
+  tooltip_disabler_.reset(
+      new wm::ScopedTooltipDisabler(GetNativeView()->GetRootWindow()));
 }
 
 }  // namespace app_runtime
