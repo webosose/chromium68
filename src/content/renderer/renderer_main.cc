@@ -180,7 +180,7 @@ int RendererMain(const MainFunctionParams& parameters) {
   std::unique_ptr<base::MessagePump> pump(new base::MessagePumpNSRunLoop());
   std::unique_ptr<base::MessageLoop> main_message_loop(
       new base::MessageLoop(std::move(pump)));
-#elif defined(OS_WEBOS) && defined(USE_INJECTIONS)
+#elif defined(USE_CBE) && defined(USE_INJECTIONS) //TODO: AGL uses glib timers (Add OS_AGL later?)
   // The main message loop of the renderer services for WEBOS should be UI (luna bus require glib message pump).
   std::unique_ptr<base::MessageLoop> main_message_loop(new base::MessageLoop(base::MessageLoop::TYPE_UI));
 #else
