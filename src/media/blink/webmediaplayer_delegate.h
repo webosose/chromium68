@@ -79,7 +79,8 @@ class WebMediaPlayerDelegate {
     virtual void OnDidCommitCompositorFrame() {}
 ///@}
 #if defined(USE_NEVA_MEDIA)
-    virtual void OnSuppressedMediaPlay(bool) {}
+    virtual void OnMediaActivationPermitted() {}
+    virtual void OnSuspend() {}
 #endif
 
     // Called when Picture-in-Picture mode is terminated from the
@@ -179,6 +180,13 @@ class WebMediaPlayerDelegate {
   virtual void SetIsEffectivelyFullscreen(
       int player_id,
       blink::WebFullscreenVideoStatus fullscreen_video_status) = 0;
+
+#if defined(USE_NEVA_MEDIA)
+  virtual void DidMediaCreated(int player_id) = 0;
+  virtual void DidMediaActivated(int player_id) = 0;
+  virtual void DidMediaActivationNeeded(int player_id) = 0;
+  virtual void DidMediaSuspended(int player_id) = 0;
+#endif
 
  protected:
   WebMediaPlayerDelegate() = default;

@@ -72,7 +72,7 @@ bool WebOSMediaClientStub::SelectTrack(std::string& type, int32_t index) {
   return false;
 }
 
-void WebOSMediaClientStub::Suspend() {}
+void WebOSMediaClientStub::Suspend(SuspendReason reason) {}
 
 void WebOSMediaClientStub::Resume() {}
 

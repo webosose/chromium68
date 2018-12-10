@@ -35,6 +35,7 @@
 #include "media/base/media_content_type.h"
 #include "media/base/media_log.h"
 #include "media/base/media_switches.h"
+#include "media/base/neva/media_constants.h"
 #include "media/base/neva/video_util_neva.h"
 #include "media/base/timestamp_constants.h"
 #include "media/blink/neva/mediaplayerneva_factory.h"
@@ -208,7 +209,8 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
       is_fullscreen_(false),
       active_video_region_changed_(false),
       is_video_offscreen_(false),
-      app_id_(params->application_id().Utf8().data()) {
+      app_id_(params->application_id().Utf8().data()),
+      is_loading_(false) {
   DCHECK(main_thread_checker_.CalledOnValidThread());
 
   if (delegate_)
@@ -233,6 +235,8 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
   video_frame_provider_->SetWebLocalFrame(frame);
   video_frame_provider_->SetWebMediaPlayerClient(client);
   SetRenderMode(GetClient()->RenderMode());
+
+  delegate_->DidMediaCreated(delegate_id_);
 }
 
 WebMediaPlayerNeva::~WebMediaPlayerNeva() {
@@ -265,13 +269,16 @@ WebMediaPlayerNeva::~WebMediaPlayerNeva() {
 void WebMediaPlayerNeva::Load(LoadType load_type,
                               const blink::WebMediaPlayerSource& src,
                               CORSMode cors_mode) {
-  FUNC_LOG(1);
-  if (!defer_load_cb_.is_null()) {
-    defer_load_cb_.Run(base::Bind(&WebMediaPlayerNeva::DoLoad, AsWeakPtr(),
-                                  load_type, src.GetAsURL(), cors_mode));
-    return;
-  }
-  DoLoad(load_type, src.GetAsURL(), cors_mode);
+  LOG(ERROR) << __func__;
+
+  DCHECK(src.IsURL());
+
+  is_loading_ = true;
+  pending_load_type_ = load_type;
+  pending_source_ = blink::WebMediaPlayerSource(src.GetAsURL());
+  pending_cors_mode_ = cors_mode;
+
+  delegate_->DidMediaActivationNeeded(delegate_id_);
 }
 
 void WebMediaPlayerNeva::UpdatePlayingState(bool is_playing) {
@@ -367,6 +374,8 @@ void WebMediaPlayerNeva::Play() {
   if (is_suspended_) {
     LOG(INFO) << "block to play on suspended";
     status_on_suspended_ = PlayingStatus;
+    if (!client_->IsSuppressedMediaPlay())
+      delegate_->DidMediaActivationNeeded(delegate_id_);
     return;
   }
 
@@ -471,6 +480,8 @@ void WebMediaPlayerNeva::SetRate(double rate) {
 
   if (is_suspended_) {
     LOG(INFO) << "block to setRate on suspended";
+    if (!client_->IsSuppressedMediaPlay())
+      delegate_->DidMediaActivationNeeded(delegate_id_);
     return;
   }
 
@@ -654,6 +665,7 @@ void WebMediaPlayerNeva::OnMediaMetadataChanged(base::TimeDelta duration,
                                                 bool success) {
   FUNC_LOG(1);
   DCHECK(main_thread_checker_.CalledOnValidThread());
+
   bool need_to_signal_duration_changed = false;
 
   // For HLS streams, the reported duration may be zero for infinite streams.
@@ -686,6 +698,11 @@ void WebMediaPlayerNeva::OnMediaMetadataChanged(base::TimeDelta duration,
 
   if (need_to_signal_duration_changed)
     client_->DurationChanged();
+}
+
+void WebMediaPlayerNeva::OnLoadComplete() {
+  is_loading_ = false;
+  delegate_->DidMediaActivated(delegate_id_);
 }
 
 void WebMediaPlayerNeva::OnPlaybackComplete() {
@@ -735,6 +752,12 @@ void WebMediaPlayerNeva::OnMediaError(int error_type) {
   LOG(ERROR) << __func__ << "("
              << MediaErrorToString((MediaPlayerNeva::MediaError)error_type)
              << ")";
+
+  if (is_loading_) {
+    is_loading_ = false;
+    delegate_->DidMediaActivated(delegate_id_);
+  }
+
   switch (error_type) {
     case MediaPlayerNeva::MEDIA_ERROR_FORMAT:
       UpdateNetworkState(WebMediaPlayer::kNetworkStateFormatError);
@@ -1054,16 +1077,11 @@ blink::WebMediaPlayerClient* WebMediaPlayerNeva::GetClient() {
   return client_;
 }
 
-void WebMediaPlayerNeva::OnSuppressedMediaPlay(bool suppressed) {
-  if (suppressed)
-      Suspend();
-  else
-      Resume();
-}
-
-void WebMediaPlayerNeva::Suspend() {
-  if (is_suspended_)
+void WebMediaPlayerNeva::OnSuspend() {
+  if (is_suspended_) {
+    delegate_->DidMediaSuspended(delegate_id_);
     return;
+  }
 
   is_suspended_ = true;
   status_on_suspended_ = Paused() ? PausedStatus : PlayingStatus;
@@ -1074,12 +1092,26 @@ void WebMediaPlayerNeva::Suspend() {
   if (HasVideo()) {
     video_frame_provider_->SetStorageType(media::VideoFrame::STORAGE_BLACK);
   }
-  player_api_->Suspend();
+  SuspendReason reason = client_->IsSuppressedMediaPlay()
+                             ? SuspendReason::BACKGROUNDED
+                             : SuspendReason::SUSPENDED_BY_POLICY;
+  player_api_->Suspend(reason);
+  delegate_->DidMediaSuspended(delegate_id_);
 }
 
-void WebMediaPlayerNeva::Resume() {
-  if (!is_suspended_)
+void WebMediaPlayerNeva::OnMediaActivationPermitted() {
+  if (is_loading_) {
+    OnLoadPermitted();
     return;
+  }
+  OnResume();
+}
+
+void WebMediaPlayerNeva::OnResume() {
+  if (!is_suspended_) {
+    delegate_->DidMediaActivated(delegate_id_);
+    return;
+  }
 
   is_suspended_ = false;
   player_api_->Resume();
@@ -1099,6 +1131,22 @@ void WebMediaPlayerNeva::Resume() {
     GetClient()->PlaybackStateChanged();
     status_on_suspended_ = UnknownStatus;
   }
+
+  delegate_->DidMediaActivated(delegate_id_);
+}
+
+void WebMediaPlayerNeva::OnLoadPermitted() {
+  LOG(ERROR) << __func__;
+
+  FUNC_LOG(1);
+  if (!defer_load_cb_.is_null()) {
+    defer_load_cb_.Run(
+        base::Bind(&WebMediaPlayerNeva::DoLoad, AsWeakPtr(), pending_load_type_,
+                   pending_source_.GetAsURL(), pending_cors_mode_));
+    return;
+  }
+
+  DoLoad(pending_load_type_, pending_source_.GetAsURL(), pending_cors_mode_);
 }
 
 bool WebMediaPlayerNeva::UsesIntrinsicSize() const {
@@ -1201,14 +1249,14 @@ void WebMediaPlayerNeva::OnFrameHidden() {
   if (!IsBackgroundedSuspendEnabled())
     return;
 
-  Suspend();
+  OnSuspend();
 }
 
 void WebMediaPlayerNeva::OnFrameShown() {
   if (!IsBackgroundedSuspendEnabled())
     return;
 
-  Resume();
+  OnResume();
 }
 
 void WebMediaPlayerNeva::OnDidCommitCompositorFrame() {

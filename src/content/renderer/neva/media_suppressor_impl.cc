@@ -34,24 +34,27 @@ void MediaSuppressorImpl::Bind(
   media_suppressor_binding_.Bind(std::move(request));
 }
 
-void MediaSuppressorImpl::SuspendMedia() {
-    blink::WebLocalFrame* web_frame = render_frame_impl_->GetWebFrame();
-    if (web_frame) {
-      web_frame->SetSuppressMediaPlay(true);
-    }
-    for (auto& observer : render_frame_impl_->observers_) {
-      observer.OnSuppressedMediaPlay(true);
-    }
+void MediaSuppressorImpl::PermitMediaActivation(int player_id) {
+  for (auto& observer : render_frame_impl_->observers_) {
+    observer.OnMediaActivationPermitted(player_id);
+  }
 }
 
-void MediaSuppressorImpl::ResumeMedia() {
-    blink::WebLocalFrame* web_frame = render_frame_impl_->GetWebFrame();
-    if (web_frame) {
-      web_frame->SetSuppressMediaPlay(false);
-    }
-    for (auto& observer : render_frame_impl_->observers_) {
-      observer.OnSuppressedMediaPlay(false);
-    }
+void MediaSuppressorImpl::SetSuppressed(bool is_suppressed) {
+  blink::WebLocalFrame* web_frame = render_frame_impl_->GetWebFrame();
+  if (web_frame)
+    web_frame->SetSuppressMediaPlay(is_suppressed);
+
+  // TODO(neva): Remove this when legacy implementation is deprecated.
+  for (auto& observer : render_frame_impl_->observers_) {
+    observer.OnSuppressedMediaPlay(is_suppressed);
+  }
+}
+
+void MediaSuppressorImpl::SuspendMedia(int player_id) {
+  for (auto& observer : render_frame_impl_->observers_) {
+    observer.OnSuspendMedia(player_id);
+  }
 }
 
 } //namespace neva

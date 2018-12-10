@@ -283,6 +283,14 @@ void PipelineImpl::RendererWrapper::Start(
   // Initialize demuxer.
   fns.Push(base::Bind(&RendererWrapper::InitializeDemuxer, weak_this_));
 
+#if defined(USE_NEVA_MEDIA)
+  // Initialize MediaPlatformAPI. Also ensure before reporting metadata.
+  if (media_platform_api_) {
+    fns.Push(
+        base::Bind(&RendererWrapper::InitializeMediaPlatformAPI, weak_this_));
+  }
+#endif
+
   // Once the demuxer is initialized successfully, media metadata must be
   // available - report the metadata to client. If starting without a renderer
   // we'll complete initialization at this point.
@@ -291,13 +299,6 @@ void PipelineImpl::RendererWrapper::Start(
 
   // Initialize renderer.
   fns.Push(base::Bind(&RendererWrapper::InitializeRenderer, weak_this_));
-
-#if defined(USE_NEVA_MEDIA)
-  // Initialize MediaPlatformAPI
-  if (media_platform_api_)
-    fns.Push(base::Bind(&RendererWrapper::InitializeMediaPlatformAPI,
-        weak_this_));
-#endif
 
   // Run tasks.
   pending_callbacks_ =

@@ -731,8 +731,9 @@ class CONTENT_EXPORT RenderFrameHostImpl
   }
 
 #if defined(USE_NEVA_MEDIA)
-  void SuspendMedia() override;
-  void ResumeMedia() override;
+  void PermitMediaActivation(int player_id) override;
+  void SetSuppressed(bool is_suppressed) override;
+  void SuspendMedia(int player_id) override;
 #endif
 
   // Calls |FlushForTesting()| on Network Service and FrameNavigationControl

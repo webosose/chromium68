@@ -1087,6 +1087,11 @@ const char kV2SandboxedEnabled[] = "v2-sandbox-enabled";
 #endif  // defined(OS_MACOSX)
 
 #if defined(USE_NEVA_MEDIA)
+// The command line parameter indicating that the maximum number of activated
+// media players is limited. That means only provided number of media players
+// can play media at the same time. Other media players will be suspended.
+const char kMaxActivatedMediaPlayers[] = "max-activated-media-players";
+
 const char kMaxTimeupdateEventFrequency[] = "max-timeupdate-event-frequency";
 #endif
 

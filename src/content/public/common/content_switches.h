@@ -314,6 +314,7 @@ extern const char kV2SandboxedEnabled[];
 #endif  // defined(OS_MACOSX)
 
 #if defined(USE_NEVA_MEDIA)
+CONTENT_EXPORT extern const char kMaxActivatedMediaPlayers[];
 CONTENT_EXPORT extern const char kMaxTimeupdateEventFrequency[];
 #endif
 

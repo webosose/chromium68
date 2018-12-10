@@ -1,4 +1,4 @@
-// Copyright (c) 2018 LG Electronics, Inc.
+// Copyright (c) 2019 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,15 +14,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-module content.mojom;
+#ifndef CONTENT_BROWSER_MEDIA_NEVA_MEDIA_STATE_POLICY_FACTORY_H_
+#define CONTENT_BROWSER_MEDIA_NEVA_MEDIA_STATE_POLICY_FACTORY_H_
 
-interface MediaSuppressor {
-  // Send permit media activation to player
-  PermitMediaActivation(int32 player_id);
+#include "content/browser/media/neva/media_state_policy.h"
 
-  // Request set suppressed state.
-  SetSuppressed(bool is_suppressed);
+namespace content {
 
-  // Request suspend media player
-  SuspendMedia(int32 player_id);
+class CONTENT_EXPORT MediaStatePolicyFactory {
+ public:
+  static MediaStatePolicy* CreateMediaStatePolicy(
+      MediaStatePolicy::Client* client);
 };
+
+}  // namespace content
+
+#endif  // CONTENT_BROWSER_MEDIA_NEVA_MEDIA_STATE_POLICY_FACTORY_H_

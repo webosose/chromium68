@@ -97,7 +97,7 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
   void SetAudioFocus(bool focus) override;
   bool HasVisibility() const override;
   void SetVisibility(bool) override;
-  void Suspend() override;
+  void Suspend(SuspendReason reason) override;
   void Resume() override;
   // end of media::RendererMediaBuiltinPlayerManagerInterface
   //-----------------------------------------------------------------

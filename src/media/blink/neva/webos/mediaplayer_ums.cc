@@ -247,13 +247,13 @@ void MediaPlayerUMS::SetVisibility(bool visibility) {
     umedia_client_->SetVisibility(visibility);
 }
 
-void MediaPlayerUMS::Suspend() {
+void MediaPlayerUMS::Suspend(SuspendReason reason) {
   FUNC_LOG(1);
   if (is_suspended_)
     return;
 
   is_suspended_ = true;
-  umedia_client_->Suspend();
+  umedia_client_->Suspend(reason);
 }
 
 void MediaPlayerUMS::Resume() {
@@ -307,8 +307,10 @@ void MediaPlayerUMS::OnBufferingState(
           videoSize.width(), videoSize.height(), true);
     } break;
     case WebOSMediaClient::kLoadCompleted:
+      client_->OnLoadComplete();
       break;
     case WebOSMediaClient::kPreloadCompleted:
+      client_->OnLoadComplete();
       break;
     case WebOSMediaClient::kPrerollCompleted:
       break;

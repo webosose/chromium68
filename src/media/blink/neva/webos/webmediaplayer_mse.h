@@ -28,6 +28,7 @@
 #include "media/blink/neva/video_frame_provider_impl.h"
 #include "media/blink/webmediaplayer_impl.h"
 #include "third_party/blink/public/platform/web_float_point.h"
+#include "third_party/blink/public/platform/web_media_player_source.h"
 #include "third_party/blink/public/platform/web_rect.h"
 #include "ui/gfx/geometry/rect_f.h"
 
@@ -90,7 +91,10 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
   void OnPause() override {}
   void OnVolumeMultiplierUpdate(double multiplier) override {}
   void OnBecamePersistentVideo(bool value) override {}
-  void OnSuppressedMediaPlay(bool) override;
+  void OnSuspend() override;
+  void OnMediaActivationPermitted() override;
+  void OnResume();
+  void OnLoadPermitted();
 
   void SetRenderMode(blink::WebMediaPlayer::RenderMode mode) override;
 
@@ -115,9 +119,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
     PausedStatus,
   };
 
-  void Suspend();
-  void Resume();
-
+  void OnError(PipelineStatus status) override;
   void OnMetadata(PipelineMetadata metadata) override;
 
   std::unique_ptr<VideoFrameProviderImpl> video_frame_provider_;
@@ -135,6 +137,11 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
   gfx::Rect last_computed_rect_in_view_space_;
   bool is_video_offscreen_;
   bool is_fullscreen_;
+
+  bool is_loading_;
+  LoadType pending_load_type_;
+  blink::WebMediaPlayerSource pending_source_;
+  CORSMode pending_cors_mode_;
 
   blink::WebMediaPlayer::RenderMode render_mode_;
 

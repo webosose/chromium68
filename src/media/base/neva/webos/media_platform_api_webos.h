@@ -57,7 +57,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOS : public MediaPlatformAPI {
                     FeedType type) = 0;
   virtual uint64_t GetCurrentTime() = 0;
   virtual bool Seek(base::TimeDelta time) = 0;
-  virtual void Suspend() = 0;
+  virtual void Suspend(SuspendReason reason) = 0;
   virtual void Resume(base::TimeDelta paused_time,
                       RestorePlaybackMode restore_playback_mode) = 0;
   virtual void SetPlaybackRate(float playback_rate) = 0;

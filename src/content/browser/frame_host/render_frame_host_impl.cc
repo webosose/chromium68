@@ -5176,13 +5176,19 @@ mojom::MediaSuppressor* RenderFrameHostImpl::GetMediaSuppressor() {
   return media_suppressor_.get();
 }
 
-void RenderFrameHostImpl::SuspendMedia() {
+void RenderFrameHostImpl::PermitMediaActivation(int player_id) {
   if (GetMediaSuppressor())
-    GetMediaSuppressor()->SuspendMedia();
+    GetMediaSuppressor()->PermitMediaActivation(player_id);
 }
-void RenderFrameHostImpl::ResumeMedia() {
+
+void RenderFrameHostImpl::SetSuppressed(bool is_suppressed) {
   if (GetMediaSuppressor())
-    GetMediaSuppressor()->ResumeMedia();
+    GetMediaSuppressor()->SetSuppressed(is_suppressed);
+}
+
+void RenderFrameHostImpl::SuspendMedia(int player_id) {
+  if (GetMediaSuppressor())
+    GetMediaSuppressor()->SuspendMedia(player_id);
 }
 #endif
 

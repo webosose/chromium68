@@ -359,7 +359,7 @@ void MediaPlatformAPIWebOSGmp::SetPlaybackRate(float playback_rate) {
   }
 }
 
-void MediaPlatformAPIWebOSGmp::Suspend() {
+void MediaPlatformAPIWebOSGmp::Suspend(SuspendReason reason) {
   std::lock_guard<std::recursive_mutex> lock(recursive_mutex_);
   FUNC_THIS_LOG(1) << " media_player_client_=" << media_player_client_.get()
                    << "is_finalized_=" << is_finalized_;

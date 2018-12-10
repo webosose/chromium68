@@ -25,6 +25,10 @@
 #include "content/public/browser/web_contents.h"
 #include "extensions/browser/guest_view/web_view/web_view_guest.h"
 
+#if defined(USE_NEVA_MEDIA)
+#include "content/public/browser/neva/media_state_manager.h"
+#endif
+
 namespace extensions {
 
 namespace {
@@ -207,13 +211,15 @@ void RootWindowController::OnWindowHostStateChanged(aura::WindowTreeHost* host,
             // Suspend or resume only for non-suspended WebViewGuest
             // Embeder will take care of suspended WebViewGuest
 #if defined(USE_NEVA_MEDIA)
-            if (guest_view != nullptr && !guest_view->is_suspended())
-              for (auto* rfh : guest_contents->GetAllFrames()) {
-                if (new_state == ui::WidgetState::MINIMIZED)
-                  rfh->SuspendMedia();
-                else if (new_state == ui::WidgetState::MAXIMIZED)
-                  rfh->ResumeMedia();
+            if (guest_view != nullptr && !guest_view->is_suspended()) {
+              if (new_state == ui::WidgetState::MINIMIZED) {
+                content::MediaStateManager::GetInstance()->SuspendAllMedia(
+                    guest_contents);
+              } else if (new_state == ui::WidgetState::MAXIMIZED) {
+                content::MediaStateManager::GetInstance()->ResumeAllMedia(
+                    guest_contents);
               }
+            }
 #endif
             return false;
           }, new_state));

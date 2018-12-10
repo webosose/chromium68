@@ -81,6 +81,10 @@
 #include "net/appdrm/appdrm_file_manager.h"
 #endif
 
+#if defined(USE_NEVA_MEDIA)
+#include "content/public/browser/neva/media_state_manager.h"
+#endif
+
 #if defined(ENABLE_PLUGINS)
 void GetPluginsCallback(const std::vector<content::WebPluginInfo>& plugins) {
 }
@@ -268,15 +272,15 @@ void WebView::ResumeDOM() {
 
 void WebView::SuspendMedia() {
 #if defined(USE_NEVA_MEDIA)
-  for (auto* rfh : web_contents_->GetAllFrames())
-    rfh->SuspendMedia();
+  content::MediaStateManager::GetInstance()->SuspendAllMedia(
+      web_contents_.get());
 #endif
 }
 
 void WebView::ResumeMedia() {
 #if defined(USE_NEVA_MEDIA)
-  for (auto* rfh : web_contents_->GetAllFrames())
-    rfh->ResumeMedia();
+  content::MediaStateManager::GetInstance()->ResumeAllMedia(
+      web_contents_.get());
 #endif
 }
 

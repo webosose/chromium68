@@ -80,7 +80,7 @@ class UMediaClientImpl : public WebOSMediaClient,
   double GetPlaybackVolume() const override { return volume_; }
   void SetPlaybackVolume(double volume, bool forced = false) override;
   bool SelectTrack(std::string& type, int32_t index) override;
-  void Suspend() override;
+  void Suspend(SuspendReason reason) override;
   void Resume() override;
   void SetPreload(Preload preload) override;
   std::string MediaId() override;

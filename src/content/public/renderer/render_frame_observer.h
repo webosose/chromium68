@@ -153,6 +153,11 @@ class CONTENT_EXPORT RenderFrameObserver : public IPC::Listener,
 #if defined(USE_NEVA_MEDIA)
   // Called when a compositor frame has committed.
   virtual void DidCommitCompositorFrame() {}
+  virtual void OnMediaActivationPermitted(int player_id) {}
+  virtual void OnSuspendMedia(int player_id) {}
+
+  // Called when this RenderFrame is suspended or resumed.
+  // This interface is used for supporting legacy implementation.
   virtual void OnSuppressedMediaPlay(bool suppressed) {}
 #endif
 

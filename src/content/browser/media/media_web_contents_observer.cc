@@ -20,6 +20,10 @@
 #include "third_party/blink/public/platform/web_fullscreen_video_status.h"
 #include "ui/gfx/geometry/size.h"
 
+#if defined(USE_NEVA_MEDIA)
+#include "content/public/browser/neva/media_state_manager.h"
+#endif
+
 namespace content {
 
 namespace {
@@ -63,6 +67,10 @@ MediaWebContentsObserver::~MediaWebContentsObserver() = default;
 
 void MediaWebContentsObserver::WebContentsDestroyed() {
   GetAudibleMetrics()->UpdateAudibleWebContentsState(web_contents(), false);
+
+#if defined(USE_NEVA_MEDIA)
+  MediaStateManager::GetInstance()->OnWebContentsDestroyed(web_contents());
+#endif
 }
 
 void MediaWebContentsObserver::RenderFrameDeleted(
@@ -74,6 +82,10 @@ void MediaWebContentsObserver::RenderFrameDeleted(
     picture_in_picture_allowed_in_fullscreen_.reset();
     fullscreen_player_.reset();
   }
+
+#if defined(USE_NEVA_MEDIA)
+  MediaStateManager::GetInstance()->OnRenderFrameDeleted(render_frame_host);
+#endif
 }
 
 void MediaWebContentsObserver::MaybeUpdateAudibleState() {
@@ -142,6 +154,16 @@ bool MediaWebContentsObserver::OnMessageReceived(
     IPC_MESSAGE_HANDLER(
         MediaPlayerDelegateHostMsg_OnPictureInPictureSurfaceChanged,
         OnPictureInPictureSurfaceChanged)
+#if defined(USE_NEVA_MEDIA)
+    IPC_MESSAGE_HANDLER(MediaPlayerDelegateHostMsg_OnMediaActivated,
+                        OnMediaActivated)
+    IPC_MESSAGE_HANDLER(MediaPlayerDelegateHostMsg_OnMediaActivationRequested,
+                        OnMediaActivationRequested)
+    IPC_MESSAGE_HANDLER(MediaPlayerDelegateHostMsg_OnMediaCreated,
+                        OnMediaCreated)
+    IPC_MESSAGE_HANDLER(MediaPlayerDelegateHostMsg_OnMediaSuspended,
+                        OnMediaSuspended)
+#endif  // define(USE_NEVA_MEDIA)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -186,6 +208,11 @@ void MediaWebContentsObserver::OnMediaDestroyed(
     RenderFrameHost* render_frame_host,
     int delegate_id) {
   OnMediaPaused(render_frame_host, delegate_id, true);
+
+#if defined(USE_NEVA_MEDIA)
+  MediaStateManager::GetInstance()->OnMediaDestroyed(render_frame_host,
+                                                     delegate_id);
+#endif
 }
 
 void MediaWebContentsObserver::OnMediaPaused(RenderFrameHost* render_frame_host,
@@ -487,5 +514,35 @@ void MediaWebContentsObserver::RemoveAllMediaPlayerEntries(
 WebContentsImpl* MediaWebContentsObserver::web_contents_impl() const {
   return static_cast<WebContentsImpl*>(web_contents());
 }
+
+#if defined(USE_NEVA_MEDIA)
+void MediaWebContentsObserver::OnMediaActivated(
+    RenderFrameHost* render_frame_host,
+    int delegate_id) {
+  MediaStateManager::GetInstance()->OnMediaActivated(render_frame_host,
+                                                     delegate_id);
+}
+
+void MediaWebContentsObserver::OnMediaActivationRequested(
+    RenderFrameHost* render_frame_host,
+    int delegate_id) {
+  MediaStateManager::GetInstance()->OnMediaActivationRequested(
+      render_frame_host, delegate_id);
+}
+
+void MediaWebContentsObserver::OnMediaCreated(
+    RenderFrameHost* render_frame_host,
+    int delegate_id) {
+  MediaStateManager::GetInstance()->OnMediaCreated(render_frame_host,
+                                                   delegate_id);
+}
+
+void MediaWebContentsObserver::OnMediaSuspended(
+    RenderFrameHost* render_frame_host,
+    int delegate_id) {
+  MediaStateManager::GetInstance()->OnMediaSuspended(render_frame_host,
+                                                     delegate_id);
+}
+#endif  // defined(USE_NEVA_MEDIA)
 
 }  // namespace content

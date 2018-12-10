@@ -1,4 +1,4 @@
-# Copyright (c) 2018 LG Electronics, Inc.
+# Copyright (c) 2019 LG Electronics, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,27 +14,23 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import("//neva/neva.gni")
-
 source_set("neva") {
+  public_deps = [
+    "//skia:skia",
+    "//third_party/blink/public:mojo_bindings",
+    "//third_party/boringssl:boringssl",
+  ]
+
   sources = [
-    "media_constants.h",
-    "media_platform_api.cc",
-    "media_platform_api.h",
-    "media_type_restriction.h",
-    "neva_mime_util_internal.h",
-    "video_util_neva.cc",
-    "video_util_neva.h",
+    "default_media_state_policy.cc",
+    "default_media_state_policy.h",
+    "limited_media_activation_count_policy.cc",
+    "limited_media_activation_count_policy.h",
+    "media_state_manager_impl.cc",
+    "media_state_manager_impl.h",
+    "media_state_policy.cc",
+    "media_state_policy.h",
+    "media_state_policy_factory.cc",
+    "media_state_policy_factory.h",
   ]
-
-  deps = [
-    "//skia",
-    "//third_party/jsoncpp",
-  ]
-
-  if (is_webos) {
-    deps += [ "//media/base/neva/webos" ]
-  } else {
-    sources += [ "neva_mime_util_internal_stub.cc" ]
-  }
 }

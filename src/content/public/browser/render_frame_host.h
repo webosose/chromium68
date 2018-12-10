@@ -302,8 +302,9 @@ class CONTENT_EXPORT RenderFrameHost : public IPC::Listener,
   virtual void ViewSource() = 0;
 
 #if defined(USE_NEVA_MEDIA)
-  virtual void SuspendMedia() = 0;
-  virtual void ResumeMedia() = 0;
+  virtual void PermitMediaActivation(int player_id) = 0;
+  virtual void SetSuppressed(bool is_suppressed) = 0;
+  virtual void SuspendMedia(int player_id) = 0;
 #endif
 
  private:

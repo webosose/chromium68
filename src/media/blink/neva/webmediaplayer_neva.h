@@ -42,6 +42,7 @@
 #include "third_party/blink/public/platform/web_float_point.h"
 #include "third_party/blink/public/platform/web_media_player.h"
 #include "third_party/blink/public/platform/web_media_player_client.h"
+#include "third_party/blink/public/platform/web_media_player_source.h"
 #include "third_party/blink/public/platform/web_rect.h"
 #include "third_party/blink/public/platform/web_size.h"
 #include "third_party/blink/public/platform/web_string.h"
@@ -194,6 +195,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
                               int width,
                               int height,
                               bool success) override;
+  void OnLoadComplete() override;
   void OnPlaybackComplete() override;
   void OnBufferingUpdate(int percentage) override;
   // void OnBufferingUpdate(double begin, double end) override;
@@ -251,7 +253,10 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   void OnBecamePersistentVideo(bool value) override {}
   void OnPictureInPictureModeEnded() override {}
   void OnDidCommitCompositorFrame() override;
-  void OnSuppressedMediaPlay(bool) override;
+  void OnSuspend() override;
+  void OnMediaActivationPermitted() override;
+  void OnResume();
+  void OnLoadPermitted();
 
   blink::WebAudioSourceProvider* GetAudioSourceProvider() override;
 
@@ -314,9 +319,6 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   // Returns true if the geometry has been changed since the last call.
   bool UpdateBoundaryRectangle();
 #endif  // defined(VIDEO_HOLE)
-
-  void Suspend();
-  void Resume();
 
   // Getter method to |client_|.
   blink::WebMediaPlayerClient* GetClient();
@@ -468,6 +470,11 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   blink::WebRect ScaleWebRect(const blink::WebRect& rect,
                               blink::WebFloatPoint scale);
   std::string app_id_;
+
+  bool is_loading_;
+  LoadType pending_load_type_;
+  blink::WebMediaPlayerSource pending_source_;
+  CORSMode pending_cors_mode_;
 
   DISALLOW_COPY_AND_ASSIGN(WebMediaPlayerNeva);
 };

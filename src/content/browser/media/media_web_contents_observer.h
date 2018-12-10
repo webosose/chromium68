@@ -165,6 +165,14 @@ class CONTENT_EXPORT MediaWebContentsObserver : public WebContentsObserver {
   // Convenience method that casts web_contents() to a WebContentsImpl*.
   WebContentsImpl* web_contents_impl() const;
 
+#if defined(USE_NEVA_MEDIA)
+  void OnMediaActivated(RenderFrameHost* render_frame_host, int player_id);
+  void OnMediaActivationRequested(RenderFrameHost* render_frame_host,
+                                  int player_id);
+  void OnMediaCreated(RenderFrameHost* render_frame_host, int player_id);
+  void OnMediaSuspended(RenderFrameHost* render_frame_host, int player_id);
+#endif
+
   // Tracking variables and associated wake locks for media playback.
   ActiveMediaPlayerMap active_audio_players_;
   ActiveMediaPlayerMap active_video_players_;

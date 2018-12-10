@@ -1,4 +1,4 @@
-// Copyright (c) 2018 LG Electronics, Inc.
+// Copyright (c) 2019 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-module content.mojom;
+#ifndef MEDIA_BASE_NEVA_MEDIA_CONSTANTS_H_
+#define MEDIA_BASE_NEVA_MEDIA_CONSTANTS_H_
 
-interface MediaSuppressor {
-  // Send permit media activation to player
-  PermitMediaActivation(int32 player_id);
+namespace media {
 
-  // Request set suppressed state.
-  SetSuppressed(bool is_suppressed);
+enum class SuspendReason { BACKGROUNDED, SUSPENDED_BY_POLICY };
 
-  // Request suspend media player
-  SuspendMedia(int32 player_id);
-};
+}  // namespace media
+
+#endif  // MEDIA_BASE_NEVA_MEDIA_CONSTANTS_H_

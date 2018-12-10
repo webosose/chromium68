@@ -10,6 +10,7 @@ import("//build/config/ui.gni")
 import("//gpu/vulkan/features.gni")
 import("//media/media_options.gni")
 import("//net/features.gni")
+import("//neva/neva.gni")
 import("//ppapi/buildflags/buildflags.gni")
 import("//printing/buildflags/buildflags.gni")
 import("//third_party/blink/public/public_features.gni")
@@ -1792,6 +1793,10 @@ jumbo_source_set("browser") {
     "webui/web_ui_url_loader_factory.cc",
     "webui/web_ui_url_loader_factory_internal.h",
   ]
+
+  if (use_neva_media) {
+    deps += [ "//content/browser/media/neva" ]
+  }
 
   if (toolkit_views) {
     deps += [ "//ui/events" ]

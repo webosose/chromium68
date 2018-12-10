@@ -19,6 +19,7 @@
 
 #include <string>
 #include "base/time/time.h"
+#include "media/base/neva/media_constants.h"
 #include "media/blink/webmediaplayer_delegate.h"
 #include "third_party/blink/public/platform/web_rect.h"
 #include "ui/gfx/geometry/rect_f.h"
@@ -33,6 +34,7 @@ class MediaPlayerNevaClient {
                                       int width,
                                       int height,
                                       bool success) = 0;
+  virtual void OnLoadComplete() = 0;
   virtual void OnPlaybackComplete() = 0;
   virtual void OnBufferingUpdate(int percentage) = 0;
   virtual void OnSeekComplete(const base::TimeDelta& current_time) = 0;
@@ -105,7 +107,7 @@ class MediaPlayerNeva {
       bool fullScreen, bool forced = false) {}
   virtual bool UsesIntrinsicSize() const = 0;
   virtual std::string MediaId() const = 0;
-  virtual void Suspend() {}
+  virtual void Suspend(SuspendReason reason) {}
   virtual void Resume() {}
   virtual bool HasAudioFocus() const = 0;
   virtual void SetAudioFocus(bool focus) = 0;

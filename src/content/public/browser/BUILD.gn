@@ -4,6 +4,7 @@
 
 import("//build/config/jumbo.gni")
 import("//build/config/ui.gni")
+import("//neva/neva.gni")
 
 # See //content/BUILD.gn for how this works.
 group("browser") {
@@ -322,6 +323,10 @@ jumbo_source_set("browser_sources") {
     "web_contents_delegate_neva.cc",
     "web_contents_delegate_neva.h",
   ]
+
+  if (use_neva_media) {
+    sources += [ "neva/media_state_manager.h" ]
+  }
 
   configs += [
     "//build/config:precompiled_headers",

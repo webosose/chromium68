@@ -21,6 +21,7 @@
 #include "base/callback_forward.h"
 #include "base/threading/thread.h"
 #include "base/time/time.h"
+#include "media/base/neva/media_constants.h"
 #include "media/base/pipeline.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/geometry/size.h"
@@ -115,7 +116,7 @@ class WebOSMediaClient {
   virtual double GetPlaybackVolume() const = 0;
   virtual void SetPlaybackVolume(double volume, bool forced = false) = 0;
   virtual bool SelectTrack(std::string& type, int32_t index) = 0;
-  virtual void Suspend() = 0;
+  virtual void Suspend(SuspendReason reason) = 0;
   virtual void Resume() = 0;
   virtual void SetPreload(Preload preload) = 0;
   virtual std::string MediaId() = 0;

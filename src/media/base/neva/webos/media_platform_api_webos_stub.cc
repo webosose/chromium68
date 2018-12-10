@@ -61,7 +61,7 @@ bool MediaPlatformAPIWebOSStub::Seek(base::TimeDelta time) {
   return false;
 }
 
-void MediaPlatformAPIWebOSStub::Suspend() {}
+void MediaPlatformAPIWebOSStub::Suspend(SuspendReason reason) {}
 
 void MediaPlatformAPIWebOSStub::Resume(
     base::TimeDelta paused_time,

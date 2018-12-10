@@ -42,7 +42,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSStub : public MediaPlatformAPIWebOS {
   bool Feed(const scoped_refptr<DecoderBuffer>& buffer, FeedType type) override;
   uint64_t GetCurrentTime() override;
   bool Seek(base::TimeDelta time) override;
-  void Suspend() override;
+  void Suspend(SuspendReason reason) override;
   void Resume(base::TimeDelta paused_time,
               RestorePlaybackMode restore_playback_mode) override;
   void SetPlaybackRate(float playback_rate) override;

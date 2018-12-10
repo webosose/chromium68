@@ -69,6 +69,10 @@
 #include "ui/events/keycodes/keyboard_codes.h"
 #include "url/url_constants.h"
 
+#if defined(USE_NEVA_MEDIA)
+#include "content/public/browser/neva/media_state_manager.h"
+#endif
+
 using base::UserMetricsAction;
 using content::GlobalRequestID;
 using content::RenderFrameHost;
@@ -738,8 +742,7 @@ void WebViewGuest::Suspend() {
   is_suspended_ = true;
   base::RecordAction(UserMetricsAction("WebView.Guest.Suspend"));
 #if defined(USE_NEVA_MEDIA)
-  for (auto* rfh : web_contents()->GetAllFrames())
-    rfh->SuspendMedia();
+  content::MediaStateManager::GetInstance()->SuspendAllMedia(web_contents());
 #endif
 
   content::RenderProcessHost* host =
@@ -754,8 +757,7 @@ void WebViewGuest::Resume() {
   is_suspended_ = false;
   base::RecordAction(UserMetricsAction("WebView.Guest.Resume"));
 #if defined(USE_NEVA_MEDIA)
-  for (auto* rfh : web_contents()->GetAllFrames())
-    rfh->ResumeMedia();
+  content::MediaStateManager::GetInstance()->ResumeAllMedia(web_contents());
 #endif
 
   content::RenderProcessHost* host =

@@ -530,13 +530,42 @@ void RendererWebMediaPlayerDelegate::CleanUpIdlePlayers(
 void RendererWebMediaPlayerDelegate::OnDestruct() {
   delete this;
 }
+
 #if defined(USE_NEVA_MEDIA)
-void RendererWebMediaPlayerDelegate::OnSuppressedMediaPlay(bool suppressed) {
-  for (base::IDMap<Observer*>::iterator it(&id_map_); !it.IsAtEnd();
-       it.Advance())
-    it.GetCurrentValue()->OnSuppressedMediaPlay(suppressed);
+// WebMediaPlayerDelegate implementation.
+void RendererWebMediaPlayerDelegate::DidMediaActivated(int player_id) {
+  Send(
+      new MediaPlayerDelegateHostMsg_OnMediaActivated(routing_id(), player_id));
 }
-#endif
+
+void RendererWebMediaPlayerDelegate::DidMediaActivationNeeded(int player_id) {
+  Send(new MediaPlayerDelegateHostMsg_OnMediaActivationRequested(routing_id(),
+                                                                 player_id));
+}
+
+void RendererWebMediaPlayerDelegate::DidMediaCreated(int player_id) {
+  Send(new MediaPlayerDelegateHostMsg_OnMediaCreated(routing_id(), player_id));
+}
+
+void RendererWebMediaPlayerDelegate::DidMediaSuspended(int player_id) {
+  Send(
+      new MediaPlayerDelegateHostMsg_OnMediaSuspended(routing_id(), player_id));
+}
+
+// content::RenderFrameObserver implementation.
+void RendererWebMediaPlayerDelegate::OnMediaActivationPermitted(int player_id) {
+  Observer* observer = id_map_.Lookup(player_id);
+  if (observer)
+    observer->OnMediaActivationPermitted();
+}
+
+void RendererWebMediaPlayerDelegate::OnSuspendMedia(int player_id) {
+  Observer* observer = id_map_.Lookup(player_id);
+  if (observer)
+    observer->OnSuspend();
+}
+#endif  // defined(USE_NEVA_MEDIA)
+
 #if defined(VIDEO_HOLE) && defined(USE_NEVA_MEDIA)
 void RendererWebMediaPlayerDelegate::DidCommitCompositorFrame() {
   // Finally this updates video-hole boundary.
@@ -545,4 +574,5 @@ void RendererWebMediaPlayerDelegate::DidCommitCompositorFrame() {
     it.GetCurrentValue()->OnDidCommitCompositorFrame();
 }
 #endif
+
 }  // namespace media

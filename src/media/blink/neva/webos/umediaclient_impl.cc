@@ -269,12 +269,11 @@ bool UMediaClientImpl::SelectTrack(std::string& type, int32_t index) {
   return false;
 }
 
-void UMediaClientImpl::Suspend() {
-  bool force_unload = false;
+void UMediaClientImpl::Suspend(SuspendReason reason) {
   FUNC_LOG(1) << " - MediaId: " << MediaId();
-
   is_suspended_ = true;
 
+  bool force_unload = false;
 #if defined(USE_GST_MEDIA)
   force_unload = true;
 #endif

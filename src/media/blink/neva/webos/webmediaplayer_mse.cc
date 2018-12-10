@@ -24,6 +24,7 @@
 #include "cc/layers/video_layer.h"
 #include "media/audio/null_audio_sink.h"
 #include "media/base/bind_to_current_loop.h"
+#include "media/base/neva/media_constants.h"
 #include "media/base/neva/video_util_neva.h"
 #include "media/base/neva/webos/media_platform_api_webos.h"
 #include "media/base/renderer_factory_selector.h"
@@ -76,7 +77,8 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
       status_on_suspended_(UnknownStatus),
       is_suspended_(false),
       is_video_offscreen_(false),
-      is_fullscreen_(false) {
+      is_fullscreen_(false),
+      is_loading_(false) {
   THIS_FUNC_LOG(1);
   // Use the null sink for our MSE player
   audio_source_provider_ = new media::WebAudioSourceProviderImpl(
@@ -110,6 +112,8 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
 #endif
 
   SetRenderMode(client_->RenderMode());
+
+  delegate_->DidMediaCreated(delegate_id_);
 }
 
 WebMediaPlayerMSE::~WebMediaPlayerMSE() {
@@ -132,8 +136,15 @@ void WebMediaPlayerMSE::Load(LoadType load_type,
                              const blink::WebMediaPlayerSource& source,
                              CORSMode cors_mode) {
   THIS_FUNC_LOG(1);
-  // call base-class implementation
-  media::WebMediaPlayerImpl::Load(load_type, source, cors_mode);
+
+  DCHECK(source.IsURL());
+
+  is_loading_ = true;
+  pending_load_type_ = load_type;
+  pending_source_ = blink::WebMediaPlayerSource(source.GetAsURL());
+  pending_cors_mode_ = cors_mode;
+
+  delegate_->DidMediaActivationNeeded(delegate_id_);
 }
 
 void WebMediaPlayerMSE::Play() {
@@ -141,6 +152,8 @@ void WebMediaPlayerMSE::Play() {
   DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (is_suspended_) {
     status_on_suspended_ = PlayingStatus;
+    if (!client_->IsSuppressedMediaPlay())
+      delegate_->DidMediaActivationNeeded(delegate_id_);
     return;
   }
   media::WebMediaPlayerImpl::Play();
@@ -159,8 +172,11 @@ void WebMediaPlayerMSE::Pause() {
 void WebMediaPlayerMSE::SetRate(double rate) {
   THIS_FUNC_LOG(1);
   DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (is_suspended_)
+  if (is_suspended_) {
+    if (!client_->IsSuppressedMediaPlay())
+      delegate_->DidMediaActivationNeeded(delegate_id_);
     return;
+  }
   media::WebMediaPlayerImpl::SetRate(rate);
 }
 
@@ -180,38 +196,50 @@ void WebMediaPlayerMSE::SetContentDecryptionModule(
   media::WebMediaPlayerImpl::SetContentDecryptionModule(cdm, result);
 }
 
-void WebMediaPlayerMSE::OnSuppressedMediaPlay(bool suppressed) {
-  if (suppressed)
-      Suspend();
-  else
-      Resume();
-}
-
-void WebMediaPlayerMSE::Suspend() {
+void WebMediaPlayerMSE::OnSuspend() {
   THIS_FUNC_LOG(1) << " is_suspended_ was " << is_suspended_;
-  if (is_suspended_)
+  if (is_suspended_) {
+    delegate_->DidMediaSuspended(delegate_id_);
     return;
+  }
 
   status_on_suspended_ = Paused() ? PausedStatus : PlayingStatus;
 
   if (status_on_suspended_ == PlayingStatus) {
     Pause();
+    client_->PlaybackStateChanged();
   }
 
-  if (media_platform_api_.get())
-    media_platform_api_->Suspend();
+  if (media_platform_api_.get()) {
+    SuspendReason reason = client_->IsSuppressedMediaPlay()
+                               ? SuspendReason::BACKGROUNDED
+                               : SuspendReason::SUSPENDED_BY_POLICY;
+    media_platform_api_->Suspend(reason);
+  }
 
   is_suspended_ = true;
 
   // TODO(neva): also need to set STORAGE_BLACK for VIDEO_HOLE ?
   if (HasVideo() && RenderTexture())
     video_frame_provider_->SetStorageType(media::VideoFrame::STORAGE_BLACK);
+
+  delegate_->DidMediaSuspended(delegate_id_);
 }
 
-void WebMediaPlayerMSE::Resume() {
-  THIS_FUNC_LOG(1) << " is_suspended_ was " << is_suspended_;
-  if (!is_suspended_)
+void WebMediaPlayerMSE::OnMediaActivationPermitted() {
+  if (is_loading_) {
+    OnLoadPermitted();
     return;
+  }
+  OnResume();
+}
+
+void WebMediaPlayerMSE::OnResume() {
+  THIS_FUNC_LOG(1) << " is_suspended_ was " << is_suspended_;
+  if (!is_suspended_) {
+    delegate_->DidMediaActivated(delegate_id_);
+    return;
+  }
   is_suspended_ = false;
 
   media::MediaPlatformAPI::RestorePlaybackMode restore_playback_mode;
@@ -232,14 +260,36 @@ void WebMediaPlayerMSE::Resume() {
     status_on_suspended_ = UnknownStatus;
   } else {
     Play();
+    client_->PlaybackStateChanged();
   }
 
   if (HasVideo() && RenderTexture())
     video_frame_provider_->SetStorageType(media::VideoFrame::STORAGE_OPAQUE);
+
+  delegate_->DidMediaActivated(delegate_id_);
+}
+
+void WebMediaPlayerMSE::OnLoadPermitted() {
+  // call base-class implementation
+  media::WebMediaPlayerImpl::Load(pending_load_type_, pending_source_,
+                                  pending_cors_mode_);
+}
+
+void WebMediaPlayerMSE::OnError(PipelineStatus metadata) {
+  if (is_loading_) {
+    is_loading_ = false;
+    delegate_->DidMediaActivated(delegate_id_);
+  }
+  media::WebMediaPlayerImpl::OnError(metadata);
 }
 
 void WebMediaPlayerMSE::OnMetadata(PipelineMetadata metadata) {
   DCHECK(main_task_runner_->BelongsToCurrentThread());
+
+  if (is_loading_) {
+    is_loading_ = false;
+    delegate_->DidMediaActivated(delegate_id_);
+  }
 
   pipeline_metadata_ = metadata;
 

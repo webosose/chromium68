@@ -79,7 +79,15 @@ class CONTENT_EXPORT RendererWebMediaPlayerDelegate
       blink::WebMediaPlayer::PipWindowResizedCallback) override;
 
 #if defined(USE_NEVA_MEDIA)
-  void OnSuppressedMediaPlay(bool) override;
+  // WebMediaPlayerDelegate implementation.
+  void DidMediaCreated(int player_id) override;
+  void DidMediaActivated(int player_id) override;
+  void DidMediaActivationNeeded(int player_id) override;
+  void DidMediaSuspended(int player_id) override;
+
+  // content::RenderFrameObserver implementation.
+  void OnMediaActivationPermitted(int player_id) override;
+  void OnSuspendMedia(int player_id) override;
 #endif
 
   // content::RenderFrameObserver overrides.

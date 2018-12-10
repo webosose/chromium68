@@ -22,6 +22,7 @@
 #include "base/optional.h"
 #include "media/base/audio_decoder_config.h"
 #include "media/base/decoder_buffer.h"
+#include "media/base/neva/media_constants.h"
 #include "media/base/neva/media_type_restriction.h"
 #include "media/base/pipeline_status.h"
 #include "media/base/video_decoder_config.h"
@@ -58,7 +59,7 @@ class MEDIA_EXPORT MediaPlatformAPI
                     FeedType type) = 0;
   virtual uint64_t GetCurrentTime() = 0;
   virtual bool Seek(base::TimeDelta time) = 0;
-  virtual void Suspend() = 0;
+  virtual void Suspend(SuspendReason reason) = 0;
   virtual void Resume(base::TimeDelta paused_time,
                       RestorePlaybackMode restore_playback_mode) = 0;
   virtual void SetPlaybackRate(float playback_rate) = 0;
