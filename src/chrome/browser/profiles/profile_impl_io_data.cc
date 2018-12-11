@@ -544,10 +544,8 @@ void ProfileImplIOData::OnMainRequestContextCreated(
       base::StringToInt(command_line->GetSwitchValueASCII(
                             switches::kLocalResourceCodeCacheSize),
                         &max_size);
-    code_cache_.reset(new net::CodeCacheImpl(
-        profile_path_, max_size,
-        BrowserThread::GetMessageLoopProxyForThread(BrowserThread::CACHE)));
-    main_context->set_code_cache(code_cache_.get());
+    code_cache_.reset(new net::CodeCacheImpl(profile_path_, max_size));
+    main_request_context()->set_code_cache(code_cache_.get());
   }
 
   lazy_params_.reset();
