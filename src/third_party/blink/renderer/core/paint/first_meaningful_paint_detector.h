@@ -69,7 +69,10 @@ class CORE_EXPORT FirstMeaningfulPaintDetector
   enum DeferFirstMeaningfulPaint {
     kDoNotDefer,
     kDeferOutstandingSwapPromises,
-    kDeferFirstContentfulPaintNotSet
+    kDeferFirstContentfulPaintNotSet,
+#if defined(USE_NEVA_APPRUNTIME)
+    kDeferBackgroundImagesWait,
+#endif
   };
 
   // The page is n-quiet if there are no more than n active network requests for

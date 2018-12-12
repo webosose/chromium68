@@ -1414,6 +1414,9 @@ class CORE_EXPORT Document : public ContainerNode,
 
   bool AddDeferredBackgroundImage();
   void RemoveDeferredBackgroundImage();
+  bool HasDeferredBackgroundImages() {
+    return deferred_background_image_count_ > 0;
+  }
 
 #if DCHECK_IS_ON()
   bool IsSlotAssignmentRecalcForbidden() {

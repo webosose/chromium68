@@ -122,6 +122,7 @@ void MojoAppRuntimeHostImpl::DidFirstMeaningfulPaint() {
 }
 
 void MojoAppRuntimeHostImpl::DidNonFirstMeaningfulPaint() {
+  PMLOG_DEBUG(FMP, "%s %s", __FILE__, __func__);
   LoadVisuallyCommitted();
 }
 
@@ -129,6 +130,7 @@ void MojoAppRuntimeHostImpl::LoadVisuallyCommitted() {
   if (load_visually_committed_)
     return;
   if (web_view_delegate_) {
+    PMLOG_DEBUG(FMP, "%s %s", __FILE__, __func__);
     web_view_delegate_->LoadVisuallyCommitted();
     load_visually_committed_ = true;
   }

@@ -51,6 +51,7 @@ namespace logging {
 
 // Declare context in alpha order
 DECLARE_PMLOG_HEADER(Browser)
+DECLARE_PMLOG_HEADER(FMP)
 DECLARE_PMLOG_HEADER(Gpu)
 DECLARE_PMLOG_HEADER(Memory)
 DECLARE_PMLOG_HEADER(Network)

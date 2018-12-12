@@ -4,6 +4,7 @@
 
 #include "third_party/blink/renderer/core/paint/first_meaningful_paint_detector.h"
 
+#include "base/logging_pmlog.h"
 #include "third_party/blink/public/platform/task_type.h"
 #include "third_party/blink/public/platform/web_layer_tree_view.h"
 #include "third_party/blink/renderer/core/css/font_face_set_document.h"
@@ -87,6 +88,11 @@ void FirstMeaningfulPaintDetector::MarkNextPaintAsMeaningfulIfNeeded(
     significance += accumulated_significance_while_having_blank_text_;
     accumulated_significance_while_having_blank_text_ = 0;
     if (significance > max_significance_so_far_) {
+#if defined(USE_NEVA_APPRUNTIME)
+      PMLOG_DEBUG(
+          FMP, "%s %s (%p) detects NextPaintIsMeaningful as significance(%f)",
+          __FILE__, __func__, this, significance);
+#endif
       next_paint_is_meaningful_ = true;
       max_significance_so_far_ = significance;
     }
@@ -94,6 +100,15 @@ void FirstMeaningfulPaintDetector::MarkNextPaintAsMeaningfulIfNeeded(
 }
 
 void FirstMeaningfulPaintDetector::NotifyPaint() {
+#if defined(USE_NEVA_APPRUNTIME)
+  if (GetDocument() && !GetDocument()->HasDeferredBackgroundImages() &&
+      defer_first_meaningful_paint_ == kDeferBackgroundImagesWait) {
+    defer_first_meaningful_paint_ = kDoNotDefer;
+    next_paint_is_meaningful_ = true;
+    PMLOG_DEBUG(FMP, "%s %s (%p) NoDeferredBackgroundImages anymore", __FILE__,
+                __func__, this);
+  }
+#endif
   if (!next_paint_is_meaningful_)
     return;
 
@@ -108,6 +123,10 @@ void FirstMeaningfulPaintDetector::NotifyPaint() {
 
   had_user_input_before_provisional_first_meaningful_paint_ = had_user_input_;
   provisional_first_meaningful_paint_swap_ = TimeTicks();
+#if defined(USE_NEVA_APPRUNTIME)
+  PMLOG_DEBUG(FMP, "%s %s (%p) registers notify swap time", __FILE__, __func__,
+              this);
+#endif
   RegisterNotifySwapTime(PaintEvent::kProvisionalFirstMeaningfulPaint);
 }
 
@@ -300,6 +319,12 @@ void FirstMeaningfulPaintDetector::ReportSwapTime(
   paint_timing_->ReportSwapResultHistogram(result);
   provisional_first_meaningful_paint_swap_ = timestamp;
 
+#if defined(USE_NEVA_APPRUNTIME)
+  PMLOG_DEBUG(
+      FMP, "%s %s (%p) reports provisional_first_meaningful_paint_swap_ [%f]",
+      __FILE__, __func__, this,
+      TimeTicksInSeconds(provisional_first_meaningful_paint_swap_));
+#endif
   probe::paintTiming(GetDocument(), "firstMeaningfulPaintCandidate",
                      TimeTicksInSeconds(timestamp));
 
@@ -313,13 +338,28 @@ void FirstMeaningfulPaintDetector::ReportSwapTime(
   }
 
 #if defined(USE_NEVA_APPRUNTIME)
-  if (GetDocument()->GetSettings()->NotifyFMPDirectly() ||
-      seen_first_meaningful_paint_candidate_) {
-    first_meaningful_paint2_quiet_ = CurrentTimeTicks();
-    network2_quiet_reached_ = true;
-    SetFirstMeaningfulPaint(first_meaningful_paint2_quiet_,
-                            provisional_first_meaningful_paint_swap_);
-    return;
+  if (GetDocument() && GetDocument()->GetSettings()) {
+    PMLOG_DEBUG(
+        FMP,
+        "%s %s (%p) has NotifyFMPDirectly[%s] "
+        "seen_first_meaningful_paint_candidate_[%s] ",
+        __FILE__, __func__, this,
+        GetDocument()->GetSettings()->NotifyFMPDirectly() ? "true" : "false",
+        seen_first_meaningful_paint_candidate_ ? "true" : "false");
+    if (GetDocument()->GetSettings()->NotifyFMPDirectly() ||
+        seen_first_meaningful_paint_candidate_) {
+      if (GetDocument()->HasDeferredBackgroundImages()) {
+        defer_first_meaningful_paint_ = kDeferBackgroundImagesWait;
+        PMLOG_DEBUG(FMP, "%s %s (%p) document has deferredbackgroundimages",
+                    __FILE__, __func__, this);
+        return;
+      }
+      first_meaningful_paint2_quiet_ = CurrentTimeTicks();
+      network2_quiet_reached_ = true;
+      SetFirstMeaningfulPaint(first_meaningful_paint2_quiet_,
+                              provisional_first_meaningful_paint_swap_);
+      return;
+    }
   }
 #endif
 
@@ -354,6 +394,11 @@ void FirstMeaningfulPaintDetector::SetFirstMeaningfulPaint(
   // This is a no-op if a FMPC has already been marked.
   paint_timing_->SetFirstMeaningfulPaintCandidate(swap_stamp);
 
+#if defined(USE_NEVA_APPRUNTIME)
+  PMLOG_DEBUG(FMP,
+              "%s %s (%p) sets firstMeaningfulPaint swap_time_seconds [%f]",
+              __FILE__, __func__, this, swap_time_seconds);
+#endif
   paint_timing_->SetFirstMeaningfulPaint(
       stamp, swap_stamp,
       had_user_input_before_provisional_first_meaningful_paint_);
@@ -366,6 +411,8 @@ void FirstMeaningfulPaintDetector::StopNetwork2QuietWindowTimer() {
 }
 
 void FirstMeaningfulPaintDetector::ResetStateToMarkNextPaintForContainer() {
+  PMLOG_DEBUG(FMP, "%s %s (%p) resets states for nextFMP", __FILE__, __func__,
+              this);
   next_paint_is_meaningful_ = false;
   had_user_input_ = kNoUserInput;
   had_user_input_before_provisional_first_meaningful_paint_ = kNoUserInput;
@@ -382,8 +429,11 @@ void FirstMeaningfulPaintDetector::ResetStateToMarkNextPaintForContainer() {
 void FirstMeaningfulPaintDetector::NotifyNonFirstMeaningfulPaint() {
   DCHECK(GetDocument());
 
-  if (GetDocument() && GetDocument()->Loader())
+  if (GetDocument() && GetDocument()->Loader()) {
+    PMLOG_DEBUG(FMP, "%s %s (%p) commits non firstmeaningfulpaint after load",
+                __FILE__, __func__, this);
     GetDocument()->Loader()->CommitNonFirstMeaningfulPaintAfterLoad();
+  }
 }
 #endif
 

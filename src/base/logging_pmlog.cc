@@ -53,6 +53,7 @@ namespace logging {
 
 // Declare context in alpha order
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Browser, "chromium.browser")
+DECLARE_PMLOG_FOR_CONTEXT_IMPL(FMP, "chromium.fmp")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Gpu, "chromium.gpu")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Memory, "chromium.memory")
 DECLARE_PMLOG_FOR_CONTEXT_IMPL(Network, "chromium.network")
