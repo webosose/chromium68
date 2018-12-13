@@ -692,7 +692,10 @@ void WebAppWindow::OnMouseEvent(ui::MouseEvent* event) {
       break;
     }
     default:
-      NOTIMPLEMENTED();
+      #if defined(OS_WEBOS)
+        NOTIMPLEMENTED();
+      #endif
+      break;
   }
 }
 
