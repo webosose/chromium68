@@ -111,7 +111,9 @@ void WebAppWindow::WindowHostStateAboutToChange(ui::WidgetState state) {
 }
 
 void WebAppWindow::OnMouseEvent(ui::MouseEvent* event) {
+#if defined(OS_WEBOS)
   NOTIMPLEMENTED();
+#endif
 }
 
 void WebAppWindow::OnKeyEvent(ui::KeyEvent* event) {
