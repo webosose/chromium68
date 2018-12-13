@@ -142,6 +142,13 @@ source_set("wayland") {
     ]
   }
 
+  if (use_glib) {
+    sources += [
+      "wayland_fd_watcher_glib.cc",
+      "wayland_fd_watcher_glib.h",
+    ]
+  }
+
   configs += [
     ":wayland-egl",
     "//third_party/khronos:khronos_headers",
