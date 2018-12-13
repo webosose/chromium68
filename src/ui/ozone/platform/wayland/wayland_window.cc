@@ -21,6 +21,7 @@
 #include "ui/ozone/platform/wayland/xdg_popup_wrapper_v6.h"
 #include "ui/ozone/platform/wayland/xdg_surface_wrapper_v5.h"
 #include "ui/ozone/platform/wayland/xdg_surface_wrapper_v6.h"
+#include "ui/ozone/platform/wayland/ivi_surface_wrapper.h"
 #include "ui/platform_window/platform_window_init_properties.h"
 
 namespace ui {
@@ -28,6 +29,8 @@ namespace ui {
 namespace {
 
 // Factory, which decides which version type of xdg object to build.
+// TODO(msisov): rename this to have a more meaningful name as long
+// ass ivi surface also uses this factory.
 class XDGShellObjectFactory {
  public:
   XDGShellObjectFactory() = default;
@@ -36,7 +39,9 @@ class XDGShellObjectFactory {
   std::unique_ptr<XDGSurfaceWrapper> CreateXDGSurface(
       WaylandConnection* connection,
       WaylandWindow* wayland_window) {
-    if (connection->shell_v6())
+    if (connection->ivi_shell())
+      return std::make_unique<IviSurfaceWrapper>(wayland_window);
+    else if (connection->shell_v6())
       return std::make_unique<XDGSurfaceWrapperV6>(wayland_window);
 
     DCHECK(connection->shell());
@@ -46,6 +51,9 @@ class XDGShellObjectFactory {
   std::unique_ptr<XDGPopupWrapper> CreateXDGPopup(
       WaylandConnection* connection,
       WaylandWindow* wayland_window) {
+    CHECK(!connection->ivi_shell()) <<
+      "There must be no popup windows created when ivi shell is used";
+
     if (connection->shell_v6()) {
       std::unique_ptr<XDGSurfaceWrapper> surface =
           CreateXDGSurface(connection, wayland_window);

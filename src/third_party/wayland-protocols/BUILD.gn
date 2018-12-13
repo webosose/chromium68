@@ -26,6 +26,26 @@ source_set("xdg_shell_protocol") {
   public_configs = [ ":xdg_shell_protocol_config" ]
 }
 
+config("ivi_application_protocol_config") {
+  include_dirs = [ "include/protocol" ]
+}
+
+source_set("ivi_application_protocol") {
+  sources = [
+    "include/protocol/ivi-application-client-protocol.h",
+    "protocol/ivi-application-protocol.c",
+  ]
+
+  deps = [
+    "//third_party/wayland:wayland_util",
+  ]
+
+  configs -= [ "//build/config/compiler:chromium_code" ]
+  configs += [ "//build/config/compiler:no_chromium_code" ]
+
+  public_configs = [ ":ivi_application_protocol_config" ]
+}
+
 config("linux_dmabuf_protocol_config") {
   include_dirs = [ "include/protocol" ]
 }
