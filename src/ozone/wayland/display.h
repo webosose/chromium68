@@ -247,7 +247,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
                   int x,
                   int y,
                   ui::WidgetType type,
-		  int surface_id);
+                  int surface_id);
   void MoveWindow(unsigned widget, unsigned parent,
                   ui::WidgetType type, const gfx::Rect& rect);
   void AddRegion(unsigned widget, int left, int top, int right, int bottom);
