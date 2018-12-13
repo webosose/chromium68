@@ -429,6 +429,9 @@ void WaylandConnection::Global(void* data,
                            connection);
     xdg_shell_use_unstable_version(connection->shell_.get(),
                                    XDG_SHELL_VERSION_CURRENT);
+  } else if (!connection->ivi_application_ && strcmp(interface, "ivi_application") == 0){
+    connection->ivi_application_ = static_cast<ivi_application*>(
+                 wl_registry_bind(registry, name, &ivi_application_interface, 1)); 
   } else if (base::EqualsCaseInsensitiveASCII(interface, "wl_output")) {
     wl::Object<wl_output> output = wl::Bind<wl_output>(registry, name, 1);
     if (!output) {

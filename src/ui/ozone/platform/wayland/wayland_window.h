@@ -78,6 +78,8 @@ class WaylandWindow : public PlatformWindow,
 
   bool is_active() const { return is_active_; }
 
+  int surface_id() const { return surface_id_; }
+
   // WmMoveResizeHandler
   void DispatchHostWindowDragMovement(
       int hittest,
@@ -191,6 +193,8 @@ class WaylandWindow : public PlatformWindow,
   bool is_minimizing_ = false;
 
   bool is_tooltip_ = false;
+
+  int surface_id_ = 0;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandWindow);
 };
