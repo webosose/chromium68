@@ -64,12 +64,12 @@ base::Optional<MediaTypeRestriction> MediaPlatformAPI::GetPlatformRestrictionFor
   if (supported_codec_[type].empty())
     return base::nullopt;
 
-  MediaTypeRestriction restriction =
-      MediaTypeRestriction(supported_codec_[type]["maxWidth"].asInt(),
-                           supported_codec_[type]["maxHeight"].asInt(),
-                           supported_codec_[type]["maxFrameRate"].asInt(),
-                           supported_codec_[type]["maxBitRate"].asInt(),
-                           supported_codec_[type]["channels"].asInt());
+  MediaTypeRestriction restriction = MediaTypeRestriction(
+      supported_codec_[type]["maxWidth"].asInt(),
+      supported_codec_[type]["maxHeight"].asInt(),
+      supported_codec_[type]["maxFrameRate"].asInt(),
+      supported_codec_[type]["maxBitRate"].asInt() * 1024 * 1024,
+      supported_codec_[type]["channels"].asInt());
 
   return restriction;
 }

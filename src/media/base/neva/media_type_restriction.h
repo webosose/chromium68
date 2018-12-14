@@ -39,9 +39,17 @@ struct MediaTypeRestriction {
 
   // Checks to see if the specified |restriction| is supported.
   bool IsSatisfied(const MediaTypeRestriction& restriction) const {
-    return width >= restriction.width && height >= restriction.height &&
-           frame_rate >= restriction.frame_rate &&
-           bit_rate >= restriction.bit_rate && channels >= restriction.channels;
+    if (width && width < restriction.width)
+      return false;
+    if (height && height < restriction.height)
+      return false;
+    if (frame_rate && frame_rate < restriction.frame_rate)
+      return false;
+    if (bit_rate && bit_rate < restriction.bit_rate)
+      return false;
+    if (channels && channels < restriction.channels)
+      return false;
+    return true;
   }
 };
 
