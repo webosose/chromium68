@@ -27,8 +27,9 @@ int GetPlaneFdForBo(gbm_bo* bo, size_t plane) {
 #if defined(MINIGBM)
   return gbm_bo_get_plane_fd(bo, plane);
 #else
-  const int plane_count = gbm_bo_get_plane_count(bo);
-  DCHECK(plane_count > 0 && plane < static_cast<size_t>(plane_count));
+//  const int plane_count = gbm_bo_get_plane_count(bo);
+//  const size_t = gfx::NumberOfPlanesForBufferFormat();
+//  DCHECK(plane_count > 0 && plane < static_cast<size_t>(plane_count));
 
   // System linux gbm (or Mesa gbm) does not provide fds per plane basis. Thus,
   // get plane handle and use drm ioctl to get a prime fd out of it avoid having
@@ -37,7 +38,8 @@ int GetPlaneFdForBo(gbm_bo* bo, size_t plane) {
   int dev_fd = gbm_device_get_fd(gbm_dev);
   DCHECK_GE(dev_fd, 0);
 
-  const uint32_t plane_handle = gbm_bo_get_handle_for_plane(bo, plane).u32;
+  //const uint32_t plane_handle = gbm_bo_get_handle_for_plane(bo, plane).u32;
+  const uint32_t plane_handle = gbm_bo_get_handle(bo).u32;
   int fd = -1;
   int ret;
   // Use DRM_RDWR to allow the fd to be mappable in another process.
@@ -61,7 +63,8 @@ size_t GetSizeOfPlane(gbm_bo* bo, size_t plane) {
   // Mesa gbm here.
   //
   // TODO(msisov): Handle subsampled formats
-  return gbm_bo_get_height(bo) * gbm_bo_get_stride_for_plane(bo, plane);
+  //return gbm_bo_get_height(bo) * gbm_bo_get_stride_for_plane(bo, plane);
+  return gbm_bo_get_height(bo) * gbm_bo_get_stride(bo);
 #endif
 }
 
@@ -125,7 +128,8 @@ class Buffer final : public ui::GbmBuffer {
   }
   uint32_t GetPlaneHandle(size_t plane) const override {
     DCHECK_LT(plane, planes_.size());
-    return gbm_bo_get_handle_for_plane(bo_, plane).u32;
+    //return gbm_bo_get_handle_for_plane(bo_, plane).u32;
+    return gbm_bo_get_handle(bo_).u32;
   }
   uint32_t GetHandle() const override { return gbm_bo_get_handle(bo_).u32; }
   gfx::NativePixmapHandle ExportHandle() const override {
@@ -174,8 +178,10 @@ std::unique_ptr<Buffer> CreateBufferForBO(struct gbm_bo* bo,
   std::vector<base::ScopedFD> fds;
   std::vector<gfx::NativePixmapPlane> planes;
 
-  const uint64_t modifier = gbm_bo_get_modifier(bo);
-  const int plane_count = gbm_bo_get_plane_count(bo);
+  //const uint64_t modifier = gbm_bo_get_modifier(bo);
+  const uint64_t modifier = 0;
+  //const int plane_count = gbm_bo_get_plane_count(bo);
+  const int plane_count = gfx::NumberOfPlanesForBufferFormat(ui::GetBufferFormatFromFourCCFormat(format));
   // The Mesa's gbm implementation explicitly checks whether plane count <= and
   // returns 1 if the condition is true. Nevertheless, use a DCHECK here to make
   // sure the condition is not broken there.
@@ -198,8 +204,11 @@ std::unique_ptr<Buffer> CreateBufferForBO(struct gbm_bo* bo,
       fds.emplace_back(std::move(fd));
     }
 
-    planes.emplace_back(gbm_bo_get_stride_for_plane(bo, i),
-                        gbm_bo_get_offset(bo, i), GetSizeOfPlane(bo, i),
+   // planes.emplace_back(gbm_bo_get_stride_for_plane(bo, i),
+   //                     gbm_bo_get_offset(bo, i), GetSizeOfPlane(bo, i),
+   //                     modifier);
+    planes.emplace_back(gbm_bo_get_stride(bo),
+                        0, GetSizeOfPlane(bo, i),
                         modifier);
   }
   return std::make_unique<Buffer>(bo, format, flags, modifier, std::move(fds),
@@ -227,13 +236,15 @@ class Device final : public ui::GbmDevice {
       const gfx::Size& size,
       uint32_t flags,
       const std::vector<uint64_t>& modifiers) override {
-    struct gbm_bo* bo = gbm_bo_create_with_modifiers(
-        device_, size.width(), size.height(), format, modifiers.data(),
-        modifiers.size());
-    if (!bo)
-      return nullptr;
+   NOTREACHED();
+   return nullptr;
+   // struct gbm_bo* bo = gbm_bo_create_with_modifiers(
+   //     device_, size.width(), size.height(), format, modifiers.data(),
+   //     modifiers.size());
+   // if (!bo)
+   //   return nullptr;
 
-    return CreateBufferForBO(bo, format, size, flags);
+   // return CreateBufferForBO(bo, format, size, flags);
   }
 
   std::unique_ptr<ui::GbmBuffer> CreateBufferFromFds(
@@ -241,6 +252,10 @@ class Device final : public ui::GbmDevice {
       const gfx::Size& size,
       std::vector<base::ScopedFD> fds,
       const std::vector<gfx::NativePixmapPlane>& planes) override {
+#if !defined(OS_CHROMEOS)
+    NOTREACHED();
+    return nullptr;
+#else
     DCHECK_LE(fds.size(), planes.size());
     DCHECK_EQ(planes[0].offset, 0);
 
@@ -292,6 +307,7 @@ class Device final : public ui::GbmDevice {
 
     return std::make_unique<Buffer>(bo, format, gbm_flags, planes[0].modifier,
                                     std::move(fds), size, std::move(planes));
+#endif
   }
 
  private:
