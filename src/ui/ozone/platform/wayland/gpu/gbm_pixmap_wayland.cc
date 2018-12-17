@@ -42,29 +42,29 @@ bool GbmPixmapWayland::InitializeBuffer(gfx::Size size,
   uint32_t flags = 0;
   switch (usage) {
     case gfx::BufferUsage::GPU_READ:
-      flags = GBM_BO_USE_LINEAR;
+      flags = GBM_BO_USE_SCANOUT;
       break;
     case gfx::BufferUsage::SCANOUT:
       flags = GBM_BO_USE_RENDERING | GBM_BO_USE_SCANOUT;
       break;
     case gfx::BufferUsage::SCANOUT_CAMERA_READ_WRITE:
-      flags = GBM_BO_USE_LINEAR | GBM_BO_USE_WRITE | GBM_BO_USE_SCANOUT;
+      flags = GBM_BO_USE_WRITE | GBM_BO_USE_SCANOUT;
       break;
     case gfx::BufferUsage::SCANOUT_CPU_READ_WRITE:
-      flags = GBM_BO_USE_LINEAR | GBM_BO_USE_SCANOUT;
+      flags = GBM_BO_USE_SCANOUT;
       break;
     case gfx::BufferUsage::SCANOUT_VDA_WRITE:
       flags = GBM_BO_USE_SCANOUT;
       break;
     case gfx::BufferUsage::GPU_READ_CPU_READ_WRITE:
     case gfx::BufferUsage::GPU_READ_CPU_READ_WRITE_PERSISTENT:
-      flags = GBM_BO_USE_LINEAR;
+      flags = GBM_BO_USE_SCANOUT;
       break;
     default:
       NOTREACHED() << "Not supported buffer format";
       break;
   }
-
+  
   const uint32_t fourcc_format = GetFourCCFormatFromBufferFormat(format);
   gbm_bo_ = connection_->gbm_device()->CreateBuffer(fourcc_format, size, flags);
   if (!gbm_bo_) {
