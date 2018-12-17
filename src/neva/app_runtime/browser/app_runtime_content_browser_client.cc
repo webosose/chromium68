@@ -109,7 +109,21 @@ void AppRuntimeContentBrowserClient::AllowCertificateError(
     // request hard, without and info bar to allow showing the insecure
     // content.
     callback.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
+    return;
   }
+
+  if (!web_contents) {
+    NOTREACHED();
+    return;
+  }
+
+  content::WebContentsImpl* web_contents_impl =
+      static_cast<content::WebContentsImpl*>(web_contents);
+
+  callback.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
+  web_contents_impl->DidFailLoadWithError(web_contents_impl->GetMainFrame(),
+                                          request_url, cert_error,
+                                          base::ASCIIToUTF16("SSL_ERROR"));
 }
 
 void AppRuntimeContentBrowserClient::AppendExtraCommandLineSwitches(
