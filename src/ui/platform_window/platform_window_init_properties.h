@@ -29,6 +29,9 @@ struct PlatformWindowInitProperties {
   // Tells PlatformWindow which native widget its parent holds. It is usually
   // used to find a parent from internal list of PlatformWindows.
   gfx::AcceleratedWidget parent_widget = gfx::kNullAcceleratedWidget;
+
+  // Surface id, which is used when ivi shell is used.
+  int surface_id = 0;
 };
 
 }  // namespace ui
