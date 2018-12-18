@@ -91,7 +91,6 @@ source_set("wayland") {
     "//mojo/public/cpp/bindings",
     "//skia",
     "//third_party/libdrm",
-    "//third_party/minigbm",
     "//third_party/wayland:wayland_client",
     "//third_party/wayland-protocols:linux_dmabuf_protocol",
     "//third_party/wayland-protocols:presentation_time_protocol", 
