@@ -48,12 +48,9 @@ class STUB_WINDOW_EXPORT StubWindow : public PlatformWindow {
   void MoveCursorTo(const gfx::Point& location) override;
   void ConfineCursorToBounds(const gfx::Rect& bounds) override;
   PlatformImeController* GetPlatformImeController() override;
-<<<<<<< HEAD
   void SetSurfaceId(int surface_id) override;
-=======
   void SetRestoredBoundsInPixels(const gfx::Rect& bounds) override;
   gfx::Rect GetRestoredBoundsInPixels() const override;
->>>>>>> adbdd683f... [BACKPORT] Add implementation for GetRestoredBounds for DesktopWindowTreeHostPlatform
 
   PlatformWindowDelegate* delegate_;
   gfx::Rect bounds_;
