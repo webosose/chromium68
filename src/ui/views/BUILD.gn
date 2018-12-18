@@ -696,8 +696,6 @@ jumbo_component("views") {
         ]
       } else if (use_ozone) {
         sources += [
-          "widget/desktop_aura/desktop_factory_ozone.cc",
-          "widget/desktop_aura/desktop_factory_ozone.h",
           "widget/desktop_aura/desktop_screen_ozone.cc",
           "widget/desktop_aura/desktop_screen_ozone.h",
         ]
