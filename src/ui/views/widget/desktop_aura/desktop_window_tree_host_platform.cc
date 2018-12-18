@@ -83,6 +83,9 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
   ui::PlatformWindowInitProperties properties =
       ConvertWidgetInitParamsToInitProperties(params);
 
+  properties.surface_id = pending_surface_id_;
+  pending_surface_id_ = 0;
+
   CreateAndSetPlatformWindow(properties);
   CreateCompositor(viz::FrameSinkId(), params.force_software_compositing);
   aura::WindowTreeHost::OnAcceleratedWidgetAvailable();
@@ -362,6 +365,13 @@ bool DesktopWindowTreeHostPlatform::SetWindowTitle(
   // TODO: needs PlatformWindow support.
   NOTIMPLEMENTED_LOG_ONCE();
   return false;
+}
+
+void DesktopWindowTreeHostPlatform::SetWindowSurfaceId(int surface_id) {
+  if (platform_window())
+    platform_window()->SetSurfaceId(surface_id);
+  else
+    pending_surface_id_ = surface_id;
 }
 
 void DesktopWindowTreeHostPlatform::ClearNativeFocus() {
