@@ -65,6 +65,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostPlatform
   void SetVisibleOnAllWorkspaces(bool always_visible) override;
   bool IsVisibleOnAllWorkspaces() const override;
   bool SetWindowTitle(const base::string16& title) override;
+  void SetWindowSurfaceId(int surface_id) override;
   void ClearNativeFocus() override;
   Widget::MoveLoopResult RunMoveLoop(
       const gfx::Vector2d& drag_offset,
@@ -118,6 +119,11 @@ class VIEWS_EXPORT DesktopWindowTreeHostPlatform
   bool got_on_closed_ = false;
 
   bool is_active_ = false;
+ 
+  // Some ozone platforms like wayland, may need surface id to be set
+  // to ensure right functionality. Currently, it is only used with
+  // Wayland and ivi_shell.  
+  int pending_surface_id_ = 0;
 
   // A handler for events intended for non client area.
   std::unique_ptr<WindowEventFilter> non_client_window_event_filter_;
