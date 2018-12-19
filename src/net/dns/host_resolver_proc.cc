@@ -232,7 +232,7 @@ int SystemHostResolverCall(const std::string& host,
     err = getaddrinfo(host.c_str(), NULL, &hints, &ai);
   }
 
-  if (err == EAI_SYSTEM) {
+  if (err) {
     PMLOG_INFO(Network, "Network",
                "retry getaddrinfo(host:%s) error(code:%d, str:%s), system "
                "error(code:%d, str:%s)",
