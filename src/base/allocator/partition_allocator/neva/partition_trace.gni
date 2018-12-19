@@ -14,11 +14,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import("//neva/neva.gni")
-
-source_set("neva") {
-  sources = [
-    "partition_alloc.cc",
-    "partition_alloc.h",
-  ]
-}
+partition_trace_sources =
+  get_path_info([
+    "partition_trace.cc",
+    "partition_trace.h"
+  ], "abspath")

@@ -5,7 +5,7 @@
 #ifndef THIRD_PARTY_BLINK_RENDERER_PLATFORM_NEVA_PARTITION_ALLOC_MEMORY_TRACE_PROVIDER_H_
 #define THIRD_PARTY_BLINK_RENDERER_PLATFORM_NEVA_PARTITION_ALLOC_MEMORY_TRACE_PROVIDER_H_
 
-#include "base/trace_event/neva/memory_trace_provider.h"
+#include "base/trace_event/neva/memory_trace/memory_trace_provider.h"
 #include "third_party/blink/public/platform/web_common.h"
 #include "third_party/blink/renderer/platform/wtf/noncopyable.h"
 

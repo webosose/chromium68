@@ -1,4 +1,4 @@
-# Copyright 2018 LG Electronics, Inc.
+# Copyright 2018-2019 LG Electronics, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,35 +14,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import("//neva/neva.gni")
-
-config("webossystem") {
-  defines = [ "WEBOSSYSTEM_IMPLEMENTATION" ]
-}
-
-source_set("webossystem_injection") {
-
-  sources = [
-    "webossystem_export.h",
-    "webossystem_injection.cc",
-    "webossystem_injection.h",
-  ]
-
-  deps = [
-    "//v8",
-    "//third_party/blink/public:blink",
-  ]
-
-  configs += [
-    ":webossystem",
-    "//build/config/linux:glib",
-  ]
-
-  if (use_lttng) {
-    deps += [
-      "//base/trace_event/neva/lttng:pmtrace_lttng",
-    ]
-  }
-}
-
-
+memory_trace_sources =
+  get_path_info([
+    "malloc_trace_provider.cc",
+    "malloc_trace_provider.h",
+    "memory_trace_manager.cc",
+    "memory_trace_manager.h",
+    "memory_trace_provider.h",
+    "system_trace_provider.cc",
+    "system_trace_provider.h"
+  ], "abspath")

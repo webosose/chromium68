@@ -38,8 +38,9 @@
 #include "third_party/blink/renderer/platform/wtf/assertions.h"
 #include "third_party/blink/renderer/platform/wtf/wtf.h"
 #include "third_party/blink/renderer/platform/wtf/wtf_export.h"
+
 #if defined(USE_MEMORY_TRACE)
-#include "base/allocator/partition_allocator/neva/partition_alloc.h"
+#include "base/allocator/partition_allocator/neva/partition_trace.h"
 #endif
 
 namespace WTF {
@@ -170,9 +171,6 @@ using base::SetSystemPagesAccess;
 using base::PageInaccessible;
 using base::PageReadWrite;
 using base::PartitionStatsDumper;
-#if defined(USE_MEMORY_TRACE)
-using base::neva::PartitionStatsTracer;
-#endif
 using base::PartitionMemoryStats;
 using base::PartitionBucketMemoryStats;
 using base::PartitionAllocHooks;

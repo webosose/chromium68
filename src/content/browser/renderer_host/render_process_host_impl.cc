@@ -256,6 +256,10 @@
 #include "components/discardable_memory/common/switches.h"
 #endif
 
+#if defined(USE_MEMORY_TRACE)
+#include "base/neva/base_switches.h"
+#endif
+
 #if BUILDFLAG(ENABLE_PLUGINS)
 #include "content/browser/plugin_service_impl.h"
 #include "ppapi/shared_impl/ppapi_switches.h"  // nogncheck

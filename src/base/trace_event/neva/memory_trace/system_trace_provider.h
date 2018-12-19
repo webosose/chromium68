@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef BASE_TRACE_EVENT_NEVA_SYSTEM_TRACE_PROVIDER_H_
-#define BASE_TRACE_EVENT_NEVA_SYSTEM_TRACE_PROVIDER_H_
+#ifndef BASE_TRACE_EVENT_NEVA_MEMORY_TRACE_SYSTEM_TRACE_PROVIDER_H_
+#define BASE_TRACE_EVENT_NEVA_MEMORY_TRACE_SYSTEM_TRACE_PROVIDER_H_
 
 #include <istream>
 #include <memory>
@@ -24,7 +24,7 @@
 #include "base/memory/singleton.h"
 #include "base/synchronization/lock.h"
 #include "base/threading/platform_thread.h"
-#include "base/trace_event/neva/memory_trace_provider.h"
+#include "base/trace_event/neva/memory_trace/memory_trace_provider.h"
 #include "build/build_config.h"
 
 namespace base {
@@ -54,4 +54,4 @@ class BASE_EXPORT SystemTraceProvider : public MemoryTraceProvider {
 }  // namespace trace_event
 }  // namespace base
 
-#endif  // BASE_TRACE_EVENT_NEVA_SYSTEM_TRACE_PROVIDER_H_
+#endif  // BASE_TRACE_EVENT_NEVA_MEMORY_TRACE_SYSTEM_TRACE_PROVIDER_H_

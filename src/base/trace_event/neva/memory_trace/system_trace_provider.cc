@@ -14,13 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "base/trace_event/neva/memory_trace_manager.h"
-#include "base/trace_event/neva/system_trace_provider.h"
+#include "base/trace_event/neva/memory_trace/system_trace_provider.h"
 
 #include <stddef.h>
 #include <unistd.h>
 
 #include "base/strings/safe_sprintf.h"
+#include "base/trace_event/neva/memory_trace/memory_trace_manager.h"
 #include "build/build_config.h"
 
 namespace base {

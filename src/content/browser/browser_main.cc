@@ -12,7 +12,7 @@
 #include "content/common/content_constants_internal.h"
 
 #if defined(USE_MEMORY_TRACE)
-#include "base/trace_event/neva/memory_trace_manager.h"
+#include "base/trace_event/neva/memory_trace/memory_trace_manager.h"
 #endif
 
 namespace content {
@@ -54,7 +54,8 @@ int BrowserMain(
 
 #if defined(USE_MEMORY_TRACE)
   // Initialize MemoryTraceManager if --trace-memory-browser is on.
-  base::trace_event::neva::MemoryTraceManagerDelegate memory_trace_manager_delegate;
+  base::trace_event::neva::MemoryTraceManagerDelegate
+      memory_trace_manager_delegate;
   memory_trace_manager_delegate.Initialize(true /* is_browser_process */);
 #endif
 

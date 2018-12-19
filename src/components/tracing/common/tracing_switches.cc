@@ -56,13 +56,4 @@ const char kTraceToConsole[]                = "trace-to-console";
 // Sets the target URL for uploading tracing data.
 const char kTraceUploadURL[]                = "trace-upload-url";
 
-#if defined(USE_MEMORY_TRACE)
-const char kTraceMemoryBrowser[]            = "trace-memory-browser";
-const char kTraceMemoryRenderer[]           = "trace-memory-renderer";
-const char kTraceMemoryInterval[]           = "trace-memory-interval";
-const char kTraceMemoryToFile[]             = "trace-memory-to-file";
-const char kTraceMemoryLogFormat[]          = "trace-memory-log-format";
-const char kTraceMemoryByteUnit[]           = "trace-memory-byte-unit";
-#endif
-
 }  // namespace switches

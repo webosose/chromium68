@@ -21,4 +21,13 @@ namespace switches {
 // V8 snapshot blob path
 const char kV8SnapshotBlobPath[] = "v8-snapshot-blob-path";
 
+#if defined(USE_MEMORY_TRACE)
+const char kTraceMemoryBrowser[]   = "trace-memory-browser";
+const char kTraceMemoryRenderer[]  = "trace-memory-renderer";
+const char kTraceMemoryInterval[]  = "trace-memory-interval";
+const char kTraceMemoryToFile[]    = "trace-memory-to-file";
+const char kTraceMemoryLogFormat[] = "trace-memory-log-format";
+const char kTraceMemoryByteUnit[]  = "trace-memory-byte-unit";
+#endif
+
 }  // namespace switches

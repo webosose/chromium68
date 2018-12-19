@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/trace_event/neva/memory_trace_manager.h"
+#include "base/trace_event/neva/memory_trace/memory_trace_manager.h"
 
 #include <algorithm>
 #include <utility>
@@ -14,13 +14,13 @@
 #include "base/debug/stack_trace.h"
 #include "base/files/file_util.h"
 #include "base/memory/ptr_util.h"
+#include "base/neva/base_switches.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/threading/thread.h"
 #include "base/threading/thread_task_runner_handle.h"
-#include "base/trace_event/neva/malloc_trace_provider.h"
-#include "base/trace_event/neva/memory_trace_provider.h"
-#include "base/trace_event/neva/system_trace_provider.h"
-#include "components/tracing/common/tracing_switches.h"
+#include "base/trace_event/neva/memory_trace/malloc_trace_provider.h"
+#include "base/trace_event/neva/memory_trace/memory_trace_provider.h"
+#include "base/trace_event/neva/memory_trace/system_trace_provider.h"
 
 namespace base {
 namespace trace_event {
@@ -316,8 +316,8 @@ void MemoryTraceManager::PeriodicGlobalTraceTimer::RequestPeriodicGlobalTrace() 
 }
 
 bool MemoryTraceManagerDelegate::Initialize(bool is_browser_process) {
-  return base::trace_event::neva::MemoryTraceManager::GetInstance()->Initialize(
-      this /* delegate */, is_browser_process);
+  return base::trace_event::neva::MemoryTraceManager::GetInstance()
+      ->Initialize(this /* delegate */, is_browser_process);
 }
 
 void MemoryTraceManagerDelegate::RequestGlobalMemoryTrace(

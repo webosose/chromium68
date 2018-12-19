@@ -66,7 +66,7 @@
 #endif
 
 #if defined(USE_MEMORY_TRACE)
-#include "base/trace_event/neva/memory_trace_manager.h"
+#include "base/trace_event/neva/memory_trace/memory_trace_manager.h"
 #endif
 
 namespace content {

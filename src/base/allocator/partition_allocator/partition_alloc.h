@@ -365,6 +365,12 @@ BASE_EXPORT void* PartitionReallocGenericFlags(PartitionRootGeneric* root,
                                                size_t new_size,
                                                const char* type_name);
 
+#if defined(USE_MEMORY_TRACE)
+BASE_EXPORT void PartitionDumpBucketStats(
+    PartitionBucketMemoryStats* stats_out,
+    const internal::PartitionBucket* bucket);
+#endif
+
 ALWAYS_INLINE size_t PartitionRootGeneric::ActualSize(size_t size) {
 #if defined(MEMORY_TOOL_REPLACES_ALLOCATOR)
   return size;

@@ -67,7 +67,7 @@
 #include "third_party/blink/renderer/platform/wtf/hash_map.h"
 
 #if defined(USE_MEMORY_TRACE)
-#include "base/trace_event/neva/memory_trace_manager.h"
+#include "base/trace_event/neva/memory_trace/memory_trace_manager.h"
 #include "third_party/blink/renderer/platform/neva/partition_alloc_memory_trace_provider.h"
 #endif
 

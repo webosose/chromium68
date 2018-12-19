@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/trace_event/neva/malloc_trace_provider.h"
-#include "base/trace_event/neva/memory_trace_manager.h"
+#include "base/trace_event/neva/memory_trace/malloc_trace_provider.h"
 
 #include <malloc.h>
 #include <stddef.h>
 
 #include "base/allocator/allocator_extension.h"
 #include "base/allocator/allocator_shim.h"
+#include "base/trace_event/neva/memory_trace/memory_trace_manager.h"
 #include "build/build_config.h"
 
 namespace base {

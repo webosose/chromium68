@@ -19,15 +19,6 @@ TRACING_EXPORT extern const char kTraceStartupRecordMode[];
 TRACING_EXPORT extern const char kTraceToConsole[];
 TRACING_EXPORT extern const char kTraceUploadURL[];
 
-#if defined(USE_MEMORY_TRACE)
-TRACING_EXPORT extern const char kTraceMemoryBrowser[];
-TRACING_EXPORT extern const char kTraceMemoryRenderer[];
-TRACING_EXPORT extern const char kTraceMemoryInterval[];
-TRACING_EXPORT extern const char kTraceMemoryToFile[];
-TRACING_EXPORT extern const char kTraceMemoryLogFormat[];
-TRACING_EXPORT extern const char kTraceMemoryByteUnit[];
-#endif
-
 }  // namespace switches
 
 #endif  // COMPONENTS_TRACING_COMMON_TRACING_SWITCHES_H_

@@ -17,8 +17,19 @@
 #ifndef BASE_NEVA_BASE_SWITCHES_H_
 #define BASE_NEVA_BASE_SWITCHES_H_
 
+#include "base/base_export.h"
+
 namespace switches {
-extern const char kV8SnapshotBlobPath[];
+BASE_EXPORT extern const char kV8SnapshotBlobPath[];
+
+#if defined(USE_MEMORY_TRACE)
+BASE_EXPORT extern const char kTraceMemoryBrowser[];
+BASE_EXPORT extern const char kTraceMemoryRenderer[];
+BASE_EXPORT extern const char kTraceMemoryInterval[];
+BASE_EXPORT extern const char kTraceMemoryToFile[];
+BASE_EXPORT extern const char kTraceMemoryLogFormat[];
+BASE_EXPORT extern const char kTraceMemoryByteUnit[];
+#endif
 }  // namespace switches
 
 #endif  // BASE_NEVA_BASE_SWITCHES_H_

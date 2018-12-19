@@ -1,4 +1,4 @@
-# Copyright 2018 LG Electronics, Inc.
+# Copyright 2019 LG Electronics, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,31 +16,19 @@
 
 import("//neva/neva.gni")
 
-source_set("memory_trace") {
-  sources = [
-    "malloc_trace_provider.cc",
-    "malloc_trace_provider.h",
-    "memory_trace_manager.cc",
-    "memory_trace_manager.h",
-    "memory_trace_provider.h",
-    "system_trace_provider.cc",
-    "system_trace_provider.h",
-  ]
-}
-
 source_set("chromium_lttng") {
   sources = [
-    "../../debug/chromium_lttng_provider.h",
-    "lttng/chromium_lttng_provider.c",
+    "../../../debug/chromium_lttng_provider.h",
+    "chromium_lttng_provider.c",
   ]
   deps = [ ":lttng_provider" ]
 }
 
 source_set("pmtrace_lttng") {
   sources = [
-    "../../debug/pmtrace_bundle_provider.h",
-    "lttng/pmtrace_bundle_provider.c",
-    "lttng/pmtracer.h",
+    "../../../debug/pmtrace_bundle_provider.h",
+    "pmtrace_bundle_provider.c",
+    "pmtracer.h",
   ]
   deps = [ ":lttng_provider" ]
 }
@@ -51,9 +39,9 @@ loadable_module("lttng_provider") {
     "//build/config/linux/lttng:lttngust",
   ]
   sources = [
-    "../../debug/chromium_lttng_provider.h",
-    "../../debug/pmtrace_bundle_provider.h",
-    "lttng/chromium_lttng_provider_dl.c",
-    "lttng/pmtrace_bundle_provider_dl.c",
+    "../../../debug/chromium_lttng_provider.h",
+    "../../../debug/pmtrace_bundle_provider.h",
+    "chromium_lttng_provider_dl.c",
+    "pmtrace_bundle_provider_dl.c",
   ]
 }

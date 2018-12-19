@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_TRACE_EVENT_NEVA_MEMORY_TRACE_PROVIDER_H_
-#define BASE_TRACE_EVENT_NEVA_MEMORY_TRACE_PROVIDER_H_
+#ifndef BASE_TRACE_EVENT_NEVA_MEMORY_TRACE_MEMORY_TRACE_PROVIDER_H_
+#define BASE_TRACE_EVENT_NEVA_MEMORY_TRACE_MEMORY_TRACE_PROVIDER_H_
 
 #include <string>
 
@@ -37,4 +37,4 @@ class BASE_EXPORT MemoryTraceProvider {
 }  // namespace trace_event
 }  // namespace base
 
-#endif  // BASE_TRACE_EVENT_NEVA_MEMORY_TRACE_PROVIDER_H_
+#endif  // BASE_TRACE_EVENT_NEVA_MEMORY_TRACE_MEMORY_TRACE_PROVIDER_H_

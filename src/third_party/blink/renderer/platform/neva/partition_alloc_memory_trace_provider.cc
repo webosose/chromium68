@@ -6,23 +6,23 @@
 
 #include <unordered_map>
 
+#include "base/allocator/partition_allocator/neva/partition_trace.h"
 #include "base/strings/stringprintf.h"
-#include "base/trace_event/neva/memory_trace_manager.h"
+#include "base/trace_event/neva/memory_trace/memory_trace_manager.h"
 #include "third_party/blink/renderer/platform/wtf/allocator/partitions.h"
-#include "third_party/blink/renderer/platform/wtf/text/wtf_string.h"
+#include "third_party/blink/renderer/platform/wtf/allocator.h"
+#include "third_party/blink/renderer/platform/wtf/std_lib_extras.h"
 
 namespace blink {
 
-namespace {
-
-using namespace WTF;
+namespace neva {
 
 static constexpr int KB = 1024;
 
 // This class is used to invert the dependency of PartitionAlloc on the
 // PartitionAllocMemoryTraceProvider. This implements an interface that will
 // be called with memory statistics for each bucket in the allocator.
-class PartitionStatsTracerImpl final : public WTF::PartitionStatsTracer {
+class PartitionStatsTracerImpl final : public base::neva::PartitionStatsTracer {
   DISALLOW_NEW();
   WTF_MAKE_NONCOPYABLE(PartitionStatsTracerImpl);
  public:
@@ -30,7 +30,7 @@ class PartitionStatsTracerImpl final : public WTF::PartitionStatsTracer {
 
   // PartitionStatsTracer implementation.
   void PartitionTraceTotals(const char* partition_name,
-                            const PartitionMemoryStats*) override;
+                            const base::PartitionMemoryStats*) override;
 
   size_t TotalActiveBytes() const { return total_active_bytes_; }
 
@@ -40,10 +40,10 @@ class PartitionStatsTracerImpl final : public WTF::PartitionStatsTracer {
 
 void PartitionStatsTracerImpl::PartitionTraceTotals(
     const char* partition_name,
-    const PartitionMemoryStats* memory_stats) {
+    const base::PartitionMemoryStats* memory_stats) {
   const char* print_fmt;
   base::trace_event::neva::MemoryTraceManager* mtm =
-    base::trace_event::neva::MemoryTraceManager::GetInstance();
+      base::trace_event::neva::MemoryTraceManager::GetInstance();
   FILE* trace_fp = mtm->GetTraceFile();
   bool is_trace_log_csv = mtm->IsTraceLogCSV();
   bool use_mega_bytes = mtm->GetUseMegaBytes();
@@ -76,10 +76,6 @@ void PartitionStatsTracerImpl::PartitionTraceTotals(
   }
 }
 
-} // namespace
-
-namespace neva {
-
 PartitionAllocMemoryTraceProvider* PartitionAllocMemoryTraceProvider::Instance() {
   DEFINE_STATIC_LOCAL(PartitionAllocMemoryTraceProvider, instance, ());
   return &instance;
@@ -89,7 +85,7 @@ bool PartitionAllocMemoryTraceProvider::OnMemoryTrace() {
   PartitionStatsTracerImpl partition_stats_tracer;
   const char* print_fmt;
   base::trace_event::neva::MemoryTraceManager* mtm =
-    base::trace_event::neva::MemoryTraceManager::GetInstance();
+      base::trace_event::neva::MemoryTraceManager::GetInstance();
   FILE* trace_fp = mtm->GetTraceFile();
   bool is_trace_log_csv = mtm->IsTraceLogCSV();
   bool use_mega_bytes = mtm->GetUseMegaBytes();

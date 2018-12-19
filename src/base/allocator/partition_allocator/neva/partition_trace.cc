@@ -14,14 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "base/allocator/partition_allocator/neva/partition_trace.h"
+
 #include "base/allocator/partition_allocator/partition_alloc.h"
-#include "base/allocator/partition_allocator/neva/partition_alloc.h"
 
 namespace base {
-
-void PartitionDumpBucketStats(PartitionBucketMemoryStats* stats_out,
-                              const internal::PartitionBucket* bucket);
-
 namespace neva {
 
 void PartitionTraceStatsGeneric(PartitionRootGeneric* partition,

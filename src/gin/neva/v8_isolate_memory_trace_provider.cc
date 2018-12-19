@@ -1,6 +1,18 @@
-// Copyright 2018 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2018-2019 LG Electronics, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "gin/neva/v8_isolate_memory_trace_provider.h"
 
@@ -9,7 +21,7 @@
 
 #include "base/strings/stringprintf.h"
 #include "base/threading/thread_task_runner_handle.h"
-#include "base/trace_event/neva/memory_trace_manager.h"
+#include "base/trace_event/neva/memory_trace/memory_trace_manager.h"
 #include "gin/public/isolate_holder.h"
 #include "v8/include/v8.h"
 
@@ -46,7 +58,7 @@ bool V8IsolateMemoryTraceProvider::OnMemoryTrace() {
 void V8IsolateMemoryTraceProvider::TraceHeapStatistics() {
   const char* print_fmt;
   base::trace_event::neva::MemoryTraceManager* mtm =
-    base::trace_event::neva::MemoryTraceManager::GetInstance();
+      base::trace_event::neva::MemoryTraceManager::GetInstance();
   FILE* trace_fp = mtm->GetTraceFile();
   bool is_trace_log_csv = mtm->IsTraceLogCSV();
   bool use_mega_bytes = mtm->GetUseMegaBytes();
