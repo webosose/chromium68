@@ -779,6 +779,12 @@ void ChromeMainDelegate::PreSandboxStartup() {
   base::CPU cpu_info;
 #endif
 
+#if defined(USE_CBE)
+  base::FilePath exe_dir;
+  base::PathService::Get(base::DIR_EXE, &exe_dir);
+  base::PathService::Override(base::DIR_ASSETS, exe_dir);
+#endif
+
   // Initialize the user data dir for any process type that needs it.
   if (chrome::ProcessNeedsProfileDir(process_type)) {
     InitializeUserDataDir(base::CommandLine::ForCurrentProcess());
