@@ -120,4 +120,8 @@ config("config") {
   if (use_webos_v8_snapshot) {
     defines += [ "USE_WEBOS_V8_SNAPSHOT=1" ]
   }
+
+  if (use_single_window_mode) {
+    defines += [ "USE_SINGLE_WINDOW_MODE" ]
+  }
 }

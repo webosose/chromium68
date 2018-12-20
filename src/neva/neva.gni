@@ -103,4 +103,7 @@ declare_args() {
 
   # Disable v8 ICU timezone data
   v8_disable_icu_timezone_data = is_webos
+
+  # Support single window mode
+  use_single_window_mode = is_webos || is_agl
 }
