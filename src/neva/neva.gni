@@ -91,4 +91,7 @@ declare_args() {
 
   # Enable optimizations to reduce writes to eMMC storages
   enable_emmc_optimizations = is_webos
+
+  # Support single window mode
+  use_single_window_mode = is_webos || is_agl
 }
