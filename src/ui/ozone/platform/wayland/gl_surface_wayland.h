@@ -10,11 +10,14 @@
 #include "base/macros.h"
 #include "ui/gfx/geometry/size.h"
 #include "ui/gl/gl_surface_egl.h"
+#include "ui/ozone/platform/wayland/wayland_object.h"
 
+struct wl_callback;
 struct wl_egl_window;
 
 namespace ui {
 
+class WaylandConnectionProxy;
 class WaylandWindow;
 
 struct EGLWindowDeleter {
@@ -29,7 +32,9 @@ class GLSurfaceWayland : public gl::NativeViewGLSurfaceEGL {
  public:
   using WaylandEglWindowPtr = std::unique_ptr<wl_egl_window, EGLWindowDeleter>;
 
-  explicit GLSurfaceWayland(WaylandEglWindowPtr egl_window);
+  GLSurfaceWayland(WaylandEglWindowPtr egl_window,
+                   WaylandWindow* window,
+                   WaylandConnectionProxy* connection_);
 
   // gl::GLSurface:
   bool Resize(const gfx::Size& size,
@@ -37,9 +42,32 @@ class GLSurfaceWayland : public gl::NativeViewGLSurfaceEGL {
               ColorSpace color_space,
               bool has_alpha) override;
   EGLConfig GetConfig() override;
+  bool SupportsAsyncSwap() override;
+  void SwapBuffersAsync(
+      const SwapCompletionCallback& completion_callback,
+      const PresentationCallback& presentation_callback) override;
 
  private:
   ~GLSurfaceWayland() override;
+
+  // wl_callback_listener
+  static void FrameCallbackDone(void* data,
+                                wl_callback* callback,
+                                uint32_t time);
+
+  // WaylandWindow, which holds a wl_surface which |egl_window_| is based on.
+  WaylandWindow* window_ = nullptr;
+  WaylandConnectionProxy* connection_ = nullptr;
+
+  // A completion callback, which is called when a frame callback is received
+  // from the compositor.
+  SwapCompletionCallback completion_callback_;
+  gfx::SwapResult swap_result_ = gfx::SwapResult::SWAP_FAILED;
+
+  // A Wayland callback, which is triggered once wl_buffer has been committed
+  // and it is right time to notify the GPU that it can start a new drawing
+  // operation.
+  wl::Object<wl_callback> wl_frame_callback_;
 
   WaylandEglWindowPtr egl_window_;
 
