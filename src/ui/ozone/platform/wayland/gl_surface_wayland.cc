@@ -10,6 +10,7 @@
 
 #include "third_party/khronos/EGL/egl.h"
 #include "ui/ozone/common/egl_util.h"
+#include "ui/ozone/platform/wayland/gpu/wayland_connection_proxy.h"
 #include "ui/ozone/platform/wayland/wayland_window.h"
 
 namespace ui {
@@ -25,10 +26,14 @@ std::unique_ptr<wl_egl_window, EGLWindowDeleter> CreateWaylandEglWindow(
       wl_egl_window_create(window->surface(), size.width(), size.height()));
 }
 
-GLSurfaceWayland::GLSurfaceWayland(WaylandEglWindowPtr egl_window)
+GLSurfaceWayland::GLSurfaceWayland(WaylandEglWindowPtr egl_window,
+                                   WaylandWindow* window,
+                                   WaylandConnectionProxy* connection)
     : NativeViewGLSurfaceEGL(
           reinterpret_cast<EGLNativeWindowType>(egl_window.get()),
           nullptr),
+      window_(window),
+      connection_(connection),
       egl_window_(std::move(egl_window)) {
   DCHECK(egl_window_);
 }
@@ -66,8 +71,40 @@ EGLConfig GLSurfaceWayland::GetConfig() {
   return config_;
 }
 
+bool GLSurfaceWayland::SupportsAsyncSwap() {
+  return true;
+}
+
+void GLSurfaceWayland::SwapBuffersAsync(
+    const SwapCompletionCallback& completion_callback,
+    const PresentationCallback& presentation_callback) {
+  DCHECK(window_ && connection_);
+  static const wl_callback_listener frame_listener = {
+      &GLSurfaceWayland::FrameCallbackDone};
+
+  completion_callback_ = completion_callback;
+
+  wl_frame_callback_.reset(wl_surface_frame(window_->surface()));
+  wl_callback_add_listener(wl_frame_callback_.get(), &frame_listener, this);
+  wl_surface_commit(window_->surface());
+  connection_->ScheduleFlush();
+
+  swap_result_ = SwapBuffers(presentation_callback);
+}
+
 GLSurfaceWayland::~GLSurfaceWayland() {
   Destroy();
+
+  window_ = nullptr;
+  connection_ = nullptr;
+}
+
+// static
+void GLSurfaceWayland::FrameCallbackDone(void* data,
+                                         wl_callback* callback,
+                                         uint32_t time) {
+  GLSurfaceWayland* self = static_cast<GLSurfaceWayland*>(data);
+  std::move(self->completion_callback_).Run(std::move(self->swap_result_));
 }
 
 }  // namespace ui
