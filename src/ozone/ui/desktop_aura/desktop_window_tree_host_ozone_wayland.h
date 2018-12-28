@@ -231,6 +231,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   void OnKeyboardLeave() override;
   void OnWindowHostStateChanged(ui::WidgetState new_state) override;
   void OnWindowHostStateAboutToChange(ui::WidgetState state) override;
+  void OnCursorVisibilityChange(bool visible) override;
   ///@}
 
   bool ShouldCreateVisibilityController() const override;

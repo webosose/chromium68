@@ -54,6 +54,7 @@ class WaylandPlatformWindowDelegate {
   virtual void OnKeyboardLeave() { }
   virtual void OnWindowHostStateChanged(ui::WidgetState new_state) { }
   virtual void OnWindowHostStateAboutToChange(ui::WidgetState state) { }
+  virtual void OnCursorVisibilityChange(bool visible) {}
   ///@}
 };
 

@@ -17,6 +17,7 @@
 #include "webos/webapp_window.h"
 
 #include "webos/common/webos_event.h"
+#include "webos/public/runtime.h"
 #include "webos/webapp_window_delegate.h"
 
 namespace webos {
@@ -48,7 +49,7 @@ void WebAppWindow::CompositorBuffersSwapped() {
 }
 
 void WebAppWindow::CursorVisibilityChange(bool visible) {
-  NOTIMPLEMENTED();
+  Runtime::GetInstance()->OnCursorVisibilityChanged(visible);
 }
 
 void WebAppWindow::InputPanelVisibilityChanged(bool visibility) {

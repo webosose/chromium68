@@ -149,41 +149,43 @@ bool GLOzoneEGLWayland::LoadGLES2Bindings(gl::GLImplementation implementation) {
 
 WaylandDisplay* WaylandDisplay::instance_ = NULL;
 
-WaylandDisplay::WaylandDisplay() : SurfaceFactoryOzone(),
-    display_(NULL),
-    registry_(NULL),
-    compositor_(NULL),
-    data_device_manager_(NULL),
-    shell_(NULL),
-    shm_(NULL),
+WaylandDisplay::WaylandDisplay()
+    : SurfaceFactoryOzone(),
+      display_(NULL),
+      registry_(NULL),
+      compositor_(NULL),
+      data_device_manager_(NULL),
+      shell_(NULL),
+      shm_(NULL),
 #if defined(OS_WEBOS)
-    text_model_factory_(NULL),
-    webos_xinput_extension_(NULL),
-    webos_xinput_(NULL),
+      text_model_factory_(NULL),
+      webos_xinput_extension_(NULL),
+      webos_xinput_(NULL),
+      pointer_visible_(false),
 #else
-    text_input_manager_(NULL),
+      text_input_manager_(NULL),
 #endif
-    primary_screen_(NULL),
-    primary_seat_(NULL),
-    display_poll_thread_(NULL),
+      primary_screen_(NULL),
+      primary_seat_(NULL),
+      display_poll_thread_(NULL),
 #if defined(ENABLE_DRM_SUPPORT)
-    device_(NULL),
-    m_deviceName(NULL),
+      device_(NULL),
+      m_deviceName(NULL),
 #endif
-    sender_(NULL),
-    loop_(NULL),
-    screen_list_(),
-    seat_list_(),
-    widget_map_(),
-    serial_(0),
-    processing_events_(false),
+      sender_(NULL),
+      loop_(NULL),
+      screen_list_(),
+      seat_list_(),
+      widget_map_(),
+      serial_(0),
+      processing_events_(false),
 #if defined(ENABLE_DRM_SUPPORT)
-    m_authenticated_(false),
-    m_fd_(-1),
-    m_capabilities_(0),
+      m_authenticated_(false),
+      m_fd_(-1),
+      m_capabilities_(0),
 #endif
-    egl_implementation_(new GLOzoneEGLWayland(this)),
-    weak_ptr_factory_(this) {
+      egl_implementation_(new GLOzoneEGLWayland(this)),
+      weak_ptr_factory_(this) {
 }
 
 WaylandDisplay::~WaylandDisplay() {
@@ -501,6 +503,10 @@ void WaylandDisplay::InitWindow(unsigned handle,
                                 int x,
                                 int y,
                                 ui::WidgetType type) {
+#if defined(OS_WEBOS)
+  PointerVisibilityNotify(GetPointerCursorVisible());
+#endif
+
   WaylandWindow* window = GetWidget(handle);
 
   WaylandWindow* parent_window = GetWidget(parent);
@@ -770,6 +776,20 @@ void WaylandDisplay::InputPanelStateChanged(unsigned handle,
 void WaylandDisplay::TextInputModifier(uint32_t state, uint32_t modifier) {
   NOTIMPLEMENTED();
 }
+
+void WaylandDisplay::OnWebosInputPointerListener(
+    void* data,
+    wl_webos_input_manager* wl_Webos_input_manager,
+    uint32_t visible,
+    wl_webos_seat* changed_webos_seat) {
+  WaylandDisplay* disp = static_cast<WaylandDisplay*>(data);
+  disp->PointerVisibilityNotify(visible);
+  disp->SetPointerCursorVisible(visible);
+}
+
+void WaylandDisplay::PointerVisibilityNotify(bool visible) {
+  Dispatch(new WaylandInput_CursorVisibilityChange(visible));
+}
 #endif
 
 void WaylandDisplay::SetInputRegion(unsigned handle,
@@ -956,6 +976,17 @@ void WaylandDisplay::DisplayHandleGlobal(void *data,
   else if (strcmp(interface, "text_model_factory") == 0) {
     disp->text_model_factory_ = static_cast<text_model_factory*>(
         wl_registry_bind(registry, name, &text_model_factory_interface, 1));
+  } else if (strcmp(interface, "wl_webos_input_manager") == 0) {
+    disp->webos_input_manager_ = static_cast<wl_webos_input_manager*>(
+        wl_registry_bind(registry, name, &wl_webos_input_manager_interface, 1));
+
+    static const struct wl_webos_input_manager_listener
+        kWebosInputManagerListener = {
+            WaylandDisplay::OnWebosInputPointerListener,
+        };
+
+    wl_webos_input_manager_add_listener(disp->webos_input_manager_,
+                                        &kWebosInputManagerListener, disp);
   } else if (strcmp(interface, "wl_webos_xinput_extension") == 0) {
     disp->webos_xinput_extension_ =
         static_cast<wl_webos_xinput_extension*>(wl_registry_bind(

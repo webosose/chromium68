@@ -187,6 +187,7 @@ class WindowManagerWayland
   void WindowClose(unsigned windowhandle);
   void KeyboardEnter(unsigned windowhandle);
   void KeyboardLeave(unsigned windowhandle);
+  void CursorVisibilityChange(bool visible);
   void NotifyInputPanelVisibilityChanged(unsigned windowhandle, bool visibility);
   void NotifyInputPanelRectChanged(unsigned windowhandle,
                                    int32_t x,
@@ -199,6 +200,7 @@ class WindowManagerWayland
   void NotifyWindowClose(unsigned windowhandle);
   void NotifyKeyboardEnter(unsigned windowhandle);
   void NotifyKeyboardLeave(unsigned windowhandle);
+  void NotifyCursorVisibilityChange(bool visible);
   ///@}
 
   // List of all open aura::Window.

@@ -281,6 +281,8 @@ void WindowManagerWayland::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandWindow_Exposed, NativeWindowExposed)
   IPC_MESSAGE_HANDLER(WaylandWindow_StateChanged, NativeWindowStateChanged)
   IPC_MESSAGE_HANDLER(WaylandWindow_StateAboutToChange, NativeWindowStateAboutToChange)
+  IPC_MESSAGE_HANDLER(WaylandInput_CursorVisibilityChange,
+                      CursorVisibilityChange)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -706,6 +708,12 @@ void WindowManagerWayland::KeyboardLeave(unsigned windowhandle) {
           weak_ptr_factory_.GetWeakPtr(), windowhandle));
 }
 
+void WindowManagerWayland::CursorVisibilityChange(bool visible) {
+  base::ThreadTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE, base::Bind(&WindowManagerWayland::NotifyCursorVisibilityChange,
+                            weak_ptr_factory_.GetWeakPtr(), visible));
+}
+
 void WindowManagerWayland::NotifyInputPanelVisibilityChanged(unsigned windowhandle,
                                                              bool visibility) {
   OzoneWaylandWindow* window = GetWindow(windowhandle);
@@ -817,6 +825,13 @@ void WindowManagerWayland::NotifyNativeWindowStateAboutToChange(unsigned handle,
   }
   PMLOG_DEBUG(Ozone, "[%s:%d]", __PRETTY_FUNCTION__, __LINE__);
   window->GetDelegate()->OnWindowHostStateAboutToChange(state);
+}
+
+void WindowManagerWayland::NotifyCursorVisibilityChange(bool visible) {
+  for (std::list<OzoneWaylandWindow*>::iterator it = open_windows().begin();
+       it != open_windows().end(); ++it) {
+    (*it)->GetDelegate()->OnCursorVisibilityChange(visible);
+  }
 }
 
 }  // namespace ui

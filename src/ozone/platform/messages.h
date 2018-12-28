@@ -195,6 +195,10 @@ IPC_MESSAGE_CONTROL1(WaylandInput_KeyboardEnter, // NOLINT(readability/fn_size)
 IPC_MESSAGE_CONTROL1(WaylandInput_KeyboardLeave, // NOLINT(readability/fn_size)
                      unsigned /*handle*/)
 
+IPC_MESSAGE_CONTROL1(
+    WaylandInput_CursorVisibilityChange,  // NOLINT(readability/fn_size)
+    bool /*visible*/)
+
 IPC_MESSAGE_CONTROL2(WaylandWindow_StateChanged, //NOLINT(readability/fn_size)
                      unsigned /* handle */,
                      ui::WidgetState /* new_state */)

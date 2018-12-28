@@ -38,6 +38,7 @@
 
 #if defined(OS_WEBOS)
 #include "ozone/platform/webos_constants.h"
+#include "wayland-webos-input-manager-client-protocol.h"
 #endif
 
 struct gbm_device;
@@ -107,7 +108,10 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   wl_compositor* GetCompositor() const { return compositor_; }
 #if defined(OS_WEBOS)
   text_model_factory* GetTextModelFactory() const;
+  wl_webos_input_manager* GetWebosInputManager() const;
   WebOSSurfaceGroupCompositor* GetGroupCompositor() const;
+  void SetPointerCursorVisible(bool visible) { pointer_visible_ = visible; }
+  bool GetPointerCursorVisible() { return pointer_visible_; }
 #else
   struct wl_text_input_manager* GetTextInputManager() const;
 #endif
@@ -218,6 +222,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   void WindowClose(unsigned handle);
   void KeyboardEnter(unsigned handle);
   void KeyboardLeave(unsigned handle);
+  void PointerVisibilityNotify(bool visible);
 
  private:
   typedef std::queue<IPC::Message*> DeferredMessages;
@@ -286,6 +291,14 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
       const char *interface,
       uint32_t version);
 
+#if defined(OS_WEBOS)
+  static void OnWebosInputPointerListener(
+      void* data,
+      wl_webos_input_manager* wl_webos_input_manager,
+      uint32_t visible,
+      wl_webos_seat* changed_webos_seat);
+#endif
+
   // GpuPlatformSupport:
   void OnChannelEstablished(IPC::Sender* sender) override;
   bool OnMessageReceived(const IPC::Message& message) override;
@@ -315,9 +328,11 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   wl_shm* shm_;
 #if defined(OS_WEBOS)
   text_model_factory* text_model_factory_;
+  wl_webos_input_manager* webos_input_manager_;
   wl_webos_xinput_extension* webos_xinput_extension_;
   wl_webos_xinput* webos_xinput_;
   std::unique_ptr<WebOSSurfaceGroupCompositor> group_compositor_;
+  bool pointer_visible_;
 #else
   struct wl_text_input_manager* text_input_manager_;
 #endif

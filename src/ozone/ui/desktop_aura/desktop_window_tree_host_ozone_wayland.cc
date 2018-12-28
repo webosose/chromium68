@@ -1389,4 +1389,13 @@ void DesktopWindowTreeHostOzone::OnWindowHostStateAboutToChange(ui::WidgetState 
 #endif
 }
 
+void DesktopWindowTreeHostOzone::OnCursorVisibilityChange(bool visible) {
+#if defined(USE_NEVA_APPRUNTIME)
+  views::NativeEventDelegate* native_event_delegate =
+      desktop_native_widget_aura_->GetNativeEventDelegate();
+  if (native_event_delegate)
+    native_event_delegate->CursorVisibilityChange(visible);
+#endif
+}
+
 }  // namespace views
