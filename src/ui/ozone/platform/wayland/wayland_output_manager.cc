@@ -114,4 +114,14 @@ void WaylandOutputManager::OnOutputHandleMetrics(uint32_t output_id,
   }
 }
 
+void WaylandOutputManager::HandleMetricsForPrimaryOutput(const gfx::Rect& new_bounds) {
+  if (wayland_screen_) {
+    const auto& primary_output = output_list_.front();
+    DCHECK(IsPrimaryOutput(primary_output->output_id()));
+    wayland_screen_->OnOutputMetricsChanged(primary_output->output_id(),
+                                            new_bounds, 1,
+                                            primary_output->output_id());
+  }
+}
+
 }  // namespace ui
