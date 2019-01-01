@@ -7,6 +7,7 @@
 #include <ivi-application-client-protocol.h>
 
 #include "ui/ozone/platform/wayland/wayland_connection.h"
+#include "ui/ozone/platform/wayland/wayland_output_manager.h"
 #include "ui/ozone/platform/wayland/wayland_util.h"
 #include "ui/ozone/platform/wayland/wayland_window.h"
 
@@ -34,6 +35,7 @@ bool IviSurfaceWrapper::Initialize(WaylandConnection* connection,
     surface_id = static_cast<int>(getpid());
   }
 
+  connection_ = connection;
   ivi_surface_ = ivi_application_surface_create(connection->ivi_shell(),
                                                 surface_id, surface);
   DCHECK(ivi_surface_);
@@ -86,8 +88,18 @@ void IviSurfaceWrapper::SetWindowGeometry(const gfx::Rect& bounds) {
 void IviSurfaceWrapper::HandleConfigure(void* data,
                               struct ivi_surface* shell_surface,
                               int32_t width,
-                              int32_t height) { 
+                              int32_t height) {
   IviSurfaceWrapper* surface = static_cast<IviSurfaceWrapper*>(data);
+  // wl_output doesn't get the right information on AGL. For now,
+  // |HandleConfigure| is the only way to get the screen information.
+  // https://jira.automotivelinux.org/browse/SPEC-1940
+  // When it gets configure event from AGL, we set the size with
+  // |output_manager|.
+  WaylandOutputManager* output_manager =
+      surface->connection_->wayland_output_manager();
+  DCHECK(output_manager);
+  output_manager->HandleMetricsForPrimaryOutput(gfx::Rect(width, height));
+
   surface->wayland_window_->HandleSurfaceConfigure(width, height,
                                                    false /* is_maximized */,
                                                    false /* is_fullscreen */,
