@@ -40,10 +40,11 @@ class IviSurfaceWrapper : public XDGSurfaceWrapper {
   static void HandleConfigure(void* data,
                               struct ivi_surface* shell_surface,
                               int32_t width,
-                              int32_t height);  
+                              int32_t height);
 
   WaylandWindow* wayland_window_;
-  
+  WaylandConnection* connection_;
+
   // TODO(msisov): use wl::Object.
   ivi_surface* ivi_surface_ = nullptr;
 
