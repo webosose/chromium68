@@ -668,7 +668,22 @@ void WebAppWindow::DeleteDelegate() {
 }
 
 void WebAppWindow::OnMouseEvent(ui::MouseEvent* event) {
-  NOTIMPLEMENTED();
+  switch (event->type()) {
+    case ui::EventType::ET_MOUSEWHEEL: {
+      ui::MouseWheelEvent* wheel_event =
+          static_cast<ui::MouseWheelEvent*>(event);
+      gfx::Rect bounds = web_contents_->GetContentNativeView()->bounds();
+      web_contents_->GetContentNativeView()->SetBounds(gfx::Rect(
+          bounds.x(), (wheel_event->y_offset() > 0)
+                          ? std::min(bounds.y() + wheel_event->y_offset(), 0)
+                          : std::max(bounds.y() + wheel_event->y_offset(),
+                                     viewport_shift_height_),
+          bounds.width(), bounds.height()));
+      break;
+    }
+    default:
+      NOTIMPLEMENTED();
+  }
 }
 
 void WebAppWindow::OnKeyEvent(ui::KeyEvent* event) {

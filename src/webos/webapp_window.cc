@@ -111,7 +111,7 @@ void WebAppWindow::WindowHostStateAboutToChange(ui::WidgetState state) {
 }
 
 void WebAppWindow::OnMouseEvent(ui::MouseEvent* event) {
-  NOTIMPLEMENTED();
+  app_runtime::WebAppWindow::OnMouseEvent(event);
 }
 
 void WebAppWindow::OnKeyEvent(ui::KeyEvent* event) {

@@ -533,7 +533,7 @@ void WindowManagerWayland::NotifyAxis(float x,
                                          int xoffset,
                                          int yoffset) {
   gfx::Point position(x, y);
-  MouseEvent mouseev(ET_UNKNOWN,
+  MouseEvent mouseev(ET_MOUSEWHEEL,
                          position,
                          position,
                          EventTimeForNow(),
