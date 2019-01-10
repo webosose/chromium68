@@ -26,6 +26,7 @@
 #include "content/public/browser/devtools_manager_delegate.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/browser/storage_partition.h"
 #include "content/public/common/content_neva_switches.h"
 #include "content/public/common/content_switches.h"
 #include "neva/app_runtime/browser/app_runtime_browser_main_parts.h"
@@ -212,6 +213,14 @@ void AppRuntimeContentBrowserClient::OverrideWebkitPrefs(
   RenderViewHostDelegate* delegate = render_view_host->GetDelegate();
   if (delegate)
     delegate->OverrideWebkitPrefs(prefs);
+}
+
+void AppRuntimeContentBrowserClient::GetQuotaSettings(
+    content::BrowserContext* context,
+    content::StoragePartition* partition,
+    storage::OptionalQuotaSettingsCallback callback) {
+  storage::GetNominalDynamicSettings(
+      partition->GetPath(), context->IsOffTheRecord(), std::move(callback));
 }
 
 void AppRuntimeContentBrowserClient::SetV8SnapshotPath(

@@ -65,6 +65,10 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
 
   void OverrideWebkitPrefs(content::RenderViewHost* render_view_host,
                            content::WebPreferences* prefs) override;
+  void GetQuotaSettings(
+      content::BrowserContext* context,
+      content::StoragePartition* partition,
+      storage::OptionalQuotaSettingsCallback callback) override;
 
   AppRuntimeBrowserMainParts* GetMainParts() { return main_parts_; }
 
