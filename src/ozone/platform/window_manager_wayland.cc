@@ -716,6 +716,13 @@ void WindowManagerWayland::CursorVisibilityChange(bool visible) {
 
 void WindowManagerWayland::NotifyInputPanelVisibilityChanged(unsigned windowhandle,
                                                              bool visibility) {
+  if (!visibility) {
+    for (const auto& window : open_windows()) {
+      if (window->GetHandle() != windowhandle)
+        window->GetDelegate()->OnInputPanelVisibilityChanged(visibility);
+    }
+  }
+
   OzoneWaylandWindow* window = GetWindow(windowhandle);
   if (!window) {
     LOG(ERROR) << "Received invalid window handle " << windowhandle
@@ -730,13 +737,16 @@ void WindowManagerWayland::NotifyInputPanelRectChanged(unsigned windowhandle,
                                                        int32_t y,
                                                        uint32_t width,
                                                        uint32_t height) {
+  for (const auto& window : open_windows()) {
+    window->GetDelegate()->OnInputPanelRectChanged(x, y, width, height);
+  }
+
   OzoneWaylandWindow* window = GetWindow(windowhandle);
   if (!window) {
     LOG(ERROR) << "Received invalid window handle " << windowhandle
                << " from GPU process";
     return;
   }
-  window->GetDelegate()->OnInputPanelRectChanged(x, y, width, height);
 }
 
 void WindowManagerWayland::NativeWindowStateChanged(unsigned handle,
