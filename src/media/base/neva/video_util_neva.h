@@ -37,6 +37,27 @@ namespace media {
 //   |                         |
 //   --------------------------- (view's width, height)
 //
+//   Note that video_rect can be different with rect of the corresponding
+//   element when object-fit property is provided.
+//   For example, let a video's size is (640, 480), and the video's object-fit
+//   value is 'cover', and its corresponding element size is (200, 400). Then,
+//
+//     (0, 0)
+//     ---------------------------
+//     |   -------------         |
+//     |   |    ---    |         |
+//     |   |    | |    |         |
+//     |   |    | |    |         |
+//     |   |    ---element       |
+//     |   -------------         |
+//     |   video_rect            |
+//     |                         |
+//     |                         |
+//     ---------------------------
+//
+//   We always try to fit into video_rect. Then exposed played video from
+//   element area is expected result.
+//
 //  2) natural_video_size: visible width and height of a video frame
 //
 //  3) additional_scale: scale value for accounting into source_rect

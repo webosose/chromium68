@@ -50,8 +50,6 @@ bool ComputeVideoHoleDisplayRect(const gfx::Rect& video_rect_in_view_space,
     int source_x = visible_rect.x() - video_rect_in_view_space.x();
     int source_y = visible_rect.y() - video_rect_in_view_space.y();
 
-    // TODO(neva): Make sure when video scales are different between natural
-    // video and display rect. Currently we try to fully fit into display rect.
     float scale_width = static_cast<float>(natural_video_rect.width()) /
                         video_rect_in_view_space.width();
     float scale_height = static_cast<float>(natural_video_rect.height()) /
@@ -59,16 +57,17 @@ bool ComputeVideoHoleDisplayRect(const gfx::Rect& video_rect_in_view_space,
 
     source_rect = gfx::Rect(source_x, source_y, visible_rect.width(),
                             visible_rect.height());
-    source_rect =
-        ScaleToEnclosingRectSafe(source_rect, scale_width, scale_height);
+    source_rect = ScaleToEnclosedRect(source_rect, scale_width, scale_height);
+
+    source_rect.Intersect(natural_video_rect);
   }
 
   // Step3: Adjust visible_rect to view offset.
   visible_rect.Offset(view_rect.x(), view_rect.y());
 
   // Step4: Adjust visible_rect to screen space.
-  visible_rect = ScaleToEnclosingRectSafe(visible_rect, additional_scale.x(),
-                                          additional_scale.y());
+  visible_rect = ScaleToEnclosedRect(visible_rect, additional_scale.x(),
+                                     additional_scale.y());
 
   // Step5: Determine is_fullscreen.
   is_fullscreen =
