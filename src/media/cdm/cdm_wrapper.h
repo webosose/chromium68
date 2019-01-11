@@ -63,16 +63,21 @@ cdm::VideoDecoderConfig_1 ToVideoDecoderConfig_1(
 
 cdm::InputBuffer ToInputBuffer(const cdm::InputBuffer_2& buffer,
                                const cdm::StreamType decoder_type) {
-  return {buffer.data,
-          buffer.data_size,
-          buffer.key_id,
-          buffer.key_id_size,
-          buffer.iv,
-          buffer.iv_size,
-          buffer.subsamples,
-          buffer.num_subsamples,
-          buffer.timestamp,
-          decoder_type == cdm::StreamType::kStreamTypeVideo ? 1 : 0};
+  return {
+    buffer.data, buffer.data_size,
+#if defined(OS_WEBOS)
+        buffer.encryption_scheme,
+#endif
+        buffer.key_id, buffer.key_id_size, buffer.iv, buffer.iv_size,
+        buffer.subsamples, buffer.num_subsamples,
+#if defined(OS_WEBOS)
+        buffer.timestamp, buffer.pattern,
+        decoder_type == cdm::StreamType::kStreamTypeVideo ? 1 : 0
+  };
+#else
+        buffer.timestamp
+  };
+#endif
 }
 
 cdm::InputBuffer_1 ToInputBuffer_1(const cdm::InputBuffer_2& buffer) {
@@ -355,6 +360,12 @@ bool CdmWrapperImpl<8>::Initialize(bool allow_distinctive_identifier,
                                    bool allow_persistent_state,
                                    bool /* use_hw_secure_codecs*/) {
   cdm_->Initialize(allow_distinctive_identifier, allow_persistent_state);
+  return false;
+}
+
+template <>
+bool CdmWrapperImpl<8>::GetStatusForPolicy(uint32_t promise_id,
+                                           cdm::HdcpVersion min_hdcp_version) {
   return false;
 }
 

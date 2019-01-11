@@ -29,6 +29,15 @@
 // path is managed as own repository(git) in upstream chromium. So we
 // added this file at here for managing easily.
 
+#if defined(OS_WEBOS)
+// We maintain this macro for backward compatibility only.
+#define INITIALIZE_CDM_MODULE_WEBOS InitializeCdmModule
+
+extern "C" {
+CDM_API void INITIALIZE_CDM_MODULE_WEBOS();
+}  // extern "C"
+#endif  // defined(OS_WEBOS)
+
 namespace cdm {
 // This must at least contain the exceptions defined in the spec:
 // https://w3c.github.io/encrypted-media/#exceptions
@@ -55,6 +64,10 @@ struct InputBuffer {
   const uint8_t* data;  // Pointer to the beginning of the input data.
   uint32_t data_size;   // Size (in bytes) of |data|.
 
+#if defined(OS_WEBOS)
+  EncryptionScheme encryption_scheme;
+#endif
+
   const uint8_t* key_id;  // Key ID to identify the decryption key.
   uint32_t key_id_size;   // Size (in bytes) of |key_id|.
 
@@ -66,7 +79,12 @@ struct InputBuffer {
 
   int64_t timestamp;  // Presentation timestamp in microseconds.
 
+#if defined(OS_WEBOS)
+  Pattern pattern;  // |pattern| is required if |encryption_scheme| specifies
+                    // pattern encryption.
+
   uint32_t is_video;  // Indicates if the buffer contains video data.
+#endif
 };
 
 struct AudioDecoderConfig {
@@ -97,6 +115,14 @@ struct VideoDecoderConfig {
   uint32_t extra_data_size;
 };
 
+#if defined(OS_WEBOS)
+enum KeySystem {
+  kPlayReady = 1,
+  kWidevine,
+  kNoKeySystem,
+};
+#endif
+
 class CDM_CLASS_API Host_8;
 
 // ContentDecryptionModule interface that all CDMs need to implement.
@@ -124,12 +150,6 @@ class CDM_CLASS_API ContentDecryptionModule_8 {
   // UpdateSession(), CloseSession(), and RemoveSession() all accept a
   // |promise_id|, which must be passed to the completion Host method
   // (e.g. Host::OnResolveNewSessionPromise()).
-
-  // Gets the key status if the CDM has a hypothetical key with the |policy|.
-  // The CDM must respond by calling either Host::OnResolveKeyStatusPromise()
-  // with the result key status or Host::OnRejectPromise() if an unexpected
-  // error happened or this method is not supported.
-  virtual void GetStatusForPolicy(uint32_t promise_id, const Policy& policy) {}
 
   // Provides a server certificate to be used to encrypt messages to the
   // license server. The CDM must respond by calling either
@@ -193,8 +213,21 @@ class CDM_CLASS_API ContentDecryptionModule_8 {
   // Returns kDecryptError if any other error happened.
   // If the return value is not kSuccess, |decrypted_buffer| should be ignored
   // by the caller.
+#if defined(OS_WEBOS)
+  virtual Status Decrypt(const InputBuffer& encrypted_buffer,
+                         DecryptedBlock* decrypted_buffer) {
+    return Decrypt(true, encrypted_buffer, decrypted_buffer);
+  }
+
+  virtual Status Decrypt(bool use_clear_buffer,
+                         const InputBuffer& encrypted_buffer,
+                         DecryptedBlock* decrypted_buffer) {
+    return kSuccess;
+  }
+#else
   virtual Status Decrypt(const InputBuffer& encrypted_buffer,
                          DecryptedBlock* decrypted_buffer) = 0;
+#endif  // define(OS_WEBOS)
 
   // Initializes the CDM audio decoder with |audio_decoder_config|. This
   // function must be called before DecryptAndDecodeSamples() is called.
@@ -284,6 +317,10 @@ class CDM_CLASS_API ContentDecryptionModule_8 {
       QueryResult result,
       uint32_t link_mask,
       uint32_t output_protection_mask) = 0;
+
+#if defined(OS_WEBOS)
+  virtual KeySystem GetKeySystem() { return KeySystem::kNoKeySystem; }
+#endif
 
   // Destroys the object in the same context as it was created.
   virtual void Destroy() = 0;
