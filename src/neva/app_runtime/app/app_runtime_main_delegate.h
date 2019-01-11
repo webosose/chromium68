@@ -28,9 +28,13 @@ class NetworkDelegate;
 
 namespace app_runtime {
 
+class AppRuntimeQuotaPermissionDelegate;
+
 AppRuntimeContentBrowserClient* GetAppRuntimeContentBrowserClient();
 void SetBrowserContext(content::BrowserContext* p);
 void SetNetworkDelegate(net::NetworkDelegate* p);
+void SetQuotaPermissionDelegate(
+    app_runtime::AppRuntimeQuotaPermissionDelegate* p);
 
 class AppRuntimeMainDelegate : public content::ContentMainDelegate
                              , public AppRuntimeBrowserMainExtraParts {

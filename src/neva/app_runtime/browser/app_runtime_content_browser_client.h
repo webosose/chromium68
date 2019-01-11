@@ -27,13 +27,18 @@ class NetworkDelegate;
 namespace app_runtime {
 
 class AppRuntimeBrowserMainExtraParts;
+class AppRuntimeQuotaPermissionDelegate;
 class URLRequestContextFactory;
 
 class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
  public:
-  explicit AppRuntimeContentBrowserClient(net::NetworkDelegate* delegate);
-  AppRuntimeContentBrowserClient(content::BrowserContext* p,
-                                 net::NetworkDelegate* delegate);
+  explicit AppRuntimeContentBrowserClient(
+      net::NetworkDelegate* delegate,
+      AppRuntimeQuotaPermissionDelegate* quota_permission_delegate);
+  AppRuntimeContentBrowserClient(
+      content::BrowserContext* p,
+      net::NetworkDelegate* delegate,
+      AppRuntimeQuotaPermissionDelegate* quota_permission_delegate);
   ~AppRuntimeContentBrowserClient() override;
 
   void SetBrowserExtraParts(
@@ -65,6 +70,7 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
 
   void OverrideWebkitPrefs(content::RenderViewHost* render_view_host,
                            content::WebPreferences* prefs) override;
+  content::QuotaPermissionContext* CreateQuotaPermissionContext() override;
   void GetQuotaSettings(
       content::BrowserContext* context,
       content::StoragePartition* partition,
@@ -93,6 +99,7 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
   AppRuntimeBrowserMainParts* main_parts_;
 
   content::BrowserContext* external_browser_context_;
+  AppRuntimeQuotaPermissionDelegate* quota_permission_delegate_;
   bool do_not_track_;
 
 #if defined(ENABLE_PLUGINS)

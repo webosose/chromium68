@@ -31,6 +31,8 @@
 #include "content/public/common/content_switches.h"
 #include "neva/app_runtime/browser/app_runtime_browser_main_parts.h"
 #include "neva/app_runtime/browser/app_runtime_devtools_manager_delegate.h"
+#include "neva/app_runtime/browser/app_runtime_quota_permission_context.h"
+#include "neva/app_runtime/browser/app_runtime_quota_permission_delegate.h"
 #include "neva/app_runtime/browser/app_runtime_web_contents_view_delegate_creator.h"
 #include "neva/app_runtime/browser/url_request_context_factory.h"
 #include "neva/app_runtime/webview.h"
@@ -39,18 +41,21 @@
 namespace app_runtime {
 
 AppRuntimeContentBrowserClient::AppRuntimeContentBrowserClient(
-    net::NetworkDelegate* delegate)
+    net::NetworkDelegate* delegate,
+    AppRuntimeQuotaPermissionDelegate* quota_permission_delegate)
     : url_request_context_factory_(new URLRequestContextFactory(delegate)),
 #if defined(ENABLE_PLUGINS)
       plugin_loaded_(false),
 #endif
-      external_browser_context_(nullptr) {
+      external_browser_context_(nullptr),
+      quota_permission_delegate_(quota_permission_delegate) {
 }
 
 AppRuntimeContentBrowserClient::AppRuntimeContentBrowserClient(
     content::BrowserContext* p,
-    net::NetworkDelegate* delegate)
-    : AppRuntimeContentBrowserClient(delegate) {
+    net::NetworkDelegate* delegate,
+    AppRuntimeQuotaPermissionDelegate* quota_permission_delegate)
+    : AppRuntimeContentBrowserClient(delegate, quota_permission_delegate) {
   external_browser_context_ = p;
 }
 
@@ -213,6 +218,11 @@ void AppRuntimeContentBrowserClient::OverrideWebkitPrefs(
   RenderViewHostDelegate* delegate = render_view_host->GetDelegate();
   if (delegate)
     delegate->OverrideWebkitPrefs(prefs);
+}
+
+QuotaPermissionContext*
+AppRuntimeContentBrowserClient::CreateQuotaPermissionContext() {
+  return new AppRuntimeQuotaPermissionContext(quota_permission_delegate_);
 }
 
 void AppRuntimeContentBrowserClient::GetQuotaSettings(

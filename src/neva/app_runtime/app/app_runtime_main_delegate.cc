@@ -24,6 +24,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "neva/app_runtime/browser/app_runtime_content_browser_client.h"
+#include "neva/app_runtime/browser/app_runtime_quota_permission_delegate.h"
 #include "neva/app_runtime/renderer/app_runtime_content_renderer_client.h"
 #include "services/service_manager/embedder/switches.h"
 #include "ui/base/material_design/material_design_controller.h"
@@ -42,6 +43,8 @@ bool SubprocessNeedsResourceBundle(const std::string& process_type) {
 
 static content::BrowserContext* g_browser_context = nullptr;
 static net::NetworkDelegate* g_network_delegate = nullptr;
+static app_runtime::AppRuntimeQuotaPermissionDelegate*
+    g_quota_permission_delegate = nullptr;
 
 struct BrowserClientTraits :
     public base::internal::DestructorAtExitLazyInstanceTraits<
@@ -49,13 +52,15 @@ struct BrowserClientTraits :
   static app_runtime::AppRuntimeContentBrowserClient* New(void* instance) {
     if (g_browser_context) {
       app_runtime::AppRuntimeContentBrowserClient* p =
-          new app_runtime::AppRuntimeContentBrowserClient(g_browser_context,
-                                                          g_network_delegate);
+          new app_runtime::AppRuntimeContentBrowserClient(
+              g_browser_context, g_network_delegate,
+              g_quota_permission_delegate);
       p->CreateBrowserMainParts(
           content::MainFunctionParams(*base::CommandLine::ForCurrentProcess()));
       return p;
     }
-    return new app_runtime::AppRuntimeContentBrowserClient(g_network_delegate);
+    return new app_runtime::AppRuntimeContentBrowserClient(
+        g_network_delegate, g_quota_permission_delegate);
   }
 };
 
@@ -79,6 +84,11 @@ void SetBrowserContext(content::BrowserContext* p) {
 
 void SetNetworkDelegate(net::NetworkDelegate* p) {
   g_network_delegate = p;
+}
+
+void SetQuotaPermissionDelegate(
+    app_runtime::AppRuntimeQuotaPermissionDelegate* p) {
+  g_quota_permission_delegate = p;
 }
 
 AppRuntimeMainDelegate::AppRuntimeMainDelegate() {}
