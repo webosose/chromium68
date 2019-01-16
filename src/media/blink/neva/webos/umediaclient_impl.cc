@@ -1694,10 +1694,6 @@ std::string UMediaClientImpl::UpdateMediaOption(const std::string& mediaOption,
     }
   }
 
-  if (IsSupportedPreload() && preload_ == PreloadMetaData &&
-      (!is_usb_file_ || use_pipeline_preload))
-    use_pipeline_preload_ = true;
-
   http_header["referer"] = referrer_;
   http_header["userAgent"] = user_agent_;
   http_header["cookies"] = cookies_;
