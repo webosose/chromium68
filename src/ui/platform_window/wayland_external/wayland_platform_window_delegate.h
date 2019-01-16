@@ -41,6 +41,9 @@ class WaylandPlatformWindowDelegate {
 
   virtual void OnDragDrop() { }
 
+  virtual void OnWindowHostStateChanged(ui::WidgetState new_state) {}
+  virtual void OnWindowHostClose() {}
+
   ///@name USE_NEVA_APPRUNTIME
   ///@{
   virtual void OnInputPanelVisibilityChanged(bool visible) { }
@@ -49,10 +52,8 @@ class WaylandPlatformWindowDelegate {
                                        uint32_t width,
                                        uint32_t height) {}
   virtual void OnWindowHostExposed() { }
-  virtual void OnWindowHostClose() { }
   virtual void OnKeyboardEnter() { }
   virtual void OnKeyboardLeave() { }
-  virtual void OnWindowHostStateChanged(ui::WidgetState new_state) { }
   virtual void OnWindowHostStateAboutToChange(ui::WidgetState state) { }
   virtual void OnCursorVisibilityChange(bool visible) {}
   ///@}

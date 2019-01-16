@@ -218,6 +218,11 @@ class AURA_EXPORT WindowTreeHost : public ui::internal::InputMethodDelegate,
   // Returns a map of KeyboardEvent code to KeyboardEvent key values.
   virtual base::flat_map<std::string, std::string> GetKeyboardLayoutMap() = 0;
 
+#if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
+  void OnWindowHostStateChanged(ui::WidgetState new_state);
+  void OnWindowHostClose();
+#endif
+
  protected:
   friend class ScopedKeyboardHook;
   friend class TestScreen;  // TODO(beng): see if we can remove/consolidate.
@@ -250,9 +255,6 @@ class AURA_EXPORT WindowTreeHost : public ui::internal::InputMethodDelegate,
   void OnHostCloseRequested();
   void OnHostActivated();
   void OnHostLostWindowCapture();
-#if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
-  void OnWindowHostStateChanged(ui::WidgetState new_state);
-#endif
 
   // Sets the currently displayed cursor.
   virtual void SetCursorNative(gfx::NativeCursor cursor) = 0;

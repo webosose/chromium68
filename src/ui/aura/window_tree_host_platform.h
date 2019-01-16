@@ -84,6 +84,7 @@ class AURA_EXPORT WindowTreeHostPlatform : public WindowTreeHost,
   void OnActivationChanged(bool active) override;
 #if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   void OnWindowHostStateChanged(ui::WidgetState new_state) override;
+  void OnWindowHostClose() override;
 #endif
 
   // Overridden from ui::InputMethodNevaObserver:

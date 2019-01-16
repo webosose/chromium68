@@ -85,6 +85,7 @@ class RootWindowController : public aura::client::WindowParentingClient,
   void OnHostCloseRequested(aura::WindowTreeHost* host) override;
 #if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   void OnWindowHostStateChanged(aura::WindowTreeHost* host, ui::WidgetState new_state) override;
+  void OnWindowHostClose(aura::WindowTreeHost* host) override;
 #endif
 
   // AppWindowRegistry::Observer:
