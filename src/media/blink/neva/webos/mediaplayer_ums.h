@@ -79,6 +79,7 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
   // bool IsSupportedBackwardTrickPlay() override;
   void SetPreload(
       Preload preload) override;  // TODO(wanchang): fix the type of preload
+  bool Preloadable(const std::string& content_media_option) override;
   bool HasVideo() override;
   bool HasAudio() override;
   int NumAudioTracks() override;

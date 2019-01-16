@@ -83,6 +83,7 @@ class UMediaClientImpl : public WebOSMediaClient,
   void Suspend(SuspendReason reason) override;
   void Resume() override;
   void SetPreload(Preload preload) override;
+  bool Preloadable(const std::string& content_media_option) override;
   std::string MediaId() override;
 
   double GetDuration() const override { return duration_; }

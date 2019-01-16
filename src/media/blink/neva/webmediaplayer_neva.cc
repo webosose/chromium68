@@ -274,6 +274,15 @@ void WebMediaPlayerNeva::Load(LoadType load_type,
   DCHECK(src.IsURL());
 
   is_loading_ = true;
+
+  // If preloading is expected, do load without permit from MediaStateManager.
+  if (player_api_->Preloadable(
+          GetClient()->ContentMediaOption().Utf8().data())) {
+    is_preloaded_ = true;
+    DoLoad(load_type, src.GetAsURL(), cors_mode);
+    return;
+  }
+
   pending_load_type_ = load_type;
   pending_source_ = blink::WebMediaPlayerSource(src.GetAsURL());
   pending_cors_mode_ = cors_mode;
@@ -371,9 +380,10 @@ void WebMediaPlayerNeva::OnActiveRegionChanged(
 void WebMediaPlayerNeva::Play() {
   LOG(INFO) << __func__;
   DCHECK(main_thread_checker_.CalledOnValidThread());
-  if (is_suspended_) {
+  if (is_suspended_ || is_preloaded_) {
     LOG(INFO) << "block to play on suspended";
     status_on_suspended_ = PlayingStatus;
+    is_preloaded_ = false;
     if (!client_->IsSuppressedMediaPlay())
       delegate_->DidMediaActivationNeeded(delegate_id_);
     return;
@@ -478,8 +488,11 @@ void WebMediaPlayerNeva::SetRate(double rate) {
   // Limit rates to reasonable values by clamping.
   rate = std::max(kMinRate, std::min(rate, kMaxRate));
 
-  if (is_suspended_) {
+  if (is_suspended_ || is_preloaded_) {
     LOG(INFO) << "block to setRate on suspended";
+
+    is_preloaded_ = false;
+
     if (!client_->IsSuppressedMediaPlay())
       delegate_->DidMediaActivationNeeded(delegate_id_);
     return;

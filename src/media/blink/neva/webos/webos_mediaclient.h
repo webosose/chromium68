@@ -119,6 +119,7 @@ class WebOSMediaClient {
   virtual void Suspend(SuspendReason reason) = 0;
   virtual void Resume() = 0;
   virtual void SetPreload(Preload preload) = 0;
+  virtual bool Preloadable(const std::string& content_media_option) = 0;
   virtual std::string MediaId() = 0;
 
   virtual double GetDuration() const = 0;

@@ -98,6 +98,7 @@ class MediaPlayerNeva {
 
   virtual void SetRate(double rate) = 0;
   virtual void SetPreload(Preload preload) = 0;
+  virtual bool Preloadable(const std::string& content_media_option) = 0;
   virtual bool HasVideo() = 0;
   virtual bool HasAudio() = 0;
   virtual int NumAudioTracks();
