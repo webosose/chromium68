@@ -36,6 +36,8 @@ class AURA_EXPORT WindowTreeHostObserver {
 #if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   // Called when the host's state has changed.
   virtual void OnWindowHostStateChanged(WindowTreeHost* host, ui::WidgetState new_state) {}
+  // Called when the host's window has been closed.
+  virtual void OnWindowHostClose(WindowTreeHost* host) {}
 #endif
 
  protected:

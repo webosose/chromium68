@@ -226,6 +226,10 @@ void RootWindowController::OnWindowHostStateChanged(aura::WindowTreeHost* host,
     }
   }
 }
+
+void RootWindowController::OnWindowHostClose(aura::WindowTreeHost* host) {
+  OnHostCloseRequested(host);
+}
 #endif
 
 void RootWindowController::OnAppWindowRemoved(AppWindow* window) {
