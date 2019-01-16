@@ -148,7 +148,7 @@ bool WebOSNetworkDelegate::IsAccessAllowed(
 
   // in following we handle schemes set by AppRuntime applications
   // strip leading separators until only one is left
-  while (!caller_path.find("//"))
+  while (caller_path.find("//") == 0)
     caller_path = caller_path.substr(1);
 
   // 2. Resources in app folder path
