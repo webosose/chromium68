@@ -17,8 +17,10 @@
 #ifndef NEVA_INJECTION_COMMON_RENDERER_INJECTION_OBSERVER_H_
 #define NEVA_INJECTION_COMMON_RENDERER_INJECTION_OBSERVER_H_
 
+#include <map>
 #include <string>
 #include "content/public/renderer/render_view_observer.h"
+#include "injection/common/public/renderer/injection_loader_extension.h"
 
 namespace content {
 
@@ -38,6 +40,9 @@ class InjectionObserver : public RenderViewObserver {
   void OnClearExtensions();
 
   void InitializeDispatcher(const std::string& extension);
+
+  std::map<std::string, extensions_v8::InjectionInstallFunction>
+      install_functions_;
 
   DISALLOW_COPY_AND_ASSIGN(InjectionObserver);
 };

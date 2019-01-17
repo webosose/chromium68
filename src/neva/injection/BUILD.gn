@@ -67,7 +67,7 @@ source_set("injection") {
 
   if (is_webos) {
     deps += [
-      "//neva/injection/palmsystem:palm_injection",
+      "//neva/injection/webossystem:webossystem_injection",
     ]
 
     if (enable_memorymanager_webapi) {

@@ -1,5 +1,5 @@
-#ifndef NEVA_INJECTION_PALMSYSTEM_LUNA_SERVICE_MGR_H
-#define NEVA_INJECTION_PALMSYSTEM_LUNA_SERVICE_MGR_H
+#ifndef NEVA_INJECTION_WEBOSSYSTEM_LUNA_SERVICE_MGR_H
+#define NEVA_INJECTION_WEBOSSYSTEM_LUNA_SERVICE_MGR_H
 
 #include "base/macros.h"
 #include <lunaservice.h>
@@ -9,13 +9,13 @@
 #include <mutex>
 
 struct LunaServiceManagerListener {
-  LunaServiceManagerListener()
-      : listener_token_(LSMESSAGE_TOKEN_INVALID) { }
-  virtual ~LunaServiceManagerListener() { }
+  LunaServiceManagerListener() : listener_token_(LSMESSAGE_TOKEN_INVALID) {}
+  virtual ~LunaServiceManagerListener() {}
   virtual void ServiceResponse(const char* body) = 0;
 
   LSMessageToken GetListenerToken() { return listener_token_; }
   void SetListenerToken(LSMessageToken token) { listener_token_ = token; }
+
  private:
   LSMessageToken listener_token_;
 };
@@ -39,9 +39,10 @@ class LunaServiceManager {
   std::string identifier_;
   bool initialized_;
   static std::mutex storage_lock_;
-  static std::unordered_map<std::string, std::weak_ptr<LunaServiceManager>> storage_;
+  static std::unordered_map<std::string, std::weak_ptr<LunaServiceManager>>
+      storage_;
 
   DISALLOW_COPY_AND_ASSIGN(LunaServiceManager);
 };
 
-#endif  // NEVA_INJECTION_PALMSYSTEM_LUNA_SERVICE_MGR_H
+#endif  // NEVA_INJECTION_WEBOSSYSTEM_LUNA_SERVICE_MGR_H

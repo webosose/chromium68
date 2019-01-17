@@ -1,4 +1,4 @@
-// Copyright 2014 LG Electronics, Inc.
+// Copyright (c) 2014-2019 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef NEVA_INJECTION_PALMSYSTEM_PALMSYSTEM_INJECTION_H_
-#define NEVA_INJECTION_PALMSYSTEM_PALMSYSTEM_INJECTION_H_
+#ifndef CHROME_INJECTION_WEBOSSYSTEM_INJECTION_H_
+#define CHROME_INJECTION_WEBOSSYSTEM_INJECTION_H_
 
 #include "base/compiler_specific.h"
 #include "injection/common/public/renderer/injection_data_manager.h"
@@ -23,27 +23,34 @@
 
 #if defined(COMPONENT_BUILD)
 
-#if defined(PALMSYSTEM_IMPLEMENTATION)
-#define PALMSYSTEM_EXPORT __attribute__((visibility("default")))
-#else  // !defined(PALMSYSTEM_IMPLEMENTATION)
-#define PALMSYSTEM_EXPORT
-#endif  // defined(PALMSYSTEM_IMPLEMENTATION)
+#if defined(WEBOSSYSTEM_IMPLEMENTATION)
+#define WEBOSSYSTEM_EXPORT __attribute__((visibility("default")))
+#else
+#define WEBOSSYSTEM_EXPORT
+#endif  // defined(WEBOSSYSTEM_IMPLEMENTATION)
 
-#else  // !defined(COMPONENT_BUILD)
-#define PALMSYSTEM_EXPORT
+#else
+#define WEBOSSYSTEM_EXPORT
 #endif  // defined(COMPONENT_BUILD)
+
+namespace blink {
+class WebLocalFrame;
+}
 
 namespace extensions_v8 {
 
-class InjectionWrapper;
-
-class PALMSYSTEM_EXPORT PalmSystemInjectionExtension {
+class WEBOSSYSTEM_EXPORT WebOSSystemInjectionExtension {
  public:
-  static InjectionWrapper* Get();
+  static void Install(blink::WebLocalFrame* frame);
+  static const char kWebOSSystemInjectionName[];
 
-  static const char kPalmSystemInjectionName[];
+ private:
+  static v8::Local<v8::Object> CreateWebOSSystemObject(
+      v8::Isolate* isolate,
+      v8::Local<v8::Context> context,
+      v8::Local<v8::Object> global);
 };
 
 }  // namespace extensions_v8
 
-#endif  // NEVA_INJECTION_PALMSYSTEM_PALMSYSTEM_INJECTION_H_
+#endif  // CHROME_INJECTION_WEBOSSYSTEM_INJECTION_H_

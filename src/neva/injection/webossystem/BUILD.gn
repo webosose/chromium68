@@ -16,25 +16,26 @@
 
 import("//neva/neva.gni")
 
-config("palmsystem") {
+config("webossystem") {
   libs = [ "luna-service2" ]
 }
 
-source_set("palm_injection") {
+source_set("webossystem_injection") {
 
   sources = [
     "luna_service_mgr.cc",
     "luna_service_mgr.h",
-    "palmsystem_injection.cc",
-    "palmsystem_injection.h",
+    "webossystem_injection.cc",
+    "webossystem_injection.h",
   ]
 
   deps = [
     "//v8",
+    "//third_party/blink/public:blink",
   ]
 
   configs += [
-    ":palmsystem",
+    ":webossystem",
     "//build/config/linux:glib",
   ]
 

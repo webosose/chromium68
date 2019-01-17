@@ -28,6 +28,8 @@ class WebString;
 
 namespace extensions_v8 {
 
+using InjectionInstallFunction = void (*)(blink::WebLocalFrame*);
+
 class CONTENT_EXPORT InjectionBase {
  public:
   InjectionBase();

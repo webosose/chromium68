@@ -16,8 +16,10 @@
 
 #include "injection/common/public/renderer/injection_loader_extension.h"
 
+#include "base/logging.h"
+
 #if defined(OS_WEBOS)
-#include "neva/injection/palmsystem/palmsystem_injection.h"
+#include "neva/injection/webossystem/webossystem_injection.h"
 #endif
 
 #if defined(ENABLE_SAMPLE_WEBAPI)
@@ -35,11 +37,6 @@
 namespace extensions_v8 {
 
 InjectionWrapper* InjectionLoaderExtension::Get(const std::string& name) {
-#if defined(OS_WEBOS)
-  if (name ==
-      extensions_v8::PalmSystemInjectionExtension::kPalmSystemInjectionName)
-    return extensions_v8::PalmSystemInjectionExtension::Get();
-#endif
 #if defined(ENABLE_SAMPLE_WEBAPI)
   if (name == extensions_v8::SampleInjectionExtension::kInjectionName)
     return extensions_v8::SampleInjectionExtension::Get();
@@ -52,6 +49,17 @@ InjectionWrapper* InjectionLoaderExtension::Get(const std::string& name) {
   if (name ==
       extensions_v8::MemoryManagerInjectionExtension::kInjectionName)
     return extensions_v8::MemoryManagerInjectionExtension::Get();
+#endif
+  return nullptr;
+}
+
+InjectionInstallFunction InjectionLoaderExtension::GetInjectionInstallFunction(
+    const std::string& name) {
+#if defined(OS_WEBOS)
+  if (name ==
+      extensions_v8::WebOSSystemInjectionExtension::kWebOSSystemInjectionName)
+    return extensions_v8::WebOSSystemInjectionExtension::Install;
+  NOTREACHED() << "Non-existing injection " << name;
 #endif
   return nullptr;
 }

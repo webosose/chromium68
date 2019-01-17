@@ -11,14 +11,15 @@
 
 // static
 std::mutex LunaServiceManager::storage_lock_;
-std::unordered_map<std::string, std::weak_ptr<LunaServiceManager>> LunaServiceManager::storage_;
+std::unordered_map<std::string, std::weak_ptr<LunaServiceManager>>
+    LunaServiceManager::storage_;
 
 // static
 static bool message_filter(LSHandle* sh, LSMessage* reply, void* ctx) {
   const char* payload = LSMessageGetPayload(reply);
 
   LunaServiceManagerListener* listener =
-    static_cast<LunaServiceManagerListener*>(ctx);
+      static_cast<LunaServiceManagerListener*>(ctx);
 
   if (listener) {
     listener->ServiceResponse(payload);
@@ -28,20 +29,14 @@ static bool message_filter(LSHandle* sh, LSMessage* reply, void* ctx) {
   return false;
 }
 
-class LSErrorSafe: public LSError {
+class LSErrorSafe : public LSError {
  public:
-  LSErrorSafe() {
-    LSErrorInit(this);
-  };
-  ~LSErrorSafe() {
-    LSErrorFree(this);
-  }
+  LSErrorSafe() { LSErrorInit(this); };
+  ~LSErrorSafe() { LSErrorFree(this); }
 };
 
 LunaServiceManager::LunaServiceManager(const std::string& id)
-    : sh_(NULL),
-      initialized_(false),
-      identifier_(id) {
+    : sh_(NULL), initialized_(false), identifier_(id) {
   Init();
 }
 
@@ -52,15 +47,16 @@ LunaServiceManager::~LunaServiceManager() {
     retVal = LSUnregister(sh_, &lserror);
     if (!retVal) {
 #ifdef USE_BASE_LOGGING
-      LOG(ERROR) << "LSUnregisterPalmService ERROR "
-        << lserror.error_code << ": " << lserror.message << " ("
-        << lserror.func << " @ " << lserror.file << ":" << lserror.line << ")";
+      LOG(ERROR) << "LSUnregisterPalmService ERROR " << lserror.error_code
+                 << ": " << lserror.message << " (" << lserror.func << " @ "
+                 << lserror.file << ":" << lserror.line << ")";
 #endif
     }
   }
 }
 
-std::shared_ptr<LunaServiceManager> LunaServiceManager::GetManager(const std::string& identifier) {
+std::shared_ptr<LunaServiceManager> LunaServiceManager::GetManager(
+    const std::string& identifier) {
   std::lock_guard<std::mutex> lock(storage_lock_);
   std::shared_ptr<LunaServiceManager> manager;
   auto iter = storage_.find(identifier);
@@ -79,8 +75,9 @@ std::shared_ptr<LunaServiceManager> LunaServiceManager::GetManager(const std::st
 void log_error(LSErrorSafe& lserror) {
 #ifdef USE_BASE_LOGGING
   LOG(ERROR) << "Cannot initialize LunaServiceManager ERROR "
-    << lserror.error_code << ": " << lserror.message << " ("
-    << lserror.func << " @ " << lserror.file << ":" << lserror.line << ")";
+             << lserror.error_code << ": " << lserror.message << " ("
+             << lserror.func << " @ " << lserror.file << ":" << lserror.line
+             << ")";
 #endif
 }
 
@@ -95,7 +92,8 @@ void LunaServiceManager::Init() {
 
   std::string identifier = identifier_ + '-' + std::to_string(getpid());
 
-  init = LSRegisterApplicationService(identifier.c_str(), identifier_.c_str(), &sh_, &lserror);
+  init = LSRegisterApplicationService(identifier.c_str(), identifier_.c_str(),
+                                      &sh_, &lserror);
   if (!init) {
     log_error(lserror);
     return;
@@ -107,7 +105,8 @@ void LunaServiceManager::Init() {
     return;
   }
 
-  init = LSGmainSetPriority(sh_, is_phone ? G_PRIORITY_HIGH : G_PRIORITY_DEFAULT, &lserror);
+  init = LSGmainSetPriority(
+      sh_, is_phone ? G_PRIORITY_HIGH : G_PRIORITY_DEFAULT, &lserror);
   if (!init) {
     log_error(lserror);
     return;
@@ -126,13 +125,16 @@ unsigned long LunaServiceManager::Call(const char* uri,
 
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::Local<v8::Value> val;
-  v8::MaybeLocal <v8::Value> mbVal = v8::JSON::Parse(isolate, v8::String::NewFromUtf8(isolate, payload));
+  v8::MaybeLocal<v8::Value> mbVal =
+      v8::JSON::Parse(isolate, v8::String::NewFromUtf8(isolate, payload));
   mbVal.ToLocal(&val);
   bool subscription = false;
   if (!val.IsEmpty() && val->IsObject()) {
     v8::Local<v8::Object> obj = val->ToObject();
-    v8::Local<v8::Value> subscribe = obj->Get(v8::String::NewFromUtf8(isolate, "subscribe"));
-    v8::Local<v8::Value> watch = obj->Get(v8::String::NewFromUtf8(isolate, "watch"));
+    v8::Local<v8::Value> subscribe =
+        obj->Get(v8::String::NewFromUtf8(isolate, "subscribe"));
+    v8::Local<v8::Value> watch =
+        obj->Get(v8::String::NewFromUtf8(isolate, "watch"));
 
     if (!subscribe.IsEmpty() && subscribe->IsBoolean())
       subscription = subscription || subscribe->ToBoolean()->Value();
@@ -142,9 +144,11 @@ unsigned long LunaServiceManager::Call(const char* uri,
   }
 
   if (subscription)
-    retVal = LSCall(sh_, uri, payload, message_filter, inListener, &token, &lserror);
+    retVal =
+        LSCall(sh_, uri, payload, message_filter, inListener, &token, &lserror);
   else
-    retVal = LSCallOneReply(sh_, uri, payload, message_filter, inListener, &token, &lserror);
+    retVal = LSCallOneReply(sh_, uri, payload, message_filter, inListener,
+                            &token, &lserror);
 
   if (retVal)
     inListener->SetListenerToken(token);
@@ -163,9 +167,9 @@ void LunaServiceManager::Cancel(LunaServiceManagerListener* inListener) {
 
   if (!LSCallCancel(sh_, inListener->GetListenerToken(), &lserror)) {
 #ifdef USE_BASE_LOGGING
-    LOG(ERROR) << "LSCallCancel ERROR "
-      << lserror.error_code << ": " << lserror.message << " ("
-      << lserror.func << " @ " << lserror.file << ":" << lserror.line << ")";
+    LOG(ERROR) << "LSCallCancel ERROR " << lserror.error_code << ": "
+               << lserror.message << " (" << lserror.func << " @ "
+               << lserror.file << ":" << lserror.line << ")";
 #endif
   }
 

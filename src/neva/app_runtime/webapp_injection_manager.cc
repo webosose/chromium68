@@ -19,8 +19,8 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "neva/injection/browser_control/browser_control_injection.h"
-#include "neva/injection/palmsystem/palmsystem_injection.h"
 #include "neva/injection/sample/sample_injection.h"
+#include "neva/injection/webossystem/webossystem_injection.h"
 #include "neva/neva_chromium/content/common/injection_messages.h"
 
 namespace app_runtime {
@@ -29,13 +29,15 @@ namespace {
 
 std::set<std::string> allowed_injections = {
 #if defined(OS_WEBOS)
-  std::string(extensions_v8::PalmSystemInjectionExtension::kPalmSystemInjectionName),
+    std::string(extensions_v8::WebOSSystemInjectionExtension::
+                    kWebOSSystemInjectionName),
 #endif
 #if defined(ENABLE_SAMPLE_WEBAPI)
-  std::string(extensions_v8::SampleInjectionExtension::kInjectionName),
+    std::string(extensions_v8::SampleInjectionExtension::kInjectionName),
 #endif
 #if defined(ENABLE_BROWSER_CONTROL_WEBAPI)
-  std::string(extensions_v8::BrowserControlInjectionExtension::kInjectionName),
+    std::string(
+        extensions_v8::BrowserControlInjectionExtension::kInjectionName),
 #endif
 };
 

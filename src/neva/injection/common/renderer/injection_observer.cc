@@ -20,7 +20,6 @@
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/renderer/render_view_impl.h"
-#include "injection/common/public/renderer/injection_loader_extension.h"
 #include "injection/common/renderer/injection_observer.h"
 #include "injection/common/wrapper/injection_wrapper.h"
 #include "neva_chromium/content/common/injection_messages.h"
@@ -83,10 +82,21 @@ void InjectionObserver::OnLoadExtension(const std::string& extension) {
     if (ext) {
       InitializeDispatcher(extension);
       thread->RegisterExtension(ext);
-    } else
-      LOG(ERROR) << "The extension for injection is not created";
-  } else
+    }
+
+    if (install_functions_.find(extension) == install_functions_.end()) {
+      extensions_v8::InjectionInstallFunction install_function =
+          extensions_v8::InjectionLoaderExtension::GetInjectionInstallFunction(
+              extension);
+      if (install_function) {
+        install_functions_[extension] = install_function;
+      } else {
+        LOG(ERROR) << "The extension for injection is not created";
+      }
+    }
+  } else {
     LOG(ERROR) << "RenderThread is NULL";
+  }
 }
 
 void InjectionObserver::OnClearExtensions() {
@@ -94,6 +104,7 @@ void InjectionObserver::OnClearExtensions() {
   if (thread) {
     thread->ClearExtensions();
   }
+  install_functions_.clear();
 }
 
 void InjectionObserver::InitializeDispatcher(const std::string& extension) {
@@ -125,6 +136,9 @@ void InjectionObserver::DidClearWindowObject(blink::WebLocalFrame* frame) {
         base::UTF8ToUTF16(extensions_v8::SampleInjectionExtension::
                               GetNavigatorExtensionScript()));
 #endif
+    for (auto iter : install_functions_) {
+      (*iter.second)(frame);
+    }
   }
 }
 

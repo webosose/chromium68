@@ -18,6 +18,7 @@
 #define NEVA_INJECTION_COMMON_PUBLIC_RENDERER_INJECTION_LOADER_EXTENSION_H_
 
 #include "content/common/content_export.h"
+#include "injection/common/public/renderer/injection_base.h"
 
 #include <string>
 
@@ -28,6 +29,8 @@ class InjectionWrapper;
 class CONTENT_EXPORT InjectionLoaderExtension {
  public:
   static InjectionWrapper* Get(const std::string& name);
+  static InjectionInstallFunction GetInjectionInstallFunction(
+      const std::string& name);
 };
 
 }  // namespace extensions_v8
