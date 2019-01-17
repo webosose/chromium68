@@ -102,7 +102,8 @@ MediaPlayerUMS::MediaPlayerUMS(
 
 MediaPlayerUMS::~MediaPlayerUMS() {}
 
-void MediaPlayerUMS::Initialize(const std::string& app_id,
+void MediaPlayerUMS::Initialize(const bool is_video,
+                                const std::string& app_id,
                                 const std::string& url,
                                 const std::string& mime_type,
                                 const std::string& referrer,
@@ -113,8 +114,9 @@ void MediaPlayerUMS::Initialize(const std::string& app_id,
               << " / payload: " << payload;
 
   umedia_client_->Load(
-      true, false, false, app_id, url, mime_type, referrer, user_agent, cookies,
-      payload, BIND_TO_RENDER_LOOP(&MediaPlayerUMS::OnPlaybackStateChanged),
+      is_video, false, false, app_id, url, mime_type, referrer, user_agent,
+      cookies, payload,
+      BIND_TO_RENDER_LOOP(&MediaPlayerUMS::OnPlaybackStateChanged),
       BIND_TO_RENDER_LOOP(&MediaPlayerUMS::OnStreamEnded),
       BIND_TO_RENDER_LOOP(&MediaPlayerUMS::OnSeekDone),
       BIND_TO_RENDER_LOOP(&MediaPlayerUMS::OnError),
@@ -342,9 +344,8 @@ void MediaPlayerUMS::OnVideoSizeChange() {
 
 void MediaPlayerUMS::OnVideoDisplayWindowChange() {
   FUNC_LOG(1);
-
-  umedia_client_->SetDisplayWindow(
-      display_window_out_rect_, display_window_in_rect_, fullscreen_, true);
+  umedia_client_->SetDisplayWindow(display_window_out_rect_,
+                                   display_window_in_rect_, fullscreen_, true);
 }
 
 void MediaPlayerUMS::UpdateUMSInfo(const std::string& detail) {

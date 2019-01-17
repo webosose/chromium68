@@ -51,7 +51,8 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
 
   // media::RendererMediaBuiltinPlayerManagerInterface implementation
   // Initializes a MediaPlayerAndroid object in browser process.
-  void Initialize(const std::string& app_id,
+  void Initialize(const bool is_video,
+                  const std::string& app_id,
                   const std::string& url,
                   const std::string& mime,
                   const std::string& referrer,

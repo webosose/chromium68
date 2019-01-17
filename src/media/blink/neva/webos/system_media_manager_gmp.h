@@ -46,7 +46,7 @@ class SystemMediaManagerGmp : public SystemMediaManager {
       const scoped_refptr<base::SingleThreadTaskRunner>& task_runner);
   ~SystemMediaManagerGmp() override;
 
-  long Initialize(bool video,
+  long Initialize(const bool is_video,
                   const std::string& app_id,
                   const ActiveRegionCB& active_region_cb) override {
     return 0;

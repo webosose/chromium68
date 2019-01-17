@@ -70,7 +70,7 @@ class SystemMediaManager {
 
   virtual ~SystemMediaManager(){};
 
-  virtual long Initialize(bool video,
+  virtual long Initialize(const bool is_video,
                           const std::string& app_id,
                           const ActiveRegionCB& active_region_cb) = 0;
   // |UMediaClientImpl| will call |UpdateHtmlMediaOption| before

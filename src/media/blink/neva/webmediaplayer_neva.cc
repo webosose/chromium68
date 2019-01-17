@@ -361,7 +361,7 @@ void WebMediaPlayerNeva::DidLoadMediaInfo(bool ok, const GURL& url) {
 void WebMediaPlayerNeva::LoadMedia() {
   FUNC_LOG(1);
   player_api_->Initialize(
-      app_id_, url_.spec(),
+      GetClient()->IsVideo(), app_id_, url_.spec(),
       std::string(GetClient()->ContentMIMEType().Utf8().data()),
       std::string(GetClient()->Referrer().Utf8().data()),
       std::string(GetClient()->UserAgent().Utf8().data()),
