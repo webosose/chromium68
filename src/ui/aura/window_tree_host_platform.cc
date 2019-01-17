@@ -253,10 +253,6 @@ void WindowTreeHostPlatform::OnWindowHostStateChanged(
     ui::WidgetState new_state) {
   WindowTreeHost::OnWindowHostStateChanged(new_state);
 }
-
-void WindowTreeHostPlatform::OnWindowHostClose() {
-  WindowTreeHost::OnWindowHostClose();
-}
 #endif
 
 void WindowTreeHostPlatform::OnLostCapture() {

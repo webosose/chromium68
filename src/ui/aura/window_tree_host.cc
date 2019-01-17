@@ -425,11 +425,6 @@ void WindowTreeHost::OnWindowHostStateChanged(ui::WidgetState new_state) {
   for (WindowTreeHostObserver& observer : observers_)
     observer.OnWindowHostStateChanged(this, new_state);
 }
-
-void WindowTreeHost::OnWindowHostClose() {
-  for (WindowTreeHostObserver& observer : observers_)
-    observer.OnWindowHostClose(this);
-}
 #endif
 
 void WindowTreeHost::OnHostActivated() {
