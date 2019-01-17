@@ -207,14 +207,14 @@ void WaylandTextInput::SetHiddenState() {
 void WaylandTextInput::SetInputContentType(ui::InputContentType content_type,
                                            int text_input_flags,
                                            unsigned handle) {
-  if (active_window_ && active_window_->Handle() == handle) {
-    input_content_type_ = content_type;
-    text_input_flags_ = text_input_flags;
+  input_content_type_ = content_type;
+  text_input_flags_ = text_input_flags;
+  if (text_model_ && active_window_ && active_window_->Handle() == handle) {
     if (is_visible_)
-      text_model_set_content_type(text_model_,
-                                  ContentHintFromInputContentType(input_content_type_,
-                                                                  text_input_flags_),
-                                  ContentPurposeFromInputContentType(input_content_type_));
+      text_model_set_content_type(
+          text_model_,
+          ContentHintFromInputContentType(input_content_type_, text_input_flags_),
+          ContentPurposeFromInputContentType(input_content_type_));
   }
 }
 
