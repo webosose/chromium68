@@ -183,9 +183,9 @@ void MediaPlayerUMS::SetPreload(MediaPlayerNeva::Preload preload) {
   umedia_client_->SetPreload(static_cast<WebOSMediaClient::Preload>(preload));
 }
 
-bool MediaPlayerUMS::Preloadable(const std::string& content_media_option) {
+bool MediaPlayerUMS::IsPreloadable(const std::string& content_media_option) {
   FUNC_LOG(1);
-  return umedia_client_->Preloadable(content_media_option);
+  return umedia_client_->IsPreloadable(content_media_option);
 }
 
 bool MediaPlayerUMS::HasVideo() {

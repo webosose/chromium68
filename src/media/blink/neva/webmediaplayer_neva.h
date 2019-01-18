@@ -476,7 +476,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   blink::WebMediaPlayerSource pending_source_;
   CORSMode pending_cors_mode_;
 
-  bool is_preloaded_ = false;
+  bool has_activation_permit_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(WebMediaPlayerNeva);
 };

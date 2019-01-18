@@ -276,9 +276,8 @@ void WebMediaPlayerNeva::Load(LoadType load_type,
   is_loading_ = true;
 
   // If preloading is expected, do load without permit from MediaStateManager.
-  if (player_api_->Preloadable(
+  if (player_api_->IsPreloadable(
           GetClient()->ContentMediaOption().Utf8().data())) {
-    is_preloaded_ = true;
     DoLoad(load_type, src.GetAsURL(), cors_mode);
     return;
   }
@@ -380,10 +379,9 @@ void WebMediaPlayerNeva::OnActiveRegionChanged(
 void WebMediaPlayerNeva::Play() {
   LOG(INFO) << __func__;
   DCHECK(main_thread_checker_.CalledOnValidThread());
-  if (is_suspended_ || is_preloaded_) {
+  if (!has_activation_permit_) {
     LOG(INFO) << "block to play on suspended";
     status_on_suspended_ = PlayingStatus;
-    is_preloaded_ = false;
     if (!client_->IsSuppressedMediaPlay())
       delegate_->DidMediaActivationNeeded(delegate_id_);
     return;
@@ -488,11 +486,8 @@ void WebMediaPlayerNeva::SetRate(double rate) {
   // Limit rates to reasonable values by clamping.
   rate = std::max(kMinRate, std::min(rate, kMaxRate));
 
-  if (is_suspended_ || is_preloaded_) {
+  if (!has_activation_permit_) {
     LOG(INFO) << "block to setRate on suspended";
-
-    is_preloaded_ = false;
-
     if (!client_->IsSuppressedMediaPlay())
       delegate_->DidMediaActivationNeeded(delegate_id_);
     return;
@@ -1097,6 +1092,7 @@ void WebMediaPlayerNeva::OnSuspend() {
   }
 
   is_suspended_ = true;
+  has_activation_permit_ = false;
   status_on_suspended_ = Paused() ? PausedStatus : PlayingStatus;
   if (status_on_suspended_ == PlayingStatus) {
     Pause();
@@ -1113,11 +1109,24 @@ void WebMediaPlayerNeva::OnSuspend() {
 }
 
 void WebMediaPlayerNeva::OnMediaActivationPermitted() {
+  // If we already have activation permit, just skip.
+  if (has_activation_permit_) {
+    delegate_->DidMediaActivated(delegate_id_);
+    return;
+  }
+
+  has_activation_permit_ = true;
   if (is_loading_) {
     OnLoadPermitted();
     return;
+  } else if (is_suspended_) {
+    OnResume();
+    return;
   }
-  OnResume();
+
+  Play();
+  GetClient()->PlaybackStateChanged();
+  delegate_->DidMediaActivated(delegate_id_);
 }
 
 void WebMediaPlayerNeva::OnResume() {

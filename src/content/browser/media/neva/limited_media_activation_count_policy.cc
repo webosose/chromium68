@@ -139,6 +139,9 @@ void LimitedMediaActivationCountPolicy::OnMediaSuspended(
     int player_id) {
   MediaPlayerId id(render_frame_host, player_id);
 
+  if (Contains(deactivated_list_, id))
+    return;
+
   // We assume that a media player can be deactivated from any status(not only
   // pending deactivated list). So first do remove id in all list.
   RemoveIdInAllList(id);
@@ -164,7 +167,9 @@ void LimitedMediaActivationCountPolicy::OnMediaSuspendRequested(
 
   // Called OnMediaSuspendRequested(wc1), then
   // Media players need to send suspend message:
-  // [rfh1, mp1], [rfh2, mp3]
+  // [rfh1, mp1], [rfh2, mp3], [rfh1, mp2]
+  // Note that we need to send suspend message to deactivated media players
+  // because we need to suspend preloaded media players.
 
   CheckList check_list;
   for (auto* rfh : web_contents->GetAllFrames())
@@ -173,6 +178,7 @@ void LimitedMediaActivationCountPolicy::OnMediaSuspendRequested(
   SuspendMediaIfExistIn(activated_list_, check_list);
   SuspendMediaIfExistIn(waiting_response_list_, check_list);
   SuspendMediaIfExistIn(pending_request_list_, check_list);
+  SuspendMediaIfExistIn(deactivated_list_, check_list);
 }
 
 void LimitedMediaActivationCountPolicy::OnMediaSuspendRequested(
@@ -183,6 +189,7 @@ void LimitedMediaActivationCountPolicy::OnMediaSuspendRequested(
   SuspendMediaIfExistIn(activated_list_, check_list);
   SuspendMediaIfExistIn(waiting_response_list_, check_list);
   SuspendMediaIfExistIn(pending_request_list_, check_list);
+  SuspendMediaIfExistIn(deactivated_list_, check_list);
 }
 
 void LimitedMediaActivationCountPolicy::OnRenderFrameDeleted(

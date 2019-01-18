@@ -336,7 +336,7 @@ void UMediaClientImpl::SetPreload(Preload preload) {
   preload_ = preload;
 }
 
-bool UMediaClientImpl::Preloadable(const std::string& content_media_option) {
+bool UMediaClientImpl::IsPreloadable(const std::string& content_media_option) {
   UpdateMediaOption(content_media_option, 0.0f);
   return use_pipeline_preload_;
 }

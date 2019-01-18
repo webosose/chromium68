@@ -145,6 +145,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
 
   blink::WebMediaPlayer::RenderMode render_mode_;
 
+  bool has_activation_permit_ = false;
+
   DISALLOW_COPY_AND_ASSIGN(WebMediaPlayerMSE);
 };
 

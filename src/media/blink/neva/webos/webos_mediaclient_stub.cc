@@ -78,7 +78,7 @@ void WebOSMediaClientStub::Resume() {}
 
 void WebOSMediaClientStub::SetPreload(Preload preload) {}
 
-bool WebOSMediaClientStub::Preloadable(
+bool WebOSMediaClientStub::IsPreloadable(
     const std::string& content_media_option) {
   return false;
 }

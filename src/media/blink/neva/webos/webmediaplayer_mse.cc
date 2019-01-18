@@ -150,7 +150,7 @@ void WebMediaPlayerMSE::Load(LoadType load_type,
 void WebMediaPlayerMSE::Play() {
   THIS_FUNC_LOG(1);
   DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (is_suspended_) {
+  if (!has_activation_permit_) {
     status_on_suspended_ = PlayingStatus;
     if (!client_->IsSuppressedMediaPlay())
       delegate_->DidMediaActivationNeeded(delegate_id_);
@@ -172,7 +172,7 @@ void WebMediaPlayerMSE::Pause() {
 void WebMediaPlayerMSE::SetRate(double rate) {
   THIS_FUNC_LOG(1);
   DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (is_suspended_) {
+  if (!has_activation_permit_) {
     if (!client_->IsSuppressedMediaPlay())
       delegate_->DidMediaActivationNeeded(delegate_id_);
     return;
@@ -218,6 +218,7 @@ void WebMediaPlayerMSE::OnSuspend() {
   }
 
   is_suspended_ = true;
+  has_activation_permit_ = false;
 
   // TODO(neva): also need to set STORAGE_BLACK for VIDEO_HOLE ?
   if (HasVideo() && RenderTexture())
@@ -227,11 +228,24 @@ void WebMediaPlayerMSE::OnSuspend() {
 }
 
 void WebMediaPlayerMSE::OnMediaActivationPermitted() {
+  // If we already have activation permit, just skip.
+  if (has_activation_permit_) {
+    delegate_->DidMediaActivated(delegate_id_);
+    return;
+  }
+
+  has_activation_permit_ = true;
   if (is_loading_) {
     OnLoadPermitted();
     return;
+  } else if (is_suspended_) {
+    OnResume();
+    return;
   }
-  OnResume();
+
+  Play();
+  client_->PlaybackStateChanged();
+  delegate_->DidMediaActivated(delegate_id_);
 }
 
 void WebMediaPlayerMSE::OnResume() {
