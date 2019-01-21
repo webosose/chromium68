@@ -457,10 +457,15 @@ void UMediaClientImpl::DispatchPlaying() {
     FUNC_LOG(1) << " ignored";
     return;
   }
+  FUNC_LOG(2);
+
+  // SystemMediaManager needs this call to connect audio sink right before
+  // playing.
+  SetPlaybackVolume(volume_, true);
 
   system_media_manager_->PlayStateChanged(
       SystemMediaManager::PlayState::kPlaying);
-  FUNC_LOG(2);
+
   requests_play_ = false;
   ended_ = false;
 
@@ -584,6 +589,7 @@ void UMediaClientImpl::DispatchLoadCompleted() {
     has_audio_ = true;
     has_video_ = video_;
     updated_source_info_ = true;
+    system_media_manager_->SourceInfoUpdated(has_audio_, has_video_);
     if (!buffering_state_cb_.is_null()) {
       buffering_state_have_meta_data_ = true;
       buffering_state_cb_.Run(UMediaClientImpl::kHaveMetadata);
@@ -626,6 +632,7 @@ void UMediaClientImpl::DispatchPreloadCompleted() {
     has_audio_ = true;
     has_video_ = video_;
     updated_source_info_ = true;
+    system_media_manager_->SourceInfoUpdated(has_audio_, has_video_);
     if (!buffering_state_cb_.is_null()) {
       FUNC_LOG(2) << " buffering_state_have_meta_data_="
                   << buffering_state_have_meta_data_;
@@ -779,6 +786,7 @@ void UMediaClientImpl::DispatchSourceInfo(
       buffering_state_cb_.Run(UMediaClientImpl::kPreloadCompleted);
   }
   updated_source_info_ = true;
+  system_media_manager_->SourceInfoUpdated(has_audio_, has_video_);
 
   if (!update_ums_info_cb_.is_null())
     update_ums_info_cb_.Run(MediaInfoToJson(sourceInfo));
@@ -935,6 +943,7 @@ void UMediaClientImpl::DispatchSourceInfo(
       buffering_state_cb_.Run(UMediaClientImpl::kPreloadCompleted);
   }
   updated_source_info_ = true;
+  system_media_manager_->SourceInfoUpdated(has_audio_, has_video_);
 
   if (!update_ums_info_cb_.is_null())
     update_ums_info_cb_.Run(MediaInfoToJson(sourceInfo));

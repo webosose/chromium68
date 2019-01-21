@@ -62,6 +62,7 @@ class SystemMediaManagerGmp : public SystemMediaManager {
   void SwitchToAutoLayout() override {}
   void AudioInfoUpdated(const struct ums::audio_info_t& audio_info) override {}
   void VideoInfoUpdated(const struct ums::video_info_t& videoInfo) override {}
+  void SourceInfoUpdated(bool has_video, bool has_audio) override {}
   void AppStateChanged(AppState s) override {}
   void PlayStateChanged(PlayState s) override {}
   void AudioMuteChanged(bool mute) override {}

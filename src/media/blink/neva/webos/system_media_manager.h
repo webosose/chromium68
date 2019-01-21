@@ -103,6 +103,7 @@ class SystemMediaManager {
   virtual void VideoInfoUpdated(
       const struct uMediaServer::video_info_t& videoInfo) = 0;
 #endif
+  virtual void SourceInfoUpdated(bool has_video, bool has_audio) = 0;
   // Notify app state is changed
   virtual void AppStateChanged(AppState s) = 0;
   // Notify play state is changed
