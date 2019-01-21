@@ -272,6 +272,7 @@ class CONTENT_EXPORT RenderThreadImpl
   bool IsThreadedAnimationEnabled() override;
   bool IsScrollAnimatorEnabled() override;
   std::unique_ptr<cc::UkmRecorderFactory> CreateUkmRecorderFactory() override;
+  bool IsAggressiveReleasePolicyEnabled() override;
 
   // blink::scheduler::WebMainThreadScheduler::RAILModeObserver implementation.
   void OnRAILModeChanged(v8::RAILMode rail_mode) override;
@@ -757,6 +758,7 @@ class CONTENT_EXPORT RenderThreadImpl
   bool is_elastic_overscroll_enabled_;
   bool is_threaded_animation_enabled_;
   bool is_scroll_animator_enabled_;
+  bool is_aggressive_release_policy_enabled_;
 
   // Target rendering ColorSpace.
   gfx::ColorSpace rendering_color_space_;

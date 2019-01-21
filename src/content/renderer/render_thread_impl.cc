@@ -206,6 +206,10 @@
 #include <malloc.h>
 #endif
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "cc/base/switches_neva.h"
+#endif
+
 using base::ThreadRestrictions;
 using blink::WebDocument;
 using blink::WebFrame;
@@ -945,6 +949,13 @@ void RenderThreadImpl::Init(
   } else {
     gpu_rasterization_msaa_sample_count_ = -1;
   }
+
+#if defined(USE_NEVA_APPRUNTIME)
+  is_aggressive_release_policy_enabled_ =
+      command_line.HasSwitch(cc::switches::kEnableAggressiveReleasePolicy);
+#else
+  is_aggressive_release_policy_enabled_ = false;
+#endif
 
   // Note that under Linux, the media library will normally already have
   // been initialized by the Zygote before this instance became a Renderer.
@@ -1707,6 +1718,10 @@ RenderThreadImpl::CreateUkmRecorderFactory() {
   }
 
   return std::make_unique<UkmRecorderFactoryImpl>(GetConnector()->Clone());
+}
+
+bool RenderThreadImpl::IsAggressiveReleasePolicyEnabled() {
+  return is_aggressive_release_policy_enabled_;
 }
 
 void RenderThreadImpl::OnRAILModeChanged(v8::RAILMode rail_mode) {

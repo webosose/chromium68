@@ -23,6 +23,11 @@ namespace switches {
 const char kDecodedImageWorkingSetBudgetMB[] =
     "decoded-image-working-set-budget-mb";
 
+// Enables using aggressive release policy to reclaim allocated resources
+// when application goes into hidden state.
+const char kEnableAggressiveReleasePolicy[] =
+    "enable-aggressive-release-policy";
+
 // Enable native-scroll feature
 const char kEnableWebOSNativeScroll[] = "enable-native-scroll";
 

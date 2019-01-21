@@ -27,6 +27,10 @@
 #include "third_party/skia/include/core/SkColor.h"
 #include "ui/gfx/geometry/dip_util.h"
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "cc/base/switches_neva.h"
+#endif
+
 namespace content {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +44,9 @@ DelegatedFrameHost::DelegatedFrameHost(const viz::FrameSinkId& frame_sink_id,
       client_(client),
       enable_viz_(enable_viz),
       should_register_frame_sink_id_(should_register_frame_sink_id),
+      use_aggressive_release_policy_(
+          base::CommandLine::ForCurrentProcess()->HasSwitch(
+              cc::switches::kEnableAggressiveReleasePolicy)),
       frame_evictor_(std::make_unique<viz::FrameEvictor>(this)) {
   ImageTransportFactory* factory = ImageTransportFactory::GetInstance();
   factory->GetContextFactory()->AddObserver(this);

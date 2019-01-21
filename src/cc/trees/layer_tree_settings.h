@@ -160,6 +160,8 @@ class CC_EXPORT LayerTreeSettings {
   // Whether a HitTestRegionList should be built from the active layer tree when
   // submitting a CompositorFrame.
   bool build_hit_test_data = false;
+
+  bool use_aggressive_release_policy = false;
 };
 
 }  // namespace cc

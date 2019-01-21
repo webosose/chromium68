@@ -250,16 +250,16 @@ class CONTENT_EXPORT DelegatedFrameHost
 
   bool needs_begin_frame_ = false;
 
+#if defined(USE_NEVA_APPRUNTIME)
+  bool use_aggressive_release_policy_;
+  bool deferred_resume_drawing_ = false;
+  bool was_hidden_ = false;
+#endif
+
   viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink_ =
       nullptr;
 
   std::unique_ptr<viz::FrameEvictor> frame_evictor_;
-
-#if defined(USE_NEVA_APPRUNTIME)
-  bool use_aggressive_release_policy_ = false;
-  bool deferred_resume_drawing_ = false;
-  bool was_hidden_ = false;
-#endif
 
   uint32_t first_parent_sequence_number_after_navigation_ = 0;
   bool received_frame_after_navigation_ = false;

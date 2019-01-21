@@ -2777,7 +2777,10 @@ void LayerTreeHostImpl::SetVisible(bool visible) {
     return;
   visible_ = visible;
   DidVisibilityChange(this, visible_);
-  UpdateTileManagerMemoryPolicy(ActualManagedMemoryPolicy());
+  if (!visible && settings_.use_aggressive_release_policy)
+    UpdateTileManagerMemoryPolicy(ManagedMemoryPolicy(0));
+  else
+    UpdateTileManagerMemoryPolicy(ActualManagedMemoryPolicy());
 
   // If we just became visible, we have to ensure that we draw high res tiles,
   // to prevent checkerboard/low res flashes.

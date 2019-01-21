@@ -56,6 +56,10 @@
 #include "ui/gfx/switches.h"
 #include "ui/gl/gl_switches.h"
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "cc/base/switches_neva.h"
+#endif
+
 namespace ui {
 
 Compositor::Compositor(const viz::FrameSinkId& frame_sink_id,
@@ -192,6 +196,11 @@ Compositor::Compositor(const viz::FrameSinkId& frame_sink_id,
 
   settings.always_request_presentation_time =
       command_line->HasSwitch(cc::switches::kAlwaysRequestPresentationTime);
+
+#if defined(USE_NEVA_APPRUNTIME)
+  settings.use_aggressive_release_policy =
+      command_line->HasSwitch(cc::switches::kEnableAggressiveReleasePolicy);
+#endif
 
   base::TimeTicks before_create = base::TimeTicks::Now();
 

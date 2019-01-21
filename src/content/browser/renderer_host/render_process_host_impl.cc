@@ -2881,6 +2881,7 @@ void RenderProcessHostImpl::PropagateBrowserCommandLineToRenderer(
 #endif
 #if defined(USE_NEVA_APPRUNTIME)
     cc::switches::kDecodedImageWorkingSetBudgetMB,
+    cc::switches::kEnableAggressiveReleasePolicy,
     cc::switches::kMemPressureGPUCacheSizeReductionFactor,
     cc::switches::kTileManagerLowMemPolicyBytesLimitReductionFactor,
 #endif

@@ -50,6 +50,7 @@ class CompositorDependencies {
   virtual bool IsScrollAnimatorEnabled() = 0;
   virtual std::unique_ptr<cc::UkmRecorderFactory>
   CreateUkmRecorderFactory() = 0;
+  virtual bool IsAggressiveReleasePolicyEnabled() = 0;
 
   virtual ~CompositorDependencies() {}
 };
