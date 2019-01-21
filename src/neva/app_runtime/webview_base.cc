@@ -238,10 +238,6 @@ void WebViewBase::ResumePaintingAndSetVisibilityVisible() {
   webview_->ResumePaintingAndSetVisibilityVisible();
 }
 
-void WebViewBase::EnableAggressiveReleasePolicy(bool enable) {
-  webview_->EnableAggressiveReleasePolicy(enable);
-}
-
 void WebViewBase::CommitLoadVisually() {
   webview_->CommitLoadVisually();
 }

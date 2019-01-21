@@ -118,7 +118,6 @@ class WEBOS_EXPORT WebViewBase
   void ResumeWebPageMedia();
   void SuspendPaintingAndSetVisibilityHidden();
   void ResumePaintingAndSetVisibilityVisible();
-  void EnableAggressiveReleasePolicy(bool enable);
   void CommitLoadVisually();
   void RunJavaScript(const std::string& js_code);
   void RunJavaScriptInAllFrames(const std::string& js_code);

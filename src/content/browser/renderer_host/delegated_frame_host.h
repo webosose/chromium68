@@ -185,10 +185,6 @@ class CONTENT_EXPORT DelegatedFrameHost
     return current_frame_size_in_dip_;
   }
 
-#if defined(USE_NEVA_APPRUNTIME)
-  void EnableAggressiveReleasePolicy(bool enable);
-#endif
-
   void DidNavigate();
 
   bool IsPrimarySurfaceEvicted() const;

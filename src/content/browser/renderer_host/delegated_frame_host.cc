@@ -581,12 +581,4 @@ void DelegatedFrameHost::TakeFallbackContentFrom(DelegatedFrameHost* other) {
       *other->client_->DelegatedFrameHostGetLayer()->GetFallbackSurfaceId());
 }
 
-#if defined(USE_NEVA_APPRUNTIME)
-void DelegatedFrameHost::EnableAggressiveReleasePolicy(bool enable) {
-  // FIXME: Should be refactored when aggressive release policy patches will be
-  // migrated
-  use_aggressive_release_policy_ = enable;
-}
-#endif
-
 }  // namespace content

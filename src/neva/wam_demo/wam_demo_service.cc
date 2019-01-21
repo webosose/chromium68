@@ -656,11 +656,9 @@ void WamDemoService::DataUpdated(const std::string& url,
     } else if (cmd == command::kResumeMedia) {
       webpage->ResumeWebPageMedia();
     } else if (cmd == command::kSuspendPainting) {
-      webpage->EnableAggressiveReleasePolicy(true);
       webpage->SuspendPaintingAndSetVisibilityHidden();
     } else if (cmd == command::kResumePainting) {
       webpage->ResumePaintingAndSetVisibilityVisible();
-      webpage->EnableAggressiveReleasePolicy(false);
     } else if (cmd == command::kSetAcceptLanguage) {
         webpage->SetAcceptLanguages("ko");
         webpage->RunJavaScript("location.reload();");

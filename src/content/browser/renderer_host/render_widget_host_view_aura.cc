@@ -2429,13 +2429,6 @@ bool RenderWidgetHostViewAura::SystemKeyboardDisabled() const {
   return false;
 }
 
-void RenderWidgetHostViewAura::EnableAggressiveReleasePolicy(bool enable) {
-  if (!delegated_frame_host_)
-    return;
-
-  delegated_frame_host_->EnableAggressiveReleasePolicy(enable);
-}
-
 gfx::Size RenderWidgetHostViewAura::GetCompositorViewportPixelSize() const {
   return gfx::ScaleToCeiledSize(GetRequestedRendererSize(),
                                 GetDeviceScaleFactor() * window_scale_ratio_);

@@ -300,14 +300,6 @@ void WebView::ResumePaintingAndSetVisibilityVisible() {
     host_view->Show();
 }
 
-void WebView::EnableAggressiveReleasePolicy(bool enable) {
-  content::RenderWidgetHostViewAura* const host_view =
-      static_cast<content::RenderWidgetHostViewAura*>(
-          web_contents_->GetRenderViewHost()->GetWidget()->GetView());
-  if (host_view)
-    host_view->EnableAggressiveReleasePolicy(enable);
-}
-
 bool WebView::SetSkipFrame(bool enable) {
   NOTIMPLEMENTED();
   return true;

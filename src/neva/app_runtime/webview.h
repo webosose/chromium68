@@ -123,7 +123,6 @@ class WebView : public content::WebContentsDelegate,
   void ResumeMedia();
   void SuspendPaintingAndSetVisibilityHidden();
   void ResumePaintingAndSetVisibilityVisible();
-  void EnableAggressiveReleasePolicy(bool enable);
   bool SetSkipFrame(bool enable);
 
   bool IsActiveOnNonBlankPaint() const {
