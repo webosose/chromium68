@@ -500,8 +500,7 @@ void WaylandDisplay::CreateWidget(unsigned widget) {
 
 void WaylandDisplay::InitWindow(unsigned handle,
                                 unsigned parent,
-                                int x,
-                                int y,
+                                const gfx::Rect& rect,
                                 ui::WidgetType type) {
 #if defined(OS_WEBOS)
   PointerVisibilityNotify(GetPointerCursorVisible());
@@ -515,14 +514,14 @@ void WaylandDisplay::InitWindow(unsigned handle,
   case ui::WidgetType::WINDOW:
   case ui::WidgetType::WINDOWFRAMELESS:
     window->SetShellAttributes(WaylandWindow::TOPLEVEL);
+    window->Resize(rect.width(), rect.height());
     break;
   case ui::WidgetType::POPUP:
   case ui::WidgetType::TOOLTIP:
     DCHECK(parent_window);
     window->SetShellAttributes(WaylandWindow::POPUP,
-                               parent_window->ShellSurface(),
-                               x,
-                               y);
+                               parent_window->ShellSurface(), rect.x(),
+                               rect.y());
     break;
   default:
     break;

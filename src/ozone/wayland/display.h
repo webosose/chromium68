@@ -249,8 +249,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   void CreateWidget(unsigned widget);
   void InitWindow(unsigned widget,
                   unsigned parent,
-                  int x,
-                  int y,
+                  const gfx::Rect& rect,
                   ui::WidgetType type);
   void MoveWindow(unsigned widget, unsigned parent,
                   ui::WidgetType type, const gfx::Rect& rect);
