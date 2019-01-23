@@ -124,6 +124,18 @@ void FirstMeaningfulPaintDetector::NotifyPaint() {
   had_user_input_before_provisional_first_meaningful_paint_ = had_user_input_;
   provisional_first_meaningful_paint_swap_ = TimeTicks();
 #if defined(USE_NEVA_APPRUNTIME)
+  if (GetDocument() && GetDocument()->GetSettings() &&
+      GetDocument()->GetSettings()->NotifyFMPDirectly()) {
+    had_user_input_before_provisional_first_meaningful_paint_ = had_user_input_;
+    provisional_first_meaningful_paint_swap_ =
+        provisional_first_meaningful_paint_;
+    first_meaningful_paint2_quiet_ = provisional_first_meaningful_paint_swap_;
+    network2_quiet_reached_ = true;
+    SetFirstMeaningfulPaint(first_meaningful_paint2_quiet_,
+                            provisional_first_meaningful_paint_swap_);
+    return;
+  }
+
   PMLOG_DEBUG(FMP, "%s %s (%p) registers notify swap time", __FILE__, __func__,
               this);
 #endif
@@ -338,28 +350,21 @@ void FirstMeaningfulPaintDetector::ReportSwapTime(
   }
 
 #if defined(USE_NEVA_APPRUNTIME)
-  if (GetDocument() && GetDocument()->GetSettings()) {
-    PMLOG_DEBUG(
-        FMP,
-        "%s %s (%p) has NotifyFMPDirectly[%s] "
-        "seen_first_meaningful_paint_candidate_[%s] ",
-        __FILE__, __func__, this,
-        GetDocument()->GetSettings()->NotifyFMPDirectly() ? "true" : "false",
-        seen_first_meaningful_paint_candidate_ ? "true" : "false");
-    if (GetDocument()->GetSettings()->NotifyFMPDirectly() ||
-        seen_first_meaningful_paint_candidate_) {
-      if (GetDocument()->HasDeferredBackgroundImages()) {
-        defer_first_meaningful_paint_ = kDeferBackgroundImagesWait;
-        PMLOG_DEBUG(FMP, "%s %s (%p) document has deferredbackgroundimages",
-                    __FILE__, __func__, this);
-        return;
-      }
-      first_meaningful_paint2_quiet_ = CurrentTimeTicks();
-      network2_quiet_reached_ = true;
-      SetFirstMeaningfulPaint(first_meaningful_paint2_quiet_,
-                              provisional_first_meaningful_paint_swap_);
+  PMLOG_DEBUG(FMP, "%s %s (%p) seen_first_meaningful_paint_candidate_[%s] ",
+              __FILE__, __func__, this,
+              seen_first_meaningful_paint_candidate_ ? "true" : "false");
+  if (seen_first_meaningful_paint_candidate_) {
+    if (GetDocument() && GetDocument()->HasDeferredBackgroundImages()) {
+      defer_first_meaningful_paint_ = kDeferBackgroundImagesWait;
+      PMLOG_DEBUG(FMP, "%s %s (%p) document has deferredbackgroundimages",
+                  __FILE__, __func__, this);
       return;
     }
+    first_meaningful_paint2_quiet_ = CurrentTimeTicks();
+    network2_quiet_reached_ = true;
+    SetFirstMeaningfulPaint(first_meaningful_paint2_quiet_,
+                            provisional_first_meaningful_paint_swap_);
+    return;
   }
 #endif
 
