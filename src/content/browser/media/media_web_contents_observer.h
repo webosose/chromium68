@@ -169,7 +169,9 @@ class CONTENT_EXPORT MediaWebContentsObserver : public WebContentsObserver {
   void OnMediaActivated(RenderFrameHost* render_frame_host, int player_id);
   void OnMediaActivationRequested(RenderFrameHost* render_frame_host,
                                   int player_id);
-  void OnMediaCreated(RenderFrameHost* render_frame_host, int player_id);
+  void OnMediaCreated(RenderFrameHost* render_frame_host,
+                      int player_id,
+                      bool will_use_media_resource);
   void OnMediaSuspended(RenderFrameHost* render_frame_host, int player_id);
 #endif
 

@@ -46,7 +46,8 @@ class CONTENT_EXPORT MediaStatePolicy {
   virtual void OnMediaActivationRequested(RenderFrameHost* render_frame_host,
                                           int player_id) = 0;
   virtual void OnMediaCreated(RenderFrameHost* render_frame_host,
-                              int player_id) = 0;
+                              int player_id,
+                              bool will_use_media_resource) = 0;
   virtual void OnMediaDestroyed(RenderFrameHost* render_frame_host,
                                 int player_id) = 0;
   virtual void OnMediaResumeRequested(WebContents* web_contents) = 0;

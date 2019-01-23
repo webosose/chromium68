@@ -38,7 +38,8 @@ class CONTENT_EXPORT MediaStateManagerImpl : public MediaStateManager,
   void OnMediaActivationRequested(RenderFrameHost* render_frame_host,
                                   int player_id) override;
   void OnMediaCreated(RenderFrameHost* render_frame_host,
-                      int player_id) override;
+                      int player_id,
+                      bool will_use_media_resource) override;
   void OnMediaDestroyed(RenderFrameHost* render_frame_host,
                         int player_id) override;
   void OnMediaSuspended(RenderFrameHost* render_frame_host,

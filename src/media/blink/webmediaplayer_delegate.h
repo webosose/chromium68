@@ -182,7 +182,7 @@ class WebMediaPlayerDelegate {
       blink::WebFullscreenVideoStatus fullscreen_video_status) = 0;
 
 #if defined(USE_NEVA_MEDIA)
-  virtual void DidMediaCreated(int player_id) = 0;
+  virtual void DidMediaCreated(int player_id, bool will_use_media_resource) = 0;
   virtual void DidMediaActivated(int player_id) = 0;
   virtual void DidMediaActivationNeeded(int player_id) = 0;
   virtual void DidMediaSuspended(int player_id) = 0;

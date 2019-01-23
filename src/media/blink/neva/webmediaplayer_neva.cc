@@ -236,7 +236,7 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
   video_frame_provider_->SetWebMediaPlayerClient(client);
   SetRenderMode(GetClient()->RenderMode());
 
-  delegate_->DidMediaCreated(delegate_id_);
+  delegate_->DidMediaCreated(delegate_id_, player_api_->RequireMediaResource());
 }
 
 WebMediaPlayerNeva::~WebMediaPlayerNeva() {

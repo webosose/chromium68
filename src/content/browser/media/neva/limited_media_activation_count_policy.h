@@ -26,7 +26,14 @@
 namespace content {
 
 // This policy manages media players under the maximum number of activated
-// media players.
+// media players. The value is provided via 'max-activated-media-players'
+// command line switch.
+// Also we handle some custome media player specially. The media player is
+// allowed to activate immediately. And it will not introduce to suspend
+// another media player, and vice versa. We distinguish this type of media
+// player via |will_use_media_resource| in OnMediaCreated(). The media player
+// will be suspended/resumed on corresponding render_frame_host is suspended
+// /resumed.
 class CONTENT_EXPORT LimitedMediaActivationCountPolicy
     : public MediaStatePolicy {
  public:
@@ -39,7 +46,8 @@ class CONTENT_EXPORT LimitedMediaActivationCountPolicy
   void OnMediaActivationRequested(RenderFrameHost* render_frame_host,
                                   int player_id) override;
   void OnMediaCreated(RenderFrameHost* render_frame_host,
-                      int player_id) override;
+                      int player_id,
+                      bool will_use_media_resource) override;
   void OnMediaDestroyed(RenderFrameHost* render_frame_host,
                         int player_id) override;
   void OnMediaResumeRequested(WebContents* web_contents) override;
@@ -71,7 +79,9 @@ class CONTENT_EXPORT LimitedMediaActivationCountPolicy
   MediaPlayerList deactivated_list_;
   MediaPlayerList pending_deactivated_list_;
 
-  // pair<plyer_id, token>
+  MediaPlayerList unlimited_player_list_;
+
+  // pair<player_id, token>
   std::map<RenderFrameHost*, std::map<int, int>> ids_;
 
   int max_capacity_;

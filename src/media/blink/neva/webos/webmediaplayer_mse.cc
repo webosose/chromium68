@@ -113,7 +113,7 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
 
   SetRenderMode(client_->RenderMode());
 
-  delegate_->DidMediaCreated(delegate_id_);
+  delegate_->DidMediaCreated(delegate_id_, true);
 }
 
 WebMediaPlayerMSE::~WebMediaPlayerMSE() {

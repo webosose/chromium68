@@ -49,8 +49,10 @@ void MediaStateManagerImpl::OnMediaActivationRequested(
 }
 
 void MediaStateManagerImpl::OnMediaCreated(RenderFrameHost* render_frame_host,
-                                           int player_id) {
-  policy_->OnMediaCreated(render_frame_host, player_id);
+                                           int player_id,
+                                           bool will_use_media_resource) {
+  policy_->OnMediaCreated(render_frame_host, player_id,
+                          will_use_media_resource);
 }
 
 void MediaStateManagerImpl::OnMediaDestroyed(RenderFrameHost* render_frame_host,

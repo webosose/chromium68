@@ -80,7 +80,7 @@ class CONTENT_EXPORT RendererWebMediaPlayerDelegate
 
 #if defined(USE_NEVA_MEDIA)
   // WebMediaPlayerDelegate implementation.
-  void DidMediaCreated(int player_id) override;
+  void DidMediaCreated(int player_id, bool will_use_media_resource) override;
   void DidMediaActivated(int player_id) override;
   void DidMediaActivationNeeded(int player_id) override;
   void DidMediaSuspended(int player_id) override;

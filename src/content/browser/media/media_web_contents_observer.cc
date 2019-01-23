@@ -532,9 +532,10 @@ void MediaWebContentsObserver::OnMediaActivationRequested(
 
 void MediaWebContentsObserver::OnMediaCreated(
     RenderFrameHost* render_frame_host,
-    int delegate_id) {
-  MediaStateManager::GetInstance()->OnMediaCreated(render_frame_host,
-                                                   delegate_id);
+    int delegate_id,
+    bool will_use_media_resource) {
+  MediaStateManager::GetInstance()->OnMediaCreated(
+      render_frame_host, delegate_id, will_use_media_resource);
 }
 
 void MediaWebContentsObserver::OnMediaSuspended(

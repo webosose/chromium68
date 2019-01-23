@@ -272,6 +272,10 @@ void MediaPlayerUMS::Resume() {
   umedia_client_->Resume();
 }
 
+bool MediaPlayerUMS::RequireMediaResource() {
+  return true;
+}
+
 void MediaPlayerUMS::OnPlaybackStateChanged(bool playing) {
   FUNC_LOG(1);
   if (playing)

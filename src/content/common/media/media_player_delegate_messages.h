@@ -129,8 +129,9 @@ IPC_MESSAGE_ROUTED1(MediaPlayerDelegateHostMsg_OnMediaActivated,
 IPC_MESSAGE_ROUTED1(MediaPlayerDelegateHostMsg_OnMediaActivationRequested,
                     int /* delegate_id */)
 
-IPC_MESSAGE_ROUTED1(MediaPlayerDelegateHostMsg_OnMediaCreated,
-                    int /* delegate_id */)
+IPC_MESSAGE_ROUTED2(MediaPlayerDelegateHostMsg_OnMediaCreated,
+                    int /* delegate_id */,
+                    bool /* will_use_media_resource */)
 
 IPC_MESSAGE_ROUTED1(MediaPlayerDelegateHostMsg_OnMediaSuspended,
                     int /* delegate_id */)

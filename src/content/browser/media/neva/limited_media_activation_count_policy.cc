@@ -52,6 +52,9 @@ void LimitedMediaActivationCountPolicy::OnMediaActivated(
     int player_id) {
   MediaPlayerId id(render_frame_host, player_id);
 
+  if (Contains(unlimited_player_list_, id))
+    return;
+
   // There are some possibilities in here:
   // 1) This media player was already suspended.
   // 2) This media player sent response message multiple times.
@@ -69,9 +72,18 @@ void LimitedMediaActivationCountPolicy::OnMediaActivated(
 void LimitedMediaActivationCountPolicy::OnMediaActivationRequested(
     RenderFrameHost* render_frame_host,
     int player_id) {
+  if (!client_)
+    return;
+
   MediaPlayerId id(render_frame_host, player_id);
 
-  // We don't anything if the media player is not in deactivated list.
+  // Just permit immediately if the media player is in unlimited_player_list_.
+  if (Contains(unlimited_player_list_, id)) {
+    client_->PermitMediaActivation(id.first, id.second);
+    return;
+  }
+
+  // We don't do anything if the media player is not in deactivated list.
   if (!Contains(deactivated_list_, id))
     return;
 
@@ -84,11 +96,17 @@ void LimitedMediaActivationCountPolicy::OnMediaActivationRequested(
 
 void LimitedMediaActivationCountPolicy::OnMediaCreated(
     RenderFrameHost* render_frame_host,
-    int player_id) {
+    int player_id,
+    bool will_use_media_resource) {
   MediaPlayerId id(render_frame_host, player_id);
 
   RemoveIdInAllList(id);
-  deactivated_list_.push_back(id);
+
+  if (will_use_media_resource) {
+    deactivated_list_.push_back(id);
+  } else {
+    unlimited_player_list_.push_back(id);
+  }
 
   ids_[render_frame_host][player_id] = 0;
 }
@@ -139,7 +157,7 @@ void LimitedMediaActivationCountPolicy::OnMediaSuspended(
     int player_id) {
   MediaPlayerId id(render_frame_host, player_id);
 
-  if (Contains(deactivated_list_, id))
+  if (Contains(deactivated_list_, id) || Contains(unlimited_player_list_, id))
     return;
 
   // We assume that a media player can be deactivated from any status(not only
@@ -179,6 +197,7 @@ void LimitedMediaActivationCountPolicy::OnMediaSuspendRequested(
   SuspendMediaIfExistIn(waiting_response_list_, check_list);
   SuspendMediaIfExistIn(pending_request_list_, check_list);
   SuspendMediaIfExistIn(deactivated_list_, check_list);
+  SuspendMediaIfExistIn(unlimited_player_list_, check_list);
 }
 
 void LimitedMediaActivationCountPolicy::OnMediaSuspendRequested(
@@ -190,6 +209,7 @@ void LimitedMediaActivationCountPolicy::OnMediaSuspendRequested(
   SuspendMediaIfExistIn(waiting_response_list_, check_list);
   SuspendMediaIfExistIn(pending_request_list_, check_list);
   SuspendMediaIfExistIn(deactivated_list_, check_list);
+  SuspendMediaIfExistIn(unlimited_player_list_, check_list);
 }
 
 void LimitedMediaActivationCountPolicy::OnRenderFrameDeleted(
@@ -289,10 +309,21 @@ void LimitedMediaActivationCountPolicy::RemoveIdInAllList(
   pending_request_list_.remove(id);
   deactivated_list_.remove(id);
   pending_deactivated_list_.remove(id);
+  unlimited_player_list_.remove(id);
 }
 
 void LimitedMediaActivationCountPolicy::ResumeMediaForCheckList(
     CheckList& check_list) {
+  if (!client_)
+    return;
+
+  // For unlimited players, just resume all media players in |check_list|.
+  for (auto iter = unlimited_player_list_.begin();
+       iter != unlimited_player_list_.end(); iter++) {
+    if (check_list.find(iter->first) != check_list.end())
+      client_->PermitMediaActivation(iter->first, iter->second);
+  }
+
   // We assume that there are no any activated or pending media players in each
   // rfh. So we just find available media players in deactivated list.
   // We may think about resuming GetAvailableNumber() of media players.

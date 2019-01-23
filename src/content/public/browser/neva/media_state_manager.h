@@ -45,7 +45,8 @@ class CONTENT_EXPORT MediaStateManager {
   // Called when a media player is created. Usually this API is called by
   // MediaWebContentsObserver.
   virtual void OnMediaCreated(RenderFrameHost* render_frame_host,
-                              int player_id) = 0;
+                              int player_id,
+                              bool will_use_media_resource) = 0;
 
   // Called when a media player is destroyed. Usually this API is called by
   // MediaWebContentsObserver.

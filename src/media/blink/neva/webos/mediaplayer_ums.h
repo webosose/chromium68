@@ -101,6 +101,7 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
   void SetVisibility(bool) override;
   void Suspend(SuspendReason reason) override;
   void Resume() override;
+  bool RequireMediaResource() override;
   // end of media::RendererMediaBuiltinPlayerManagerInterface
   //-----------------------------------------------------------------
 

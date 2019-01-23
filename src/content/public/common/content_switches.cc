@@ -1090,6 +1090,9 @@ const char kV2SandboxedEnabled[] = "v2-sandbox-enabled";
 // The command line parameter indicating that the maximum number of activated
 // media players is limited. That means only provided number of media players
 // can play media at the same time. Other media players will be suspended.
+// Note that some custom media players are allowed to play media at the same
+// time specially, when media state manager expects that these not use media
+// resource.
 const char kMaxActivatedMediaPlayers[] = "max-activated-media-players";
 
 const char kMaxTimeupdateEventFrequency[] = "max-timeupdate-event-frequency";

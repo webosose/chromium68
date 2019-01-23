@@ -41,7 +41,8 @@ void DefaultMediaStatePolicy::OnMediaActivationRequested(
 }
 
 void DefaultMediaStatePolicy::OnMediaCreated(RenderFrameHost* render_frame_host,
-                                             int player_id) {
+                                             int player_id,
+                                             bool will_use_media_resource) {
   player_list_[render_frame_host].insert(player_id);
 }
 

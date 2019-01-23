@@ -120,6 +120,8 @@ class MediaPlayerNeva {
    virtual void SetAudioFocus(bool focus) = 0;
    virtual bool HasVisibility() const = 0;
    virtual void SetVisibility(bool) = 0;
+   // Returns |true| if the player uses media resource(e.g. hardware decoder).
+   virtual bool RequireMediaResource() = 0;
 
    virtual ~MediaPlayerNeva() {}
 };

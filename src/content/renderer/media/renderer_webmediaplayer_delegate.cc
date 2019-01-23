@@ -543,8 +543,11 @@ void RendererWebMediaPlayerDelegate::DidMediaActivationNeeded(int player_id) {
                                                                  player_id));
 }
 
-void RendererWebMediaPlayerDelegate::DidMediaCreated(int player_id) {
-  Send(new MediaPlayerDelegateHostMsg_OnMediaCreated(routing_id(), player_id));
+void RendererWebMediaPlayerDelegate::DidMediaCreated(
+    int player_id,
+    bool will_use_media_resource) {
+  Send(new MediaPlayerDelegateHostMsg_OnMediaCreated(routing_id(), player_id,
+                                                     will_use_media_resource));
 }
 
 void RendererWebMediaPlayerDelegate::DidMediaSuspended(int player_id) {
