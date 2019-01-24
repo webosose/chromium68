@@ -5,6 +5,12 @@
 #ifndef CONTENT_COMMON_CONTENT_EXPORT_H_
 #define CONTENT_COMMON_CONTENT_EXPORT_H_
 
+#if defined(USE_CBE) && !defined(COMPONENT_BUILD)
+#define CBE_CONTENT_EXPORT __attribute__((visibility("default")))
+#else
+#define CBE_CONTEXT_EXPORT
+#endif
+
 #if defined(COMPONENT_BUILD) && !defined(COMPILE_CONTENT_STATICALLY)
 #if defined(WIN32)
 

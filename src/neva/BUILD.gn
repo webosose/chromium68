@@ -94,7 +94,6 @@ config("config") {
   if (use_cbe) {
     defines += [
       "USE_CBE=1",
-      "COMPONENT_BUILD=1"
     ]
   }
 

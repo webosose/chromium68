@@ -75,6 +75,7 @@ CONTENT_EXPORT void SetContentMainDelegate(ContentMainDelegate* delegate);
 // initial setup for every process. The embedder has a chance to customize
 // startup using the ContentMainDelegate interface. The embedder can also pass
 // in NULL for |delegate| if they don't want to override default startup.
+CBE_CONTENT_EXPORT
 CONTENT_EXPORT int ContentMain(const ContentMainParams& params);
 #endif
 
