@@ -140,7 +140,7 @@ void WaylandTextInput::ActivateTextModel() {
   if (text_model_ && active_window_ && !activated_) {
     text_model_activate(text_model_, serial, seat_->GetWLSeat(),
                         active_window_->ShellSurface()->GetWLSurface());
-    activated_ = true;
+
   }
 }
 
@@ -417,6 +417,8 @@ void WaylandTextInput::OnKeysym(void* data,
 void WaylandTextInput::OnEnter(void* data,
                                struct text_model* text_input,
                                struct wl_surface* surface) {
+  WaylandTextInput* instance = static_cast<WaylandTextInput*>(data);
+  instance->activated_ = true;
 }
 
 void WaylandTextInput::OnLeave(void* data,
