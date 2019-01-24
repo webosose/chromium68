@@ -74,11 +74,12 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
                                 std::move(params)),
       additional_contents_scale_(additional_contents_scale),
       app_id_(app_id.Utf8()),
-      status_on_suspended_(UnknownStatus),
       is_suspended_(false),
+      status_on_suspended_(UnknownStatus),
       is_video_offscreen_(false),
       is_fullscreen_(false),
-      is_loading_(false) {
+      is_loading_(false),
+      render_mode_(blink::WebMediaPlayer::RenderModeNone) {
   THIS_FUNC_LOG(1);
   // Use the null sink for our MSE player
   audio_source_provider_ = new media::WebAudioSourceProviderImpl(

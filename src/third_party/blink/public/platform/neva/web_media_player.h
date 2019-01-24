@@ -26,7 +26,12 @@ namespace neva {
 
 class WebMediaPlayer {
  public:
-  enum RenderMode { RenderModeDefault, RenderModeHole, RenderModeTexture };
+  enum RenderMode {
+    RenderModeNone,
+    RenderModeHole,
+    RenderModeTexture,
+    RenderModeDefault = RenderModeHole,
+  };
 
   enum MediaEventType {
     kMediaEventNone,

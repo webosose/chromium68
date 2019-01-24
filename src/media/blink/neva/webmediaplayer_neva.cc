@@ -203,7 +203,7 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
       compositor_task_runner_(params->compositor_task_runner()
                                   ? params->compositor_task_runner()
                                   : base::ThreadTaskRunnerHandle::Get()),
-      render_mode_(blink::WebMediaPlayer::RenderModeDefault),
+      render_mode_(blink::WebMediaPlayer::RenderModeNone),
       content_position_offset_(0.0f),
       additional_contents_scale_(params->additional_contents_scale()),
       is_fullscreen_(false),
