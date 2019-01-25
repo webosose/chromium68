@@ -113,6 +113,10 @@ void InputMethodNevaObserver::OnInputMethodDestroyed(const InputMethod* input_me
 }
 
 void InputMethodNevaObserver::OnShowImeIfNeeded() {
+  if (!is_enabled_)
+    return;
+
+  OnShowIme();
 }
 
 }  // namespace ui
