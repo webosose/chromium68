@@ -96,6 +96,11 @@ LayoutSize LayoutVideo::CalculateIntrinsicSize() {
                               video->IsFullscreen())) {
         return LayoutSize(size);
       }
+      IntSize natural_size = web_media_player->NaturalSize();
+      if (natural_size.Width() < widget_view_size.Width() ||
+          natural_size.Height() < widget_view_size.Height()) {
+        return LayoutSize(widget_view_size);
+      }
     }
 #endif
     IntSize size = web_media_player->NaturalSize();
