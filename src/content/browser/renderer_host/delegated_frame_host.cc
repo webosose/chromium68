@@ -33,6 +33,23 @@
 
 namespace content {
 
+#if defined(USE_NEVA_APPRUNTIME)
+namespace {
+const int kBackgroundCleanupDelayMs = 1000;
+
+viz::CompositorFrame CreateDelegatedFrame(float scale_factor, gfx::Size size) {
+  viz::CompositorFrame frame;
+  frame.metadata.device_scale_factor = scale_factor;
+
+  std::unique_ptr<viz::RenderPass> pass = viz::RenderPass::Create();
+  pass->SetNew(1, gfx::Rect(size), gfx::Rect(), gfx::Transform());
+  frame.render_pass_list.push_back(std::move(pass));
+  return frame;
+}
+
+}  // namespace
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 // DelegatedFrameHost
 
@@ -47,7 +64,12 @@ DelegatedFrameHost::DelegatedFrameHost(const viz::FrameSinkId& frame_sink_id,
       use_aggressive_release_policy_(
           base::CommandLine::ForCurrentProcess()->HasSwitch(
               cc::switches::kEnableAggressiveReleasePolicy)),
-      frame_evictor_(std::make_unique<viz::FrameEvictor>(this)) {
+      frame_evictor_(std::make_unique<viz::FrameEvictor>(this))
+#if defined(USE_NEVA_APPRUNTIME)
+      ,
+      weak_factory_(this)
+#endif
+{
   ImageTransportFactory* factory = ImageTransportFactory::GetInstance();
   factory->GetContextFactory()->AddObserver(this);
   viz::HostFrameSinkManager* host_frame_sink_manager =
@@ -81,8 +103,15 @@ void DelegatedFrameHost::WasShown(
   if (compositor_)
     compositor_->SetLatencyInfo(latency_info);
 
+  // Use the default deadline to synchronize web content with browser UI.
+  // TODO(fsamuel): Investigate if there is a better deadline to use here.
+  SynchronizeVisualProperties(new_pending_local_surface_id,
+                              new_pending_dip_size,
+                              cc::DeadlinePolicy::UseDefaultDeadline());
+
 #if defined(USE_NEVA_APPRUNTIME)
   if (use_aggressive_release_policy_) {
+    background_cleanup_task_.Cancel();
     if (!deferred_resume_drawing_ && was_hidden_) {
       deferred_resume_drawing_ = true;
       was_hidden_ = false;
@@ -92,12 +121,6 @@ void DelegatedFrameHost::WasShown(
     }
   }
 #endif
-
-  // Use the default deadline to synchronize web content with browser UI.
-  // TODO(fsamuel): Investigate if there is a better deadline to use here.
-  SynchronizeVisualProperties(new_pending_local_surface_id,
-                              new_pending_dip_size,
-                              cc::DeadlinePolicy::UseDefaultDeadline());
 }
 
 bool DelegatedFrameHost::HasSavedFrame() const {
@@ -105,17 +128,37 @@ bool DelegatedFrameHost::HasSavedFrame() const {
 }
 
 void DelegatedFrameHost::WasHidden() {
+#if defined(USE_NEVA_APPRUNTIME)
+  if (use_aggressive_release_policy_ && support_ && did_first_swap_ &&
+      GetCurrentSurfaceId().is_valid())
+    support_->SubmitCompositorFrame(
+        GetCurrentSurfaceId().local_surface_id(),
+        CreateDelegatedFrame(active_device_scale_factor_,
+                             GetRequestedRendererSize()));
+#endif
+
   frame_evictor_->SetVisible(false);
 
 #if defined(USE_NEVA_APPRUNTIME)
   if (use_aggressive_release_policy_) {
-    EvictDelegatedFrame();
     if (compositor_)
       compositor_->SuspendDrawing();
     was_hidden_ = true;
+    EvictDelegatedFrame();
+    background_cleanup_task_.Reset(base::BindOnce(
+        &DelegatedFrameHost::DoBackgroundCleanup, weak_factory_.GetWeakPtr()));
+    base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
+        FROM_HERE, background_cleanup_task_.callback(),
+        base::TimeDelta::FromMilliseconds(kBackgroundCleanupDelayMs));
   }
 #endif
 }
+
+#if defined(USE_NEVA_APPRUNTIME)
+void DelegatedFrameHost::DoBackgroundCleanup() {
+  viz::FrameEvictionManager::GetInstance()->PurgeAllUnlockedFrames();
+}
+#endif
 
 void DelegatedFrameHost::CopyFromCompositingSurface(
     const gfx::Rect& src_subrect,
@@ -332,6 +375,8 @@ void DelegatedFrameHost::SubmitCompositorFrame(
     compositor_->ResumeDrawing();
     compositor_->ScheduleFullRedraw();
   }
+
+  did_first_swap_ = true;
 #endif
 }
 

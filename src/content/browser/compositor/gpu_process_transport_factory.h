@@ -101,6 +101,10 @@ class GpuProcessTransportFactory : public ui::ContextFactory,
                                const viz::BeginFrameArgs& args) override;
   void SetOutputIsSecure(ui::Compositor* compositor, bool secure) override;
 
+#if defined(USE_NEVA_APPRUNTIME)
+  void ForceImmediateDrawAndSwapIfPossible(ui::Compositor* compositor) override;
+#endif
+
   // ImageTransportFactory implementation.
   bool IsGpuCompositingDisabled() override;
   ui::ContextFactory* GetContextFactory() override;

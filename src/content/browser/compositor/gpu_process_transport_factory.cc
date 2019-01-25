@@ -922,6 +922,20 @@ void GpuProcessTransportFactory::SetOutputIsSecure(ui::Compositor* compositor,
     data->display->SetOutputIsSecure(secure);
 }
 
+#if defined(USE_NEVA_APPRUNTIME)
+void GpuProcessTransportFactory::ForceImmediateDrawAndSwapIfPossible(
+    ui::Compositor* compositor) {
+  PerCompositorDataMap::iterator it = per_compositor_data_.find(compositor);
+  if (it == per_compositor_data_.end())
+    return;
+  PerCompositorData* data = it->second.get();
+  DCHECK(data);
+
+  if (data->display)
+    data->display->ForceImmediateDrawAndSwapIfPossible();
+}
+#endif
+
 void GpuProcessTransportFactory::AddObserver(
     ui::ContextFactoryObserver* observer) {
   observer_list_.AddObserver(observer);

@@ -1634,6 +1634,10 @@ void LayerTreeHostImpl::NotifyAllTileTasksCompleted() {
     // executes (within worker context's cleanup).
     if (image_decode_cache_)
       image_decode_cache_->SetShouldAggressivelyFreeResources(true);
+
+    if (resource_pool_ && settings_.use_aggressive_release_policy)
+      resource_pool_->InvalidateResources();
+
     SetContextVisibility(false);
   }
 }
@@ -2799,7 +2803,11 @@ void LayerTreeHostImpl::SetVisible(bool visible) {
       SetNeedsRedraw();
     }
   } else {
-    EvictAllUIResources();
+    if (settings_.use_aggressive_release_policy)
+      ReleaseTreeResources();
+    else
+      EvictAllUIResources();
+
     // Call PrepareTiles to evict tiles when we become invisible.
     PrepareTiles();
   }

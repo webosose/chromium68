@@ -195,6 +195,10 @@ class CONTENT_EXPORT DelegatedFrameHost
   // |other|.
   void TakeFallbackContentFrom(DelegatedFrameHost* other);
 
+#if defined(USE_NEVA_APPRUNTIME)
+  void DoBackgroundCleanup();
+#endif
+
  private:
   friend class DelegatedFrameHostClient;
   FRIEND_TEST_ALL_PREFIXES(RenderWidgetHostViewAuraTest,
@@ -246,12 +250,6 @@ class CONTENT_EXPORT DelegatedFrameHost
 
   bool needs_begin_frame_ = false;
 
-#if defined(USE_NEVA_APPRUNTIME)
-  bool use_aggressive_release_policy_;
-  bool deferred_resume_drawing_ = false;
-  bool was_hidden_ = false;
-#endif
-
   viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink_ =
       nullptr;
 
@@ -262,6 +260,15 @@ class CONTENT_EXPORT DelegatedFrameHost
 
   std::vector<std::unique_ptr<viz::CopyOutputRequest>>
       pending_first_frame_requests_;
+
+#if defined(USE_NEVA_APPRUNTIME)
+  bool use_aggressive_release_policy_ = false;
+  bool deferred_resume_drawing_ = false;
+  bool did_first_swap_ = false;
+  bool was_hidden_ = false;
+  base::CancelableOnceClosure background_cleanup_task_;
+  base::WeakPtrFactory<DelegatedFrameHost> weak_factory_;
+#endif
 };
 
 }  // namespace content

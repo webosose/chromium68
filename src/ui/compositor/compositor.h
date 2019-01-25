@@ -147,6 +147,11 @@ class COMPOSITOR_EXPORT ContextFactoryPrivate {
                                        const viz::BeginFrameArgs& args) = 0;
 
   virtual void SetOutputIsSecure(Compositor* compositor, bool secure) = 0;
+
+#if defined(USE_NEVA_APPRUNTIME)
+  virtual void ForceImmediateDrawAndSwapIfPossible(
+      ui::Compositor* compositor){};
+#endif
 };
 
 // This class abstracts the creation of the 3D context for the compositor. It is

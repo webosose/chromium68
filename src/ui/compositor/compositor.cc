@@ -689,8 +689,11 @@ void Compositor::SuspendDrawing() {
   if (disable_drawing_)
     return;
 
+  if (context_factory_private_)
+    context_factory_private_->ForceImmediateDrawAndSwapIfPossible(this);
+
   disable_drawing_ = true;
-  host_->SetVisible(false);
+  SetVisible(false);
 }
 
 void Compositor::ResumeDrawing() {
@@ -698,7 +701,7 @@ void Compositor::ResumeDrawing() {
     return;
 
   disable_drawing_ = false;
-  host_->SetVisible(true);
+  SetVisible(true);
 }
 #endif
 
