@@ -69,7 +69,7 @@ template("implement_content_app") {
   }
 
   if (use_lttng) {
-    content_app_deps += [ "//base/trace_event/neva:chromium_lttng_provider" ]
+    content_app_deps += [ "//base/trace_event/neva:chromium_lttng" ]
   }
 
   if (!is_multi_dll_chrome && enable_plugins) {

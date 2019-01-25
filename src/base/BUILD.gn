@@ -1827,7 +1827,7 @@ jumbo_component("base") {
   }
 
   if (use_lttng && current_toolchain == default_toolchain) {
-    deps += [ "//base/trace_event/neva:lttng" ]
+    deps += [ "//base/trace_event/neva:chromium_lttng" ]
   }
 
   if (use_system_debugger_abort) {
