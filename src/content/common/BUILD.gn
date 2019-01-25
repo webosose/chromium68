@@ -407,7 +407,7 @@ source_set("common") {
       "lttng_init.cc",
       "lttng_init.h",
     ]
-    deps += [ "//base/trace_event/neva:chromium_lttng_provider" ]
+    deps += [ "//base/trace_event/neva:chromium_lttng" ]
   }
 
   if (is_android && use_seccomp_bpf) {

@@ -1,4 +1,4 @@
-# Copyright (c) 2018 LG Electronics, Inc.
+# Copyright 2018 LG Electronics, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ source_set("palm_injection") {
     "luna_service_mgr.h",
     "palmsystem_injection.cc",
     "palmsystem_injection.h",
-    "pmtracer.h",
   ]
 
   deps = [
@@ -40,12 +39,8 @@ source_set("palm_injection") {
   ]
 
   if (use_lttng) {
-    configs += [
-      "//build/config/linux/lttng:lttngust",
-    ]
-    sources += [
-      "pmtrace_bundle_provider.h",
-      "pmtrace_bundle_provider.c",
+    deps += [
+      "//base/trace_event/neva:pmtrace_lttng",
     ]
   }
 }
