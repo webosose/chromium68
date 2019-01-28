@@ -49,7 +49,7 @@ class UMediaClientImpl : public WebOSMediaClient,
 
   // WebOSMediaClient implementations
   void Load(bool video,
-            bool reload,  // TODO(wanchang): remove this
+            double current_time,
             bool is_local_source,
             const std::string& app_id,
             const std::string& url,
@@ -82,6 +82,7 @@ class UMediaClientImpl : public WebOSMediaClient,
   bool SelectTrack(std::string& type, int32_t index) override;
   void Suspend(SuspendReason reason) override;
   void Resume() override;
+  bool IsRecoverableOnResume() override;
   void SetPreload(Preload preload) override;
   bool IsPreloadable(const std::string& content_media_option) override;
   std::string MediaId() override;

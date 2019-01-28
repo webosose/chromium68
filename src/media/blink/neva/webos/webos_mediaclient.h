@@ -85,7 +85,7 @@ class WebOSMediaClient {
       const scoped_refptr<base::SingleThreadTaskRunner>& task_runner);
 
   virtual void Load(bool video,
-                    bool reload,
+                    double current_time,
                     bool is_local_source,
                     const std::string& app_id,
                     const std::string& url,
@@ -118,6 +118,7 @@ class WebOSMediaClient {
   virtual bool SelectTrack(std::string& type, int32_t index) = 0;
   virtual void Suspend(SuspendReason reason) = 0;
   virtual void Resume() = 0;
+  virtual bool IsRecoverableOnResume() = 0;
   virtual void SetPreload(Preload preload) = 0;
   virtual bool IsPreloadable(const std::string& content_media_option) = 0;
   virtual std::string MediaId() = 0;

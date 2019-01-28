@@ -103,6 +103,7 @@ MediaPlayerUMS::MediaPlayerUMS(
 MediaPlayerUMS::~MediaPlayerUMS() {}
 
 void MediaPlayerUMS::Initialize(const bool is_video,
+                                const double current_time,
                                 const std::string& app_id,
                                 const std::string& url,
                                 const std::string& mime_type,
@@ -114,8 +115,8 @@ void MediaPlayerUMS::Initialize(const bool is_video,
               << " / payload: " << payload;
 
   umedia_client_->Load(
-      is_video, false, false, app_id, url, mime_type, referrer, user_agent,
-      cookies, payload,
+      is_video, current_time, false, app_id, url, mime_type, referrer,
+      user_agent, cookies, payload,
       BIND_TO_RENDER_LOOP(&MediaPlayerUMS::OnPlaybackStateChanged),
       BIND_TO_RENDER_LOOP(&MediaPlayerUMS::OnStreamEnded),
       BIND_TO_RENDER_LOOP(&MediaPlayerUMS::OnSeekDone),
@@ -274,6 +275,10 @@ void MediaPlayerUMS::Resume() {
 
 bool MediaPlayerUMS::RequireMediaResource() {
   return true;
+}
+
+bool MediaPlayerUMS::IsRecoverableOnResume() {
+  return umedia_client_->IsRecoverableOnResume();
 }
 
 void MediaPlayerUMS::OnPlaybackStateChanged(bool playing) {

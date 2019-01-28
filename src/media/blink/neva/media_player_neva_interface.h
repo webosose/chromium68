@@ -81,6 +81,7 @@ class MediaPlayerNeva {
    };
 
    virtual void Initialize(const bool is_video,
+                           const double current_time,
                            const std::string& app_id,
                            const std::string& url,
                            const std::string& mime,
@@ -122,6 +123,8 @@ class MediaPlayerNeva {
    virtual void SetVisibility(bool) = 0;
    // Returns |true| if the player uses media resource(e.g. hardware decoder).
    virtual bool RequireMediaResource() = 0;
+   // Returns |true| if the player is recoverable on resume.
+   virtual bool IsRecoverableOnResume() = 0;
 
    virtual ~MediaPlayerNeva() {}
 };

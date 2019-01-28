@@ -312,6 +312,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   void NotifyDownloading(bool is_downloading);
 
 #if defined(VIDEO_HOLE)
+  void SetDisplayWindow();
   void UpdateVideoHoleBoundary(bool forced = false);
 
   // Calculate the boundary rectangle of the media player (i.e. location and
@@ -371,6 +372,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
 
   // Media duration.
   base::TimeDelta duration_;
+
+  double volume_ = 0.0f;
 
   // Seek gets pending if another seek is in progress. Only last pending seek
   // will have effect.

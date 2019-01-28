@@ -114,7 +114,7 @@ UMediaClientImpl::~UMediaClientImpl() {
 }
 
 void UMediaClientImpl::Load(bool video,
-                            bool reload,  // TODO(wanchang): remove this
+                            double current_time,
                             bool is_local_source,
                             const std::string& app_id,
                             const std::string& url,
@@ -141,6 +141,7 @@ void UMediaClientImpl::Load(bool video,
   FUNC_LOG(1) << " url=" << url << " payload=" << payload;
 
   video_ = video;
+  current_time_ = current_time;
   is_local_source_ = is_local_source;
   app_id_ = app_id;
   url_ = url;
@@ -319,6 +320,10 @@ void UMediaClientImpl::Resume() {
   NotifyForeground();
   system_media_manager_->AppStateChanged(
       SystemMediaManager::AppState::kForeground);
+}
+
+bool UMediaClientImpl::IsRecoverableOnResume() {
+  return true;
 }
 
 void UMediaClientImpl::SetPreload(Preload preload) {

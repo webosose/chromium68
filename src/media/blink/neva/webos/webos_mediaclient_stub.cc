@@ -30,7 +30,7 @@ WebOSMediaClientStub::~WebOSMediaClientStub() {}
 
 void WebOSMediaClientStub::Load(
     bool video,
-    bool reload,
+    double current_time,
     bool is_local_source,
     const std::string& app_id,
     const std::string& url,
@@ -75,6 +75,10 @@ bool WebOSMediaClientStub::SelectTrack(std::string& type, int32_t index) {
 void WebOSMediaClientStub::Suspend(SuspendReason reason) {}
 
 void WebOSMediaClientStub::Resume() {}
+
+bool WebOSMediaClientStub::IsRecoverableOnResume() {
+  return true;
+}
 
 void WebOSMediaClientStub::SetPreload(Preload preload) {}
 

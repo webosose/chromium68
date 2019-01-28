@@ -52,6 +52,7 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
   // media::RendererMediaBuiltinPlayerManagerInterface implementation
   // Initializes a MediaPlayerAndroid object in browser process.
   void Initialize(const bool is_video,
+                  const double current_time,
                   const std::string& app_id,
                   const std::string& url,
                   const std::string& mime,
@@ -102,6 +103,7 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
   void Suspend(SuspendReason reason) override;
   void Resume() override;
   bool RequireMediaResource() override;
+  bool IsRecoverableOnResume() override;
   // end of media::RendererMediaBuiltinPlayerManagerInterface
   //-----------------------------------------------------------------
 

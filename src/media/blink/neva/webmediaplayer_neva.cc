@@ -360,7 +360,7 @@ void WebMediaPlayerNeva::DidLoadMediaInfo(bool ok, const GURL& url) {
 void WebMediaPlayerNeva::LoadMedia() {
   FUNC_LOG(1);
   player_api_->Initialize(
-      GetClient()->IsVideo(), app_id_, url_.spec(),
+      GetClient()->IsVideo(), CurrentTime(), app_id_, url_.spec(),
       std::string(GetClient()->ContentMIMEType().Utf8().data()),
       std::string(GetClient()->Referrer().Utf8().data()),
       std::string(GetClient()->UserAgent().Utf8().data()),
@@ -499,7 +499,8 @@ void WebMediaPlayerNeva::SetRate(double rate) {
 void WebMediaPlayerNeva::SetVolume(double volume) {
   FUNC_LOG(1);
   DCHECK(main_thread_checker_.CalledOnValidThread());
-  player_api_->SetVolume(volume);
+  volume_ = volume;
+  player_api_->SetVolume(volume_);
 }
 
 void WebMediaPlayerNeva::SetPreload(Preload preload) {
@@ -998,6 +999,16 @@ blink::WebRect WebMediaPlayerNeva::ScaleWebRect(const blink::WebRect& rect,
 }
 
 #if defined(VIDEO_HOLE)
+void WebMediaPlayerNeva::SetDisplayWindow() {
+  LOG(INFO) << __func__ << " called SetDisplayWindow("
+            << "out=[" << visible_rect_in_screen_space_.ToString() << "]"
+            << ", in=[" << source_rect_in_video_space_.ToString() << "]"
+            << ", is_fullscreen=" << is_fullscreen_ << ")";
+  player_api_->SetDisplayWindow(visible_rect_in_screen_space_,
+                                source_rect_in_video_space_, is_fullscreen_,
+                                true);
+}
+
 // With updating the video hole position in every frame, Sometimes scrolling a
 // page with a video element showes awkward delayed video-hole movement.
 // Thus, this method uses a OneShotTimer to update the video position every
@@ -1033,14 +1044,7 @@ void WebMediaPlayerNeva::UpdateVideoHoleBoundary(bool forced) {
                 << visible_rect_in_screen_space_.ToString();
       visible_rect_in_screen_space_ = WebRect();
     } else if (player_api_) {
-      LOG(INFO) << __func__ << " called SetDisplayWindow("
-                << "out=[" << visible_rect_in_screen_space_.ToString() << "]"
-                << ", in=[" << source_rect_in_video_space_.ToString() << "]"
-                << ", is_fullscreen=" << is_fullscreen_
-                << ")";
-      player_api_->SetDisplayWindow(visible_rect_in_screen_space_,
-                                    source_rect_in_video_space_, is_fullscreen_,
-                                    true);
+      SetDisplayWindow();
       if (!forced)
         // The OneShotTimer, throttle_update_video_hole_boundary_, is for
         // correcting the position of video-hole after scrolling.
@@ -1136,7 +1140,6 @@ void WebMediaPlayerNeva::OnResume() {
   }
 
   is_suspended_ = false;
-  player_api_->Resume();
 
   if (HasVideo()) {
     if (RenderTexture())
@@ -1146,6 +1149,16 @@ void WebMediaPlayerNeva::OnResume() {
       video_frame_provider_->SetStorageType(media::VideoFrame::STORAGE_HOLE);
 #endif
     video_frame_provider_->UpdateVideoFrame();
+  }
+
+  if (!player_api_->IsRecoverableOnResume()) {
+    player_api_.reset(MediaPlayerNevaFactory::CreateMediaPlayerNeva(
+        this, client_->ContentMIMEType().Latin1(), media_task_runner_));
+    player_api_->SetVolume(volume_);
+    LoadMedia();
+    SetDisplayWindow();
+  } else {
+    player_api_->Resume();
   }
 
   if (status_on_suspended_ == PlayingStatus) {
@@ -1214,16 +1227,10 @@ void WebMediaPlayerNeva::OnVideoDisplayWindowChange() {
   if (RenderTexture()) {
     player_api_->SwitchToAutoLayout();
     LOG(INFO) << __func__ << " called SwitchToAutoLayout";
-  } else if (visible_rect_in_screen_space_.IsEmpty()) {
-    LOG(INFO) << __func__ << " Aborting setDisplayWindow. outRect is Empty";
+#if defined(VIDEO_HOLE)
   } else {
-    LOG(INFO) << __func__ << " called SetDisplayWindow("
-              << "out=[" << visible_rect_in_screen_space_.ToString() << "]"
-              << ", in=[" << source_rect_in_video_space_.ToString() << "]"
-              << ", is_fullscreen=" << is_fullscreen_ << ")";
-    player_api_->SetDisplayWindow(visible_rect_in_screen_space_,
-                                  source_rect_in_video_space_, is_fullscreen_,
-                                  true);
+    SetDisplayWindow();
+#endif
   }
 }
 
