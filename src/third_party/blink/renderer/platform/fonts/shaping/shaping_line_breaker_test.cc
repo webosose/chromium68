@@ -48,8 +48,7 @@ class ShapingLineBreakerTest : public testing::Test {
                                         const String& string) {
     Vector<unsigned> break_positions;
     for (unsigned i = 0; i <= string.length(); i++) {
-      bool is_hyphenated = false;
-      unsigned next = breaker.NextBreakOpportunity(i, 0, &is_hyphenated);
+      unsigned next = breaker.NextBreakOpportunity(i, 0).offset;
       if (break_positions.IsEmpty() || break_positions.back() != next)
         break_positions.push_back(next);
     }
@@ -61,9 +60,7 @@ class ShapingLineBreakerTest : public testing::Test {
                                             const String& string) {
     Vector<unsigned> break_positions;
     for (unsigned i = string.length(); i; i--) {
-      bool is_hyphenated = false;
-      unsigned previous =
-          breaker.PreviousBreakOpportunity(i, 0, &is_hyphenated);
+      unsigned previous = breaker.PreviousBreakOpportunity(i, 0).offset;
       if (previous &&
           (break_positions.IsEmpty() || break_positions.back() != previous))
         break_positions.push_back(previous);
@@ -314,7 +311,11 @@ TEST_P(BreakOpportunityTest, Next) {
   const BreakOpportunityTestData& data = GetParam();
   String string(data.string);
   LazyLineBreakIterator break_iterator(string);
-  ShapingLineBreaker breaker(nullptr, &font, nullptr, &break_iterator);
+
+  HarfBuzzShaper shaper(string.Characters16(), string.length());
+  scoped_refptr<ShapeResult> result = shaper.Shape(&font, TextDirection::kLtr);
+
+  ShapingLineBreaker breaker(&shaper, &font, result.get(), &break_iterator);
   EXPECT_THAT(BreakPositionsByNext(breaker, string),
               testing::ElementsAreArray(data.break_positions));
 
@@ -330,7 +331,10 @@ TEST_P(BreakOpportunityTest, Previous) {
   const BreakOpportunityTestData& data = GetParam();
   String string(data.string);
   LazyLineBreakIterator break_iterator(string);
-  ShapingLineBreaker breaker(nullptr, &font, nullptr, &break_iterator);
+  HarfBuzzShaper shaper(string.Characters16(), string.length());
+  scoped_refptr<ShapeResult> result = shaper.Shape(&font, TextDirection::kLtr);
+
+  ShapingLineBreaker breaker(&shaper, &font, result.get(), &break_iterator);
   EXPECT_THAT(BreakPositionsByPrevious(breaker, string),
               testing::ElementsAreArray(data.break_positions));
 

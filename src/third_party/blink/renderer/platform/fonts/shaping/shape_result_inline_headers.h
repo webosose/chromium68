@@ -37,6 +37,7 @@
 #include "third_party/blink/renderer/platform/fonts/shaping/shape_result.h"
 #include "third_party/blink/renderer/platform/wtf/allocator.h"
 #include "third_party/blink/renderer/platform/wtf/noncopyable.h"
+#include "third_party/blink/renderer/platform/wtf/vector.h"
 
 namespace blink {
 
@@ -44,15 +45,20 @@ class SimpleFontData;
 
 struct HarfBuzzRunGlyphData {
   DISALLOW_NEW_EXCEPT_PLACEMENT_NEW();
+
+  static constexpr unsigned kMaxCharacterIndex = (1 << 15) - 1;
+
   uint16_t glyph;
-  uint16_t character_index;
+  unsigned character_index : 15;
+  unsigned safe_to_break_before : 1;
   float advance;
   FloatSize offset;
 
   void SetGlyphAndPositions(uint16_t glyph_id,
                             uint16_t character_index,
                             float advance,
-                            const FloatSize& offset);
+                            const FloatSize& offset,
+                            bool safe_to_break_before);
 };
 
 struct ShapeResult::RunInfo {
@@ -65,12 +71,14 @@ struct ShapeResult::RunInfo {
           hb_script_t script,
           unsigned start_index,
           unsigned num_glyphs,
-          unsigned num_characters)
+          unsigned num_characters,
+          Vector<unsigned> graphemes)
       : font_data_(const_cast<SimpleFontData*>(font)),
         direction_(dir),
         canvas_rotation_(canvas_rotation),
         script_(script),
         glyph_data_(num_glyphs),
+        graphemes_(graphemes),
         start_index_(start_index),
         num_characters_(num_characters),
         width_(0.0f) {}
@@ -81,10 +89,12 @@ struct ShapeResult::RunInfo {
         canvas_rotation_(other.canvas_rotation_),
         script_(other.script_),
         glyph_data_(other.glyph_data_),
+        graphemes_(other.graphemes_),
         start_index_(other.start_index_),
         num_characters_(other.num_characters_),
         width_(other.width_) {}
 
+  unsigned NumGlyphs() const { return glyph_data_.size(); }
   bool Rtl() const { return HB_DIRECTION_IS_BACKWARD(direction_); }
   bool IsHorizontal() const { return HB_DIRECTION_IS_HORIZONTAL(direction_); }
   CanvasRotationInVertical CanvasRotation() const { return canvas_rotation_; }
@@ -92,11 +102,20 @@ struct ShapeResult::RunInfo {
   unsigned PreviousSafeToBreakOffset(unsigned) const;
   float XPositionForVisualOffset(unsigned, AdjustMidCluster) const;
   float XPositionForOffset(unsigned, AdjustMidCluster) const;
-  void CharacterIndexForXPosition(float, GlyphIndexResult*) const;
+  void CharacterIndexForXPosition(float,
+                                  BreakGlyphsOption,
+                                  GlyphIndexResult*) const;
+  void SetGlyphAndPositions(unsigned index,
+                            uint16_t glyph_id,
+                            float advance,
+                            float offset_x,
+                            float offset_y);
 
   size_t GlyphToCharacterIndex(size_t i) const {
     return start_index_ + glyph_data_[i].character_index;
   }
+
+  unsigned NumGraphemes(unsigned start, unsigned end) const;
 
   // For memory reporting.
   size_t ByteSize() const {
@@ -126,9 +145,18 @@ struct ShapeResult::RunInfo {
           });
     }
 
+    Vector<unsigned> sub_graphemes;
+    if (graphemes_.size()) {
+      sub_graphemes.resize(number_of_characters);
+      for (unsigned i = 0; i < number_of_characters; ++i) {
+        sub_graphemes[i] = graphemes_[start + i];
+      }
+    }
+
     auto run = std::make_unique<RunInfo>(
         font_data_.get(), direction_, canvas_rotation_, script_,
-        start_index_ + start, number_of_glyphs, number_of_characters);
+        start_index_ + start, number_of_glyphs, number_of_characters,
+        std::move(sub_graphemes));
 
     unsigned sub_glyph_index = 0;
     float total_advance = 0;
@@ -138,6 +166,7 @@ struct ShapeResult::RunInfo {
           HarfBuzzRunGlyphData& sub_glyph = run->glyph_data_[sub_glyph_index++];
           sub_glyph.glyph = glyph_data.glyph;
           sub_glyph.character_index = glyph_data.character_index - start;
+          sub_glyph.safe_to_break_before = glyph_data.safe_to_break_before;
           sub_glyph.advance = glyph_data.advance;
           sub_glyph.offset = glyph_data.offset;
           total_advance += glyph_data.advance;
@@ -146,11 +175,6 @@ struct ShapeResult::RunInfo {
 
     run->width_ = total_advance;
     run->num_characters_ = number_of_characters;
-
-    for (unsigned i = 0; i < safe_break_offsets_.size(); i++) {
-      if (safe_break_offsets_[i] >= start && safe_break_offsets_[i] <= end)
-        run->safe_break_offsets_.push_back(safe_break_offsets_[i] - start);
-    }
 
     return run;
   }
@@ -189,7 +213,7 @@ struct ShapeResult::RunInfo {
         initial_advance,
         [&](const HarfBuzzRunGlyphData& glyph_data,
             float total_advance) -> bool {
-          const uint16_t character_index =
+          const unsigned character_index =
               start_index_ + glyph_data.character_index + index_offset;
 
           if (character_index < from) {
@@ -209,6 +233,36 @@ struct ShapeResult::RunInfo {
         });
   }
 
+  void ExpandRangeToIncludePartialGlyphs(int offset, int* from, int* to) const {
+    int start = !Rtl() ? offset : (offset + num_characters_);
+    int end = offset + num_characters_;
+
+    for (unsigned i = 0; i < glyph_data_.size(); ++i) {
+      int index = offset + glyph_data_[i].character_index;
+      if (start == index)
+        continue;
+
+      if (!Rtl())
+        end = index;
+
+      if (end > *from && start < *to) {
+        *from = std::min(*from, start);
+        *to = std::max(*to, end);
+      }
+
+      if (!Rtl())
+        end = num_characters_;
+      else
+        end = start;
+      start = index;
+    }
+
+    if (end > *from && start < *to) {
+      *from = std::min(*from, start);
+      *to = std::max(*to, end);
+    }
+  }
+
   scoped_refptr<SimpleFontData> font_data_;
   hb_direction_t direction_;
   // For upright-in-vertical we need to tell the ShapeResultBloberizer to rotate
@@ -216,9 +270,11 @@ struct ShapeResult::RunInfo {
   CanvasRotationInVertical canvas_rotation_;
   hb_script_t script_;
   Vector<HarfBuzzRunGlyphData> glyph_data_;
-  // List of character indecies before which it's safe to break without
-  // reshaping.
-  Vector<uint16_t> safe_break_offsets_;
+
+  // graphemes_[i] is the number of graphemes up to (and including) the ith
+  // character in the run.
+  Vector<unsigned> graphemes_;
+
   unsigned start_index_;
   unsigned num_characters_;
   float width_;

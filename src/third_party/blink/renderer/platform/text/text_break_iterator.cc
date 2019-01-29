@@ -53,6 +53,29 @@ unsigned NumGraphemeClusters(const String& string) {
   return num;
 }
 
+void GraphemesClusterList(String text,
+                          unsigned start,
+                          unsigned length,
+                          Vector<unsigned>* graphemes) {
+  graphemes->resize(length);
+  if (!length)
+    return;
+
+  String substring = text.Substring(start, length);
+  NonSharedCharacterBreakIterator it(substring);
+
+  int cursor_pos = it.Next();
+  unsigned count = 0;
+  unsigned pos = 0;
+  while (cursor_pos >= 0) {
+    for (; pos < static_cast<unsigned>(cursor_pos) && pos < length; ++pos) {
+      (*graphemes)[pos] = count;
+    }
+    cursor_pos = it.Next();
+    count++;
+  }
+}
+
 unsigned LengthOfGraphemeCluster(const String& string, unsigned offset) {
   unsigned string_length = string.length();
 
