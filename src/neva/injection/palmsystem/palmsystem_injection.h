@@ -1,4 +1,4 @@
-// Copyright 2014 LG Electronics, Inc.
+// Copyright (c) 2014-2018 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,25 +17,33 @@
 #ifndef NEVA_INJECTION_PALMSYSTEM_PALMSYSTEM_INJECTION_H_
 #define NEVA_INJECTION_PALMSYSTEM_PALMSYSTEM_INJECTION_H_
 
+#include "v8/include/v8.h"
 #include "base/compiler_specific.h"
 #include "injection/common/public/renderer/injection_data_manager.h"
-#include "v8/include/v8.h"
 
-#if defined(COMPONENT_BUILD)
+#if defined(COMPONENT_BUILD) || defined(USE_DYNAMIC_INJECTION_LOADING)
 
 #if defined(PALMSYSTEM_IMPLEMENTATION)
 #define PALMSYSTEM_EXPORT __attribute__((visibility("default")))
-#else  // !defined(PALMSYSTEM_IMPLEMENTATION)
+#else
 #define PALMSYSTEM_EXPORT
-#endif  // defined(PALMSYSTEM_IMPLEMENTATION)
+#endif // defined(PALMSYSTEM_IMPLEMENTATION)
 
-#else  // !defined(COMPONENT_BUILD)
+#else
 #define PALMSYSTEM_EXPORT
-#endif  // defined(COMPONENT_BUILD)
+#endif // defined(COMPONENT_BUILD) || defined(USE_DYNAMIC_INJECTION_LOADING)
 
 namespace extensions_v8 {
-
 class InjectionWrapper;
+
+#if defined(USE_DYNAMIC_INJECTION_LOADING)
+extern "C" {
+
+PALMSYSTEM_EXPORT InjectionWrapper* createInjection();
+
+} // extern "C"
+
+#else // defined(USE_DYNAMIC_INJECTION_LOADING)
 
 class PALMSYSTEM_EXPORT PalmSystemInjectionExtension {
  public:
@@ -43,7 +51,8 @@ class PALMSYSTEM_EXPORT PalmSystemInjectionExtension {
 
   static const char kPalmSystemInjectionName[];
 };
+#endif // defined(USE_DYNAMIC_INJECTION_LOADING)
 
-}  // namespace extensions_v8
+} // namespace extensions_v8
 
-#endif  // NEVA_INJECTION_PALMSYSTEM_PALMSYSTEM_INJECTION_H_
+#endif // NEVA_INJECTION_PALMSYSTEM_PALMSYSTEM_INJECTION_H_

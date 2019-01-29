@@ -1,4 +1,4 @@
-# Copyright 2018 LG Electronics, Inc.
+# Copyright (c) 2018 LG Electronics, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,32 +28,20 @@ source_set("memory_trace") {
   ]
 }
 
-source_set("chromium_lttng") {
+source_set("lttng") {
   sources = [
     "../../debug/chromium_lttng_provider.h",
     "lttng/chromium_lttng_provider.c",
   ]
-  deps = [ ":lttng_provider" ]
+  deps = [ ":chromium_lttng_provider" ]
 }
 
-source_set("pmtrace_lttng") {
-  sources = [
-    "../../debug/pmtrace_bundle_provider.h",
-    "lttng/pmtrace_bundle_provider.c",
-    "lttng/pmtracer.h",
-  ]
-  deps = [ ":lttng_provider" ]
-}
-
-loadable_module("lttng_provider") {
-  output_name = "chromium_lttng_provider"
+loadable_module("chromium_lttng_provider") {
   all_dependent_configs = [
     "//build/config/linux/lttng:lttngust",
   ]
   sources = [
     "../../debug/chromium_lttng_provider.h",
-    "../../debug/pmtrace_bundle_provider.h",
     "lttng/chromium_lttng_provider_dl.c",
-    "lttng/pmtrace_bundle_provider_dl.c",
   ]
 }

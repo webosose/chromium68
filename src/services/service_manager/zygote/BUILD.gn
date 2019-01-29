@@ -53,7 +53,7 @@ if (is_linux) {
     ]
 
     if (use_lttng) {
-      deps += [ "//base/trace_event/neva:chromium_lttng" ]
+      deps += [ "//base/trace_event/neva:chromium_lttng_provider" ]
     }
 
     defines = [ "IS_SERVICE_MANAGER_ZYGOTE_IMPL" ]
