@@ -21,6 +21,7 @@
 #include <string>
 
 #include "base/memory/weak_ptr.h"
+#include "base/optional.h"
 #include "base/synchronization/lock.h"
 #include "media/base/neva/media_platform_api.h"
 #include "media/base/neva/webos/lunaservice_client.h"
@@ -73,6 +74,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOS : public MediaPlatformAPI {
   virtual void SwitchToAutoLayout() = 0;
   virtual void SetVisibility(bool visible) = 0;
   virtual bool Visibility() = 0;
+  virtual base::Optional<gfx::Size> GetNaturalSize() = 0;
 
  protected:
   virtual ~MediaPlatformAPIWebOS() {}

@@ -76,6 +76,7 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
       app_id_(app_id.Utf8()),
       is_suspended_(false),
       status_on_suspended_(UnknownStatus),
+      last_computed_rect_changed_since_updated_(false),
       is_video_offscreen_(false),
       is_fullscreen_(false),
       is_loading_(false),
@@ -354,8 +355,16 @@ void WebMediaPlayerMSE::UpdateVideoHoleBoundary(bool forced) {
   // uMediaServer's performance of video hole position update.
   // Current uMeidaServer cannot update video-hole position smoothly at times.
   if (forced || !throttleUpdateVideoHoleBoundary_.IsRunning()) {
+    // NOTE: We prefer to use video_size from media_platform_api because it is
+    // safer to calculate source_rect for setDisplayWindow. video_size is set by
+    // platform media-pipeline and also video info is set to video sink at the
+    // time.
+    base::Optional<gfx::Size> natural_size =
+        media_platform_api_->GetNaturalSize();
+    if (!natural_size)
+      natural_size = NaturalSize();
     if (!ComputeVideoHoleDisplayRect(
-            last_computed_rect_in_view_space_, NaturalSize(),
+            last_computed_rect_in_view_space_, *natural_size,
             additional_contents_scale_, client_->WebWidgetViewRect(),
             client_->ScreenRect(), source_rect_in_video_space_,
             visible_rect_in_screen_space_, is_fullscreen_)) {
@@ -367,8 +376,16 @@ void WebMediaPlayerMSE::UpdateVideoHoleBoundary(bool forced) {
         return;
       }
       // If forced update is used or video was offscreen, it needs to update
-      // even though position is not changed.
-      if (!forced && !is_video_offscreen_)
+      // even though video position is not changed.
+      // Also even though video position is not changed if
+      // last_computed_rect_changed_since_updated_ is true, then we need to
+      // update video position since source_rect_in_video_space_ might be
+      // changed. Possibly source_rect_in_screen_space_ might be changed
+      // without last_computed_rect_changed_since_updated_ is true when
+      // natural_size is changed (i.e DASH) in this case we ignore it because
+      // framework will handle it
+      if (!forced && !is_video_offscreen_ &&
+          !last_computed_rect_changed_since_updated_)
         return;
     }
 
@@ -383,6 +400,7 @@ void WebMediaPlayerMSE::UpdateVideoHoleBoundary(bool forced) {
                 << ", in=[" << source_rect_in_video_space_.ToString() << "]"
                 << ", is_fullscreen=" << is_fullscreen_
                 << ")";
+      last_computed_rect_changed_since_updated_ = false;
       media_platform_api_->SetDisplayWindow(visible_rect_in_screen_space_,
                                             source_rect_in_video_space_,
                                             is_fullscreen_);
@@ -420,9 +438,14 @@ bool WebMediaPlayerMSE::UpdateBoundaryRect() {
   gfx::RectF rect(gfx::SizeF(video_layer_->bounds()));
   video_layer_->ScreenSpaceTransform().TransformRect(&rect);
 
+  // Check if video layer position is changed.
+  gfx::Rect video_rect(rect.x(), rect.y(), rect.width(), rect.height());
+  if (!last_computed_rect_changed_since_updated_ &&
+      video_rect != last_computed_rect_in_view_space_)
+    last_computed_rect_changed_since_updated_ = true;
+
   // Store the changed geometry information when it is actually changed.
-  last_computed_rect_in_view_space_ =
-      gfx::Rect(rect.x(), rect.y(), rect.width(), rect.height());
+  last_computed_rect_in_view_space_ = video_rect;
   return true;
 }
 

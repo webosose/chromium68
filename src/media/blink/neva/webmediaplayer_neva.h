@@ -414,6 +414,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   // A rectangle represents the geometry of video frame, when computed last
   // time.
   gfx::Rect last_computed_rect_in_view_space_;
+  bool last_computed_rect_changed_since_updated_;
 
   // Whether to use the video overlay for all embedded video.
   // True only for testing.

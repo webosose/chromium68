@@ -93,6 +93,10 @@ bool MediaPlatformAPIWebOSStub::Visibility() {
   return true;
 }
 
+base::Optional<gfx::Size> GetNaturalSize() {
+  return base::nullopt;
+}
+
 void MediaPlatformAPIWebOSStub::SetNaturalSize(const gfx::Size& size) {}
 
 bool MediaPlatformAPIWebOSStub::Loaded() {

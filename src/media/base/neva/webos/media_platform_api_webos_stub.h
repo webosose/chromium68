@@ -18,11 +18,7 @@
 #define MEDIA_BASE_NEVA_WEBOS_MEDIA_PLATFORM_API_WEBOS_STUB_H_
 
 #include "media/base/neva/webos/media_platform_api_webos.h"
-#include "third_party/blink/public/platform/web_rect.h"
 #include "ui/gfx/geometry/rect.h"
-
-namespace base {
-}
 
 namespace media {
 
@@ -55,6 +51,8 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSStub : public MediaPlatformAPIWebOS {
 
   void SetVisibility(bool visible) override;
   bool Visibility() override;
+  base::Optional<gfx::Size> GetNaturalSize() override;
+
  private:
   void SetNaturalSize(const gfx::Size& size);
   bool Loaded();

@@ -78,6 +78,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSGmp : public MediaPlatformAPIWebOS {
 
   void SetVisibility(bool visible) override;
   bool Visibility() override;
+  base::Optional<gfx::Size> GetNaturalSize() override;
   // End of MediaPlatformAPIWebOS
 
  private:
@@ -177,7 +178,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSGmp : public MediaPlatformAPIWebOS {
   gfx::Rect window_rect_;
   gfx::Rect window_in_rect_;
 
-  gfx::Size natural_size_;
+  base::Optional<gfx::Size> natural_size_;
 
   float playback_rate_;
 

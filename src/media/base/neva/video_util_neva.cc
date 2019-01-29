@@ -75,9 +75,8 @@ bool ComputeVideoHoleDisplayRect(const gfx::Rect& video_rect_in_view_space,
 
   // Step6: Check update.
   bool need_update =
-      !visible_rect.IsEmpty() &&
-      (prev_source_rect != source_rect || prev_visible_rect != visible_rect ||
-       prev_is_fullscreen != is_fullscreen);
+      !visible_rect.IsEmpty() && (prev_visible_rect != visible_rect ||
+                                  prev_is_fullscreen != is_fullscreen);
 
   return need_update;
 }

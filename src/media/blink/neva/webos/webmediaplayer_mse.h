@@ -135,6 +135,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
   gfx::Rect source_rect_in_video_space_;
   gfx::Rect visible_rect_in_screen_space_;
   gfx::Rect last_computed_rect_in_view_space_;
+  bool last_computed_rect_changed_since_updated_;
   bool is_video_offscreen_;
   bool is_fullscreen_;
 

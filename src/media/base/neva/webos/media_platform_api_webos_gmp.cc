@@ -379,7 +379,7 @@ void MediaPlatformAPIWebOSGmp::Suspend(SuspendReason reason) {
 
   window_rect_.SetRect(0, 0, 0, 0);
   window_in_rect_.SetRect(0, 0, 0, 0);
-  natural_size_.SetSize(0, 0);
+  natural_size_.reset();
 }
 
 void MediaPlatformAPIWebOSGmp::Resume(
@@ -424,6 +424,10 @@ void MediaPlatformAPIWebOSGmp::SetVisibility(bool visible) {
 bool MediaPlatformAPIWebOSGmp::Visibility() {
   std::lock_guard<std::recursive_mutex> lock(recursive_mutex_);
   return has_visibility_;
+}
+
+base::Optional<gfx::Size> MediaPlatformAPIWebOSGmp::GetNaturalSize() {
+  return natural_size_;
 }
 
 bool MediaPlatformAPIWebOSGmp::AllowedFeedVideo() {
