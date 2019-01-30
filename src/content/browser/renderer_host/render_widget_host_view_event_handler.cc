@@ -683,6 +683,25 @@ void RenderWidgetHostViewEventHandler::FinishImeCompositionSession() {
   // call to finish composition text should be made through the RWHVA itself
   // otherwise the following call to cancel composition will lead to an extra
   // IPC for finishing the ongoing composition (see https://crbug.com/723024).
+#if defined(OS_WEBOS)
+  if (host_view_->GetTextInputManager() &&
+      host_view_->GetTextInputManager()->GetTextInputState()) {
+    gfx::Range r;
+    host_view_->GetTextInputClient()->GetSelectionRange(&r);
+
+    base::string16 composition_symbol = base::UTF8ToUTF16(
+        host_view_->GetTextInputManager()->GetTextInputState()->value);
+
+    if (composition_symbol.length() > 0) {
+      composition_symbol = composition_symbol.substr(r.start(), r.length() + 1);
+
+      host_view_->ImeCancelComposition();
+      host_view_->GetTextInputClient()->InsertText(composition_symbol);
+      return;
+    }
+  }
+#endif
+
   host_view_->GetTextInputClient()->ConfirmCompositionText();
   host_view_->ImeCancelComposition();
 }
