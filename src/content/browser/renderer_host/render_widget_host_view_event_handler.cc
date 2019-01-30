@@ -293,8 +293,10 @@ void RenderWidgetHostViewEventHandler::OnKeyEvent(ui::KeyEvent* event) {
       accept_return_character_ = event->type() == ui::ET_KEY_PRESSED;
     }
 
-    if (event->key_code() == ui::VKEY_LEFT ||
-        event->key_code() == ui::VKEY_RIGHT)
+    if ((event->key_code() == ui::VKEY_LEFT ||
+         event->key_code() == ui::VKEY_RIGHT) &&
+        host_view_->GetTextInputClient() &&
+        host_view_->GetTextInputClient()->HasCompositionText())
       FinishImeCompositionSession();
 
     // Call SetKeyboardFocus() for not only ET_KEY_PRESSED but also
