@@ -20,8 +20,6 @@ jumbo_component("ime") {
   sources = [
     "candidate_window.cc",
     "candidate_window.h",
-    "chromeos/character_composer.cc",
-    "chromeos/character_composer.h",
     "chromeos/component_extension_ime_manager.cc",
     "chromeos/component_extension_ime_manager.h",
     "chromeos/extension_ime_util.cc",
@@ -157,6 +155,14 @@ jumbo_component("ime") {
     ]
   }
 
+  if (is_chromeos || use_ozone) {
+    sources += [
+      "character_composer.cc",
+      "character_composer.h",
+    ]
+    deps += [ "//ui/events:dom_keycode_converter" ]
+  }
+
   if (!toolkit_views && !use_aura) {
     sources -= [
       "input_method_factory.cc",
@@ -171,7 +177,6 @@ jumbo_component("ime") {
       "//chromeos",
       "//services/ui/public/cpp/input_devices",
       "//ui/chromeos/strings",
-      "//ui/events:dom_keycode_converter",
     ]
     sources += [
       "chromeos/ime_keyboard_mus.cc",
