@@ -567,10 +567,20 @@ double WebMediaPlayerNeva::CurrentTime() const {
                          : seek_time_.InSecondsF();
   }
 
-  return std::min((const_cast<media::TimeDeltaInterpolator*>(&interpolator_))
-                      ->GetInterpolatedTime(),
-                  duration_)
-      .InSecondsF();
+  double current_time =
+      std::min((const_cast<media::TimeDeltaInterpolator*>(&interpolator_))
+                   ->GetInterpolatedTime(),
+               duration_)
+          .InSecondsF();
+
+  // The time of interpolator updated from UMediaClient could be a little bigger
+  // than the correct current time, this makes |current_time| a negative number
+  // after the plaback time reaches at 0:00 by rewinding.
+  // this conditional statement sets current_time's lower bound which is 00:00
+  if (current_time < 0)
+    current_time = 0;
+
+  return current_time;
 }
 
 WebSize WebMediaPlayerNeva::NaturalSize() const {
@@ -717,11 +727,13 @@ void WebMediaPlayerNeva::OnLoadComplete() {
 
 void WebMediaPlayerNeva::OnPlaybackComplete() {
   // When playback is about to finish, android media player often stops
-  // at a time which is smaller than the duration. This makes webkit never
+  // at a time which is not the end of the playback This makes webkit never
   // know that the playback has finished. To solve this, we set the
-  // current time to media duration when OnPlaybackComplete() get called.
+  // current time,|paused_time_|, bounds of the interpolator
+  // when OnPlaybackComplete() get called.
+  Pause();
   interpolator_.SetBounds(
-      duration_, duration_,
+      paused_time_, paused_time_,
       base::TimeTicks::Now());  // TODO(wanchang): fix 3rd argument
   client_->TimeChanged();
 
