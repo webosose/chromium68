@@ -322,7 +322,11 @@ namespace {
 const base::Feature kConsumeGestureOnNavigation = {
     "ConsumeGestureOnNavigation", base::FEATURE_ENABLED_BY_DEFAULT};
 
+#if defined(OS_WEBOS)
+const int kExtraCharsBeforeAndAfterSelection = 500;
+#else
 const int kExtraCharsBeforeAndAfterSelection = 100;
+#endif
 
 // Maximum number of burst download requests allowed.
 const int kBurstDownloadLimit = 10;
