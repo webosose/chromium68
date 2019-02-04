@@ -7401,4 +7401,11 @@ bool RenderFrameImpl::ShouldThrottleDownload() {
   return false;
 }
 
+#if defined(OS_WEBOS)
+void RenderFrameImpl::ClearSelection() {
+  SetSelectedText(base::string16(), 0, gfx::Range());
+  selection_text_.clear();
+}
+#endif
+
 }  // namespace content

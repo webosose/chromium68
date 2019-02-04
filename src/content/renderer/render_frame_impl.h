@@ -779,6 +779,9 @@ class CONTENT_EXPORT RenderFrameImpl
   void BubbleLogicalScrollInParentFrame(
       blink::WebScrollDirection direction,
       blink::WebScrollGranularity granularity) override;
+#if defined(OS_WEBOS)
+  void ClearSelection() override;
+#endif
 
   // WebFrameSerializerClient implementation:
   void DidSerializeDataForFrame(

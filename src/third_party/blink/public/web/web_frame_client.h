@@ -566,6 +566,10 @@ class BLINK_EXPORT WebFrameClient {
   // indicating that the default action should be suppressed.
   virtual bool HandleCurrentKeyboardEvent() { return false; }
 
+#if defined(OS_WEBOS)
+  virtual void ClearSelection() {}
+#endif
+
   // Dialogs -------------------------------------------------------------
 
   // Displays a modal alert dialog containing the given message. Returns

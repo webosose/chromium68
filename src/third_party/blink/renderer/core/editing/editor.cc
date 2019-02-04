@@ -91,6 +91,11 @@
 #include "third_party/blink/renderer/platform/weborigin/kurl.h"
 #include "third_party/blink/renderer/platform/wtf/text/character_names.h"
 
+#if defined(OS_WEBOS)
+#include "third_party/blink/public/web/web_frame_client.h"
+#include "third_party/blink/renderer/core/frame/web_local_frame_impl.h"
+#endif
+
 namespace blink {
 
 using namespace HTMLNames;
@@ -470,6 +475,13 @@ void Editor::Clear() {
   default_paragraph_separator_ = EditorParagraphSeparator::kIsDiv;
   last_edit_command_ = nullptr;
   undo_stack_->Clear();
+#if defined(OS_WEBOS)
+  // Clear selection text for host view. It's needed for WebOS prediction
+  // functionality.
+  WebLocalFrameImpl* web_frame = WebLocalFrameImpl::FromFrame(frame_.Get());
+  if (web_frame && web_frame->Client())
+    web_frame->Client()->ClearSelection();
+#endif
 }
 
 bool Editor::InsertText(const String& text, KeyboardEvent* triggering_event) {
