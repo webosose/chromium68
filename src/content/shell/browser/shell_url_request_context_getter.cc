@@ -48,6 +48,22 @@
 
 namespace content {
 
+#if defined(USE_NEVA_APPRUNTIME)
+namespace {
+class SSLConfigServiceTLS13 : public net::SSLConfigService {
+ public:
+  SSLConfigServiceTLS13() {
+    config_.version_max = net::SSL_PROTOCOL_VERSION_TLS1_3;
+    config_.tls13_variant = net::kTLS13VariantFinal;
+  }
+  void GetSSLConfig(net::SSLConfig* config) override { *config = config_; }
+
+ private:
+  net::SSLConfig config_;
+};
+}  // namespace
+#endif
+
 ShellURLRequestContextGetter::ShellURLRequestContextGetter(
     bool ignore_certificate_errors,
     bool off_the_record,
@@ -129,6 +145,9 @@ net::URLRequestContext* ShellURLRequestContextGetter::GetURLRequestContext() {
     builder.set_accept_language("en-us,en");
     builder.set_user_agent(GetShellUserAgent());
 
+#if defined(USE_NEVA_APPRUNTIME)
+    builder.set_ssl_config_service(new SSLConfigServiceTLS13());
+#endif
     builder.SetCertVerifier(GetCertVerifier());
 
     std::unique_ptr<net::ProxyResolutionService> proxy_resolution_service =

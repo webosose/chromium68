@@ -79,6 +79,18 @@ const char kCacheStoreFile[] = "Cache";
 const char kCookieStoreFile[] = "Cookies";
 const int kDefaultDiskCacheSize = 16 * 1024 * 1024;  // default size is 16MB
 
+class SSLConfigServiceTLS13 : public net::SSLConfigService {
+ public:
+  SSLConfigServiceTLS13() {
+    config_.version_max = net::SSL_PROTOCOL_VERSION_TLS1_3;
+    config_.tls13_variant = net::kTLS13VariantFinal;
+  }
+  void GetSSLConfig(net::SSLConfig* config) override { *config = config_; }
+
+ private:
+  net::SSLConfig config_;
+};
+
 }  // namespace
 
 // Private classes to expose URLRequestContextGetter that call back to the
@@ -249,7 +261,7 @@ void URLRequestContextFactory::InitializeSystemContextDependencies() {
 
   ct_policy_enforcer_.reset(new net::DefaultCTPolicyEnforcer());
 
-  ssl_config_service_ = new net::SSLConfigServiceDefaults;
+  ssl_config_service_ = new SSLConfigServiceTLS13();
 
   transport_security_state_.reset(new net::TransportSecurityState());
   http_auth_handler_factory_ =
