@@ -233,6 +233,15 @@ void AppRuntimeContentBrowserClient::GetQuotaSettings(
       partition->GetPath(), context->IsOffTheRecord(), std::move(callback));
 }
 
+void AppRuntimeContentBrowserClient::GetAdditionalAllowedSchemesForFileSystem(
+    std::vector<std::string>* additional_schemes) {
+  ContentBrowserClient::GetAdditionalAllowedSchemesForFileSystem(
+      additional_schemes);
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableFileAPIDirectoriesAndSystem))
+    additional_schemes->push_back(url::kFileScheme);
+}
+
 void AppRuntimeContentBrowserClient::SetV8SnapshotPath(
     int child_process_id,
     const std::string& path) {

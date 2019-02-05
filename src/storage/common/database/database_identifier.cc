@@ -91,8 +91,10 @@ DatabaseIdentifier DatabaseIdentifier::CreateFromOrigin(const GURL& origin) {
       !origin.IsStandard() || SchemeIsUnique(origin.scheme()))
     return DatabaseIdentifier();
 
+#if !defined(OS_WEBOS)
   if (origin.SchemeIsFile())
     return UniqueFileIdentifier();
+#endif
 
   int port = origin.IntPort();
   if (port == url::PORT_INVALID)
@@ -116,7 +118,11 @@ DatabaseIdentifier DatabaseIdentifier::Parse(const std::string& identifier) {
     return DatabaseIdentifier();
   if (identifier.find("..") != std::string::npos)
     return DatabaseIdentifier();
+#if defined(OS_WEBOS)
+  char forbidden[] = {'\\', ':', '\0'};
+#else
   char forbidden[] = {'\\', '/', ':' ,'\0'};
+#endif
   if (identifier.find_first_of(forbidden, 0, arraysize(forbidden)) !=
           std::string::npos) {
     return DatabaseIdentifier();
@@ -133,8 +139,10 @@ DatabaseIdentifier DatabaseIdentifier::Parse(const std::string& identifier) {
     return DatabaseIdentifier();
 
   std::string scheme(identifier.data(), first_underscore);
+#if !defined(OS_WEBOS)
   if (scheme == "file")
     return UniqueFileIdentifier();
+#endif
 
   // This magical set of schemes is always treated as unique.
   if (SchemeIsUnique(scheme))
@@ -156,7 +164,12 @@ DatabaseIdentifier DatabaseIdentifier::Parse(const std::string& identifier) {
     hostname = "";
 
   // If a url doesn't parse cleanly or doesn't round trip, reject it.
+#if defined(OS_WEBOS)
+  if (scheme != "file" &&
+      (!url.is_valid() || url.scheme() != scheme || url.host() != hostname))
+#else
   if (!url.is_valid() || url.scheme() != scheme || url.host() != hostname)
+#endif
     return DatabaseIdentifier();
 
   return DatabaseIdentifier(scheme, hostname, port, false /* unique */, false);

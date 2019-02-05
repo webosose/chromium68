@@ -25,6 +25,10 @@ const char kEnableAggressiveForegroundGC[] = "enable-aggressive-foreground-gc";
 const char kEnableBrowserControlInjection[]
     = "enable-browser-control-injection";
 
+// Allow making a File System according to File API: Directories and System.
+const char kEnableFileAPIDirectoriesAndSystem[] =
+    "enable-file-api-directories-and-system";
+
 // Loads sample injection
 const char kEnableSampleInjection[]     = "enable-sample-injection";
 

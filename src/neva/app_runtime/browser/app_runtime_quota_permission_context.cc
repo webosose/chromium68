@@ -16,7 +16,9 @@
 
 #include "neva/app_runtime/browser/app_runtime_quota_permission_context.h"
 
+#include "base/command_line.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/common/content_neva_switches.h"
 #include "neva/app_runtime/browser/app_runtime_quota_permission_delegate.h"
 #include "third_party/blink/public/mojom/quota/quota_types.mojom.h"
 
@@ -34,6 +36,12 @@ void AppRuntimeQuotaPermissionContext::RequestQuotaPermission(
     // For now we only support requesting quota with this interface
     // for Persistent storage type.
     callback.Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
+    return;
+  }
+
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableFileAPIDirectoriesAndSystem)) {
+    callback.Run(QUOTA_PERMISSION_RESPONSE_ALLOW);
     return;
   }
 

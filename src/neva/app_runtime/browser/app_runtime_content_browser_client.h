@@ -76,6 +76,9 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
       content::StoragePartition* partition,
       storage::OptionalQuotaSettingsCallback callback) override;
 
+  void GetAdditionalAllowedSchemesForFileSystem(
+      std::vector<std::string>* additional_schemes) override;
+
   AppRuntimeBrowserMainParts* GetMainParts() { return main_parts_; }
 
   void SetDoNotTrack(bool dnt) { do_not_track_ = dnt; }

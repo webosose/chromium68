@@ -11,6 +11,12 @@
 #include "url/url_util.h"
 #include "url/url_util_internal.h"
 
+#if defined(OS_WEBOS)
+#include "base/command_line.h"
+// Layer violation but works for now
+#include "content/public/common/content_neva_switches.h"
+#endif
+
 namespace url {
 
 namespace {
@@ -45,11 +51,25 @@ bool DoCanonicalizeFileSystemURL(const CHAR* spec,
   bool success = true;
   SchemeType inner_scheme_type = SCHEME_WITH_HOST_PORT_AND_USER_INFORMATION;
   if (CompareSchemeComponent(spec, inner_parsed->scheme, url::kFileScheme)) {
-    new_inner_parsed.scheme.begin = output->length();
-    output->Append("file://", 7);
-    new_inner_parsed.scheme.len = 4;
-    success &= CanonicalizePath(spec, inner_parsed->path, output,
-                                &new_inner_parsed.path);
+#if defined(OS_WEBOS)
+    // WebOS host ID (ex: file://com.webos.app.test/) in file:// scheme must not
+    // be removed to enable the feature and to make separated file systems.
+    // Switch '--enable-file-api-directories-and-system' is used to check if we
+    // want this webOS specific behavior
+    if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+            switches::kEnableFileAPIDirectoriesAndSystem)) {
+      success = CanonicalizeStandardURL(
+          spec, parsed.inner_parsed()->Length(), *parsed.inner_parsed(),
+          SCHEME_WITH_HOST, charset_converter, output, &new_inner_parsed);
+    } else
+#endif
+    {
+      new_inner_parsed.scheme.begin = output->length();
+      output->Append("file://", 7);
+      new_inner_parsed.scheme.len = 4;
+      success &= CanonicalizePath(spec, inner_parsed->path, output,
+                                  &new_inner_parsed.path);
+    }
   } else if (GetStandardSchemeType(spec, inner_parsed->scheme,
                                    &inner_scheme_type)) {
     if (inner_scheme_type == SCHEME_WITH_HOST_PORT_AND_USER_INFORMATION) {

@@ -2884,6 +2884,7 @@ void RenderProcessHostImpl::PropagateBrowserCommandLineToRenderer(
     cc::switches::kEnableAggressiveReleasePolicy,
     cc::switches::kMemPressureGPUCacheSizeReductionFactor,
     cc::switches::kTileManagerLowMemPolicyBytesLimitReductionFactor,
+    switches::kEnableFileAPIDirectoriesAndSystem,
 #endif
 #if defined(OS_WEBOS)
     discardable_memory::switches::kSharedMemMinimalLimitMB,
