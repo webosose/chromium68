@@ -44,6 +44,12 @@ class WebOSNetworkDelegate : public net::NetworkDelegateImpl {
   void ParsePathsFromSettings(std::vector<std::string>& paths,
                               std::istringstream& stream);
 
+  net::NetworkDelegate::AuthRequiredResponse OnAuthRequired(
+      net::URLRequest* request,
+      const net::AuthChallengeInfo& auth_info,
+      const net::NetworkDelegate::AuthCallback& callback,
+      net::AuthCredentials* credentials) override;
+
   bool IsAccessAllowed(const net::URLRequest& request,
                        const base::FilePath& path) const;
 

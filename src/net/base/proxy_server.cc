@@ -87,6 +87,19 @@ ProxyServer::ProxyServer(Scheme scheme,
   }
 }
 
+#if defined(USE_NEVA_APPRUNTIME)
+void ProxyServer::SetAuth(const AuthCredentials& auth_credentials) {
+  auth_credentials_ = auth_credentials;
+}
+
+const AuthCredentials& ProxyServer::auth_credentials() const {
+  // Doesn't make sense to call this if the URI scheme doesn't
+  // have concept of a host.
+  DCHECK(is_valid() && !is_direct());
+  return auth_credentials_;
+}
+#endif
+
 const HostPortPair& ProxyServer::host_port_pair() const {
   // Doesn't make sense to call this if the URI scheme doesn't
   // have concept of a host.

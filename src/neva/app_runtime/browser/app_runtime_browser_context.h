@@ -61,10 +61,10 @@ class AppRuntimeBrowserContext : public content::BrowserContext {
   content::BackgroundSyncController* GetBackgroundSyncController() override;
   content::BrowsingDataRemoverDelegate* GetBrowsingDataRemoverDelegate() override;
 
-  void SetProxyServer(const std::string& proxyIp,
-                      const std::string& proxyPort,
-                      const std::string& proxyUsername,
-                      const std::string& proxyPassword);
+  void SetProxyServer(const std::string& ip,
+                      const std::string& port,
+                      const std::string& username,
+                      const std::string& password);
   void AppendExtraWebSocketHeader(const std::string& key,
                                   const std::string& value);
 
@@ -72,6 +72,12 @@ class AppRuntimeBrowserContext : public content::BrowserContext {
 
  private:
   class AppRuntimeResourceContext;
+
+  void SetProxyServerIO(const std::string& ip,
+                        const std::string& port,
+                        const std::string& username,
+                        const std::string& password,
+                        const std::string& proxy_bypass_list);
 
   void AppendExtraWebSocketHeaderIO(const std::string& key,
                                     const std::string& value);

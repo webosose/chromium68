@@ -62,7 +62,8 @@ class URLRequestContextFactory {
   void SetProxyServer(const std::string& ip,
                       const std::string& port,
                       const std::string& name,
-                      const std::string& password);
+                      const std::string& password,
+                      const std::string& proxy_bypass_list);
 
  private:
   class URLRequestContextGetter;

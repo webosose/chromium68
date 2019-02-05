@@ -23,6 +23,7 @@ extern const char kEnableAggressiveForegroundGC[];
 extern const char kEnableBrowserControlInjection[];
 extern const char kEnableSampleInjection[];
 extern const char kNetworkStableTimeout[];
+extern const char kNevaProxyBypassList[];
 extern const char kUseExternalInputControls[];
 
 }  // namespace switches

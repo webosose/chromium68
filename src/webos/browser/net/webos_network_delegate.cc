@@ -17,9 +17,13 @@
 #include "webos/browser/net/webos_network_delegate.h"
 
 #include "base/files/file_util.h"
+#include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/resource_request_info.h"
 #include "net/base/net_errors.h"
+#include "net/proxy_resolution/proxy_config_service.h"
+#include "net/proxy_resolution/proxy_resolution_service.h"
 #include "net/url_request/url_request.h"
+#include "net/url_request/url_request_context.h"
 #include "neva/app_runtime/app/app_runtime_main_delegate.h"
 #include "webos/browser/webos_webview_renderer_state.h"
 
@@ -101,6 +105,40 @@ void WebOSNetworkDelegate::ParsePathsFromSettings(
       paths.push_back(str.substr(path_pos + 1));
     }
   } while (str != "");
+}
+
+net::NetworkDelegate::AuthRequiredResponse WebOSNetworkDelegate::OnAuthRequired(
+    net::URLRequest* request,
+    const net::AuthChallengeInfo& auth_info,
+    const net::NetworkDelegate::AuthCallback& callback,
+    net::AuthCredentials* credentials) {
+  if (!auth_info.is_proxy)
+    return net::NetworkDelegate::AUTH_REQUIRED_RESPONSE_NO_ACTION;
+
+  const net::URLRequestContext* context = request->context();
+  if (!context)
+    return net::NetworkDelegate::AUTH_REQUIRED_RESPONSE_NO_ACTION;
+
+  net::ProxyResolutionService* proxy_resolution_service =
+      context->proxy_resolution_service();
+  if (!proxy_resolution_service)
+    return net::NetworkDelegate::AUTH_REQUIRED_RESPONSE_NO_ACTION;
+
+  if (!proxy_resolution_service->fetched_config() ||
+      proxy_resolution_service->fetched_config()
+          ->value()
+          .proxy_rules()
+          .single_proxies.IsEmpty())
+    return net::NetworkDelegate::AUTH_REQUIRED_RESPONSE_NO_ACTION;
+
+  const net::AuthCredentials auth = proxy_resolution_service->fetched_config()
+                                        ->value()
+                                        .proxy_rules()
+                                        .single_proxies.Get()
+                                        .auth_credentials();
+  credentials->Set(auth.username(), auth.password());
+
+  return net::NetworkDelegate::AUTH_REQUIRED_RESPONSE_SET_AUTH;
 }
 
 bool WebOSNetworkDelegate::IsAccessAllowed(

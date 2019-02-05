@@ -62,6 +62,11 @@ class NET_EXPORT AuthCredentials {
   const base::string16& username() const { return username_; }
   const base::string16& password() const { return password_; }
 
+#if defined(USE_NEVA_APPRUNTIME)
+  // Comparator function so this can be placed in a std::map.
+  bool operator<(const AuthCredentials& other) const;
+#endif
+
  private:
   // The username to provide, possibly empty. This should be ASCII only to
   // minimize compatibility problems, but arbitrary UTF-16 strings are allowed

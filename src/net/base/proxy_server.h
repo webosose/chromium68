@@ -18,6 +18,10 @@
 #include "net/base/host_port_pair.h"
 #include "net/base/net_export.h"
 
+#if defined(USE_NEVA_APPRUNTIME)
+#include "net/base/auth.h"
+#endif
+
 namespace net {
 
 // ProxyServer encodes the {type, host, port} of a proxy server.
@@ -48,6 +52,11 @@ class NET_EXPORT ProxyServer {
   ProxyServer(Scheme scheme,
               const HostPortPair& host_port_pair,
               bool is_trusted_proxy);
+
+#if defined(USE_NEVA_APPRUNTIME)
+  void SetAuth(const AuthCredentials& auth_credentials);
+  const AuthCredentials& auth_credentials() const;
+#endif
 
   bool is_valid() const { return scheme_ != SCHEME_INVALID; }
 
@@ -149,15 +158,26 @@ class NET_EXPORT ProxyServer {
 
   bool operator==(const ProxyServer& other) const {
     return scheme_ == other.scheme_ &&
-           host_port_pair_.Equals(other.host_port_pair_);
+           host_port_pair_.Equals(other.host_port_pair_)
+#if defined(USE_NEVA_APPRUNTIME)
+           && auth_credentials_.Equals(other.auth_credentials_)
+#endif
+        ;
   }
 
   bool operator!=(const ProxyServer& other) const { return !(*this == other); }
 
   // Comparator function so this can be placed in a std::map.
   bool operator<(const ProxyServer& other) const {
+#if defined(USE_NEVA_APPRUNTIME)
+    if (!host_port_pair_.Equals(other.host_port_pair_))
+      return std::tie(scheme_, host_port_pair_) <
+             std::tie(other.scheme_, other.host_port_pair_);
+    return auth_credentials_ < other.auth_credentials_;
+#else
     return std::tie(scheme_, host_port_pair_) <
            std::tie(other.scheme_, other.host_port_pair_);
+#endif
   }
 
   // Returns the estimate of dynamically allocated memory in bytes.
@@ -172,6 +192,9 @@ class NET_EXPORT ProxyServer {
   Scheme scheme_ = SCHEME_INVALID;
   HostPortPair host_port_pair_;
   bool is_trusted_proxy_ = false;
+#if defined(USE_NEVA_APPRUNTIME)
+  AuthCredentials auth_credentials_;
+#endif
 };
 
 typedef std::pair<HostPortPair, ProxyServer> HostPortProxyPair;

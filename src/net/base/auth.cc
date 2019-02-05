@@ -41,4 +41,11 @@ bool AuthCredentials::Empty() const {
   return username_.empty() && password_.empty();
 }
 
+#if defined(USE_NEVA_APPRUNTIME)
+bool AuthCredentials::operator<(const AuthCredentials& other) const {
+  int ret = username_.compare(other.username_);
+  return ret < 0 || (ret == 0 && password_.compare(other.password_) < 0);
+}
+#endif
+
 }  // namespace net

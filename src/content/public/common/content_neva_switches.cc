@@ -32,6 +32,14 @@ const char kEnableSampleInjection[]     = "enable-sample-injection";
 // for a network stable timer to be fired.
 const char kNetworkStableTimeout[] = "network-stable-timeout";
 
+// Specifies a list of hosts for whom we bypass proxy settings and use direct
+// connections. Ignored if --proxy-auto-detect or --no-proxy-server are also
+// specified. This is a comma-separated list of bypass rules. See:
+// "net/proxy/proxy_bypass_rules.h" for the format of these rules.
+// Named after kNevaProxyBypassList instead of kProxyBypassList to avoid
+// name collision with chrome switches kProxyBypassList when using jumbo builds.
+const char kNevaProxyBypassList[] = "proxy-bypass-list";
+
 // Use platform implementation for Input Controls (File picker,
 // Color chooser, e.t.c.)
 const char kUseExternalInputControls[]  = "use-external-input-controls";

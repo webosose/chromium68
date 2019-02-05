@@ -17,24 +17,25 @@
 #include "neva/app_runtime/browser/app_runtime_browser_context.h"
 
 #include "base/command_line.h"
-#include "base/logging.h"
 #include "base/files/file_path.h"
+#include "base/logging.h"
 #include "browser/app_runtime_browser_context_adapter.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
+#include "content/public/common/content_neva_switches.h"
 #include "content/public/common/content_switches.h"
 #include "net/base/layered_network_delegate.h"
+#include "net/cookies/cookie_store.h"
 #include "net/http/http_network_session.h"
 #include "net/http/http_request_headers.h"
 #include "net/proxy_resolution/proxy_config_service.h"
 #include "net/proxy_resolution/proxy_info.h"
+#include "net/proxy_resolution/proxy_resolution_service.h"
 #include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "neva/app_runtime/browser/app_runtime_browser_switches.h"
 #include "neva/app_runtime/browser/url_request_context_factory.h"
-#include "net/cookies/cookie_store.h"
-#include "net/proxy_resolution/proxy_resolution_service.h"
 
 namespace app_runtime {
 
@@ -200,7 +201,29 @@ void AppRuntimeBrowserContext::SetProxyServer(const std::string& ip,
                                               const std::string& port,
                                               const std::string& name,
                                               const std::string& password) {
-  url_request_context_factory_->SetProxyServer(ip, port, name, password);
+  std::string proxy_bypass_list;
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kNevaProxyBypassList)) {
+    proxy_bypass_list =
+        base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
+            switches::kNevaProxyBypassList);
+  }
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO, FROM_HERE,
+      base::Bind(&AppRuntimeBrowserContext::SetProxyServerIO,
+                 base::Unretained(this), ip, port, name, password,
+                 proxy_bypass_list));
+}
+
+void AppRuntimeBrowserContext::SetProxyServerIO(
+    const std::string& ip,
+    const std::string& port,
+    const std::string& name,
+    const std::string& password,
+    const std::string& proxy_bypass_list) {
+  url_request_context_factory_->SetProxyServer(ip, port, name, password,
+                                               proxy_bypass_list);
 }
 
 void AppRuntimeBrowserContext::AppendExtraWebSocketHeader(

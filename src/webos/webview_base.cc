@@ -23,9 +23,10 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "net/http/http_util.h"
-#include "neva/app_runtime/webview.h"
 #include "neva/app_runtime/common/app_runtime_user_agent.h"
 #include "neva/app_runtime/public/app_runtime_event.h"
+#include "neva/app_runtime/webview.h"
+#include "neva/app_runtime/webview_profile.h"
 #include "webos/browser/webos_webview_renderer_state.h"
 #include "webos/common/webos_event.h"
 
@@ -223,7 +224,8 @@ void WebViewBase::SetProxyServer(const std::string& proxyIp,
                                  const std::string& proxyPort,
                                  const std::string& proxyUsername,
                                  const std::string& proxyPassword) {
-  NOTIMPLEMENTED();
+  GetProfile()->SetProxyServer(proxyIp, proxyPort, proxyUsername,
+                               proxyPassword);
 }
 
 app_runtime::WebPageVisibilityState WebViewBase::FromNativeVisibilityState(

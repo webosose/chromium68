@@ -23,6 +23,7 @@
 #include "base/memory/ptr_util.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "base/task_scheduler/post_task.h"
 #include "components/certificate_transparency/ct_known_logs.h"
 #include "components/cookie_config/cookie_store_util.h"
@@ -34,8 +35,14 @@
 #include "content/public/browser/cookie_store_factory.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
+#include "net/base/proxy_server.h"
 #include "net/cert/cert_verifier.h"
+#include "net/cert/ct_log_verifier.h"
 #include "net/cert/ct_policy_enforcer.h"
+#include "net/cert/multi_log_ct_verifier.h"
+#include "net/cert_net/nss_ocsp.h"
+#include "net/code_cache/code_cache_impl.h"
+#include "net/code_cache/dummy_code_cache.h"
 #include "net/cookies/cookie_store.h"
 #include "net/dns/host_resolver.h"
 #include "net/http/http_auth_handler_factory.h"
@@ -43,13 +50,6 @@
 #include "net/http/http_network_layer.h"
 #include "net/http/http_server_properties_impl.h"
 #include "net/http/http_stream_factory.h"
-#include "net/cert_net/nss_ocsp.h"
-#include "net/cert/ct_log_verifier.h"
-#include "net/cert/ct_policy_enforcer.h"
-#include "net/cert/multi_log_ct_verifier.h"
-#include "net/code_cache/code_cache_impl.h"
-#include "net/code_cache/dummy_code_cache.h"
-#include "net/cookies/cookie_store.h"
 #include "net/proxy_resolution/proxy_config_service_fixed.h"
 #include "net/proxy_resolution/proxy_config_with_annotation.h"
 #include "net/proxy_resolution/proxy_resolution_service.h"
@@ -63,9 +63,9 @@
 #include "net/url_request/url_request_context_getter.h"
 #include "net/url_request/url_request_intercepting_job_factory.h"
 #include "net/url_request/url_request_job_factory_impl.h"
-#include "neva/app_runtime/browser/net/app_runtime_network_delegate.h"
 #include "neva/app_runtime/browser/app_runtime_browser_switches.h"
 #include "neva/app_runtime/browser/app_runtime_http_user_agent_settings.h"
+#include "neva/app_runtime/browser/net/app_runtime_network_delegate.h"
 
 #include <memory>
 
@@ -216,7 +216,6 @@ net::URLRequestContextGetter* URLRequestContextFactory::GetMediaGetter() {
 void URLRequestContextFactory::InitializeSystemContextDependencies() {
   if (system_dependencies_initialized_)
     return;
-
   // need for enable AppRuntimeNetworkDelegate to open files
   base::ThreadRestrictions::SetIOAllowed(true);
   if (!network_delegate_)
@@ -342,7 +341,6 @@ void URLRequestContextFactory::PopulateNetworkSessionContext(
   context->proxy_resolution_service = proxy_resolution_service_.get();
   context->ct_policy_enforcer = ct_policy_enforcer_.get();
   context->cert_transparency_verifier = cert_transparency_verifier_.get();
-
   // TODO(lcwu): http://crbug.com/329681. Remove this once spdy is enabled
   // by default at the content level.
   // params->next_protos = net::NextProtosSpdy31();
@@ -487,14 +485,12 @@ net::URLRequestContext* URLRequestContextFactory::CreateMainRequestContext(
   return main_context;
 }
 
-void URLRequestContextFactory::SetProxyServer(const std::string& ip,
-                                              const std::string& port,
-                                              const std::string& name,
-                                              const std::string& password) {
-  // user:password auth is not supported yet
-  // see BUG: https://bugs.chromium.org/p/chromium/issues/detail?id=16709
-  std::string proxy_string = ip + ":" + port;
-
+void URLRequestContextFactory::SetProxyServer(
+    const std::string& ip,
+    const std::string& port,
+    const std::string& name,
+    const std::string& password,
+    const std::string& proxy_bypass_list) {
   if (!proxy_resolution_service_) {
     std::unique_ptr<net::ProxyConfigService> proxy_config_service;
     proxy_config_service.reset(new net::ProxyConfigServiceFixed(
@@ -503,17 +499,34 @@ void URLRequestContextFactory::SetProxyServer(const std::string& ip,
     proxy_resolution_service_ =
         net::ProxyResolutionService::CreateUsingSystemProxyResolver(
             std::move(proxy_config_service), nullptr);
-  } else {
-    std::unique_ptr<net::ProxyConfigService> proxy_config_service;
+  } else if (!ip.empty() && !port.empty()) {
+    std::string proxy_string = ip + ":" + port;
+    net::ProxyServer proxy_for_http =
+        net::ProxyServer::FromURI(proxy_string, net::ProxyServer::SCHEME_HTTP);
+    if (!proxy_for_http.is_valid())
+      return;
+
+    proxy_for_http.SetAuth(net::AuthCredentials(
+        base::UTF8ToUTF16(name.c_str()), base::UTF8ToUTF16(password.c_str())));
+
     net::ProxyConfig proxy_config;
-
-    proxy_config.proxy_rules().ParseFromString(proxy_string);
+    proxy_config.proxy_rules().type =
+        net::ProxyConfig::ProxyRules::Type::PROXY_LIST;
+    proxy_config.proxy_rules().single_proxies.SetSingleProxyServer(
+        proxy_for_http);
+    if (!proxy_bypass_list.empty()) {
+      // Note that this uses "suffix" matching. So a bypass of "google.com"
+      // is understood to mean a bypass of "*google.com".
+      proxy_config.proxy_rules()
+          .bypass_rules.ParseFromStringUsingSuffixMatching(proxy_bypass_list);
+    }
     proxy_config.set_auto_detect(false);
-    proxy_config_service.reset(
-        new net::ProxyConfigServiceFixed(net::ProxyConfigWithAnnotation(
-            proxy_config,
-            proxy_resolution_service_->config()->traffic_annotation())));
 
+    std::unique_ptr<net::ProxyConfigService> proxy_config_service =
+        std::make_unique<net::ProxyConfigServiceFixed>(
+            net::ProxyConfigWithAnnotation(
+                proxy_config,
+                proxy_resolution_service_->config()->traffic_annotation()));
     proxy_resolution_service_->ResetConfigService(
         std::move(proxy_config_service));
   }
