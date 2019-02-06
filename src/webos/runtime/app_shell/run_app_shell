@@ -112,6 +112,7 @@ CHROME_FLAGS=" \
   --noerrdialogs\
   --no-sandbox\
   --no-zygote\
+  --remote-debugging-port=9999\
   --start-maximized\
   --user-data-dir=${CHROME_CACHE}\
   --webos-appid=${BROWSER_APP_ID}\
