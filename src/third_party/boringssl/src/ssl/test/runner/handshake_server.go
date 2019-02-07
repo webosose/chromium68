@@ -337,10 +337,6 @@ func (hs *serverHandshakeState) readClientHello() error {
 		}
 	}
 
-	if expected := hs.clientHello.dummyPQPaddingLen; expected != config.Bugs.ExpectDummyPQPaddingLength {
-		return fmt.Errorf("tls: expected dummy PQ padding extension of length %d, but got one of length %d", expected, config.Bugs.ExpectDummyPQPaddingLength)
-	}
-
 	if err := checkRSAPSSSupport(config.Bugs.ExpectRSAPSSSupport, hs.clientHello.signatureAlgorithms, hs.clientHello.signatureAlgorithmsCert); err != nil {
 		return err
 	}
@@ -834,7 +830,7 @@ ResendHelloRetryRequest:
 		if config.ClientAuth >= RequestClientCert {
 			// Request a client certificate
 			certReq := &certificateRequestMsg{
-				vers: c.wireVersion,
+				vers:                  c.wireVersion,
 				hasSignatureAlgorithm: !config.Bugs.OmitCertificateRequestAlgorithms,
 				hasRequestContext:     true,
 				requestContext:        config.Bugs.SendRequestContext,
@@ -885,8 +881,47 @@ ResendHelloRetryRequest:
 			}
 		}
 		certMsgBytes := certMsg.marshal()
-		hs.writeServerHash(certMsgBytes)
-		c.writeRecord(recordTypeHandshake, certMsgBytes)
+		sentCompressedCertMsg := false
+
+	FindCertCompressionAlg:
+		for candidate, alg := range c.config.CertCompressionAlgs {
+			for _, id := range hs.clientHello.compressedCertAlgs {
+				if id == candidate {
+					if expected := config.Bugs.ExpectedCompressedCert; expected != 0 && expected != id {
+						return fmt.Errorf("expected to send compressed cert with alg %d, but picked %d", expected, id)
+					}
+
+					if override := config.Bugs.SendCertCompressionAlgId; override != 0 {
+						id = override
+					}
+
+					uncompressed := certMsgBytes[4:]
+					uncompressedLen := uint32(len(uncompressed))
+					if override := config.Bugs.SendCertUncompressedLength; override != 0 {
+						uncompressedLen = override
+					}
+
+					compressedCertMsgBytes := (&compressedCertificateMsg{
+						algID:              id,
+						uncompressedLength: uncompressedLen,
+						compressed:         alg.Compress(uncompressed),
+					}).marshal()
+
+					hs.writeServerHash(compressedCertMsgBytes)
+					c.writeRecord(recordTypeHandshake, compressedCertMsgBytes)
+					sentCompressedCertMsg = true
+					break FindCertCompressionAlg
+				}
+			}
+		}
+
+		if !sentCompressedCertMsg {
+			if config.Bugs.ExpectedCompressedCert != 0 {
+				return errors.New("unexpectedly sent uncompressed certificate")
+			}
+			hs.writeServerHash(certMsgBytes)
+			c.writeRecord(recordTypeHandshake, certMsgBytes)
+		}
 
 		certVerify := &certificateVerifyMsg{
 			hasSignatureAlgorithm: true,
@@ -1135,16 +1170,17 @@ func (hs *serverHandshakeState) processClientHello() (isResume bool, err error) 
 		c.sendAlert(alertInternalError)
 		return false, err
 	}
-	// Signal downgrades in the server random, per draft-ietf-tls-tls13-16,
-	// section 4.1.3.
-	if c.vers <= VersionTLS12 && config.maxVersion(c.isDTLS) >= VersionTLS13 {
-		copy(hs.hello.random[len(hs.hello.random)-8:], downgradeTLS13)
-	}
-	if c.vers <= VersionTLS11 && config.maxVersion(c.isDTLS) == VersionTLS12 {
-		copy(hs.hello.random[len(hs.hello.random)-8:], downgradeTLS12)
-	}
-	if config.Bugs.SendDraftTLS13DowngradeRandom {
-		copy(hs.hello.random[len(hs.hello.random)-8:], downgradeTLS13Draft)
+
+	_, supportsTLS13 := c.config.isSupportedVersion(VersionTLS13, false)
+
+	// Signal downgrades in the server random, per RFC 8446, section 4.1.3.
+	if supportsTLS13 || config.Bugs.SendTLS13DowngradeRandom {
+		if c.vers <= VersionTLS12 && config.maxVersion(c.isDTLS) >= VersionTLS13 {
+			copy(hs.hello.random[len(hs.hello.random)-8:], downgradeTLS13)
+		}
+		if c.vers <= VersionTLS11 && config.maxVersion(c.isDTLS) == VersionTLS12 {
+			copy(hs.hello.random[len(hs.hello.random)-8:], downgradeTLS12)
+		}
 	}
 
 	if len(hs.clientHello.sessionId) == 0 && c.config.Bugs.ExpectClientHelloSessionID {
@@ -1389,10 +1425,6 @@ func (hs *serverHandshakeState) processClientExtensions(serverExtensions *server
 
 	if !hs.clientHello.hasGREASEExtension && config.Bugs.ExpectGREASE {
 		return errors.New("tls: no GREASE extension found")
-	}
-
-	if l := hs.clientHello.dummyPQPaddingLen; l != 0 {
-		serverExtensions.dummyPQPaddingLen = l
 	}
 
 	serverExtensions.serverNameAck = c.config.Bugs.SendServerNameAck

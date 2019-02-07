@@ -116,6 +116,7 @@
 #include <assert.h>
 #include <string.h>
 
+#if !defined(__cplusplus)
 #if defined(__GNUC__) && \
     (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) < 40800
 // |alignas| and |alignof| were added in C11. GCC added support in version 4.8.
@@ -123,8 +124,7 @@
 // reports support for C11.
 #define alignas(x) __attribute__ ((aligned (x)))
 #define alignof(x) __alignof__ (x)
-#elif !defined(__cplusplus)
-#if defined(_MSC_VER)
+#elif defined(_MSC_VER)
 #define alignas(x) __declspec(align(x))
 #define alignof __alignof
 #else
@@ -528,7 +528,6 @@ using MutexReadLock =
 // stored.
 typedef enum {
   OPENSSL_THREAD_LOCAL_ERR = 0,
-  OPENSSL_THREAD_LOCAL_RAND,
   OPENSSL_THREAD_LOCAL_TEST,
   NUM_OPENSSL_THREAD_LOCALS,
 } thread_local_data_t;

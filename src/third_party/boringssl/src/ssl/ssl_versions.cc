@@ -27,10 +27,10 @@ namespace bssl {
 
 bool ssl_protocol_version_from_wire(uint16_t *out, uint16_t version) {
   switch (version) {
-    case SSL3_VERSION:
     case TLS1_VERSION:
     case TLS1_1_VERSION:
     case TLS1_2_VERSION:
+    case TLS1_3_VERSION:
       *out = version;
       return true;
 
@@ -57,12 +57,12 @@ bool ssl_protocol_version_from_wire(uint16_t *out, uint16_t version) {
 // decreasing preference.
 
 static const uint16_t kTLSVersions[] = {
-    TLS1_3_DRAFT23_VERSION,
+    TLS1_3_VERSION,
     TLS1_3_DRAFT28_VERSION,
+    TLS1_3_DRAFT23_VERSION,
     TLS1_2_VERSION,
     TLS1_1_VERSION,
     TLS1_VERSION,
-    SSL3_VERSION,
 };
 
 static const uint16_t kDTLSVersions[] = {
@@ -103,6 +103,7 @@ static const char *ssl_version_to_string(uint16_t version) {
   switch (version) {
     case TLS1_3_DRAFT23_VERSION:
     case TLS1_3_DRAFT28_VERSION:
+    case TLS1_3_VERSION:
       return "TLSv1.3";
 
     case TLS1_2_VERSION:
@@ -113,9 +114,6 @@ static const char *ssl_version_to_string(uint16_t version) {
 
     case TLS1_VERSION:
       return "TLSv1";
-
-    case SSL3_VERSION:
-      return "SSLv3";
 
     case DTLS1_VERSION:
       return "DTLSv1";
@@ -133,6 +131,7 @@ static uint16_t wire_version_to_api(uint16_t version) {
     // Report TLS 1.3 draft versions as TLS 1.3 in the public API.
     case TLS1_3_DRAFT23_VERSION:
     case TLS1_3_DRAFT28_VERSION:
+    case TLS1_3_VERSION:
       return TLS1_3_VERSION;
     default:
       return version;
@@ -146,9 +145,6 @@ static bool api_version_to_wire(uint16_t *out, uint16_t version) {
   if (version == TLS1_3_DRAFT23_VERSION ||
       version == TLS1_3_DRAFT28_VERSION) {
     return false;
-  }
-  if (version == TLS1_3_VERSION) {
-    version = TLS1_3_DRAFT23_VERSION;
   }
 
   // Check it is a real protocol version.
@@ -177,7 +173,7 @@ static bool set_min_version(const SSL_PROTOCOL_METHOD *method, uint16_t *out,
                             uint16_t version) {
   // Zero is interpreted as the default minimum version.
   if (version == 0) {
-    // SSL 3.0 is disabled by default and TLS 1.0 does not exist in DTLS.
+    // TLS 1.0 does not exist in DTLS.
     *out = method->is_dtls ? TLS1_1_VERSION : TLS1_VERSION;
     return true;
   }
@@ -200,7 +196,6 @@ const struct {
   uint16_t version;
   uint32_t flag;
 } kProtocolVersions[] = {
-    {SSL3_VERSION, SSL_OP_NO_SSLv3},
     {TLS1_VERSION, SSL_OP_NO_TLSv1},
     {TLS1_1_VERSION, SSL_OP_NO_TLSv1_1},
     {TLS1_2_VERSION, SSL_OP_NO_TLSv1_2},
@@ -307,6 +302,8 @@ bool ssl_supports_version(SSL_HANDSHAKE *hs, uint16_t version) {
         return version == TLS1_3_DRAFT23_VERSION;
       case tls13_draft28:
         return version == TLS1_3_DRAFT28_VERSION;
+      case tls13_rfc:
+        return version == TLS1_3_VERSION;
       case tls13_default:
         return true;
     }
@@ -360,7 +357,7 @@ bool ssl_negotiate_version(SSL_HANDSHAKE *hs, uint8_t *out_alert,
 }
 
 bool ssl_is_draft28(uint16_t version) {
-  return version == TLS1_3_DRAFT28_VERSION;
+  return version == TLS1_3_DRAFT28_VERSION || version == TLS1_3_VERSION;
 }
 
 }  // namespace bssl

@@ -130,7 +130,6 @@ SSL_HANDSHAKE::SSL_HANDSHAKE(SSL *ssl_arg)
       needs_psk_binder(false),
       received_hello_retry_request(false),
       sent_hello_retry_request(false),
-      received_custom_extension(false),
       handshake_finalized(false),
       accept_psk_mode(false),
       cert_request(false),
@@ -147,7 +146,8 @@ SSL_HANDSHAKE::SSL_HANDSHAKE(SSL *ssl_arg)
       extended_master_secret(false),
       pending_private_key_op(false),
       grease_seeded(false),
-      handback(false) {
+      handback(false),
+      cert_compression_negotiated(false) {
   assert(ssl);
 }
 
@@ -157,11 +157,10 @@ SSL_HANDSHAKE::~SSL_HANDSHAKE() {
 
 UniquePtr<SSL_HANDSHAKE> ssl_handshake_new(SSL *ssl) {
   UniquePtr<SSL_HANDSHAKE> hs = MakeUnique<SSL_HANDSHAKE>(ssl);
-  if (!hs ||
-      !hs->transcript.Init()) {
+  if (!hs || !hs->transcript.Init()) {
     return nullptr;
   }
-  hs->config = ssl->config;
+  hs->config = ssl->config.get();
   if (!hs->config) {
     assert(hs->config);
     return nullptr;
@@ -196,7 +195,7 @@ size_t ssl_max_handshake_message_len(const SSL *ssl) {
   static const size_t kMaxMessageLen = 16384;
 
   if (SSL_in_init(ssl)) {
-    SSL_CONFIG *config = ssl->config;  // SSL_in_init() implies not NULL.
+    SSL_CONFIG *config = ssl->config.get();  // SSL_in_init() implies not NULL.
     if ((!ssl->server || (config->verify_mode & SSL_VERIFY_PEER)) &&
         kMaxMessageLen < ssl->max_cert_list) {
       return ssl->max_cert_list;
@@ -280,16 +279,6 @@ int ssl_parse_extensions(const CBS *cbs, uint8_t *out_alert,
   return 1;
 }
 
-static void set_crypto_buffer(CRYPTO_BUFFER **dest, CRYPTO_BUFFER *src) {
-  // TODO(davidben): Remove this helper once |SSL_SESSION| can use |UniquePtr|
-  // and |UniquePtr| has up_ref helpers.
-  CRYPTO_BUFFER_free(*dest);
-  *dest = src;
-  if (src != nullptr) {
-    CRYPTO_BUFFER_up_ref(src);
-  }
-}
-
 enum ssl_verify_result_t ssl_verify_peer_cert(SSL_HANDSHAKE *hs) {
   SSL *const ssl = hs->ssl;
   const SSL_SESSION *prev_session = ssl->s3->established_session.get();
@@ -299,18 +288,19 @@ enum ssl_verify_result_t ssl_verify_peer_cert(SSL_HANDSHAKE *hs) {
     // so this check is sufficient to ensure the reported peer certificate never
     // changes on renegotiation.
     assert(!ssl->server);
-    if (sk_CRYPTO_BUFFER_num(prev_session->certs) !=
-        sk_CRYPTO_BUFFER_num(hs->new_session->certs)) {
+    if (sk_CRYPTO_BUFFER_num(prev_session->certs.get()) !=
+        sk_CRYPTO_BUFFER_num(hs->new_session->certs.get())) {
       OPENSSL_PUT_ERROR(SSL, SSL_R_SERVER_CERT_CHANGED);
       ssl_send_alert(ssl, SSL3_AL_FATAL, SSL_AD_ILLEGAL_PARAMETER);
       return ssl_verify_invalid;
     }
 
-    for (size_t i = 0; i < sk_CRYPTO_BUFFER_num(hs->new_session->certs); i++) {
+    for (size_t i = 0; i < sk_CRYPTO_BUFFER_num(hs->new_session->certs.get());
+         i++) {
       const CRYPTO_BUFFER *old_cert =
-          sk_CRYPTO_BUFFER_value(prev_session->certs, i);
+          sk_CRYPTO_BUFFER_value(prev_session->certs.get(), i);
       const CRYPTO_BUFFER *new_cert =
-          sk_CRYPTO_BUFFER_value(hs->new_session->certs, i);
+          sk_CRYPTO_BUFFER_value(hs->new_session->certs.get(), i);
       if (CRYPTO_BUFFER_len(old_cert) != CRYPTO_BUFFER_len(new_cert) ||
           OPENSSL_memcmp(CRYPTO_BUFFER_data(old_cert),
                          CRYPTO_BUFFER_data(new_cert),
@@ -325,10 +315,9 @@ enum ssl_verify_result_t ssl_verify_peer_cert(SSL_HANDSHAKE *hs) {
     // certificate. Since we only authenticated the previous one, copy other
     // authentication from the established session and ignore what was newly
     // received.
-    set_crypto_buffer(&hs->new_session->ocsp_response,
-                      prev_session->ocsp_response);
-    set_crypto_buffer(&hs->new_session->signed_cert_timestamp_list,
-                      prev_session->signed_cert_timestamp_list);
+    hs->new_session->ocsp_response = UpRef(prev_session->ocsp_response);
+    hs->new_session->signed_cert_timestamp_list =
+        UpRef(prev_session->signed_cert_timestamp_list);
     hs->new_session->verify_result = prev_session->verify_result;
     return ssl_verify_ok;
   }
@@ -383,6 +372,32 @@ enum ssl_verify_result_t ssl_verify_peer_cert(SSL_HANDSHAKE *hs) {
   return ret;
 }
 
+// Verifies a stored certificate when resuming a session. A few things are
+// different from verify_peer_cert:
+// 1. We can't be renegotiating if we're resuming a session.
+// 2. The session is immutable, so we don't support verify_mode ==
+// SSL_VERIFY_NONE
+// 3. We don't call the OCSP callback.
+// 4. We only support custom verify callbacks.
+enum ssl_verify_result_t ssl_reverify_peer_cert(SSL_HANDSHAKE *hs) {
+  SSL *const ssl = hs->ssl;
+  assert(ssl->s3->established_session == nullptr);
+  assert(hs->config->verify_mode != SSL_VERIFY_NONE);
+
+  uint8_t alert = SSL_AD_CERTIFICATE_UNKNOWN;
+  enum ssl_verify_result_t ret = ssl_verify_invalid;
+  if (hs->config->custom_verify_callback != nullptr) {
+    ret = hs->config->custom_verify_callback(ssl, &alert);
+  }
+
+  if (ret == ssl_verify_invalid) {
+    OPENSSL_PUT_ERROR(SSL, SSL_R_CERTIFICATE_VERIFY_FAILED);
+    ssl_send_alert(ssl, SSL3_AL_FATAL, alert);
+  }
+
+  return ret;
+}
+
 uint16_t ssl_get_grease_value(SSL_HANDSHAKE *hs,
                               enum ssl_grease_index_t index) {
   // Draw entropy for all GREASE values at once. This avoids calling
@@ -432,20 +447,18 @@ enum ssl_hs_wait_t ssl_get_finished(SSL_HANDSHAKE *hs) {
   }
 
   // Copy the Finished so we can use it for renegotiation checks.
-  if (ssl->version != SSL3_VERSION) {
-    if (finished_len > sizeof(ssl->s3->previous_client_finished) ||
-        finished_len > sizeof(ssl->s3->previous_server_finished)) {
-      OPENSSL_PUT_ERROR(SSL, ERR_R_INTERNAL_ERROR);
-      return ssl_hs_error;
-    }
+  if (finished_len > sizeof(ssl->s3->previous_client_finished) ||
+      finished_len > sizeof(ssl->s3->previous_server_finished)) {
+    OPENSSL_PUT_ERROR(SSL, ERR_R_INTERNAL_ERROR);
+    return ssl_hs_error;
+  }
 
-    if (ssl->server) {
-      OPENSSL_memcpy(ssl->s3->previous_client_finished, finished, finished_len);
-      ssl->s3->previous_client_finished_len = finished_len;
-    } else {
-      OPENSSL_memcpy(ssl->s3->previous_server_finished, finished, finished_len);
-      ssl->s3->previous_server_finished_len = finished_len;
-    }
+  if (ssl->server) {
+    OPENSSL_memcpy(ssl->s3->previous_client_finished, finished, finished_len);
+    ssl->s3->previous_client_finished_len = finished_len;
+  } else {
+    OPENSSL_memcpy(ssl->s3->previous_server_finished, finished, finished_len);
+    ssl->s3->previous_server_finished_len = finished_len;
   }
 
   ssl->method->next_message(ssl);
@@ -464,27 +477,24 @@ bool ssl_send_finished(SSL_HANDSHAKE *hs) {
   }
 
   // Log the master secret, if logging is enabled.
-  if (!ssl_log_secret(ssl, "CLIENT_RANDOM",
-                      session->master_key,
+  if (!ssl_log_secret(ssl, "CLIENT_RANDOM", session->master_key,
                       session->master_key_length)) {
     return 0;
   }
 
   // Copy the Finished so we can use it for renegotiation checks.
-  if (ssl->version != SSL3_VERSION) {
-    if (finished_len > sizeof(ssl->s3->previous_client_finished) ||
-        finished_len > sizeof(ssl->s3->previous_server_finished)) {
-      OPENSSL_PUT_ERROR(SSL, ERR_R_INTERNAL_ERROR);
-      return 0;
-    }
+  if (finished_len > sizeof(ssl->s3->previous_client_finished) ||
+      finished_len > sizeof(ssl->s3->previous_server_finished)) {
+    OPENSSL_PUT_ERROR(SSL, ERR_R_INTERNAL_ERROR);
+    return 0;
+  }
 
-    if (ssl->server) {
-      OPENSSL_memcpy(ssl->s3->previous_server_finished, finished, finished_len);
-      ssl->s3->previous_server_finished_len = finished_len;
-    } else {
-      OPENSSL_memcpy(ssl->s3->previous_client_finished, finished, finished_len);
-      ssl->s3->previous_client_finished_len = finished_len;
-    }
+  if (ssl->server) {
+    OPENSSL_memcpy(ssl->s3->previous_server_finished, finished, finished_len);
+    ssl->s3->previous_server_finished_len = finished_len;
+  } else {
+    OPENSSL_memcpy(ssl->s3->previous_client_finished, finished, finished_len);
+    ssl->s3->previous_client_finished_len = finished_len;
   }
 
   ScopedCBB cbb;

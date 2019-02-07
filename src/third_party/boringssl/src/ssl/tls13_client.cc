@@ -40,6 +40,7 @@ enum client_hs_state_t {
   state_read_certificate_request,
   state_read_server_certificate,
   state_read_server_certificate_verify,
+  state_server_certificate_reverify,
   state_read_server_finished,
   state_send_end_of_early_data,
   state_send_client_certificate,
@@ -328,7 +329,7 @@ static enum ssl_hs_wait_t do_read_server_hello(SSL_HANDSHAKE *hs) {
       return ssl_hs_error;
     }
 
-    if (!ssl_session_is_context_valid(hs, ssl->session)) {
+    if (!ssl_session_is_context_valid(hs, ssl->session.get())) {
       // This is actually a client application bug.
       OPENSSL_PUT_ERROR(SSL,
                         SSL_R_ATTEMPT_TO_REUSE_SESSION_IN_DIFFERENT_CONTEXT);
@@ -338,7 +339,8 @@ static enum ssl_hs_wait_t do_read_server_hello(SSL_HANDSHAKE *hs) {
 
     ssl->s3->session_reused = true;
     // Only authentication information carries over in TLS 1.3.
-    hs->new_session = SSL_SESSION_dup(ssl->session, SSL_SESSION_DUP_AUTH_ONLY);
+    hs->new_session =
+        SSL_SESSION_dup(ssl->session.get(), SSL_SESSION_DUP_AUTH_ONLY);
     if (!hs->new_session) {
       ssl_send_alert(ssl, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
       return ssl_hs_error;
@@ -429,26 +431,19 @@ static enum ssl_hs_wait_t do_read_encrypted_extensions(SSL_HANDSHAKE *hs) {
   }
 
   // Store the negotiated ALPN in the session.
-  if (!ssl->s3->alpn_selected.empty()) {
-    hs->new_session->early_alpn = (uint8_t *)BUF_memdup(
-        ssl->s3->alpn_selected.data(), ssl->s3->alpn_selected.size());
-    if (hs->new_session->early_alpn == NULL) {
-      ssl_send_alert(ssl, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
-      return ssl_hs_error;
-    }
-    hs->new_session->early_alpn_len = ssl->s3->alpn_selected.size();
+  if (!hs->new_session->early_alpn.CopyFrom(ssl->s3->alpn_selected)) {
+    ssl_send_alert(ssl, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
+    return ssl_hs_error;
   }
 
   if (ssl->s3->early_data_accepted) {
     if (hs->early_session->cipher != hs->new_session->cipher ||
-        MakeConstSpan(hs->early_session->early_alpn,
-                      hs->early_session->early_alpn_len) !=
+        MakeConstSpan(hs->early_session->early_alpn) !=
             ssl->s3->alpn_selected) {
       OPENSSL_PUT_ERROR(SSL, SSL_R_ALPN_MISMATCH_ON_EARLY_DATA);
       return ssl_hs_error;
     }
-    if (ssl->s3->tlsext_channel_id_valid || hs->received_custom_extension ||
-        ssl->s3->token_binding_negotiated) {
+    if (ssl->s3->channel_id_valid || ssl->s3->token_binding_negotiated) {
       OPENSSL_PUT_ERROR(SSL, SSL_R_UNEXPECTED_EXTENSION_ON_EARLY_DATA);
       return ssl_hs_error;
     }
@@ -470,6 +465,10 @@ static enum ssl_hs_wait_t do_read_certificate_request(SSL_HANDSHAKE *hs) {
   SSL *const ssl = hs->ssl;
   // CertificateRequest may only be sent in non-resumption handshakes.
   if (ssl->s3->session_reused) {
+    if (ssl->ctx->reverify_on_resume) {
+      hs->tls13_state = state_server_certificate_reverify;
+      return ssl_hs_ok;
+    }
     hs->tls13_state = state_read_server_finished;
     return ssl_hs_ok;
   }
@@ -547,8 +546,13 @@ static enum ssl_hs_wait_t do_read_server_certificate(SSL_HANDSHAKE *hs) {
   if (!ssl->method->get_message(ssl, &msg)) {
     return ssl_hs_read_message;
   }
-  if (!ssl_check_message_type(ssl, msg, SSL3_MT_CERTIFICATE) ||
-      !tls13_process_certificate(hs, msg, 0 /* certificate required */) ||
+
+  if (msg.type != SSL3_MT_COMPRESSED_CERTIFICATE &&
+      !ssl_check_message_type(ssl, msg, SSL3_MT_CERTIFICATE)) {
+    return ssl_hs_error;
+  }
+
+  if (!tls13_process_certificate(hs, msg, 0 /* certificate required */) ||
       !ssl_hash_message(hs, msg)) {
     return ssl_hs_error;
   }
@@ -582,6 +586,21 @@ static enum ssl_hs_wait_t do_read_server_certificate_verify(
   }
 
   ssl->method->next_message(ssl);
+  hs->tls13_state = state_read_server_finished;
+  return ssl_hs_ok;
+}
+
+static enum ssl_hs_wait_t do_server_certificate_reverify(
+    SSL_HANDSHAKE *hs) {
+  switch (ssl_reverify_peer_cert(hs)) {
+    case ssl_verify_ok:
+      break;
+    case ssl_verify_invalid:
+      return ssl_hs_error;
+    case ssl_verify_retry:
+      hs->tls13_state = state_server_certificate_reverify;
+      return ssl_hs_certificate_verify;
+  }
   hs->tls13_state = state_read_server_finished;
   return ssl_hs_ok;
 }
@@ -691,13 +710,13 @@ static enum ssl_hs_wait_t do_complete_second_flight(SSL_HANDSHAKE *hs) {
   SSL *const ssl = hs->ssl;
 
   // Send a Channel ID assertion if necessary.
-  if (ssl->s3->tlsext_channel_id_valid) {
+  if (ssl->s3->channel_id_valid) {
     if (!ssl_do_channel_id_callback(hs)) {
       hs->tls13_state = state_complete_second_flight;
       return ssl_hs_error;
     }
 
-    if (hs->config->tlsext_channel_id_private == NULL) {
+    if (hs->config->channel_id_private == NULL) {
       return ssl_hs_channel_id_lookup;
     }
 
@@ -755,6 +774,9 @@ enum ssl_hs_wait_t tls13_client_handshake(SSL_HANDSHAKE *hs) {
       case state_read_server_certificate_verify:
         ret = do_read_server_certificate_verify(hs);
         break;
+      case state_server_certificate_reverify:
+        ret = do_server_certificate_reverify(hs);
+        break;
       case state_read_server_finished:
         ret = do_read_server_finished(hs);
         break;
@@ -805,6 +827,8 @@ const char *tls13_client_handshake_state(SSL_HANDSHAKE *hs) {
       return "TLS 1.3 client read_server_certificate";
     case state_read_server_certificate_verify:
       return "TLS 1.3 client read_server_certificate_verify";
+    case state_server_certificate_reverify:
+      return "TLS 1.3 client server_certificate_reverify";
     case state_read_server_finished:
       return "TLS 1.3 client read_server_finished";
     case state_send_end_of_early_data:
@@ -844,7 +868,7 @@ int tls13_process_new_session_ticket(SSL *ssl, const SSLMessage &msg) {
       !CBS_get_u32(&body, &session->ticket_age_add) ||
       !CBS_get_u8_length_prefixed(&body, &ticket_nonce) ||
       !CBS_get_u16_length_prefixed(&body, &ticket) ||
-      !CBS_stow(&ticket, &session->tlsext_tick, &session->tlsext_ticklen) ||
+      !session->ticket.CopyFrom(ticket) ||
       !CBS_get_u16_length_prefixed(&body, &extensions) ||
       CBS_len(&body) != 0) {
     ssl_send_alert(ssl, SSL3_AL_FATAL, SSL_AD_DECODE_ERROR);
@@ -886,8 +910,8 @@ int tls13_process_new_session_ticket(SSL *ssl, const SSLMessage &msg) {
     }
   }
 
-  session->ticket_age_add_valid = 1;
-  session->not_resumable = 0;
+  session->ticket_age_add_valid = true;
+  session->not_resumable = false;
 
   if ((ssl->session_ctx->session_cache_mode & SSL_SESS_CACHE_CLIENT) &&
       ssl->session_ctx->new_session_cb != NULL &&

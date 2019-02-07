@@ -295,7 +295,7 @@ type clientHelloMsg struct {
 	omitExtensions          bool
 	emptyExtensions         bool
 	pad                     int
-	dummyPQPaddingLen       int
+	compressedCertAlgs      []uint16
 }
 
 func (m *clientHelloMsg) equal(i interface{}) bool {
@@ -349,7 +349,7 @@ func (m *clientHelloMsg) equal(i interface{}) bool {
 		m.omitExtensions == m1.omitExtensions &&
 		m.emptyExtensions == m1.emptyExtensions &&
 		m.pad == m1.pad &&
-		m.dummyPQPaddingLen == m1.dummyPQPaddingLen
+		eqUint16s(m.compressedCertAlgs, m1.compressedCertAlgs)
 }
 
 func (m *clientHelloMsg) marshal() []byte {
@@ -581,12 +581,15 @@ func (m *clientHelloMsg) marshal() []byte {
 		customExt := extensions.addU16LengthPrefixed()
 		customExt.addBytes([]byte(m.customExtension))
 	}
-	if l := m.dummyPQPaddingLen; l != 0 {
-		extensions.addU16(extensionDummyPQPadding)
+	if len(m.compressedCertAlgs) > 0 {
+		extensions.addU16(extensionCompressedCertAlgs)
 		body := extensions.addU16LengthPrefixed()
-		body.addBytes(make([]byte, l))
+		algIDs := body.addU8LengthPrefixed()
+		for _, v := range m.compressedCertAlgs {
+			algIDs.addU16(v)
+		}
 	}
-	// The PSK extension must be last (draft-ietf-tls-tls13-18 section 4.2.6).
+	// The PSK extension must be last. See https://tools.ietf.org/html/rfc8446#section-4.2.11
 	if len(m.pskIdentities) > 0 && !m.pskBinderFirst {
 		extensions.addU16(extensionPreSharedKey)
 		pskExtension := extensions.addU16LengthPrefixed()
@@ -759,7 +762,7 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 			m.ticketSupported = true
 			m.sessionTicket = []byte(body)
 		case extensionKeyShare:
-			// draft-ietf-tls-tls13 section 6.3.2.3
+			// https://tools.ietf.org/html/rfc8446#section-4.2.8
 			var keyShares byteReader
 			if !body.readU16LengthPrefixed(&keyShares) || len(body) != 0 {
 				return false
@@ -776,7 +779,7 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 				m.keyShares = append(m.keyShares, entry)
 			}
 		case extensionPreSharedKey:
-			// draft-ietf-tls-tls13-18 section 4.2.6
+			// https://tools.ietf.org/html/rfc8446#section-4.2.11
 			var psks, binders byteReader
 			if !body.readU16LengthPrefixed(&psks) ||
 				!body.readU16LengthPrefixed(&binders) ||
@@ -804,12 +807,12 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 				return false
 			}
 		case extensionPSKKeyExchangeModes:
-			// draft-ietf-tls-tls13-18 section 4.2.7
+			// https://tools.ietf.org/html/rfc8446#section-4.2.9
 			if !body.readU8LengthPrefixedBytes(&m.pskKEModes) || len(body) != 0 {
 				return false
 			}
 		case extensionEarlyData:
-			// draft-ietf-tls-tls13 section 6.3.2.5
+			// https://tools.ietf.org/html/rfc8446#section-4.2.10
 			if len(body) != 0 {
 				return false
 			}
@@ -898,11 +901,24 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 			m.sctListSupported = true
 		case extensionCustom:
 			m.customExtension = string(body)
-		case extensionDummyPQPadding:
-			if len(body) == 0 {
+		case extensionCompressedCertAlgs:
+			var algIDs byteReader
+			if !body.readU8LengthPrefixed(&algIDs) {
 				return false
 			}
-			m.dummyPQPaddingLen = len(body)
+
+			seen := make(map[uint16]struct{})
+			for len(algIDs) > 0 {
+				var algID uint16
+				if !algIDs.readU16(&algID) {
+					return false
+				}
+				if _, ok := seen[algID]; ok {
+					return false
+				}
+				seen[algID] = struct{}{}
+				m.compressedCertAlgs = append(m.compressedCertAlgs, algID)
+			}
 		}
 
 		if isGREASEValue(extension) {
@@ -1170,7 +1186,6 @@ type serverExtensions struct {
 	supportedCurves         []CurveID
 	quicTransportParams     []byte
 	serverNameAck           bool
-	dummyPQPaddingLen       int
 }
 
 func (m *serverExtensions) marshal(extensions *byteBuilder) {
@@ -1284,7 +1299,7 @@ func (m *serverExtensions) marshal(extensions *byteBuilder) {
 		supportedPoints.addBytes(m.supportedPoints)
 	}
 	if len(m.supportedCurves) > 0 {
-		// https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.2.4
+		// https://tools.ietf.org/html/rfc8446#section-4.2.7
 		extensions.addU16(extensionSupportedCurves)
 		supportedCurvesList := extensions.addU16LengthPrefixed()
 		supportedCurves := supportedCurvesList.addU16LengthPrefixed()
@@ -1304,11 +1319,6 @@ func (m *serverExtensions) marshal(extensions *byteBuilder) {
 	if m.serverNameAck {
 		extensions.addU16(extensionServerName)
 		extensions.addU16(0) // zero length
-	}
-	if l := m.dummyPQPaddingLen; l != 0 {
-		extensions.addU16(extensionDummyPQPadding)
-		body := extensions.addU16LengthPrefixed()
-		body.addBytes(make([]byte, l))
 	}
 }
 
@@ -1414,8 +1424,6 @@ func (m *serverExtensions) unmarshal(data byteReader, version uint16) bool {
 				return false
 			}
 			m.hasEarlyData = true
-		case extensionDummyPQPadding:
-			m.dummyPQPaddingLen = len(body)
 		default:
 			// Unknown extensions are illegal from the server.
 			return false
@@ -1666,6 +1674,48 @@ func (m *certificateMsg) unmarshal(data []byte) bool {
 			}
 		}
 		m.certificates = append(m.certificates, cert)
+	}
+
+	return true
+}
+
+type compressedCertificateMsg struct {
+	raw                []byte
+	algID              uint16
+	uncompressedLength uint32
+	compressed         []byte
+}
+
+func (m *compressedCertificateMsg) marshal() (x []byte) {
+	if m.raw != nil {
+		return m.raw
+	}
+
+	certMsg := newByteBuilder()
+	certMsg.addU8(typeCompressedCertificate)
+	certificate := certMsg.addU24LengthPrefixed()
+	certificate.addU16(m.algID)
+	certificate.addU24(int(m.uncompressedLength))
+	compressed := certificate.addU24LengthPrefixed()
+	compressed.addBytes(m.compressed)
+
+	m.raw = certMsg.finish()
+	return m.raw
+}
+
+func (m *compressedCertificateMsg) unmarshal(data []byte) bool {
+	m.raw = data
+	reader := byteReader(data[4:])
+
+	if !reader.readU16(&m.algID) ||
+		!reader.readU24(&m.uncompressedLength) ||
+		!reader.readU24LengthPrefixedBytes(&m.compressed) ||
+		len(reader) != 0 {
+		return false
+	}
+
+	if m.uncompressedLength >= 1<<17 {
+		return false
 	}
 
 	return true

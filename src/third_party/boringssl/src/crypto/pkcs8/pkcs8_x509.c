@@ -75,6 +75,21 @@
 #include "../internal.h"
 
 
+int pkcs12_iterations_acceptable(uint64_t iterations) {
+#if defined(BORINGSSL_UNSAFE_FUZZER_MODE)
+  static const uint64_t kIterationsLimit = 2048;
+#else
+  // Windows imposes a limit of 600K. Mozilla say: “so them increasing
+  // maximum to something like 100M or 1G (to have few decades of breathing
+  // room) would be very welcome”[1]. So here we set the limit to 100M.
+  //
+  // [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1436873#c14
+  static const uint64_t kIterationsLimit = 100 * 1000000;
+#endif
+
+  return 0 < iterations && iterations <= kIterationsLimit;
+}
+
 // Minor tweak to operation: zero private key data
 static int pkey_cb(int operation, ASN1_VALUE **pval, const ASN1_ITEM *it,
                    void *exarg) {
@@ -239,8 +254,7 @@ struct pkcs12_context {
 static int PKCS12_handle_sequence(
     CBS *sequence, struct pkcs12_context *ctx,
     int (*handle_element)(CBS *cbs, struct pkcs12_context *ctx)) {
-  uint8_t *der_bytes = NULL;
-  size_t der_len;
+  uint8_t *storage = NULL;
   CBS in;
   int ret = 0;
 
@@ -248,15 +262,9 @@ static int PKCS12_handle_sequence(
   // the ASN.1 data gets wrapped in OCTETSTRINGs and/or encrypted and the
   // conversion cannot see through those wrappings. So each time we step
   // through one we need to convert to DER again.
-  if (!CBS_asn1_ber_to_der(sequence, &der_bytes, &der_len)) {
+  if (!CBS_asn1_ber_to_der(sequence, &in, &storage)) {
     OPENSSL_PUT_ERROR(PKCS8, PKCS8_R_BAD_PKCS12_DATA);
     return 0;
-  }
-
-  if (der_bytes != NULL) {
-    CBS_init(&in, der_bytes, der_len);
-  } else {
-    CBS_init(&in, CBS_data(sequence), CBS_len(sequence));
   }
 
   CBS child;
@@ -281,7 +289,7 @@ static int PKCS12_handle_sequence(
   ret = 1;
 
 err:
-  OPENSSL_free(der_bytes);
+  OPENSSL_free(storage);
   return ret;
 }
 
@@ -586,8 +594,7 @@ err:
 
 int PKCS12_get_key_and_certs(EVP_PKEY **out_key, STACK_OF(X509) *out_certs,
                              CBS *ber_in, const char *password) {
-  uint8_t *der_bytes = NULL;
-  size_t der_len;
+  uint8_t *storage = NULL;
   CBS in, pfx, mac_data, authsafe, content_type, wrapped_authsafes, authsafes;
   uint64_t version;
   int ret = 0;
@@ -595,14 +602,9 @@ int PKCS12_get_key_and_certs(EVP_PKEY **out_key, STACK_OF(X509) *out_certs,
   const size_t original_out_certs_len = sk_X509_num(out_certs);
 
   // The input may be in BER format.
-  if (!CBS_asn1_ber_to_der(ber_in, &der_bytes, &der_len)) {
+  if (!CBS_asn1_ber_to_der(ber_in, &in, &storage)) {
     OPENSSL_PUT_ERROR(PKCS8, PKCS8_R_BAD_PKCS12_DATA);
     return 0;
-  }
-  if (der_bytes != NULL) {
-    CBS_init(&in, der_bytes, der_len);
-  } else {
-    CBS_init(&in, CBS_data(ber_in), CBS_len(ber_in));
   }
 
   *out_key = NULL;
@@ -686,7 +688,7 @@ int PKCS12_get_key_and_certs(EVP_PKEY **out_key, STACK_OF(X509) *out_certs,
     uint64_t iterations = 1;
     if (CBS_len(&mac_data) > 0) {
       if (!CBS_get_asn1_uint64(&mac_data, &iterations) ||
-          iterations > UINT_MAX) {
+          !pkcs12_iterations_acceptable(iterations)) {
         OPENSSL_PUT_ERROR(PKCS8, PKCS8_R_BAD_PKCS12_DATA);
         goto err;
       }
@@ -723,7 +725,7 @@ int PKCS12_get_key_and_certs(EVP_PKEY **out_key, STACK_OF(X509) *out_certs,
   ret = 1;
 
 err:
-  OPENSSL_free(der_bytes);
+  OPENSSL_free(storage);
   if (!ret) {
     EVP_PKEY_free(*out_key);
     *out_key = NULL;
