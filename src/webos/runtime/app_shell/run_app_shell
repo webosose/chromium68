@@ -15,7 +15,7 @@ export MSE_AUDIO_BUFFER_SIZE_LIMIT=4194304
 # Setup 50Mb limitation mse video buffer size
 export MSE_VIDEO_BUFFER_SIZE_LIMIT=52428800
 # Setup override_user_agent_string
-export OVERRIDE_USER_AGENT_STRING="Mozilla/5.0 (Linux; NetCast; U) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/68.0.3440.0 Safari/537.36 SmartTV/6.0"
+export OVERRIDE_USER_AGENT_STRING="Mozilla/5.0 (Web0S; Linux) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.0 Safari/537.36"
 # Setup MAX gpu limit
 export MAX_GPU_MEM_LIMIT=60
 
