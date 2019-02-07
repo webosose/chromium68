@@ -37,6 +37,7 @@ class WebMediaPlayer {
     kMediaEventNone,
     kMediaEventUpdateUMSMediaInfo,
     kMediaEventPipelineStarted,
+    kMediaEventUpdateCameraState,
   };
 
   // Returns the 'timeline offset' as defined in the HTML5 spec

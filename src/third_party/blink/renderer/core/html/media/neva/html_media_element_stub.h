@@ -30,6 +30,7 @@ class HTMLMediaElement {
 
   double getStartDate() const;
   const String mediaId() const;
+  const String cameraId() const;
 
   // Neva audio focus extensions
   bool webosMediaFocus() const;
@@ -46,6 +47,11 @@ double HTMLMediaElement<original_t>::getStartDate() const {
 
 template <typename original_t>
 const String HTMLMediaElement<original_t>::mediaId() const {
+  return String();
+}
+
+template <typename original_t>
+const String HTMLMediaElement<original_t>::cameraId() const {
   return String();
 }
 

@@ -535,6 +535,7 @@ AttributeTriggers* HTMLElement::TriggersForAttributeName(
       {onumsmediainfoAttr, kNoWebFeature, EventTypeNames::umsmediainfo, nullptr},
       // TODO(neva): Doesn't need to add onwebosmediafocuschange at here?
       {onpipelinestartedAttr, kNoWebFeature, EventTypeNames::pipelinestarted, nullptr},
+      {onupdatecamerastateAttr, kNoWebFeature, EventTypeNames::updatecamerastate, nullptr},
 #endif
   };
 

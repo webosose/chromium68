@@ -100,5 +100,6 @@ enum CanPlayTypeResult { "" /* empty string */, "maybe", "probably" };
     [RuntimeEnabled=AudioFocusExtension] attribute boolean webosMediaFocus;
     [RuntimeEnabled=UMSExtension] readonly attribute DOMString mediaId;
     [RuntimeEnabled=MediaTimelineOffset] Date getStartDate();
+    readonly attribute DOMString cameraId;
 ///@}
 };

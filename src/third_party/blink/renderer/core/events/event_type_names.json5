@@ -316,6 +316,7 @@
     "umsmediainfo",
     "webosmediafocuschange",
     "pipelinestarted",
+    "updatecamerastate",
 ///@}
   ],
 }

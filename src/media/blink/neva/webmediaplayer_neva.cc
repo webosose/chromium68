@@ -1244,8 +1244,9 @@ void WebMediaPlayerNeva::OnCustomMessage(
     const std::string& detail) {
   FUNC_LOG(1) << __func__ << " detail: " << detail;
 
-  client_->SendCustomMessage(media_event_type,
-                             blink::WebString::FromUTF8(detail));
+  if (!detail.empty())
+    client_->SendCustomMessage(media_event_type,
+                               blink::WebString::FromUTF8(detail));
 }
 
 void WebMediaPlayerNeva::OnAudioFocusChanged() {

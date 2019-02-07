@@ -44,7 +44,7 @@ class HTMLMediaElement {
   HTMLMediaElement();
 
   double getStartDate() const;
-  const String CameraId() const;
+  const String cameraId() const;
   const String mediaId() const;
   bool IsPlayed() const;
 
@@ -124,11 +124,11 @@ const IntRect HTMLMediaElement<original_t>::WidgetViewRect() const {
 }
 
 template <typename original_t>
-const String HTMLMediaElement<original_t>::CameraId() const {
+const String HTMLMediaElement<original_t>::cameraId() const {
   const original_t* self(static_cast<const original_t*>(this));
 
   if (self->GetWebMediaPlayer())
-    return self->GetWebMediaPlayer()->cameraId();
+    return self->GetWebMediaPlayer()->CameraId();
   return String();
 }
 
@@ -291,6 +291,9 @@ void HTMLMediaElementExtendingWebMediaPlayerClient<
       break;
     case blink::WebMediaPlayer::kMediaEventPipelineStarted:
       self->ScheduleEvent(EventTypeNames::pipelinestarted, detail);
+      break;
+    case blink::WebMediaPlayer::kMediaEventUpdateCameraState:
+      self->ScheduleEvent(EventTypeNames::updatecamerastate, detail);
       break;
     default:
       break;

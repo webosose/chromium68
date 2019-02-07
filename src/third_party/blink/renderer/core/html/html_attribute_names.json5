@@ -322,6 +322,7 @@
     "texture",
     "onumsmediainfo",
     "onpipelinestarted",
+    "onupdatecamerastate",
 ///@}
   ],
 }
