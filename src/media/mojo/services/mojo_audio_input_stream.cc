@@ -60,6 +60,16 @@ void MojoAudioInputStream::Record() {
   delegate_->OnRecordStream();
 }
 
+void MojoAudioInputStream::Pause() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  delegate_->OnPauseStream();
+}
+
+void MojoAudioInputStream::Resume() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  delegate_->OnResumeStream();
+}
+
 void MojoAudioInputStream::SetVolume(double volume) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   if (volume < 0 || volume > 1) {

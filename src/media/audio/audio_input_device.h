@@ -73,6 +73,8 @@ class MEDIA_EXPORT AudioInputDevice : public AudioCapturerSource,
   void Initialize(const AudioParameters& params,
                   CaptureCallback* callback) override;
   void Start() override;
+  void Pause() override;
+  void Resume() override;
   void Stop() override;
   void SetVolume(double volume) override;
   void SetAutomaticGainControl(bool enabled) override;
@@ -90,6 +92,7 @@ class MEDIA_EXPORT AudioInputDevice : public AudioCapturerSource,
     IDLE,             // Not started.
     CREATING_STREAM,  // Waiting for OnStreamCreated() to be called back.
     RECORDING,        // Receiving audio data.
+    PAUSED,           // Paused while recording.
   };
 
   ~AudioInputDevice() override;

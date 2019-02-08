@@ -51,6 +51,8 @@ class CONTENT_EXPORT MojoAudioInputIPC
                     bool automatic_gain_control,
                     uint32_t total_segments) override;
   void RecordStream() override;
+  void PauseStream() override;
+  void ResumeStream() override;
   void SetVolume(double volume) override;
   void SetOutputDeviceForAec(const std::string& output_device_id) override;
   void CloseStream() override;

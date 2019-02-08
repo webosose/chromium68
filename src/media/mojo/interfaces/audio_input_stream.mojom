@@ -14,6 +14,12 @@ interface AudioInputStream {
   // Starts recording audio, can be called only once.
   Record();
 
+  // Pause audio recording without stopping.
+  Pause();
+
+  // Resume audio recording after pause.
+  Resume();
+
   // Sets volume. Volume must be in the range [0, 1].
   SetVolume(double volume);
 };

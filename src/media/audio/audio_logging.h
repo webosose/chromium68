@@ -32,6 +32,13 @@ class AudioLog {
   // with "paused."
   virtual void OnStopped() = 0;
 
+  // Called when an audio component is paused because of an internal request
+  // (as pausing because contents are backgrounded).
+  virtual void OnPaused() = 0;
+
+  // Called when an audio component is resumed after pause.
+  virtual void OnResumed() = 0;
+
   // Called when an audio component is closed, generally this is synonymous
   // with "deleted."
   virtual void OnClosed() = 0;

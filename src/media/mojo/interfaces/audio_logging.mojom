@@ -19,6 +19,14 @@ interface AudioLog {
   // with "playing."
   OnStarted();
 
+  // Called when the audio component is paused, as with audio capture in webOS,
+  // when the page is not visible.
+  OnPaused();
+
+  // Called when the audio component is resumed after suspend, as with webOS audio
+  // capture when the page is visible again.
+  OnResumed();
+
   // Called when an audio component is stopped, generally this is synonymous
   // with "paused."
   OnStopped();

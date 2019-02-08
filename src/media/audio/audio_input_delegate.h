@@ -47,6 +47,8 @@ class MEDIA_EXPORT AudioInputDelegate {
 
   // Stream control:
   virtual void OnRecordStream() = 0;
+  virtual void OnPauseStream() = 0;
+  virtual void OnResumeStream() = 0;
   virtual void OnSetVolume(double volume) = 0;
   virtual void OnSetOutputDeviceForAec(
       const std::string& raw_output_device_id) = 0;

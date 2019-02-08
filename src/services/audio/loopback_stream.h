@@ -76,6 +76,8 @@ class LoopbackStream : public media::mojom::AudioInputStream,
 
   // media::mojom::AudioInputStream implementation.
   void Record() final;
+  void Pause() final {}
+  void Resume() final {}
   void SetVolume(double volume) final;
 
   // GroupCoordinator::Observer implementation. When a member joins a group, a

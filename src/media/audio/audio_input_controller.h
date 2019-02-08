@@ -199,6 +199,13 @@ class MEDIA_EXPORT AudioInputController
   // This method is called on the creator thread.
   virtual void Record();
 
+  // Pauses capturing the audio input stream so it can be
+  // resumed later.
+  virtual void Pause();
+
+  // Resumes the previously paused audio input stream.
+  virtual void Resume();
+
   // Closes the audio input stream. The state is changed and the resources
   // are freed on the audio thread. |closed_task| is then executed on the thread
   // that called Close().
@@ -283,6 +290,8 @@ class MEDIA_EXPORT AudioInputController
                 bool enable_agc);
   void DoCreateForStream(AudioInputStream* stream_to_control, bool enable_agc);
   void DoRecord();
+  void DoPause();
+  void DoResume();
   void DoClose();
   void DoReportError();
   void DoSetVolume(double volume);

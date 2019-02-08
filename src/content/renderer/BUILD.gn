@@ -269,6 +269,8 @@ target(link_target_type, "renderer") {
     "media/android/stream_texture_factory.h",
     "media/android/stream_texture_wrapper_impl.cc",
     "media/android/stream_texture_wrapper_impl.h",
+    "media/audio_capturer_source_manager.cc",
+    "media/audio_capturer_source_manager.h",
     "media/audio_decoder.cc",
     "media/audio_decoder.h",
     "media/audio_device_factory.cc",
@@ -1075,6 +1077,9 @@ target(link_target_type, "renderer") {
   }
   if (disable_hidden_tab_video_capture) {
     defines += [ "DISABLE_HIDDEN_TAB_VIDEO_CAPTURE=1" ]
+  }
+  if (disable_hidden_tab_audio_capture) {
+    defines += [ "DISABLE_HIDDEN_TAB_AUDIO_CAPTURE=1" ]
   }
 }
 

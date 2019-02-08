@@ -100,6 +100,18 @@ void InputIPC::RecordStream() {
   stream_->Record();
 }
 
+void InputIPC::PauseStream() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DCHECK(stream_.is_bound());
+  stream_->Pause();
+}
+
+void InputIPC::ResumeStream() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DCHECK(stream_.is_bound());
+  stream_->Resume();
+}
+
 void InputIPC::SetVolume(double volume) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   DCHECK(stream_.is_bound());

@@ -63,6 +63,12 @@ class MEDIA_EXPORT AudioInputIPC {
   // Corresponds to a call to AudioInputController::Record() on the server side.
   virtual void RecordStream() = 0;
 
+  // Corresponds to a call to AudioInputController::Pause() on the server side.
+  virtual void PauseStream() = 0;
+
+  // Corresponds to a call to AudioInputController::Resume() on the server side.
+  virtual void ResumeStream() = 0;
+
   // Sets the volume of the audio stream.
   virtual void SetVolume(double volume) = 0;
 

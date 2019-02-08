@@ -134,6 +134,7 @@ namespace content {
 
 class AppCacheDispatcher;
 class AecDumpMessageFilter;
+class AudioCapturerSourceManager;
 class AudioRendererMixerManager;
 class BrowserPluginManager;
 class CategorizedWorkerPool;
@@ -386,6 +387,10 @@ class CONTENT_EXPORT RenderThreadImpl
 
   VideoCaptureImplManager* video_capture_impl_manager() const {
     return vc_manager_.get();
+  }
+
+  AudioCapturerSourceManager* audio_capturer_source_manager() const {
+    return ac_manager_.get();
   }
 
   mojom::RenderFrameMessageFilter* render_frame_message_filter();
@@ -666,6 +671,8 @@ class CONTENT_EXPORT RenderThreadImpl
 
   // Used on the render thread.
   std::unique_ptr<VideoCaptureImplManager> vc_manager_;
+
+  std::unique_ptr<AudioCapturerSourceManager> ac_manager_;
 
   // The time Blink was initialized. Used for UMA.
   base::TimeTicks blink_initialized_time_;

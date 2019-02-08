@@ -10,6 +10,7 @@
 #include "base/logging.h"
 #include "base/metrics/histogram_macros.h"
 #include "base/strings/stringprintf.h"
+#include "content/renderer/media/audio_capturer_source_manager.h"
 #include "content/renderer/media/audio_device_factory.h"
 #include "content/renderer/media/stream/media_stream_audio_processor_options.h"
 #include "content/renderer/media/stream/media_stream_constraints_util.h"
@@ -17,6 +18,7 @@
 #include "content/renderer/media/webrtc/webrtc_audio_device_impl.h"
 #include "content/renderer/media/webrtc_logging.h"
 #include "content/renderer/render_frame_impl.h"
+#include "content/renderer/render_thread_impl.h"
 #include "media/base/channel_layout.h"
 #include "media/base/sample_rates.h"
 #include "third_party/webrtc/api/mediaconstraintsinterface.h"
@@ -204,6 +206,8 @@ bool ProcessedLocalAudioSource::EnsureSourceIsStarted() {
   // We need to set the AGC control before starting the stream.
   new_source->SetAutomaticGainControl(true);
   source_ = std::move(new_source);
+  RenderThreadImpl::current()->audio_capturer_source_manager()->AddSource(
+      source_.get());
   source_->Start();
 
   // Register this source with the WebRtcAudioDeviceImpl.
@@ -218,6 +222,8 @@ void ProcessedLocalAudioSource::EnsureSourceIsStopped() {
   if (!source_)
     return;
 
+  RenderThreadImpl::current()->audio_capturer_source_manager()->RemoveSource(
+      source_.get());
   scoped_refptr<media::AudioCapturerSource> source_to_stop(std::move(source_));
 
   if (WebRtcAudioDeviceImpl* rtc_audio_device =

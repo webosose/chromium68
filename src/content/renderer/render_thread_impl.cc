@@ -95,6 +95,7 @@
 #include "content/renderer/indexed_db/indexed_db_dispatcher.h"
 #include "content/renderer/input/widget_input_handler_manager.h"
 #include "content/renderer/loader/resource_dispatcher.h"
+#include "content/renderer/media/audio_capturer_source_manager.h"
 #include "content/renderer/media/audio_renderer_mixer_manager.h"
 #include "content/renderer/media/gpu/gpu_video_accelerator_factories_impl.h"
 #include "content/renderer/media/midi/midi_message_filter.h"
@@ -827,6 +828,7 @@ void RenderThreadImpl::Init(
   file_system_dispatcher_.reset(new FileSystemDispatcher());
 
   vc_manager_.reset(new VideoCaptureImplManager());
+  ac_manager_.reset(new AudioCapturerSourceManager());
 
   browser_plugin_manager_.reset(new BrowserPluginManager());
   AddObserver(browser_plugin_manager_.get());

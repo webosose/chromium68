@@ -27,6 +27,8 @@ class CastReceiverSession::AudioCapturerSource :
   void Initialize(const media::AudioParameters& params,
                   CaptureCallback* callback) override;
   void Start() override;
+  void Pause() override {}
+  void Resume() override {}
   void Stop() override;
   void SetVolume(double volume) override;
   void SetAutomaticGainControl(bool enable) override;

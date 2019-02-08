@@ -92,4 +92,7 @@ declare_args() {
 
   # Allow video capture when tab or app is suspended
   disable_hidden_tab_video_capture = is_webos
+
+  # Allow audio capture when tab or app is suspended
+  disable_hidden_tab_audio_capture = is_webos
 }

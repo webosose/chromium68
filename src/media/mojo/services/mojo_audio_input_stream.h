@@ -47,6 +47,8 @@ class MEDIA_MOJO_EXPORT MojoAudioInputStream
  private:
   // mojom::AudioInputStream implementation.
   void Record() override;
+  void Pause() override;
+  void Resume() override;
   void SetVolume(double volume) override;
 
   // AudioInputDelegate::EventHandler implementation.

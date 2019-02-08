@@ -61,6 +61,13 @@ class AudioCapturerSource
   // callback will be passed to the client after it is being called.
   virtual void Stop() = 0;
 
+  // Pause audio recording without stopping it. Used for blocking audio
+  // capture while page is not visible in webOS.
+  virtual void Pause() = 0;
+
+  // Resume audio recording after Pause().
+  virtual void Resume() = 0;
+
   // Sets the capture volume, with range [0.0, 1.0] inclusive.
   virtual void SetVolume(double volume) = 0;
 

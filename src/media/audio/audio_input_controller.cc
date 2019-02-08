@@ -288,6 +288,30 @@ void AudioInputController::Record() {
                          base::BindOnce(&AudioInputController::DoRecord, this));
 }
 
+void AudioInputController::Pause() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(owning_sequence_);
+
+  if (task_runner_->BelongsToCurrentThread()) {
+    DoPause();
+    return;
+  }
+
+  task_runner_->PostTask(FROM_HERE,
+                         base::Bind(&AudioInputController::DoPause, this));
+}
+
+void AudioInputController::Resume() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(owning_sequence_);
+
+  if (task_runner_->BelongsToCurrentThread()) {
+    DoResume();
+    return;
+  }
+
+  task_runner_->PostTask(FROM_HERE,
+                         base::Bind(&AudioInputController::DoResume, this));
+}
+
 void AudioInputController::Close(base::OnceClosure closed_task) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(owning_sequence_);
 
@@ -416,6 +440,30 @@ void AudioInputController::DoRecord() {
   stream_create_time_ = base::TimeTicks::Now();
 
   audio_callback_.reset(new AudioCallback(this));
+  stream_->Start(audio_callback_.get());
+}
+
+void AudioInputController::DoPause() {
+  DCHECK(task_runner_->BelongsToCurrentThread());
+  SCOPED_UMA_HISTOGRAM_TIMER("Media.AudioInputController.RecordTime");
+
+  handler_->OnLog("AIC::DoPause");
+
+  stream_->Stop();
+
+  if (user_input_monitor_)
+    user_input_monitor_->DisableKeyPressMonitoring();
+}
+
+void AudioInputController::DoResume() {
+  DCHECK(task_runner_->BelongsToCurrentThread());
+  SCOPED_UMA_HISTOGRAM_TIMER("Media.AudioInputController.RecordTime");
+
+  handler_->OnLog("AIC::DoResume");
+
+  if (user_input_monitor_)
+    user_input_monitor_->EnableKeyPressMonitoring();
+
   stream_->Start(audio_callback_.get());
 }
 

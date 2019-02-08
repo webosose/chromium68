@@ -121,6 +121,32 @@ void AudioInputDevice::Start() {
                      kRequestedSharedMemoryCount);
 }
 
+void AudioInputDevice::Pause() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DCHECK(callback_) << "Initialize hasn't been called";
+  TRACE_EVENT0("audio", "AudioInputDevice::Pause");
+
+  // Make sure we don't call Pause() more than once.
+  if (state_ != RECORDING)
+    return;
+
+  state_ = PAUSED;
+  ipc_->PauseStream();
+}
+
+void AudioInputDevice::Resume() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DCHECK(callback_) << "Initialize hasn't been called";
+  TRACE_EVENT0("audio", "AudioInputDevice::Resume");
+
+  // Make sure we don't call Resume() more than once.
+  if (state_ != PAUSED)
+    return;
+
+  state_ = RECORDING;
+  ipc_->ResumeStream();
+}
+
 void AudioInputDevice::Stop() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   TRACE_EVENT0("audio", "AudioInputDevice::Stop");

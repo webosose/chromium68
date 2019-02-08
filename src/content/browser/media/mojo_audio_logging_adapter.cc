@@ -26,6 +26,14 @@ void MojoAudioLogAdapter::OnStarted() {
   audio_log_->OnStarted();
 }
 
+void MojoAudioLogAdapter::OnPaused() {
+  audio_log_->OnPaused();
+}
+
+void MojoAudioLogAdapter::OnResumed() {
+  audio_log_->OnResumed();
+}
+
 void MojoAudioLogAdapter::OnStopped() {
   audio_log_->OnStopped();
 }

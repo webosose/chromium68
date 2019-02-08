@@ -131,6 +131,8 @@ class AudioLogImpl : public media::mojom::AudioLog {
   void OnCreated(const media::AudioParameters& params,
                  const std::string& device_id) override;
   void OnStarted() override;
+  void OnPaused() override;
+  void OnResumed() override;
   void OnStopped() override;
   void OnClosed() override;
   void OnError() override;
@@ -201,6 +203,14 @@ void AudioLogImpl::OnCreated(const media::AudioParameters& params,
 
 void AudioLogImpl::OnStarted() {
   SendSingleStringUpdate(kAudioLogStatusKey, "started");
+}
+
+void AudioLogImpl::OnPaused() {
+  SendSingleStringUpdate(kAudioLogStatusKey, "paused");
+}
+
+void AudioLogImpl::OnResumed() {
+  SendSingleStringUpdate(kAudioLogStatusKey, "resumed");
 }
 
 void AudioLogImpl::OnStopped() {

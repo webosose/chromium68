@@ -53,6 +53,18 @@ void MojoAudioInputIPC::RecordStream() {
   stream_->Record();
 }
 
+void MojoAudioInputIPC::PauseStream() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DCHECK(stream_.is_bound());
+  stream_->Pause();
+}
+
+void MojoAudioInputIPC::ResumeStream() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DCHECK(stream_.is_bound());
+  stream_->Resume();
+}
+
 void MojoAudioInputIPC::SetVolume(double volume) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   DCHECK(stream_.is_bound());

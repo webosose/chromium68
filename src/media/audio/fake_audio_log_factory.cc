@@ -15,6 +15,8 @@ class FakeAudioLogImpl : public AudioLog {
   void OnCreated(const media::AudioParameters& params,
                  const std::string& device_id) override {}
   void OnStarted() override {}
+  void OnPaused() override {}
+  void OnResumed() override {}
   void OnStopped() override {}
   void OnClosed() override {}
   void OnError() override {}

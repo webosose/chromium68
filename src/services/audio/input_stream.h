@@ -57,6 +57,8 @@ class InputStream final : public media::mojom::AudioInputStream,
 
   // media::mojom::AudioInputStream implementation.
   void Record() override;
+  void Pause() override;
+  void Resume() override;
   void SetVolume(double volume) override;
 
   // media::AudioInputController::EventHandler implementation.

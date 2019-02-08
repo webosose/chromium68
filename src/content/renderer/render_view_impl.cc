@@ -81,6 +81,7 @@
 #include "content/renderer/ime_event_guard.h"
 #include "content/renderer/internal_document_state_data.h"
 #include "content/renderer/loader/request_extra_data.h"
+#include "content/renderer/media/audio_capturer_source_manager.h"
 #include "content/renderer/media/audio_device_factory.h"
 #include "content/renderer/media/stream/media_stream_device_observer.h"
 #include "content/renderer/media/video_capture_impl_manager.h"
@@ -2155,6 +2156,10 @@ void RenderViewImpl::OnPageWasHidden() {
 #if defined(OS_ANDROID) || defined(DISABLE_HIDDEN_TAB_VIDEO_CAPTURE)
   SuspendVideoCaptureDevices(true);
 #endif
+#if defined(DISABLE_HIDDEN_TAB_AUDIO_CAPTURE)
+  RenderThreadImpl::current()->audio_capturer_source_manager()->SuspendDevices(
+      true);
+#endif
 
   if (webview()) {
     // TODO(lfg): It's not correct to defer the page visibility to the main
@@ -2171,6 +2176,10 @@ void RenderViewImpl::OnPageWasHidden() {
 void RenderViewImpl::OnPageWasShown() {
 #if defined(OS_ANDROID) || defined(DISABLE_HIDDEN_TAB_VIDEO_CAPTURE)
   SuspendVideoCaptureDevices(false);
+#endif
+#if defined(DISABLE_HIDDEN_TAB_AUDIO_CAPTURE)
+  RenderThreadImpl::current()->audio_capturer_source_manager()->SuspendDevices(
+      false);
 #endif
 
   if (webview()) {
