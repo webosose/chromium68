@@ -554,6 +554,14 @@ WebInputEventResult PointerEventManager::SendMousePointerEvent(
   bool fake_event = (web_pointer_event.GetModifiers() &
                      WebInputEvent::Modifiers::kRelativeMotionEvent);
 
+#if defined(OS_WEBOS)
+  if (event_type == WebInputEvent::kPointerMove &&
+      web_pointer_event.GetModifiers() ==
+          WebInputEvent::Modifiers::kLeftButtonDown &&
+      web_pointer_event.movement_x == 0 && web_pointer_event.movement_y == 0)
+    fake_event = true;
+#endif
+
   // Fake events should only be move events.
   DCHECK(!fake_event || event_type == WebInputEvent::kPointerMove);
 
