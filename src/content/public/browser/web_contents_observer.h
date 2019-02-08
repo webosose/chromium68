@@ -15,6 +15,7 @@
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/reload_type.h"
 #include "content/public/browser/visibility.h"
+#include "content/public/common/drop_peer_connection_reason.h"
 #include "content/public/common/frame_navigate_params.h"
 #include "content/public/common/resource_load_info.mojom.h"
 #include "content/public/common/resource_type.h"
@@ -115,6 +116,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {
 #if defined(USE_NEVA_APPRUNTIME)
   // This method is invoked when the process for the current RenderView created.
   virtual void RenderProcessCreated(base::ProcessHandle) {}
+
+  // A request to drop all peer connection, with specified |reason| has been
+  // processed successfully.
+  virtual void DidDropAllPeerConnections(DropPeerConnectionReason reason) {}
 #endif
 
   // This method is invoked when the process for the current main

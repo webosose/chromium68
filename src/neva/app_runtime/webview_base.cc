@@ -322,6 +322,10 @@ void WebViewBase::RequestClearInjections() {
   webview_->RequestClearInjections();
 }
 
+void WebViewBase::DropAllPeerConnections(DropPeerConnectionReason reason) {
+  webview_->DropAllPeerConnections(reason);
+}
+
 // WebPreferences
 void WebViewBase::SetAllowRunningInsecureContent(bool enable) {
   webview_->UpdatePreferencesAttribute(

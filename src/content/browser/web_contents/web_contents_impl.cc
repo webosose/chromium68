@@ -782,6 +782,8 @@ bool WebContentsImpl::OnMessageReceived(RenderViewHostImpl* render_view_host,
 #if defined(OS_ANDROID)
     IPC_MESSAGE_HANDLER(ViewHostMsg_OpenDateTimeDialog, OnOpenDateTimeDialog)
 #endif
+    IPC_MESSAGE_HANDLER(ViewHostMsg_DidDropAllPeerConnections,
+                        OnDidDropAllPeerConnections)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -4430,6 +4432,14 @@ void WebContentsImpl::OnOpenDateTimeDialog(
 }
 #endif
 
+#if defined(USE_NEVA_APPRUNTIME)
+void WebContentsImpl::OnDidDropAllPeerConnections(
+    DropPeerConnectionReason reason) {
+  for (auto& observer : observers_)
+    observer.DidDropAllPeerConnections(reason);
+}
+#endif  // defined(USE_NEVA_APPRUNTIME)
+
 void WebContentsImpl::OnDomOperationResponse(RenderFrameHostImpl* source,
                                              const std::string& json_string) {
   // TODO(nick, lukasza): The notification below should probably be updated to
@@ -6481,6 +6491,10 @@ void WebContentsImpl::InjectCSS(const std::string& css) {
 
 void WebContentsImpl::ReplaceBaseURL(const GURL& newURL) {
   GetRenderViewHost()->ReplaceBaseURL(newURL);
+}
+
+void WebContentsImpl::DropAllPeerConnections(DropPeerConnectionReason reason) {
+  GetRenderViewHost()->DropAllPeerConnections(reason);
 }
 
 bool WebContentsImpl::DecidePolicyForResponse(

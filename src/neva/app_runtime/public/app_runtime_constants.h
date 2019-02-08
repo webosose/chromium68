@@ -112,6 +112,13 @@ enum WebPageVisibilityState {
   WebPageVisibilityStateLast = WebPageVisibilityStatePrerender
 };
 
+enum DropPeerConnectionReason {
+  // Dropped because page got hidden
+  DROP_PEER_CONNECTION_REASON_PAGE_HIDDEN = 0,
+  DROP_PEER_CONNECTION_REASON_UNKNOWN,
+  DROP_PEER_CONNECTION_REASON_LAST = DROP_PEER_CONNECTION_REASON_UNKNOWN
+};
+
 }  // namespace app_runtime
 
 #endif  // NEVA_APP_RUNTIME_PUBLIC_APP_RUNTIME_CONSTANTS_H_

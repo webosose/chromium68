@@ -32,6 +32,7 @@
 #include "content/common/view_message_enums.h"
 #include "content/common/visual_properties.h"
 #include "content/public/common/common_param_traits.h"
+#include "content/public/common/drop_peer_connection_reason.h"
 #include "content/public/common/menu_item.h"
 #include "content/public/common/page_state.h"
 #include "content/public/common/page_zoom.h"
@@ -496,6 +497,11 @@ IPC_MESSAGE_ROUTED1(ViewMsg_ForceRedraw,
 // container application
 IPC_MESSAGE_ROUTED1(ViewMsg_ReplaceBaseURL, GURL)
 
+// Sent by WAM to drop all webRTC communications when application
+// goes background.
+IPC_MESSAGE_ROUTED1(ViewMsg_DropAllPeerConnections,
+                    content::DropPeerConnectionReason)
+
 // Report application is being preloaded. Used for blocking writes on eMMC
 IPC_MESSAGE_ROUTED1(ViewMsg_SetAppPreloadHint, bool /* is_preload */)
 #endif
@@ -715,6 +721,13 @@ IPC_MESSAGE_ROUTED0(ViewHostMsg_DidFirstVisuallyNonEmptyPaint)
 
 // Sent in reply to ViewMsg_WaitForNextFrameForTests.
 IPC_MESSAGE_ROUTED0(ViewHostMsg_WaitForNextFrameForTests_ACK)
+
+#if defined(USE_NEVA_APPRUNTIME)
+// Sent in reply to ViewMsg_DropAllPeerConnections, but also
+// if the drop has been caused from any other reason.
+IPC_MESSAGE_ROUTED1(ViewHostMsg_DidDropAllPeerConnections,
+                    content::DropPeerConnectionReason /* reason */)
+#endif  // defined(USE_NEVA_APPRUNTIME)
 
 // Acknowledges that a SelectWordAroundCaret completed with the specified
 // result and adjustments to the selection offsets.

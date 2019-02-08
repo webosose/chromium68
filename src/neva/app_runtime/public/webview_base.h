@@ -105,6 +105,7 @@ class APP_RUNTIME_EXPORT WebViewBase : public WebViewDelegate,
   void SetEnableHtmlSystemKeyboardAttr(bool enabled);
   void RequestInjectionLoading(const std::string& injection_name);
   void RequestClearInjections();
+  void DropAllPeerConnections(DropPeerConnectionReason reason);
 
   const std::string& GetUrl();
 

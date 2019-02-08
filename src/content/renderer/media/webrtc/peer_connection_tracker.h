@@ -170,6 +170,12 @@ class CONTENT_EXPORT PeerConnectionTracker
   // For testing: Override the class that gets posted messages.
   void OverrideSendTargetForTesting(RenderThread* target);
 
+  // Called when the browser requests all connections to be dropped.
+  void DropAllConnections();
+
+  // Check if there are open connections.
+  bool HasOpenConnections() const;
+
  private:
   // Assign a local ID to a peer connection so that the browser process can
   // uniquely identify a peer connection in the renderer process.

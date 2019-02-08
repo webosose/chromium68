@@ -389,7 +389,30 @@ void WebViewBase::SetEnableHtmlSystemKeyboardAttr(bool enable) {
 }
 
 void WebViewBase::DropAllPeerConnections(DropPeerConnectionReason reason) {
-  NOTIMPLEMENTED();
+  app_runtime::DropPeerConnectionReason app_runtime_reason;
+  switch (reason) {
+    case DROP_PEER_CONNECTION_REASON_PAGE_HIDDEN:
+      app_runtime_reason = app_runtime::DROP_PEER_CONNECTION_REASON_PAGE_HIDDEN;
+      break;
+    case DROP_PEER_CONNECTION_REASON_UNKNOWN:
+    default:
+      app_runtime_reason = app_runtime::DROP_PEER_CONNECTION_REASON_UNKNOWN;
+  }
+  webview_->DropAllPeerConnections(app_runtime_reason);
+}
+
+void WebViewBase::DidDropAllPeerConnections(
+    app_runtime::DropPeerConnectionReason reason) {
+  DropPeerConnectionReason webos_reason;
+  switch (reason) {
+    case app_runtime::DROP_PEER_CONNECTION_REASON_PAGE_HIDDEN:
+      webos_reason = DROP_PEER_CONNECTION_REASON_PAGE_HIDDEN;
+      break;
+    case app_runtime::DROP_PEER_CONNECTION_REASON_UNKNOWN:
+    default:
+      webos_reason = DROP_PEER_CONNECTION_REASON_UNKNOWN;
+  }
+  DidDropAllPeerConnections(webos_reason);
 }
 
 void WebViewBase::RequestInjectionLoading(const std::string& injection_name) {

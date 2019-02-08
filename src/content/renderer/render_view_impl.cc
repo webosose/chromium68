@@ -57,6 +57,7 @@
 #include "content/public/common/content_features.h"
 #include "content/public/common/content_neva_switches.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/drop_peer_connection_reason.h"
 #include "content/public/common/page_importance_signals.h"
 #include "content/public/common/page_state.h"
 #include "content/public/common/page_zoom.h"
@@ -86,6 +87,7 @@
 #include "content/renderer/media/stream/media_stream_device_observer.h"
 #include "content/renderer/media/video_capture_impl_manager.h"
 #include "content/renderer/media/webrtc/peer_connection_dependency_factory.h"
+#include "content/renderer/media/webrtc/peer_connection_tracker.h"
 #include "content/renderer/media/webrtc/rtc_peer_connection_handler.h"
 #include "content/renderer/navigation_state_impl.h"
 #include "content/renderer/render_frame_impl.h"
@@ -1177,6 +1179,8 @@ bool RenderViewImpl::OnMessageReceived(const IPC::Message& message) {
     // platform specific ones at the end.
 #if defined(USE_NEVA_APPRUNTIME)
     IPC_MESSAGE_HANDLER(ViewMsg_ReplaceBaseURL, OnReplaceBaseURL)
+    IPC_MESSAGE_HANDLER(ViewMsg_DropAllPeerConnections,
+                        OnDropAllPeerConnections)
     IPC_MESSAGE_HANDLER(ViewMsg_SetAppPreloadHint, OnSetAppPreloadHint)
 #endif
     // Have the super handle all other messages.
@@ -2536,6 +2540,17 @@ void RenderViewImpl::DoDeferredClose() {
   Send(new ViewHostMsg_Close(routing_id_));
 }
 
+void RenderViewImpl::DropAllPeerConnections(DropPeerConnectionReason reason) {
+  if (RenderThreadImpl::current()
+          ->peer_connection_tracker()
+          ->HasOpenConnections()) {
+    RenderThreadImpl::current()
+        ->peer_connection_tracker()
+        ->DropAllConnections();
+    Send(new ViewHostMsg_DidDropAllPeerConnections(GetRoutingID(), reason));
+  }
+}
+
 void RenderViewImpl::SetKeepAliveWebApp(bool keepAlive) {
   webkit_preferences_.keep_alive_webapp = keepAlive;
   if (webview() && webview()->GetSettings())
@@ -2551,6 +2566,10 @@ void RenderViewImpl::OnReplaceBaseURL(const GURL& newUrl) {
 
 void RenderViewImpl::OnSetAppPreloadHint(bool is_preload) {
   is_app_preload_hint_set_ = is_preload;
+}
+
+void RenderViewImpl::OnDropAllPeerConnections(DropPeerConnectionReason reason) {
+  DropAllPeerConnections(reason);
 }
 #endif  // defined(USE_NEVA_APPRUNTIME)
 

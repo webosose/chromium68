@@ -190,6 +190,7 @@ class WebView : public content::WebContentsDelegate,
   void RequestClearInjections();
   bool IsKeyboardVisible() const;
   void ResetStateToMarkNextPaintForContainer();
+  void DropAllPeerConnections(DropPeerConnectionReason reason);
   void SetV8SnapshotPath(const std::string& v8_snapshot_path);
   void SetV8ExtraFlags(const std::string& v8_extra_flags);
   void SetUseNativeScroll(bool use_native_scroll);
@@ -252,6 +253,8 @@ class WebView : public content::WebContentsDelegate,
   void RenderProcessCreated(base::ProcessHandle handle) override;
   void RenderProcessGone(base::TerminationStatus status) override;
   void DocumentLoadedInFrame(content::RenderFrameHost* frame_host) override;
+  void DidDropAllPeerConnections(
+      content::DropPeerConnectionReason reason) override;
   void DidReceiveCompositorFrame() override;
   void TitleWasSet(content::NavigationEntry* entry) override;
   void LoadingStateChanged(content::WebContents* source,

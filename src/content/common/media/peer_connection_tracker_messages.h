@@ -7,12 +7,16 @@
 
 #include "base/values.h"
 #include "content/common/content_export.h"
+#include "content/public/common/drop_peer_connection_reason.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_platform_file.h"
 
 #undef IPC_MESSAGE_EXPORT
 #define IPC_MESSAGE_EXPORT CONTENT_EXPORT
 #define IPC_MESSAGE_START PeerConnectionTrackerMsgStart
+
+IPC_ENUM_TRAITS_MAX_VALUE(content::DropPeerConnectionReason,
+                          content::DropPeerConnectionReason::kUnknown)
 
 IPC_STRUCT_BEGIN(PeerConnectionInfo)
   // ID of the peer connection. Unique only within the renderer process.
@@ -41,6 +45,8 @@ IPC_MESSAGE_CONTROL2(PeerConnectionTrackerHost_AddStats,
 // Messages sent to PeerConnectionTracker.
 IPC_MESSAGE_CONTROL0(PeerConnectionTracker_GetAllStats)
 IPC_MESSAGE_CONTROL0(PeerConnectionTracker_OnSuspend)
+IPC_MESSAGE_CONTROL1(PeerConnectionTracker_DropAllConnections,
+                     content::DropPeerConnectionReason)
 IPC_MESSAGE_CONTROL2(PeerConnectionTracker_StartEventLogFile,
                      int /* peer_connection_local_id */,
                      IPC::PlatformFileForTransit /* file */)

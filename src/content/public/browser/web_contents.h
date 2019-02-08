@@ -28,6 +28,7 @@
 #include "content/public/browser/visibility.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_ui.h"
+#include "content/public/common/drop_peer_connection_reason.h"
 #include "content/public/common/stop_find_action.h"
 #include "third_party/blink/public/common/frame/sandbox_flags.h"
 #include "third_party/skia/include/core/SkColor.h"
@@ -917,6 +918,7 @@ class WebContents : public PageNavigator,
   // Requests the renderer to inject CSS into all frames documents.
   virtual void InjectCSS(const std::string& css) = 0;
   virtual void ReplaceBaseURL(const GURL& newUrl) = 0;
+  virtual void DropAllPeerConnections(DropPeerConnectionReason) = 0;
   virtual void ExecuteJavaScriptInAllFrames(const base::string16& javascript) = 0;
 #endif
 

@@ -225,6 +225,9 @@ class WEBOS_EXPORT WebViewBase
 
   // WebViewDelegate
   void DidFirstNonBlankPaint() override {};
+  void DidDropAllPeerConnections(app_runtime::DropPeerConnectionReason) final;
+  // WebViewDelegate compatibility
+  virtual void DidDropAllPeerConnections(webos::DropPeerConnectionReason) = 0;
 
   // WebAppInjectionTxtMsgHandlerDelegate
   void OnBrowserControlCommand(

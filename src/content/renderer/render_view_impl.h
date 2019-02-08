@@ -32,6 +32,7 @@
 #include "content/common/view_message_enums.h"
 #include "content/public/common/browser_controls_state.h"
 #include "content/public/common/drop_data.h"
+#include "content/public/common/drop_peer_connection_reason.h"
 #include "content/public/common/page_zoom.h"
 #include "content/public/common/referrer.h"
 #include "content/public/common/renderer_preferences.h"
@@ -245,6 +246,9 @@ class CONTENT_EXPORT RenderViewImpl : public RenderWidget,
   bool is_app_preload_hint_set() const { return is_app_preload_hint_set_; }
   void SetKeepAliveWebApp(bool keepAlive) override;
   void DoDeferredClose() override;
+
+  // Common implementation for dropping all peer connections.
+  void DropAllPeerConnections(DropPeerConnectionReason reason);
 #endif  // defined(USE_NEVA_APPRUNTIME)
 
   // IPC::Listener implementation ----------------------------------------------
@@ -524,6 +528,7 @@ class CONTENT_EXPORT RenderViewImpl : public RenderWidget,
 #if defined(USE_NEVA_APPRUNTIME)
   void OnReplaceBaseURL(const GURL& newurl);
   void OnSetAppPreloadHint(bool blocked);
+  void OnDropAllPeerConnections(DropPeerConnectionReason reason);
 #endif
   void OnResolveTapDisambiguation(base::TimeTicks timestamp,
                                   const gfx::Point& tap_viewport_offset,

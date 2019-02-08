@@ -48,6 +48,7 @@ class WebViewDelegate {
   virtual void DidHistoryBackOnTopPage() = 0;
   virtual void DidClearWindowObject() = 0;
   virtual void DidSwapCompositorFrame() = 0;
+  virtual void DidDropAllPeerConnections(DropPeerConnectionReason reason) = 0;
 
   // Pluggable delegate
   virtual void SendCookiesForHostname(const std::string& cookies) {}

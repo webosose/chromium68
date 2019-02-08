@@ -113,6 +113,7 @@ class CONTENT_EXPORT RenderViewHostImpl : public RenderViewHost,
 #if defined(USE_NEVA_APPRUNTIME)
   void ReplaceBaseURL(const GURL& newUrl) override;
   void SetAppPreloadHint(bool is_preload) override;
+  void DropAllPeerConnections(DropPeerConnectionReason reason) override;
 #endif
 
   // RenderProcessHostObserver implementation

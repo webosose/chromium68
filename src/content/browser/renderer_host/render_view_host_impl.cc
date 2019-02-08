@@ -1013,6 +1013,11 @@ void RenderViewHostImpl::ReplaceBaseURL(const GURL& newUrl) {
 void RenderViewHostImpl::SetAppPreloadHint(bool is_preload) {
   Send(new ViewMsg_SetAppPreloadHint(GetRoutingID(), is_preload));
 }
+
+void RenderViewHostImpl::DropAllPeerConnections(
+    DropPeerConnectionReason reason) {
+  Send(new ViewMsg_DropAllPeerConnections(GetRoutingID(), reason));
+}
 #endif  // defined(USE_NEVA_APPRUNTIME)
 
 }  // namespace content

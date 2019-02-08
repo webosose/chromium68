@@ -492,6 +492,7 @@ class CONTENT_EXPORT WebContentsImpl : public WebContents,
 #if defined(USE_NEVA_APPRUNTIME)
   void InjectCSS(const std::string& css) override;
   void ReplaceBaseURL(const GURL& newUrl) override;
+  void DropAllPeerConnections(DropPeerConnectionReason) override;
 
   bool DecidePolicyForResponse(bool isMainFrame,
                                int statusCode,
@@ -1194,6 +1195,9 @@ class CONTENT_EXPORT WebContentsImpl : public WebContents,
   void OnOpenDateTimeDialog(
       RenderViewHostImpl* source,
       const ViewHostMsg_DateTimeDialogValue_Params& value);
+#endif
+#if defined(USE_NEVA_APPRUNTIME)
+  void OnDidDropAllPeerConnections(DropPeerConnectionReason reason);
 #endif
   void OnDomOperationResponse(RenderFrameHostImpl* source,
                               const std::string& json_string);

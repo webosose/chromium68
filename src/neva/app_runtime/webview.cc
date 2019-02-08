@@ -950,6 +950,19 @@ void WebView::ResetStateToMarkNextPaintForContainer() {
   }
 }
 
+void WebView::DropAllPeerConnections(DropPeerConnectionReason reason) {
+  content::DropPeerConnectionReason content_reason;
+  switch (reason) {
+    case DROP_PEER_CONNECTION_REASON_PAGE_HIDDEN:
+      content_reason = content::DropPeerConnectionReason::kPageHidden;
+      break;
+    case DROP_PEER_CONNECTION_REASON_UNKNOWN:
+    default:
+      content_reason = content::DropPeerConnectionReason::kUnknown;
+  }
+  web_contents_->DropAllPeerConnections(content_reason);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // WebView, content::WebContentsObserver implementation:
 
@@ -1068,6 +1081,22 @@ void WebView::LoadingStateChanged(content::WebContents*,
                                   bool to_different_document) {
   if (to_different_document)
     document_title_.clear();
+}
+
+void WebView::DidDropAllPeerConnections(
+    content::DropPeerConnectionReason reason) {
+  if (webview_delegate_) {
+    DropPeerConnectionReason webos_reason;
+    switch (reason) {
+      case content::DropPeerConnectionReason::kPageHidden:
+        webos_reason = DROP_PEER_CONNECTION_REASON_PAGE_HIDDEN;
+        break;
+      case content::DropPeerConnectionReason::kUnknown:
+      default:
+        webos_reason = DROP_PEER_CONNECTION_REASON_UNKNOWN;
+    }
+    webview_delegate_->DidDropAllPeerConnections(webos_reason);
+  }
 }
 
 bool WebView::OnMessageReceived(const IPC::Message& message) {
