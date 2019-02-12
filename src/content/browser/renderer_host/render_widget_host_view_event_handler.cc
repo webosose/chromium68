@@ -692,8 +692,11 @@ void RenderWidgetHostViewEventHandler::FinishImeCompositionSession() {
     base::string16 composition_symbol = base::UTF8ToUTF16(
         host_view_->GetTextInputManager()->GetTextInputState()->value);
 
-    if (composition_symbol.length() > 0) {
-      composition_symbol = composition_symbol.substr(r.start(), r.length() + 1);
+    base::string16::size_type comp_char_size = composition_symbol.length();
+    uint32_t range_start = r.start();
+    if (comp_char_size > 0 && comp_char_size >= range_start) {
+      composition_symbol = composition_symbol.substr(range_start,
+                                                     r.length() + 1);
 
       host_view_->ImeCancelComposition();
       host_view_->GetTextInputClient()->InsertText(composition_symbol);
