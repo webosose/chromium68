@@ -229,7 +229,7 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
 
   std::string mime_type = client_->ContentMIMEType().Latin1();
   player_api_.reset(MediaPlayerNevaFactory::CreateMediaPlayerNeva(
-      this, mime_type, media_task_runner_));
+      this, mime_type, media_task_runner_, app_id_));
 
   video_frame_provider_ = std::make_unique<VideoFrameProviderImpl>(
       stream_texture_factory_create_cb, compositor_task_runner_);
@@ -1188,7 +1188,7 @@ void WebMediaPlayerNeva::OnResume() {
 
   if (!player_api_->IsRecoverableOnResume()) {
     player_api_.reset(MediaPlayerNevaFactory::CreateMediaPlayerNeva(
-        this, client_->ContentMIMEType().Latin1(), media_task_runner_));
+        this, client_->ContentMIMEType().Latin1(), media_task_runner_, app_id_));
     player_api_->SetVolume(volume_);
     LoadMedia();
     SetDisplayWindow();

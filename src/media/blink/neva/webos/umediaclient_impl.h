@@ -44,7 +44,8 @@ class UMediaClientImpl : public WebOSMediaClient,
                          public base::SupportsWeakPtr<UMediaClientImpl> {
  public:
   UMediaClientImpl(
-      const scoped_refptr<base::SingleThreadTaskRunner>& task_runner);
+      const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+      const std::string& app_id);
   ~UMediaClientImpl();
 
   // WebOSMediaClient implementations

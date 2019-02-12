@@ -38,6 +38,7 @@ enum LAUNCH_TARGET {
 const char kGetSystemSettings[] =
     "luna://com.webos.settingsservice/getSystemSettings";
 const char kLaunchApplication[] = "palm://com.webos.applicationManager/launch";
+const char kServiceName[] = "com.webos.settingsservice.client";
 
 // Keys and Parameters
 const char kSubscribe[] = "subscribe";
@@ -66,14 +67,16 @@ WebOSLunaService::WebOSLunaService()
     : handle_(nullptr), context_(nullptr), initialized_(false) {
   AutoLSError error;
 
-  if (!LSRegister(nullptr, &handle_, &error)) {
+  if (!LSRegister(kServiceName, &handle_, &error)) {
     DEBUG_LOG("LSRegister failed : %s", error.message);
+    return;
   }
 
   // Make sure that use appropriate g_main_loop in WebAppManagerService
   context_ = g_main_context_ref(g_main_context_default());
   if (!LSGmainContextAttach(handle_, g_main_context_default(), &error)) {
     DEBUG_LOG("LSGmainContextAttach failed : %s", error.message);
+    return;
   }
 }
 

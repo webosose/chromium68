@@ -128,7 +128,7 @@ MediaPlatformAPIWebOSGmp::MediaPlatformAPIWebOSGmp(
     bool video,
     const std::string& app_id,
     const PipelineStatusCB& error_cb)
-    : ls_client_(media::LunaServiceClient::PrivateBus),
+    : ls_client_(app_id),
       task_runner_(task_runner),
       app_id_(app_id),
       error_cb_(error_cb),

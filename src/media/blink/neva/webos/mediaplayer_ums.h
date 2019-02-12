@@ -46,7 +46,8 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
  public:
   // Constructs a RendererMediaPlayerManager object for the |render_frame|.
   explicit MediaPlayerUMS(MediaPlayerNevaClient*,
-                          const scoped_refptr<base::SingleThreadTaskRunner>&);
+                          const scoped_refptr<base::SingleThreadTaskRunner>&,
+                          const std::string& app_id);
   virtual ~MediaPlayerUMS() override;
 
   // media::RendererMediaBuiltinPlayerManagerInterface implementation

@@ -1,0 +1,12 @@
+{
+    "com.webos.app.enactbrowser": [
+        "signals.all"
+    ],
+    "com.webos.browser.memorymanager.client": [
+        "system",
+        "signals.all"
+    ],
+    "com.webos.rm.client.*": [
+        "media"
+    ]
+}

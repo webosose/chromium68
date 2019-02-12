@@ -46,7 +46,8 @@ class MediaPlayerCamera : public media::MediaPlayerNeva,
 
   MediaPlayerCamera(
       MediaPlayerNevaClient* client,
-      const scoped_refptr<base::SingleThreadTaskRunner>& task_runner);
+      const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+      const std::string& app_id);
   virtual ~MediaPlayerCamera();
 
   // media::MediaPlayerNeva implementation

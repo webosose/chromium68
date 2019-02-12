@@ -54,13 +54,14 @@ bool MediaPlayerNevaFactory::CanSupportMediaType(const std::string& mime_type) {
 MediaPlayerNeva* MediaPlayerNevaFactory::CreateMediaPlayerNeva(
     MediaPlayerNevaClient* client,
     const std::string& mime_type,
-    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner) {
+    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+    const std::string& app_id) {
   LOG(INFO) << __PRETTY_FUNCTION__ << " mime_type: " << mime_type;
 #if defined(USE_GST_MEDIA)
   if (net::MatchesMimeType(kPrefixOfWebOSCameraMimeType, mime_type))
-    return new MediaPlayerCamera(client, task_runner);
+    return new MediaPlayerCamera(client, task_runner, app_id);
 #endif
-  return new MediaPlayerUMS(client, task_runner);
+  return new MediaPlayerUMS(client, task_runner, app_id);
 }
 
 }  // media namespace

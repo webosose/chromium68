@@ -44,11 +44,12 @@ class MEDIA_EXPORT LunaServiceClient {
     PHOTORENDERER,
     URITypeMax = PHOTORENDERER,
   };
-  enum BusType {
-    PrivateBus = 0,
-    PublicBus,
-  };
   typedef base::Callback<void(const std::string&)> ResponseCB;
+
+  struct AutoLSError : LSError {
+    AutoLSError() { LSErrorInit(this); }
+    ~AutoLSError() { LSErrorFree(this); }
+  };
 
   struct ResponseHandlerWrapper {
     LunaServiceClient::ResponseCB callback;
@@ -56,7 +57,7 @@ class MEDIA_EXPORT LunaServiceClient {
     std::string param;
   };
 
-  explicit LunaServiceClient(BusType type, bool need_service_name = false);
+  explicit LunaServiceClient(const std::string& identifier);
   ~LunaServiceClient();
   bool callASync(const std::string& uri, const std::string& param);
   bool callASync(const std::string& uri,
@@ -71,9 +72,13 @@ class MEDIA_EXPORT LunaServiceClient {
   static std::string GetServiceURI(URIType type, const std::string& action);
 
  private:
-  LSHandle* handle;
-  GMainContext* context;
-  std::map<LSMessageToken, std::unique_ptr<ResponseHandlerWrapper>> handlers;
+  void LogError(const std::string& message, AutoLSError& lserror);
+  bool RegisterService(const std::string& identifier);
+  bool UnregisterService();
+
+  LSHandle* handle_;
+  GMainContext* context_;
+  std::map<LSMessageToken, std::unique_ptr<ResponseHandlerWrapper>> handlers_;
 
   DISALLOW_COPY_AND_ASSIGN(LunaServiceClient);
 };

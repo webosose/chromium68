@@ -31,7 +31,8 @@ namespace media {
 
 MediaPlayerCamera::MediaPlayerCamera(
     MediaPlayerNevaClient* client,
-    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner)
+    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+    const std::string& app_id)
     : client_(client),
       main_task_runner_(base::MessageLoop::current()->task_runner()),
       has_audio_(false),

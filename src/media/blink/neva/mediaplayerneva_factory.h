@@ -30,7 +30,8 @@ class MediaPlayerNevaFactory {
     static bool CanSupportMediaType(const std::string& mime_type);
     static MediaPlayerNeva* CreateMediaPlayerNeva(MediaPlayerNevaClient*,
             const std::string&,
-            const scoped_refptr<base::SingleThreadTaskRunner>&);
+            const scoped_refptr<base::SingleThreadTaskRunner>&,
+            const std::string&);
 };
 
 } // media namespace

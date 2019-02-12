@@ -82,7 +82,8 @@ class WebOSMediaClient {
   virtual ~WebOSMediaClient() {}
 
   static std::unique_ptr<WebOSMediaClient> Create(
-      const scoped_refptr<base::SingleThreadTaskRunner>& task_runner);
+      const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+      const std::string& app_id);
 
   virtual void Load(bool video,
                     double current_time,
