@@ -146,7 +146,8 @@ bool WebOSNetworkDelegate::IsAccessAllowed(
     const base::FilePath& path) const {
 
   base::File::Info file_info;
-  base::GetFileInfo(path, &file_info);
+  if (!base::GetFileInfo(path, &file_info))
+    return false;
   // file existance is not matter this
   // Deny directory access
   if (file_info.is_directory || path.EndsWithSeparator())
