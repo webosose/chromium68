@@ -150,10 +150,12 @@ bool WaylandTextInput::CreateTextModel() {
   text_model_factory* factory = WaylandDisplay::GetInstance()->GetTextModelFactory();
   if (factory) {
     text_model_ = text_model_factory_create_text_model(factory);
-    text_model_add_listener(text_model_, &text_model_listener_, this);
-    return !(!text_model_);
-  } else
-    return false;
+    if (text_model_) {
+      return (text_model_add_listener(text_model_, &text_model_listener_,
+                                      this) == 0);
+    }
+  }
+  return false;
 }
 
 void WaylandTextInput::ShowInputPanel(wl_seat* input_seat, unsigned handle) {
