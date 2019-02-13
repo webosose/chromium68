@@ -233,16 +233,13 @@ app_runtime::WebPageVisibilityState WebViewBase::FromNativeVisibilityState(
   switch (visibility_state) {
     case WebPageVisibilityStateVisible:
       return app_runtime::WebPageVisibilityState::WebPageVisibilityStateVisible;
-      break;
     case WebPageVisibilityStateHidden:
       return app_runtime::WebPageVisibilityState::WebPageVisibilityStateHidden;
-      break;
     case WebPageVisibilityStateLaunching:
       return app_runtime::WebPageVisibilityState::WebPageVisibilityStateLaunching;
-      break;
     case WebPageVisibilityStatePrerender:
       return app_runtime::WebPageVisibilityState::WebPageVisibilityStatePrerender;
-      break;
+    default:
   }
 }
 
