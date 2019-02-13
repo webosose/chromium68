@@ -95,4 +95,7 @@ declare_args() {
 
   # Allow audio capture when tab or app is suspended
   disable_hidden_tab_audio_capture = is_webos
+
+  # Disable v8 ICU timezone data
+  v8_disable_icu_timezone_data = is_webos
 }
