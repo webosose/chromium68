@@ -66,67 +66,69 @@ class MediaPlayerNevaClient {
 
 class MediaPlayerNeva {
  public:
-   enum Preload {
-     PreloadNone,
-     PreloadMetaData,
-     PreloadAuto,
-   };
+  enum Preload {
+    PreloadNone,
+    PreloadMetaData,
+    PreloadAuto,
+  };
 
-   enum MediaError {
-       MEDIA_ERROR_NONE,
-       MEDIA_ERROR_FORMAT,
-       MEDIA_ERROR_DECODE,
-       MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK,
-       MEDIA_ERROR_INVALID_CODE,
-   };
+  enum MediaError {
+    MEDIA_ERROR_NONE,
+    MEDIA_ERROR_FORMAT,
+    MEDIA_ERROR_DECODE,
+    MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK,
+    MEDIA_ERROR_INVALID_CODE,
+  };
 
-   virtual void Initialize(const bool is_video,
-                           const double current_time,
-                           const std::string& app_id,
-                           const std::string& url,
-                           const std::string& mime,
-                           const std::string& referrer,
-                           const std::string& user_agent,
-                           const std::string& cookies,
-                           const std::string& payload) = 0;
+  virtual void Initialize(const bool is_video,
+                          const double current_time,
+                          const std::string& app_id,
+                          const std::string& url,
+                          const std::string& mime,
+                          const std::string& referrer,
+                          const std::string& user_agent,
+                          const std::string& cookies,
+                          const std::string& payload) = 0;
 
-   // Starts the player.
-   virtual void Start() = 0;
-   // Pauses the player.
-   virtual void Pause() = 0;
-   // Performs seek on the player.
-   virtual void Seek(const base::TimeDelta& time) = 0;
-   // Sets the player volume.
-   virtual void SetVolume(double volume) = 0;
-   // Sets the poster image.
-   virtual void SetPoster(const GURL& poster) = 0;
+  // Starts the player.
+  virtual void Start() = 0;
+  // Pauses the player.
+  virtual void Pause() = 0;
+  // Performs seek on the player.
+  virtual void Seek(const base::TimeDelta& time) = 0;
+  // Sets the player volume.
+  virtual void SetVolume(double volume) = 0;
+  // Sets the poster image.
+  virtual void SetPoster(const GURL& poster) = 0;
 
-   virtual void SetRate(double rate) = 0;
-   virtual void SetPreload(Preload preload) = 0;
-   virtual bool IsPreloadable(const std::string& content_media_option) = 0;
-   virtual bool HasVideo() = 0;
-   virtual bool HasAudio() = 0;
-   virtual int NumAudioTracks();
-   virtual bool SelectTrack(std::string& type, int32_t index);
-   virtual void SwitchToAutoLayout() {}
-   virtual void SetDisplayWindow(const gfx::Rect& out,
-                                 const gfx::Rect& in,
-                                 bool fullScreen,
-                                 bool forced = false) {}
-   virtual bool UsesIntrinsicSize() const = 0;
-   virtual std::string MediaId() const = 0;
-   virtual void Suspend(SuspendReason reason) {}
-   virtual void Resume() {}
-   virtual bool HasAudioFocus() const = 0;
-   virtual void SetAudioFocus(bool focus) = 0;
-   virtual bool HasVisibility() const = 0;
-   virtual void SetVisibility(bool) = 0;
-   // Returns |true| if the player uses media resource(e.g. hardware decoder).
-   virtual bool RequireMediaResource() = 0;
-   // Returns |true| if the player is recoverable on resume.
-   virtual bool IsRecoverableOnResume() = 0;
+  virtual void SetRate(double rate) = 0;
+  virtual void SetPreload(Preload preload) = 0;
+  virtual bool IsPreloadable(const std::string& content_media_option) = 0;
+  virtual bool HasVideo() = 0;
+  virtual bool HasAudio() = 0;
+  virtual int NumAudioTracks();
+  virtual bool SelectTrack(std::string& type, int32_t index);
+  virtual void SwitchToAutoLayout() {}
+  virtual void SetDisplayWindow(const gfx::Rect& out,
+                                const gfx::Rect& in,
+                                bool fullScreen,
+                                bool forced = false) {}
+  virtual bool UsesIntrinsicSize() const = 0;
+  virtual std::string MediaId() const = 0;
+  virtual void Suspend(SuspendReason reason) {}
+  virtual void Resume() {}
+  virtual bool HasAudioFocus() const = 0;
+  virtual void SetAudioFocus(bool focus) = 0;
+  virtual bool HasVisibility() const = 0;
+  virtual void SetVisibility(bool) = 0;
+  // Returns |true| if the player uses media resource(e.g. hardware decoder).
+  virtual bool RequireMediaResource() = 0;
+  // Returns |true| if the player is recoverable on resume.
+  virtual bool IsRecoverableOnResume() = 0;
+  // Disable audio decoding and out
+  virtual void SetDisableAudio(bool) = 0;
 
-   virtual ~MediaPlayerNeva() {}
+  virtual ~MediaPlayerNeva() {}
 };
 
 }  // namespace media

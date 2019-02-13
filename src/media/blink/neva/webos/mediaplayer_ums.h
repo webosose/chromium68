@@ -105,6 +105,8 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
   void Resume() override;
   bool RequireMediaResource() override;
   bool IsRecoverableOnResume() override;
+  void SetDisableAudio(bool) override;
+
   // end of media::RendererMediaBuiltinPlayerManagerInterface
   //-----------------------------------------------------------------
 

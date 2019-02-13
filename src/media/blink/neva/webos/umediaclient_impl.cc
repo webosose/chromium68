@@ -90,7 +90,8 @@ UMediaClientImpl::UMediaClientImpl(
           SystemMediaManager::Create(AsWeakPtr(), task_runner)),
       preload_(PreloadNone),
       loading_state_(LOADING_STATE_NONE),
-      pending_loading_action_(LOADING_ACTION_NONE) {
+      pending_loading_action_(LOADING_ACTION_NONE),
+      audio_disabled_(false) {
   // NOTE: AsWeakPtr() will create new valid WeakPtr even after it is
   // invalidated.
   // On our case, UMediaClientImpl will invalidate weakptr on its dtor
@@ -451,6 +452,11 @@ bool UMediaClientImpl::CheckUseMediaPlayerManager(
   return res;
 #endif  // USE_GST_MEDIA
 }
+
+void UMediaClientImpl::SetDisableAudio(bool disable) {
+  audio_disabled_ = disable;
+}
+
 bool UMediaClientImpl::onPlaying() {
   main_task_runner_->PostTask(
       FROM_HERE, base::Bind(&UMediaClientImpl::DispatchPlaying, weak_ptr_));
@@ -1682,6 +1688,7 @@ std::string UMediaClientImpl::UpdateMediaOption(const std::string& mediaOption,
   media_option["option"]["appId"] = app_id_;
   media_option["option"]["preload"] =
       (use_pipeline_preload_) ? "true" : "false";
+  media_option["option"]["needAudio"] = !audio_disabled_;
 
   if (!use_set_uri_)
     media_option["option"]["useSeekableRanges"] = true;

@@ -75,6 +75,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOS : public MediaPlatformAPI {
   virtual void SetVisibility(bool visible) = 0;
   virtual bool Visibility() = 0;
   virtual base::Optional<gfx::Size> GetNaturalSize() = 0;
+  virtual void SetDisableAudio(bool disable) = 0;
 
  protected:
   virtual ~MediaPlatformAPIWebOS() {}

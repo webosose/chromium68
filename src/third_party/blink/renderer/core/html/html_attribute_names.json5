@@ -319,10 +319,11 @@
 ///@name USE_NEVA_MEDIA
 ///@{
     // added for Neva HTMLMediaElement
-    "texture",
+    "noaudio",
     "onumsmediainfo",
     "onpipelinestarted",
     "onupdatecamerastate",
+    "texture",
 ///@}
   ],
 }

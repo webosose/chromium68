@@ -239,6 +239,10 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
   video_frame_provider_->SetWebLocalFrame(frame);
   video_frame_provider_->SetWebMediaPlayerClient(client);
   SetRenderMode(GetClient()->RenderMode());
+  base::Optional<bool> is_audio_disabled = GetClient()->IsAudioDisabled();
+  if (is_audio_disabled.has_value()) {
+    SetDisableAudio(*is_audio_disabled);
+  }
 
   bool require_media_resource = player_api_->RequireMediaResource() &&
                                 !params_neva->use_unlimited_media_policy();
@@ -1291,6 +1295,13 @@ void WebMediaPlayerNeva::SetRenderMode(blink::WebMediaPlayer::RenderMode mode) {
     video_frame_provider_->SetStorageType(media::VideoFrame::STORAGE_HOLE);
 #endif
   }
+}
+
+void WebMediaPlayerNeva::SetDisableAudio(bool disable) {
+  if (audio_disabled_ == disable)
+    return;
+  LOG(INFO) << __func__ << " disable=" << disable;
+  player_api_->SetDisableAudio(disable);
 }
 
 void WebMediaPlayerNeva::EnabledAudioTracksChanged(

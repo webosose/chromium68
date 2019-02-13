@@ -210,15 +210,25 @@ void HTMLVideoElement::ParseAttribute(
       remoting_interstitial_->OnPosterImageChanged();
     if (picture_in_picture_interstitial_)
       picture_in_picture_interstitial_->OnPosterImageChanged();
-#if defined(USE_VIDEO_TEXTURE) && defined(USE_NEVA_MEDIA)
-   } else if (RuntimeEnabledFeatures::VideoTextureEnabled() &&
-              params.name == textureAttr) {
-     if (!params.new_value.IsNull())
-       m_renderMode = blink::WebMediaPlayer::RenderModeTexture;
-     else
-       m_renderMode = blink::WebMediaPlayer::RenderModeHole;
-     if (GetWebMediaPlayer())  // TODO(neva): Is it the right place to notify?
-       GetWebMediaPlayer()->SetRenderMode(m_renderMode);
+#if defined(USE_NEVA_MEDIA)
+  } else if (RuntimeEnabledFeatures::NoAudioAttrEnabled() &&
+             params.name == noaudioAttr) {
+    if (!params.new_value.IsNull())
+      has_noaudio_attr_ = true;
+    else
+      has_noaudio_attr_ = false;
+    if (GetWebMediaPlayer())
+      GetWebMediaPlayer()->SetDisableAudio(*has_noaudio_attr_);
+#if defined(USE_VIDEO_TEXTURE)
+  } else if (RuntimeEnabledFeatures::VideoTextureEnabled() &&
+             params.name == textureAttr) {
+    if (!params.new_value.IsNull())
+      m_renderMode = blink::WebMediaPlayer::RenderModeTexture;
+    else
+      m_renderMode = blink::WebMediaPlayer::RenderModeHole;
+    if (GetWebMediaPlayer())  // TODO(neva): Is it the right place to notify?
+      GetWebMediaPlayer()->SetRenderMode(m_renderMode);
+#endif
 #endif
   } else {
     HTMLMediaElement::ParseAttribute(params);

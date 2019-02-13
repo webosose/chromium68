@@ -98,6 +98,10 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
           &VideoFrameProviderImpl::ActiveRegionChanged),
       BIND_TO_RENDER_LOOP(&WebMediaPlayerMSE::OnError));
 
+  base::Optional<bool> is_audio_disabled = client_->IsAudioDisabled();
+  if (is_audio_disabled.has_value())
+    SetDisableAudio(*is_audio_disabled);
+
   renderer_factory_selector_->GetCurrentFactory()->SetMediaPlatformAPI(
       media_platform_api_);
   pipeline_controller_.SetMediaPlatformAPI(media_platform_api_);
@@ -514,5 +518,10 @@ void WebMediaPlayerMSE::SetRenderMode(blink::WebMediaPlayer::RenderMode mode) {
     video_frame_provider_->SetStorageType(media::VideoFrame::STORAGE_HOLE);
 #endif
   }
+}
+
+void WebMediaPlayerMSE::SetDisableAudio(bool disable) {
+  LOG(INFO) << __func__ << " disable=" << disable;
+  media_platform_api_->SetDisableAudio(disable);
 }
 }  // namespace media

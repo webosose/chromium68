@@ -282,6 +282,10 @@ bool MediaPlayerUMS::IsRecoverableOnResume() {
   return umedia_client_->IsRecoverableOnResume();
 }
 
+void MediaPlayerUMS::SetDisableAudio(bool disable) {
+  umedia_client_->SetDisableAudio(disable);
+}
+
 void MediaPlayerUMS::OnPlaybackStateChanged(bool playing) {
   FUNC_LOG(1);
   if (playing)

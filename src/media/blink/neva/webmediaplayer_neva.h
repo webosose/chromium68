@@ -284,6 +284,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   bool HasVisibility() const override;
   void SetVisibility(bool) override;
   void SetRenderMode(blink::WebMediaPlayer::RenderMode mode) override;
+  void SetDisableAudio(bool) override;
 
   void EnabledAudioTracksChanged(
       const blink::WebVector<TrackId>& enabledTrackIds) override;
@@ -480,6 +481,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   CORSMode pending_cors_mode_ = WebMediaPlayer::kCORSModeUnspecified;
 
   bool has_activation_permit_ = false;
+
+  bool audio_disabled_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(WebMediaPlayerNeva);
 };

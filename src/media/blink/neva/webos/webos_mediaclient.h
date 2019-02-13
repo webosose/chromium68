@@ -150,6 +150,7 @@ class WebOSMediaClient {
   virtual bool IsSupportedBackwardTrickPlay() = 0;
   virtual bool IsSupportedPreload() = 0;
   virtual bool CheckUseMediaPlayerManager(const std::string& media_option) = 0;
+  virtual void SetDisableAudio(bool) = 0;
 };
 
 }  // namespace media

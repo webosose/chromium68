@@ -117,6 +117,7 @@ class UMediaClientImpl : public WebOSMediaClient,
   bool IsSupportedBackwardTrickPlay() override;
   bool IsSupportedPreload() override;
   bool CheckUseMediaPlayerManager(const std::string& mediaOption) override;
+  void SetDisableAudio(bool disable) override;
 
   // uMediaServer::uMediaClient implementations
   bool onPlaying() override;
@@ -321,6 +322,7 @@ class UMediaClientImpl : public WebOSMediaClient,
   LoadingAction pending_loading_action_;
 
   base::WeakPtr<UMediaClientImpl> weak_ptr_;
+  bool audio_disabled_;
 
   DISALLOW_COPY_AND_ASSIGN(UMediaClientImpl);
 };

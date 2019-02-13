@@ -100,6 +100,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
   void OnLoadPermitted();
 
   void SetRenderMode(blink::WebMediaPlayer::RenderMode mode) override;
+  void SetDisableAudio(bool disable) override;
 
   void UpdateVideoHoleBoundary(bool forced = false);
 

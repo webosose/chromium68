@@ -80,6 +80,8 @@ class HTMLMediaElement {
   String m_contentCustomOption;
   String m_contentMediaOption;
   blink::WebMediaPlayer::RenderMode m_renderMode;
+
+  base::Optional<bool> has_noaudio_attr_ = base::nullopt;
 };
 
 template <typename original_t>
@@ -264,9 +266,10 @@ class HTMLMediaElementExtendingWebMediaPlayerClient
   WebString Referrer() const override;
   WebString UserAgent() const override;
   WebString Cookies() const override;
+  base::Optional<bool> IsAudioDisabled() const override;
+  bool IsVideo() const override;
   bool IsSuppressedMediaPlay() const override;
   blink::WebMediaPlayer::LoadType LoadType() const override;
-  bool IsVideo() const override;
   WebRect ScreenRect() override;
   WebMediaPlayer::RenderMode RenderMode() const override;
   WebRect WebWidgetViewRect() override;
@@ -373,6 +376,14 @@ WebString HTMLMediaElementExtendingWebMediaPlayerClient<original_t>::Cookies()
   const original_t* self(static_cast<const original_t*>(this));
 
   return ::blink::Cookies(self->ownerDocument(), self->currentSrc());
+}
+
+template <typename original_t>
+base::Optional<bool> HTMLMediaElementExtendingWebMediaPlayerClient<
+    original_t>::IsAudioDisabled() const {
+  const original_t* self(static_cast<const original_t*>(this));
+
+  return self->has_noaudio_attr_;
 }
 
 template <typename original_t>

@@ -59,6 +59,7 @@ class WebMediaPlayer {
   virtual bool HasVisibility() const { return true; }
   virtual void SetVisibility(bool) {}
   virtual void SetRenderMode(RenderMode mode) {}
+  virtual void SetDisableAudio(bool disable) {}
 };
 
 }  // namespace neva

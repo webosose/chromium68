@@ -17,6 +17,7 @@
 #ifndef THIRD_PARTY_BLINK_PUBLIC_PLATFORM_NEVA_WEB_MEDIA_PLAYER_CLIENT_H_
 #define THIRD_PARTY_BLINK_PUBLIC_PLATFORM_NEVA_WEB_MEDIA_PLAYER_CLIENT_H_
 
+#include "base/optional.h"
 #include "third_party/blink/public/platform/web_media_player.h"
 #include "third_party/blink/public/platform/web_rect.h"
 #include "third_party/blink/public/platform/web_string.h"
@@ -34,6 +35,7 @@ class WebMediaPlayerClient {
   virtual WebString Referrer() const = 0;
   virtual WebString UserAgent() const = 0;
   virtual WebString Cookies() const = 0;
+  virtual base::Optional<bool> IsAudioDisabled() const = 0;
   virtual bool IsVideo() const = 0;
   virtual bool IsSuppressedMediaPlay() const = 0;
   virtual blink::WebMediaPlayer::LoadType LoadType() const = 0;

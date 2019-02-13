@@ -95,6 +95,7 @@ enum CanPlayTypeResult { "" /* empty string */, "maybe", "probably" };
 ///@name USE_NEVA_MEDIA
 ///@{
     // Neva extensions
+    [Reflect, RuntimeEnabled=NoAudioAttr] attribute boolean noaudio;
     [Reflect, RuntimeEnabled=VideoTexture] attribute boolean texture;
     // Correspondences are implemented in neva::HTMLMediaElement
     [RuntimeEnabled=AudioFocusExtension] attribute boolean webosMediaFocus;
