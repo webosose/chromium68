@@ -22,7 +22,8 @@ namespace blink {
 class SettingsNeva {
  public:
   SettingsNeva()
-      : notify_fmp_directly_(false),
+      : keep_alive_web_app_(false),
+        notify_fmp_directly_(false),
         webos_native_scroll_enabled_(false),
         disallow_scrollbars_in_main_frame_(false),
         network_stable_timeout_(0.f) {}
