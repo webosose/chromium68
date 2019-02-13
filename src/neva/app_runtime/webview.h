@@ -285,7 +285,7 @@ class WebView : public content::WebContentsDelegate,
   static bool ConvertVisibilityState(WebPageVisibilityState from,
                                      blink::mojom::PageVisibilityState& to);
 
-  WebViewDelegate* webview_delegate_;
+  WebViewDelegate* webview_delegate_ = nullptr;
   std::unique_ptr<content::WebContents> web_contents_;
   std::unique_ptr<content::WebPreferences> web_preferences_;
   std::unique_ptr<WebAppInjectionManager> injection_manager_;
