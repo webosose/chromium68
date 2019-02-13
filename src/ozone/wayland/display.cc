@@ -157,14 +157,6 @@ WaylandDisplay::WaylandDisplay()
       data_device_manager_(NULL),
       shell_(NULL),
       shm_(NULL),
-#if defined(OS_WEBOS)
-      text_model_factory_(NULL),
-      webos_xinput_extension_(NULL),
-      webos_xinput_(NULL),
-      pointer_visible_(false),
-#else
-      text_input_manager_(NULL),
-#endif
       primary_screen_(NULL),
       primary_seat_(NULL),
       display_poll_thread_(NULL),

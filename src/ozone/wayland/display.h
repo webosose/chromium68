@@ -326,14 +326,14 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   WaylandShell* shell_;
   wl_shm* shm_;
 #if defined(OS_WEBOS)
-  text_model_factory* text_model_factory_;
-  wl_webos_input_manager* webos_input_manager_;
-  wl_webos_xinput_extension* webos_xinput_extension_;
-  wl_webos_xinput* webos_xinput_;
+  text_model_factory* text_model_factory_ = nullptr;
+  wl_webos_input_manager* webos_input_manager_ = nullptr;
+  wl_webos_xinput_extension* webos_xinput_extension_ = nullptr;
+  wl_webos_xinput* webos_xinput_ = nullptr;
   std::unique_ptr<WebOSSurfaceGroupCompositor> group_compositor_;
-  bool pointer_visible_;
+  bool pointer_visible_ = false;
 #else
-  struct wl_text_input_manager* text_input_manager_;
+  struct wl_text_input_manager* text_input_manager_ = nullptr;
 #endif
   WaylandScreen* primary_screen_;
   WaylandSeat* primary_seat_;
