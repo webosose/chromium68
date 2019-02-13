@@ -372,10 +372,6 @@ void WebViewBase::RequestGetCookies(const std::string& url) {
   webview_->RequestGetCookies(url);
 }
 
-bool WebViewBase::IsKeyboardVisible() {
-  NOTIMPLEMENTED() << "OBSOLETE: Moved to WebAppWindowBase::IsKeyboardVisible()";
-}
-
 void WebViewBase::SetAdditionalContentsScale(float scale_x, float scale_y) {
   webview_->SetAdditionalContentsScale(scale_x, scale_y);
 }

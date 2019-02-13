@@ -134,7 +134,6 @@ class WEBOS_EXPORT WebViewBase
   bool CanGoBack() const;
   void GoBack();
   void RequestGetCookies(const std::string& url);
-  bool IsKeyboardVisible(); // OBSOLETE
   bool IsInputMethodActive();
   void SetAdditionalContentsScale(float scale_x, float scale_y);
   void SetHardwareResolution(int width, int height);
