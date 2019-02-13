@@ -61,7 +61,7 @@ class WebAppWindow : public app_runtime::WebAppWindow {
   bool OnKeyPressed(unsigned keycode);
   bool OnKeyReleased(unsigned keycode);
 
-  WebAppWindowDelegate* webapp_window_delegate_;
+  WebAppWindowDelegate* webapp_window_delegate_ = nullptr;
   bool keyboard_enter_;
 
   DISALLOW_COPY_AND_ASSIGN(WebAppWindow);
