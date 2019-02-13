@@ -99,7 +99,7 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
 
   AppRuntimeBrowserMainExtraParts* browser_extra_parts_ = nullptr;
   std::unique_ptr<URLRequestContextFactory> url_request_context_factory_;
-  AppRuntimeBrowserMainParts* main_parts_;
+  AppRuntimeBrowserMainParts* main_parts_ = nullptr;
 
   content::BrowserContext* external_browser_context_;
   AppRuntimeQuotaPermissionDelegate* quota_permission_delegate_;
