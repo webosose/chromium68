@@ -103,7 +103,7 @@ class AppRuntimeContentBrowserClient : public content::ContentBrowserClient {
 
   content::BrowserContext* external_browser_context_;
   AppRuntimeQuotaPermissionDelegate* quota_permission_delegate_;
-  bool do_not_track_;
+  bool do_not_track_ = false;
 
 #if defined(ENABLE_PLUGINS)
   bool plugin_loaded_;
