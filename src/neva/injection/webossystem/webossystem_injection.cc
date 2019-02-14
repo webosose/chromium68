@@ -126,7 +126,8 @@ std::set<WebOSServiceBridgeInjection*>
 // static
 void WebOSServiceBridgeInjection::CallService(gin::Arguments* args) {
   v8::Local<v8::Object> holder;
-  args->GetHolder(&holder);
+  if (!args->GetHolder(&holder))
+    return;
   v8::Local<v8::External> wrap =
       v8::Local<v8::External>::Cast(holder->GetInternalField(0));
   WebOSServiceBridgeInjection* self =
@@ -143,10 +144,8 @@ void WebOSServiceBridgeInjection::CallService(gin::Arguments* args) {
   v8::Local<v8::Value> url;
   v8::Local<v8::Value> params;
 
-  args->GetNext(&url);
-  args->GetNext(&params);
-
-  if (!url->IsString() || !params->IsString())
+  if (!args->GetNext(&url) || !args->GetNext(&params) || !url->IsString() ||
+      !params->IsString())
     self->Call();
   else
     self->Call(gin::V8ToString(url).c_str(), gin::V8ToString(params).c_str());
@@ -155,7 +154,8 @@ void WebOSServiceBridgeInjection::CallService(gin::Arguments* args) {
 // static
 void WebOSServiceBridgeInjection::CancelServiceCall(gin::Arguments* args) {
   v8::Local<v8::Object> holder;
-  args->GetHolder(&holder);
+  if (!args->GetHolder(&holder))
+    return;
   v8::Local<v8::External> wrap =
       v8::Local<v8::External>::Cast(holder->GetInternalField(0));
   WebOSServiceBridgeInjection* self =
@@ -213,7 +213,7 @@ void WebOSServiceBridgeInjection::CloseNotify() {
   v8::HandleScope handle_scope(isolate);
   v8::Local<v8::String> source = v8::String::NewFromUtf8(isolate, data);
   v8::Local<v8::Script> script = v8::Script::Compile(source);
-  v8::Local<v8::Value> result = script->Run();
+  script->Run();
 }
 
 void WebOSServiceBridgeInjection::Init() {
@@ -858,7 +858,7 @@ void WebOSSystemInjection::SetKeyMask(gin::Arguments* args) {
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args->PeekNext());
 
-  for (int i = 0; i < array->Length(); i++) {
+  for (size_t i = 0; i < array->Length(); i++) {
     v8::Local<v8::Value> item = array->Get(i);
     root->AppendString(*v8::String::Utf8Value(item->ToString()));
   }

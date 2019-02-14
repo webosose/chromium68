@@ -124,12 +124,11 @@ unsigned long LunaServiceManager::Call(const char* uri,
   LSMessageToken token = 0;
 
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  v8::Local<v8::Value> val;
   v8::MaybeLocal<v8::Value> mbVal =
       v8::JSON::Parse(isolate, v8::String::NewFromUtf8(isolate, payload));
-  mbVal.ToLocal(&val);
   bool subscription = false;
-  if (!val.IsEmpty() && val->IsObject()) {
+  v8::Local<v8::Value> val;
+  if (mbVal.ToLocal(&val) && val->IsObject()) {
     v8::Local<v8::Object> obj = val->ToObject();
     v8::Local<v8::Value> subscribe =
         obj->Get(v8::String::NewFromUtf8(isolate, "subscribe"));

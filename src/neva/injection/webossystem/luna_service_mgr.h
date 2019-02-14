@@ -36,8 +36,8 @@ class LunaServiceManager {
   void Init();
 
   LSHandle* sh_;
-  std::string identifier_;
   bool initialized_;
+  std::string identifier_;
   static std::mutex storage_lock_;
   static std::unordered_map<std::string, std::weak_ptr<LunaServiceManager>>
       storage_;
