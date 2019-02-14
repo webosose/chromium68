@@ -114,7 +114,8 @@ class MediaFactory {
       bool use_media_player,
       media::DecoderFactory* decoder_factory,
       std::unique_ptr<media::RemotePlaybackClientWrapper> client_wrapper,
-      base::WeakPtr<media::MediaObserver>* out_media_observer);
+      base::WeakPtr<media::MediaObserver>* out_media_observer,
+      bool use_neva_media);
 
   blink::WebMediaPlayer* CreateWebMediaPlayerForMediaStream(
       blink::WebMediaPlayerClient* client,

@@ -28,6 +28,7 @@ class WebMediaPlayerClient {
  public:
   virtual WebString ContentMIMEType() const = 0;
   virtual WebString ContentTypeCodecs() const = 0;
+  virtual WebString ContentTypeDecoder() const = 0;
   virtual WebString ContentCustomOption() const = 0;
   virtual WebString ContentMediaOption() const = 0;
   virtual WebString Referrer() const = 0;

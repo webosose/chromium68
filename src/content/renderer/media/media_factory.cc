@@ -262,10 +262,18 @@ blink::WebMediaPlayer* MediaFactory::CreateMediaPlayer(
 
   base::WeakPtr<media::MediaObserver> media_observer;
 
+  bool use_neva_media = false;
+#if defined(USE_NEVA_MEDIA)
+  use_neva_media = !base::CommandLine::ForCurrentProcess()->HasSwitch(
+      switches::kDisableWebMediaPlayerNeva);
+  if (client->ContentTypeDecoder() == "sw")
+    use_neva_media = false;
+#endif
+
   auto factory_selector = CreateRendererFactorySelector(
       media_log.get(), use_media_player_renderer, GetDecoderFactory(),
       std::make_unique<media::RemotePlaybackClientWrapperImpl>(client),
-      &media_observer);
+      &media_observer, use_neva_media);
 
 #if BUILDFLAG(ENABLE_MEDIA_REMOTING)
   DCHECK(media_observer);
@@ -341,10 +349,7 @@ blink::WebMediaPlayer* MediaFactory::CreateMediaPlayer(
   params->set_additional_contents_scale(
       render_widget->GetWebScreenInfo().additional_contents_scale);
 
-  const base::CommandLine& command_line =
-      *base::CommandLine::ForCurrentProcess();
-  if (!command_line.HasSwitch(switches::kDisableWebMediaPlayerNeva) &&
-      media::WebMediaPlayerNevaFactory::Playable(client))
+  if (use_neva_media && media::WebMediaPlayerNevaFactory::Playable(client))
     return media::WebMediaPlayerNevaFactory::CreateWebMediaPlayerNeva(
         web_frame, client, encrypted_client, GetWebMediaPlayerDelegate(),
         std::move(factory_selector), url_index_.get(), std::move(vfc),
@@ -381,7 +386,8 @@ MediaFactory::CreateRendererFactorySelector(
     bool use_media_player,
     media::DecoderFactory* decoder_factory,
     std::unique_ptr<media::RemotePlaybackClientWrapper> client_wrapper,
-    base::WeakPtr<media::MediaObserver>* out_media_observer) {
+    base::WeakPtr<media::MediaObserver>* out_media_observer,
+    bool use_neva_media) {
   RenderThreadImpl* render_thread = RenderThreadImpl::current();
   // Render thread may not exist in tests, returning nullptr if it does not.
   if (!render_thread)
@@ -507,10 +513,7 @@ MediaFactory::CreateRendererFactorySelector(
       std::move(courier_factory));
 #endif
 #if defined(USE_NEVA_MEDIA)
-  const base::CommandLine& command_line =
-      *base::CommandLine::ForCurrentProcess();
-  if (!command_line.HasSwitch(switches::kDisableWebMediaPlayerNeva) &&
-      media::NevaMediaPlayerRendererFactory::Enabled()) {
+  if (use_neva_media && media::NevaMediaPlayerRendererFactory::Enabled()) {
     factory_selector->AddFactory(
         media::RendererFactorySelector::FactoryType::NEVA_MEDIA_PLAYER,
         std::make_unique<media::NevaMediaPlayerRendererFactory>(

@@ -76,6 +76,7 @@ class HTMLMediaElement {
 
   String m_contentMIMEType;
   String m_contentTypeCodecs;
+  String m_contentTypeDecoder;
   String m_contentCustomOption;
   String m_contentMediaOption;
   blink::WebMediaPlayer::RenderMode m_renderMode;
@@ -203,12 +204,14 @@ template <typename original_t>
 void HTMLMediaElement<original_t>::ParseContentType(
     const ContentType& contentType) {
   DEFINE_STATIC_LOCAL(const String, codecs, ("codecs"));
+  DEFINE_STATIC_LOCAL(const String, decoder, ("decoder"));
   DEFINE_STATIC_LOCAL(const String, mediaOption, ("mediaOption"));
   DEFINE_STATIC_LOCAL(const String, cameraOption, ("cameraOption"));
   DEFINE_STATIC_LOCAL(const String, dvrOption, ("dvrOption"));
 
   m_contentMIMEType = contentType.GetType().LowerASCII();
   m_contentTypeCodecs = contentType.Parameter(codecs);
+  m_contentTypeDecoder = contentType.Parameter(decoder);
 
   m_contentMediaOption =
       DecodeURLEscapeSequences(contentType.Parameter(mediaOption));
@@ -255,6 +258,7 @@ class HTMLMediaElementExtendingWebMediaPlayerClient
                          const blink::WebString&) override;
   WebString ContentMIMEType() const override;
   WebString ContentTypeCodecs() const override;
+  WebString ContentTypeDecoder() const override;
   WebString ContentCustomOption() const override;
   WebString ContentMediaOption() const override;
   WebString Referrer() const override;
@@ -314,6 +318,14 @@ WebString HTMLMediaElementExtendingWebMediaPlayerClient<
   const original_t* self(static_cast<const original_t*>(this));
 
   return self->m_contentTypeCodecs;
+}
+
+template <typename original_t>
+WebString HTMLMediaElementExtendingWebMediaPlayerClient<
+    original_t>::ContentTypeDecoder() const {
+  const original_t* self(static_cast<const original_t*>(this));
+
+  return self->m_contentTypeDecoder;
 }
 
 template <typename original_t>
