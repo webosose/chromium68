@@ -238,8 +238,8 @@ app_runtime::WebPageVisibilityState WebViewBase::FromNativeVisibilityState(
     case WebPageVisibilityStateLaunching:
       return app_runtime::WebPageVisibilityState::WebPageVisibilityStateLaunching;
     case WebPageVisibilityStatePrerender:
-      return app_runtime::WebPageVisibilityState::WebPageVisibilityStatePrerender;
     default:
+      return app_runtime::WebPageVisibilityState::WebPageVisibilityStatePrerender;
   }
 }
 
