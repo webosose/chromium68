@@ -27,7 +27,6 @@ bool ComputeVideoHoleDisplayRect(const gfx::Rect& video_rect_in_view_space,
                                  gfx::Rect& visible_rect,
                                  bool& is_fullscreen) {
   // Step1: Save previous results. These values are used at last step.
-  gfx::Rect prev_source_rect = source_rect;
   gfx::Rect prev_visible_rect = visible_rect;
   bool prev_is_fullscreen = is_fullscreen;
 
