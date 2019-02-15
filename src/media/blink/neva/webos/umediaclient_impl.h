@@ -177,12 +177,9 @@ class UMediaClientImpl : public WebOSMediaClient,
   void InitializeSeeking() { is_seeking_ = false; }
   void ResetEnded() { ended_ = false; }
   bool IsMpegDashContents();
-  bool UseVideoWindowControl() { return use_video_window_control_; }
   bool Send(const std::string& message);
 
  private:
-  typedef enum { PAUSED, PLAYING, SEEKING, SEEK_COMPLETED } PlayerState;
-
   typedef enum {
     LOADING_STATE_NONE,
     LOADING_STATE_PRELOADING,
@@ -263,7 +260,7 @@ class UMediaClientImpl : public WebOSMediaClient,
   UpdateUMSInfoCB update_ums_info_cb_;
   BufferingStateCB buffering_state_cb_;
   base::Closure focus_cb_;
-  bool buffering_state_have_meta_data_;
+  bool buffering_state_have_meta_data_ = false;
   ActiveRegionCB active_region_cb_;
   base::Closure waiting_for_decryption_key_cb_;
   EncryptedCB encrypted_cb_;
@@ -284,14 +281,13 @@ class UMediaClientImpl : public WebOSMediaClient,
   int tile_count_;
   bool is_videowall_streaming_;
   bool is_local_source_;
-  bool is_usb_file_;
+  bool is_usb_file_ = false;
   bool is_seeking_;
   bool is_suspended_;
   bool use_umsinfo_;
   bool use_backward_trick_;
   bool use_pipeline_preload_;
   bool use_set_uri_;
-  bool use_video_window_control_;
   bool use_dass_control_;
   bool updated_source_info_;
   bool buffering_;
@@ -322,16 +318,12 @@ class UMediaClientImpl : public WebOSMediaClient,
   std::string updated_payload_;
   gfx::Rect previous_display_window_;
   std::unique_ptr<SystemMediaManager> system_media_manager_;
-  long current_play_state_;
 
   mutable base::Lock lock_;
   media::Ranges<base::TimeDelta> seekable_ranges_;
 
   Preload preload_;
 
-  bool visibility_;
-
-  PlayerState player_state_;    // paused, playing, seeking, seek_completed
   LoadingState loading_state_;  // unloaded, loading, loaded, unloading
   LoadingAction pending_loading_action_;
 
