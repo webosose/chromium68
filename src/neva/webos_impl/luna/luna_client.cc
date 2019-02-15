@@ -83,15 +83,16 @@ bool LunaClient::Initialized() const {
   return initialized_;
 }
 
-unsigned long LunaClient::Call(
-    const char* uri, const char* payload, Handler* handler) {
+unsigned long LunaClient::Call(const char* uri,
+                               const char* payload,
+                               Handler* handler,
+                               const bool subscription) {
   DCHECK(uri != nullptr);
   DCHECK(payload != nullptr);
   DCHECK(handler != nullptr);
 
   LSErrorSafe err;
   ::LSMessageToken token = 0;
-  bool subscription = false;
   const bool result = (subscription)
       ? ::LSCall(handle_, uri, payload, filterMessage, handler, &token, &err)
       : ::LSCallOneReply(

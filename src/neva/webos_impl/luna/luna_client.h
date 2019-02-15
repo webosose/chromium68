@@ -44,7 +44,10 @@ class LunaClient {
   ~LunaClient();
 
   bool Initialized() const;
-  unsigned long Call(const char* uri, const char* payload, Handler* handler);
+  unsigned long Call(const char* uri,
+                     const char* payload,
+                     Handler* handler,
+                     const bool subscription = false);
   unsigned long Signal(const char* payload, Handler* handler);
   void Cancel(unsigned int token);
 
