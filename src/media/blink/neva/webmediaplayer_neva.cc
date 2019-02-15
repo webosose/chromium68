@@ -270,7 +270,7 @@ WebMediaPlayerNeva::~WebMediaPlayerNeva() {
 void WebMediaPlayerNeva::Load(LoadType load_type,
                               const blink::WebMediaPlayerSource& src,
                               CORSMode cors_mode) {
-  LOG(INFO) << __func__;
+  LOG(ERROR) << __func__;
 
   DCHECK(src.IsURL());
 
@@ -360,17 +360,13 @@ void WebMediaPlayerNeva::DidLoadMediaInfo(bool ok, const GURL& url) {
 
 void WebMediaPlayerNeva::LoadMedia() {
   FUNC_LOG(1);
-
-  std::string mime_type(GetClient()->ContentMIMEType().Utf8().data());
-  std::string payload(GetClient()->ContentMediaOption().Utf8().data());
-  if (mime_type == std::string("service/webos-camera"))
-    payload = std::string(GetClient()->ContentCustomOption().Utf8().data());
-
   player_api_->Initialize(
-      GetClient()->IsVideo(), CurrentTime(), app_id_, url_.spec(), mime_type,
+      GetClient()->IsVideo(), CurrentTime(), app_id_, url_.spec(),
+      std::string(GetClient()->ContentMIMEType().Utf8().data()),
       std::string(GetClient()->Referrer().Utf8().data()),
       std::string(GetClient()->UserAgent().Utf8().data()),
-      std::string(GetClient()->Cookies().Utf8().data()), payload);
+      std::string(GetClient()->Cookies().Utf8().data()),
+      std::string(GetClient()->ContentMediaOption().Utf8().data()));
 }
 
 void WebMediaPlayerNeva::OnActiveRegionChanged(
@@ -1206,7 +1202,7 @@ void WebMediaPlayerNeva::OnResume() {
 }
 
 void WebMediaPlayerNeva::OnLoadPermitted() {
-  LOG(INFO) << __func__;
+  LOG(ERROR) << __func__;
 
   FUNC_LOG(1);
   if (!defer_load_cb_.is_null()) {
