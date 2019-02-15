@@ -58,7 +58,7 @@ namespace emulator {
 struct EmulatorDataSource::URLData {
   URLData() {}
   ~URLData() {}
-  EmulatorDataDelegate* delegate;
+  EmulatorDataDelegate* delegate = nullptr;
   std::string cached_data;
   scoped_refptr<base::TaskRunner> task_runner;
   std::string url;
