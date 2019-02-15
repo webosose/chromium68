@@ -43,9 +43,8 @@ const char* GetCheckResultName(CheckResult result) {
 
 // CheckArguments
 CheckArguments::CheckArguments(const MethodArgsType& args)
-  : args_(args),
-    init_([](const MethodArgsType& args) { return CheckResult::RESULT_VALID; })
-    {}
+    : args_(args),
+      init_([](const MethodArgsType&) { return CheckResult::RESULT_VALID; }) {}
 
 CheckArguments::CheckArguments(const CheckArguments& args) = default;
 
