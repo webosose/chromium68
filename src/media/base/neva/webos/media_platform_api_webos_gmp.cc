@@ -58,6 +58,7 @@ const char* GmpNotifyTypeToString(gint type) {
 #define STRINGIFY_NOTIFY_TYPE_CASE(type) \
   case type:                             \
     return #type
+
   switch (static_cast<NOTIFY_TYPE_T>(type)) {
     STRINGIFY_NOTIFY_TYPE_CASE(NOTIFY_LOAD_COMPLETED);
     STRINGIFY_NOTIFY_TYPE_CASE(NOTIFY_UNLOAD_COMPLETED);
@@ -81,7 +82,6 @@ const char* GmpNotifyTypeToString(gint type) {
     default:
       return "null";
   }
-  return "null";
 }
 }
 
