@@ -478,7 +478,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   bool is_loading_;
   LoadType pending_load_type_;
   blink::WebMediaPlayerSource pending_source_;
-  CORSMode pending_cors_mode_;
+  CORSMode pending_cors_mode_ = WebMediaPlayer::kCORSModeUnspecified;
 
   bool has_activation_permit_ = false;
 

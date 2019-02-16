@@ -142,7 +142,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
   bool is_loading_;
   LoadType pending_load_type_;
   blink::WebMediaPlayerSource pending_source_;
-  CORSMode pending_cors_mode_;
+  CORSMode pending_cors_mode_ = WebMediaPlayer::kCORSModeUnspecified;
 
   blink::WebMediaPlayer::RenderMode render_mode_;
 
