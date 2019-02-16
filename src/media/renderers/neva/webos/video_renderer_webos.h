@@ -268,7 +268,6 @@ class MEDIA_EXPORT VideoRendererWebOS
   // TODO(servolk): Consider using DecoderFactory here instead of the
   // CreateVideoDecodersCB.
   CreateVideoDecodersCB create_video_decoders_cb_;
-  GpuVideoAcceleratorFactories* gpu_factories_;
   scoped_refptr<base::TaskRunner> worker_task_runner_;
 
   // Keep track of the outstanding read on the VideoFrameStream. Flushing can
