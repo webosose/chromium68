@@ -70,7 +70,7 @@ class SystemMediaManagerGmp : public SystemMediaManager {
   void EofReceived() override {}
 
  private:
-  bool visibility_;
+  bool visibility_ = false;
 
   base::WeakPtr<UMediaClientImpl> umedia_client_;
   const scoped_refptr<base::SingleThreadTaskRunner> main_task_runner_;
