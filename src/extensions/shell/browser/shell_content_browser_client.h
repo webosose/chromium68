@@ -88,6 +88,15 @@ class ShellContentBrowserClient : public content::ContentBrowserClient {
       bool is_main_frame,
       ui::PageTransition page_transition,
       bool has_user_gesture) override;
+#ifdef USE_NEVA_APPRUNTIME
+  void GetStoragePartitionConfigForSite(
+      content::BrowserContext* browser_context,
+      const GURL& site,
+      bool can_be_default,
+      std::string* partition_domain,
+      std::string* partition_name,
+      bool* in_memory) override;
+#endif
   void AllowCertificateError(
       content::WebContents* web_contents,
       int cert_error,
