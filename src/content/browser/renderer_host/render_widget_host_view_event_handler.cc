@@ -684,26 +684,30 @@ void RenderWidgetHostViewEventHandler::FinishImeCompositionSession() {
   // otherwise the following call to cancel composition will lead to an extra
   // IPC for finishing the ongoing composition (see https://crbug.com/723024).
 #if defined(OS_WEBOS)
-  if (host_view_->GetTextInputManager() &&
-      host_view_->GetTextInputManager()->GetTextInputState()) {
-    gfx::Range r;
-    host_view_->GetTextInputClient()->GetSelectionRange(&r);
+  TextInputManager* input_manager = host_view_->GetTextInputManager();
+  if (input_manager) {
+    const TextInputState* input_state = input_manager->GetTextInputState();
+    // input value inconsistency is possible if text is composed only
+    if (input_state &&
+        input_state->composition_start >= 0 &&
+        input_state->composition_end >= 0) {
+      gfx::Range r;
+      host_view_->GetTextInputClient()->GetSelectionRange(&r);
 
-    base::string16 composition_symbol = base::UTF8ToUTF16(
-        host_view_->GetTextInputManager()->GetTextInputState()->value);
+      base::string16 comp_char = base::UTF8ToUTF16(input_state->value);
+      base::string16::size_type comp_char_size = comp_char.length();
+      uint32_t range_start = r.start();
 
-    base::string16::size_type comp_char_size = composition_symbol.length();
-    uint32_t range_start = r.start();
-    if (comp_char_size > 0 && comp_char_size >= range_start) {
-      composition_symbol = composition_symbol.substr(range_start,
-                                                     r.length() + 1);
+      if (comp_char_size > 0 && comp_char_size >= range_start) {
+        comp_char = comp_char.substr(range_start, r.length() + 1);
 
-      host_view_->ImeCancelComposition();
-      host_view_->GetTextInputClient()->InsertText(composition_symbol);
-      return;
+        host_view_->ImeCancelComposition();
+        host_view_->GetTextInputClient()->InsertText(comp_char);
+        return;
+      }
     }
   }
-#endif
+#endif  // defined(OS_WEBOS)
 
   host_view_->GetTextInputClient()->ConfirmCompositionText();
   host_view_->ImeCancelComposition();
