@@ -328,14 +328,20 @@ void MimeUtil::AddSupportedMediaFormats() {
   const CodecSet implicit_codec;
   AddContainerWithCodecs("audio/wav", wav_codecs, false);
   AddContainerWithCodecs("audio/x-wav", wav_codecs, false);
+#if !defined(OS_WEBOS)
   AddContainerWithCodecs("audio/webm", webm_audio_codecs, false);
+#endif
   DCHECK(!webm_video_codecs.empty());
+#if !defined(OS_WEBOS)
   AddContainerWithCodecs("video/webm", webm_codecs, false);
+#endif
   AddContainerWithCodecs("audio/ogg", ogg_audio_codecs, false);
   // video/ogg is only supported if an appropriate video codec is supported.
   // Note: This assumes such codecs cannot be later excluded.
+#if !defined(OS_WEBOS)
   if (!ogg_video_codecs.empty())
     AddContainerWithCodecs("video/ogg", ogg_codecs, false);
+#endif
   // TODO(ddorwin): Should the application type support Opus?
   AddContainerWithCodecs("application/ogg", ogg_codecs, false);
   AddContainerWithCodecs("audio/flac", implicit_codec, false);
@@ -347,10 +353,14 @@ void MimeUtil::AddSupportedMediaFormats() {
   AddContainerWithCodecs("video/mp4", mp4_codecs, false);
 
 #if BUILDFLAG(USE_PROPRIETARY_CODECS)
+#if !defined(OS_WEBOS)
   AddContainerWithCodecs("audio/aac", implicit_codec, true);  // AAC / ADTS.
+#endif
   // These strings are supported for backwards compatibility only and thus only
   // support the codecs needed for compatibility.
+#if !defined(OS_WEBOS)
   AddContainerWithCodecs("audio/x-m4a", aac, true);
+#endif
   AddContainerWithCodecs("video/x-m4v", avc_and_aac, true);
 
 #if BUILDFLAG(ENABLE_MSE_MPEG2TS_STREAM_PARSER)

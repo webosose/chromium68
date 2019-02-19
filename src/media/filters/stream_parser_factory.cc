@@ -390,6 +390,9 @@ static const SupportedTypeInfo kSupportedTypeInfo[] = {
     {"audio/mpeg", &BuildMP3Parser, kAudioMP3Codecs},
     // NOTE: Including proprietary MP4 codecs is gated by build flags above.
     {"video/mp4", &BuildMP4Parser, kVideoMP4Codecs},
+#if defined(OS_WEBOS)
+    {"video/x-m4v", &BuildMP4Parser, kVideoMP4Codecs},
+#endif
     {"audio/mp4", &BuildMP4Parser, kAudioMP4Codecs},
 #if BUILDFLAG(USE_PROPRIETARY_CODECS)
     {"audio/aac", &BuildADTSParser, kAudioADTSCodecs},
