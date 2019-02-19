@@ -80,6 +80,9 @@ declare_args() {
 
   # Use v8 snapshot feature
   use_webos_v8_snapshot = false
+
+  # Use short DST delta
+  v8_use_short_dst_delta = false
 }
 
 declare_args() {
