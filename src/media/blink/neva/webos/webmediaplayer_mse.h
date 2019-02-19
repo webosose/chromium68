@@ -120,7 +120,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
   };
 
   void OnError(PipelineStatus status) override;
-  void OnMetadata(PipelineMetadata metadata) override;
+  void OnMetadata(const PipelineMetadata& metadata) override;
 
   std::unique_ptr<VideoFrameProviderImpl> video_frame_provider_;
   const blink::WebFloatPoint additional_contents_scale_;

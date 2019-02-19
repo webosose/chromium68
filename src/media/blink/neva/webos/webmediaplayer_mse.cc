@@ -299,7 +299,7 @@ void WebMediaPlayerMSE::OnError(PipelineStatus metadata) {
   media::WebMediaPlayerImpl::OnError(metadata);
 }
 
-void WebMediaPlayerMSE::OnMetadata(PipelineMetadata metadata) {
+void WebMediaPlayerMSE::OnMetadata(const PipelineMetadata& metadata) {
   DCHECK(main_task_runner_->BelongsToCurrentThread());
 
   if (is_loading_) {
