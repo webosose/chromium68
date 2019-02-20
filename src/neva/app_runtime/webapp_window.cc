@@ -411,6 +411,9 @@ void WebAppWindow::CursorVisibilityChange(bool visible) {
 
 bool WebAppWindow::IsTextInputOverlapped() {
   ui::InputMethod* ime = host_->AsWindowTreeHost()->GetInputMethod();
+  if (!ime->GetTextInputClient())
+    return false;
+
   gfx::Rect caret_bounds = ime->GetTextInputClient()->GetCaretBounds();
   int caret_bottom = caret_bounds.y() + caret_bounds.height() -
                      web_contents_->GetContentNativeView()->bounds().y();
