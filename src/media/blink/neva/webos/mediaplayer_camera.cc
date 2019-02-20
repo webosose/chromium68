@@ -33,7 +33,8 @@ MediaPlayerCamera::MediaPlayerCamera(
     MediaPlayerNevaClient* client,
     const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
     const std::string& app_id)
-    : client_(client),
+    : uMediaClient(app_id),
+      client_(client),
       main_task_runner_(base::MessageLoop::current()->task_runner()),
       has_audio_(false),
       has_video_(false),
