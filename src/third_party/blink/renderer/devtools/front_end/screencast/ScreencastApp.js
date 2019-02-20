@@ -8,7 +8,13 @@
  */
 Screencast.ScreencastApp = class {
   constructor() {
-    this._enabledSetting = Common.settings.createSetting('screencastEnabled', true);
+    var ua = navigator.userAgent.toLowerCase();
+    if (ua.match(/(?:webos|web0s)/))
+      this._enabledSetting =
+          Common.settings.createSetting('screencastEnabled', false, Common.SettingStorageType.Session);
+    else
+      this._enabledSetting = Common.settings.createSetting('screencastEnabled', true);
+
     this._toggleButton = new UI.ToolbarToggle(Common.UIString('Toggle screencast'), 'largeicon-phone');
     this._toggleButton.setToggled(this._enabledSetting.get());
     this._toggleButton.setEnabled(false);
