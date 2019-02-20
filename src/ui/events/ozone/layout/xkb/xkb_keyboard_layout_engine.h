@@ -47,10 +47,10 @@ class EVENTS_OZONE_LAYOUT_EXPORT XkbKeyboardLayoutEngine
               DomKey* dom_key,
               KeyboardCode* key_code) const override;
 
-  int GetModifierFlags(uint32_t depressed,
-                       uint32_t latched,
-                       uint32_t locked,
-                       uint32_t group) const;
+  int UpdateModifiers(uint32_t depressed,
+                      uint32_t latched,
+                      uint32_t locked,
+                      uint32_t group);
 
   static void ParseLayoutName(const std::string& layout_name,
                               std::string* layout_id,
@@ -124,6 +124,8 @@ class EVENTS_OZONE_LAYOUT_EXPORT XkbKeyboardLayoutEngine
   std::unique_ptr<xkb_context, XkbContextDeleter> xkb_context_;
 
   std::string current_layout_name_;
+
+  xkb_layout_index_t layout_index_ = 0;
 
   // Support weak pointers for attach & detach callbacks.
   base::WeakPtrFactory<XkbKeyboardLayoutEngine> weak_ptr_factory_;
