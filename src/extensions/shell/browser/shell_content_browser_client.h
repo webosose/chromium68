@@ -88,7 +88,7 @@ class ShellContentBrowserClient : public content::ContentBrowserClient {
       bool is_main_frame,
       ui::PageTransition page_transition,
       bool has_user_gesture) override;
-#ifdef USE_NEVA_APPRUNTIME
+#if defined(USE_NEVA_APPRUNTIME)
   void GetStoragePartitionConfigForSite(
       content::BrowserContext* browser_context,
       const GURL& site,
