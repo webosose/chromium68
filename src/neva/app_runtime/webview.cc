@@ -90,6 +90,26 @@ void GetPluginsCallback(const std::vector<content::WebPluginInfo>& plugins) {
 }
 #endif
 
+namespace {
+
+const char* MessageLevelToString(int32_t level) {
+  switch (level) {
+    case logging::LOG_INFO:
+      return "JS_INFO";
+    case logging::LOG_WARNING:
+      return "JS_WARN";
+    case logging::LOG_ERROR:
+      return "JS_ERROR";
+    default:
+      return nullptr;
+  }
+
+  NOTREACHED();
+  return nullptr;
+}
+
+}  // namespace
+
 namespace app_runtime {
 
 gfx::PointF GetScreenLocationFromEvent(const ui::LocatedEvent& event) {
@@ -1219,6 +1239,32 @@ void WebView::OverrideWebkitPrefs(content::WebPreferences* prefs) {
 void WebView::DidHistoryBackOnTopPage() {
   if (webview_delegate_)
     webview_delegate_->DidHistoryBackOnTopPage();
+}
+
+bool WebView::DidAddMessageToConsole(content::WebContents* source,
+                                     int32_t level,
+                                     const base::string16& message,
+                                     int32_t line_no,
+                                     const base::string16& source_id) {
+  switch (level) {
+    case logging::LOG_INFO:
+      PMLOG_DEBUG(JSConsole, "%s PID(%d): %s (%s:%u)",
+                  MessageLevelToString(level), RenderProcessPid(),
+                  base::UTF16ToUTF8(message).data(),
+                  base::UTF16ToUTF8(source_id).data(), line_no);
+      return true;
+    case logging::LOG_WARNING:
+    case logging::LOG_ERROR:
+      PMLOG_INFO(JSConsole, MessageLevelToString(level), "PID(%d): %s (%s:%u)",
+                 RenderProcessPid(), base::UTF16ToUTF8(message).data(),
+                 base::UTF16ToUTF8(source_id).data(), line_no);
+      return true;
+    default:
+      return false;
+  }
+
+  NOTREACHED();
+  return false;
 }
 
 void WebView::SetV8SnapshotPath(const std::string& v8_snapshot_path) {

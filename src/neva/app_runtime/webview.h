@@ -236,6 +236,12 @@ class WebView : public content::WebContentsDelegate,
 
   void DidHistoryBackOnTopPage() override;
 
+  bool DidAddMessageToConsole(content::WebContents* source,
+                              int32_t level,
+                              const base::string16& message,
+                              int32_t line_no,
+                              const base::string16& source_id) override;
+
   // WebContentsObserver
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
   void DidStartLoading() override;
