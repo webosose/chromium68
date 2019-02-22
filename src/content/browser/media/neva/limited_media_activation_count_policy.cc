@@ -368,7 +368,16 @@ void LimitedMediaActivationCountPolicy::SuspendNoRespondingMedia(int token) {
   for (auto iter = waiting_response_list_.begin();
        iter != waiting_response_list_.end(); iter++) {
     if (ids_[iter->first][iter->second] == token) {
-      client_->SuspendMedia(iter->first, iter->second);
+      if (pending_request_list_.size() == 0) {
+        BrowserThread::PostDelayedTask(
+            BrowserThread::UI, FROM_HERE,
+            base::BindOnce(
+                &LimitedMediaActivationCountPolicy::SuspendNoRespondingMedia,
+                base::Unretained(this), token),
+            base::TimeDelta::FromMilliseconds(kTimeoutForNoResponseMediaMS));
+      } else {
+        client_->SuspendMedia(iter->first, iter->second);
+      }
     }
   }
 }
