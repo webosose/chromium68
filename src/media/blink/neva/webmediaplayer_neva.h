@@ -417,10 +417,6 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   // time.
   gfx::Rect last_computed_rect_in_view_space_;
   bool last_computed_rect_changed_since_updated_;
-
-  // Whether to use the video overlay for all embedded video.
-  // True only for testing.
-  bool force_use_overlay_embedded_video_;
 #endif  // defined(VIDEO_HOLE)
 
   std::unique_ptr<MediaLog> media_log_;
@@ -439,10 +435,6 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
 
   // Whether OnPlaybackComplete() has been called since the last playback.
   bool playback_completed_;
-
-  // Message loops for posting tasks on Chrome's main thread. Also used
-  // for DCHECKs so methods calls won't execute in the wrong thread.
-  base::MessageLoop* main_loop_;
 
   base::TimeDelta paused_time_;
 
