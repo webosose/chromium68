@@ -481,7 +481,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   std::string app_id_;
 
   bool is_loading_;
-  LoadType pending_load_type_;
+  LoadType pending_load_type_ = blink::WebMediaPlayer::kLoadTypeURL;
   blink::WebMediaPlayerSource pending_source_;
   CORSMode pending_cors_mode_ = WebMediaPlayer::kCORSModeUnspecified;
 

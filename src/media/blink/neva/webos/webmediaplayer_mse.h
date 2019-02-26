@@ -146,7 +146,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
   bool is_fullscreen_mode_;
 
   bool is_loading_;
-  LoadType pending_load_type_;
+  LoadType pending_load_type_ = blink::WebMediaPlayer::kLoadTypeMediaSource;
   blink::WebMediaPlayerSource pending_source_;
   CORSMode pending_cors_mode_ = WebMediaPlayer::kCORSModeUnspecified;
 
