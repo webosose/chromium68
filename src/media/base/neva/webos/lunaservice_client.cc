@@ -102,8 +102,10 @@ bool LunaServiceClient::callASync(const std::string& uri,
   wrapper->uri = uri;
   wrapper->param = param;
 
-  if (!handle_)
+  if (!handle_) {
+    delete wrapper;
     return false;
+  }
 
   LOG(INFO) << "[REQ] - " << uri << " " << param;
   if (!LSCallOneReply(handle_, uri.c_str(), param.c_str(), handleAsync,
@@ -129,8 +131,10 @@ bool LunaServiceClient::subscribe(const std::string& uri,
   wrapper->uri = uri;
   wrapper->param = param;
 
-  if (!handle_)
+  if (!handle_) {
+    delete wrapper;
     return false;
+  }
 
   if (!LSCall(handle_, uri.c_str(), param.c_str(), handleSubscribe,
               wrapper, subscribeKey, &error)) {
