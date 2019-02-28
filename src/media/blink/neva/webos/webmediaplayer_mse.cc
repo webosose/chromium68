@@ -79,6 +79,7 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
       last_computed_rect_changed_since_updated_(false),
       is_video_offscreen_(false),
       is_fullscreen_(false),
+      is_fullscreen_mode_(false),
       is_loading_(false),
       render_mode_(blink::WebMediaPlayer::RenderModeNone) {
   THIS_FUNC_LOG(1);
@@ -196,6 +197,24 @@ void WebMediaPlayerMSE::SetContentDecryptionModule(
 
   // call base-class implementation
   media::WebMediaPlayerImpl::SetContentDecryptionModule(cdm, result);
+}
+
+void WebMediaPlayerMSE::EnteredFullscreen() {
+  THIS_FUNC_LOG(1);
+  WebMediaPlayerImpl::EnteredFullscreen();
+  if (!is_fullscreen_mode_) {
+    is_fullscreen_mode_ = true;
+    UpdateVideoHoleBoundary(true);
+  }
+}
+
+void WebMediaPlayerMSE::ExitedFullscreen() {
+  THIS_FUNC_LOG(1);
+  WebMediaPlayerImpl::ExitedFullscreen();
+  if (is_fullscreen_mode_) {
+    is_fullscreen_mode_ = false;
+    UpdateVideoHoleBoundary(true);
+  }
 }
 
 void WebMediaPlayerMSE::OnSuspend() {
@@ -366,8 +385,9 @@ void WebMediaPlayerMSE::UpdateVideoHoleBoundary(bool forced) {
     if (!ComputeVideoHoleDisplayRect(
             last_computed_rect_in_view_space_, *natural_size,
             additional_contents_scale_, client_->WebWidgetViewRect(),
-            client_->ScreenRect(), source_rect_in_video_space_,
-            visible_rect_in_screen_space_, is_fullscreen_)) {
+            client_->ScreenRect(), is_fullscreen_mode_,
+            source_rect_in_video_space_, visible_rect_in_screen_space_,
+            is_fullscreen_)) {
       // visibile_rect_in_screen_space_ will be empty
       // when video position is out of the screen.
       if (visible_rect_in_screen_space_.IsEmpty() && HasVisibility()) {

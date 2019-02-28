@@ -234,7 +234,6 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
       int already_uploaded_id,
       VideoFrameUploadMetadata* out_metadata) override;
 
-  bool SupportsOverlayFullscreenVideo() override;
   void EnteredFullscreen() override;
   void ExitedFullscreen() override;
   void BecameDominantVisibleContent(bool is_dominant) override;
@@ -465,7 +464,10 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   gfx::Rect visible_rect_in_screen_space_;
   gfx::Rect source_rect_in_video_space_;
   const blink::WebFloatPoint additional_contents_scale_;
+  // Are video frames drawn as fullscreen
   bool is_fullscreen_;
+  // Is the video element in fullscreen
+  bool is_fullscreen_mode_;
 
   blink::WebRect active_video_region_;
   bool active_video_region_changed_;

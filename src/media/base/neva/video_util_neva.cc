@@ -23,6 +23,7 @@ bool ComputeVideoHoleDisplayRect(const gfx::Rect& video_rect_in_view_space,
                                  const gfx::PointF& additional_scale,
                                  const gfx::Rect& view_rect,
                                  const gfx::Rect& screen_rect,
+                                 bool is_fullscreen_mode,
                                  gfx::Rect& source_rect,
                                  gfx::Rect& visible_rect,
                                  bool& is_fullscreen) {
@@ -69,8 +70,8 @@ bool ComputeVideoHoleDisplayRect(const gfx::Rect& video_rect_in_view_space,
                                      additional_scale.y());
 
   // Step5: Determine is_fullscreen.
-  is_fullscreen =
-      source_rect == natural_video_rect && visible_rect == screen_rect;
+  is_fullscreen = is_fullscreen_mode || (source_rect == natural_video_rect &&
+                                         visible_rect == screen_rect);
 
   // Step6: Check update.
   bool need_update =

@@ -77,6 +77,9 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
       blink::WebContentDecryptionModule* cdm,
       blink::WebContentDecryptionModuleResult result) override;
 
+  void EnteredFullscreen() override;
+  void ExitedFullscreen() override;
+
   bool HasVisibility() const override;
   void SetVisibility(bool visible) override;
 
@@ -137,7 +140,10 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
   gfx::Rect last_computed_rect_in_view_space_;
   bool last_computed_rect_changed_since_updated_;
   bool is_video_offscreen_;
+  // Are video frames drawn as fullscreen
   bool is_fullscreen_;
+  // Is the video element in fullscreen
+  bool is_fullscreen_mode_;
 
   bool is_loading_;
   LoadType pending_load_type_;

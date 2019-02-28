@@ -208,6 +208,7 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
       content_position_offset_(0.0f),
       additional_contents_scale_(params->additional_contents_scale()),
       is_fullscreen_(false),
+      is_fullscreen_mode_(false),
       active_video_region_changed_(false),
       is_video_offscreen_(false),
       app_id_(params->application_id().Utf8().data()),
@@ -421,25 +422,19 @@ void WebMediaPlayerNeva::Pause() {
   }
 }
 
-bool WebMediaPlayerNeva::SupportsOverlayFullscreenVideo() {
-  FUNC_LOG(1);
-  DCHECK(main_thread_checker_.CalledOnValidThread());
-  return true;
-}
-
 void WebMediaPlayerNeva::EnteredFullscreen() {
   FUNC_LOG(1);
-  if (!is_fullscreen_) {
-    is_fullscreen_ = true;
-    UpdateVideoHoleBoundary(false);
+  if (!is_fullscreen_mode_) {
+    is_fullscreen_mode_ = true;
+    UpdateVideoHoleBoundary(true);
   }
 }
 
 void WebMediaPlayerNeva::ExitedFullscreen() {
   FUNC_LOG(1);
-  if (is_fullscreen_) {
-    is_fullscreen_ = false;
-    UpdateVideoHoleBoundary(false);
+  if (is_fullscreen_mode_) {
+    is_fullscreen_mode_ = false;
+    UpdateVideoHoleBoundary(true);
   }
 }
 
@@ -1039,8 +1034,9 @@ void WebMediaPlayerNeva::UpdateVideoHoleBoundary(bool forced) {
     if (!ComputeVideoHoleDisplayRect(
             last_computed_rect_in_view_space_, NaturalSize(),
             additional_contents_scale_, client_->WebWidgetViewRect(),
-            client_->ScreenRect(), source_rect_in_video_space_,
-            visible_rect_in_screen_space_, is_fullscreen_)) {
+            client_->ScreenRect(), is_fullscreen_mode_,
+            source_rect_in_video_space_, visible_rect_in_screen_space_,
+            is_fullscreen_)) {
       // visibile_rect_in_screen_space_ will be empty
       // when video position is out of the screen.
       if (visible_rect_in_screen_space_.IsEmpty() && HasVisibility()) {

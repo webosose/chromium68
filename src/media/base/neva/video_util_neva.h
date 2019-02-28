@@ -124,15 +124,15 @@ namespace media {
 // Return value:
 //  true - if computing results are different with previous results.
 //  false - in opposite case
-bool ComputeVideoHoleDisplayRect(
-    const gfx::Rect& video_rect_in_view_space,
-    const gfx::Size& natural_video_size,
-    const gfx::PointF& additional_scale,
-    const gfx::Rect& view_rect,
-    const gfx::Rect& screen_rect,
-    gfx::Rect& source_rect,
-    gfx::Rect& visible_rect,
-    bool& is_fullscreen);
+bool ComputeVideoHoleDisplayRect(const gfx::Rect& video_rect_in_view_space,
+                                 const gfx::Size& natural_video_size,
+                                 const gfx::PointF& additional_scale,
+                                 const gfx::Rect& view_rect,
+                                 const gfx::Rect& screen_rect,
+                                 bool is_fullscreen_mode,
+                                 gfx::Rect& source_rect,
+                                 gfx::Rect& visible_rect,
+                                 bool& is_fullscreen);
 
 }  // namespace media
 
