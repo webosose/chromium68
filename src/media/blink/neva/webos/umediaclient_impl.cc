@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 LG Electronics, Inc.
+// Copyright (c) 2014-2019 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1878,7 +1878,7 @@ bool UMediaClientImpl::CheckAudioOutput(float playback_rate) {
   if (!IsSupportedAudioOutputOnTrickPlaying())
     return false;
 
-  if (playback_rate != 0.5f && playback_rate != 2.0f)
+  if (playback_rate < 0.5f || playback_rate > 2.0f)
     return false;
 
   if (playback_rate == 2.0f && Is2kVideoAndOver())
