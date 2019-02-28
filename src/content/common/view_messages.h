@@ -255,6 +255,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::RendererPreferences)
   IPC_STRUCT_TRAITS_MEMBER(board_type)
   IPC_STRUCT_TRAITS_MEMBER(allow_fake_bold_text)
   IPC_STRUCT_TRAITS_MEMBER(file_security_origin)
+  IPC_STRUCT_TRAITS_MEMBER(use_unlimited_media_policy)
 ///@}
 IPC_STRUCT_TRAITS_END()
 

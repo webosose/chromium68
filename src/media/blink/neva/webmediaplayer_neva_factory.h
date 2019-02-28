@@ -20,6 +20,7 @@
 #include "media/base/renderer_factory_selector.h"
 #include "media/blink/media_blink_export.h"
 #include "media/blink/neva/stream_texture_interface.h"
+#include "media/blink/neva/webmediaplayer_params_neva.h"
 #include "media/blink/url_index.h"
 #include "media/blink/video_frame_compositor.h"
 #include "media/blink/webmediaplayer_delegate.h"
@@ -48,7 +49,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNevaFactory {
       UrlIndex* url_index,
       std::unique_ptr<VideoFrameCompositor> compositor,
       const StreamTextureFactoryCreateCB& stream_texture_factory_create_cb,
-      std::unique_ptr<WebMediaPlayerParams> params);
+      std::unique_ptr<WebMediaPlayerParams> params,
+      std::unique_ptr<WebMediaPlayerParamsNeva> params_neva);
 };
 
 }  // namespace media

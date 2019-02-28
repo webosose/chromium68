@@ -45,23 +45,20 @@ blink::WebMediaPlayer* WebMediaPlayerNevaFactory::CreateWebMediaPlayerNeva(
     UrlIndex* url_index,
     std::unique_ptr<VideoFrameCompositor> compositor,
     const StreamTextureFactoryCreateCB& stream_texture_factory_create_cb,
-    std::unique_ptr<WebMediaPlayerParams> params) {
+    std::unique_ptr<WebMediaPlayerParams> params,
+    std::unique_ptr<WebMediaPlayerParamsNeva> params_neva) {
   if (client->LoadType() == blink::WebMediaPlayer::kLoadTypeMediaSource) {
-    const blink::WebFloatPoint additional_contents_scale =
-        params->additional_contents_scale();
-    const blink::WebString& application_id = params->application_id();
-
     return new media::WebMediaPlayerMSE(
         frame, client, encrypted_client, delegate,
         std::move(renderer_factory_selector), url_index, std::move(compositor),
         stream_texture_factory_create_cb, std::move(params),
-        additional_contents_scale, application_id);
+        std::move(params_neva));
   }
 
   if (client->LoadType() == blink::WebMediaPlayer::kLoadTypeURL)
-    return media::WebMediaPlayerNeva::Create(frame, client, delegate,
-                                             stream_texture_factory_create_cb,
-                                             std::move(params));
+    return media::WebMediaPlayerNeva::Create(
+        frame, client, delegate, stream_texture_factory_create_cb,
+        std::move(params), std::move(params_neva));
   NOTREACHED();
   return nullptr;
 }

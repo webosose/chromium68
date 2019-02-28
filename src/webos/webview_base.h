@@ -170,6 +170,7 @@ class WEBOS_EXPORT WebViewBase
   void SetMediaCodecCapability(const std::string& capability);
   void SetSearchKeywordForCustomPlayer(bool enabled);
   void SetSupportDolbyHDRContents(bool support);
+  void SetUseUnlimitedMediaPolicy(bool enabled);
 
   // WebPreferences
   void SetAllowRunningInsecureContent(bool enable);

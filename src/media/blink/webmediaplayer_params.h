@@ -23,10 +23,6 @@
 #include "media/mojo/interfaces/media_metrics_provider.mojom.h"
 #include "third_party/blink/public/platform/web_video_frame_submitter.h"
 
-#if defined(USE_NEVA_MEDIA)
-#include "media/blink/neva/webmediaplayer_params_neva.h"
-#endif
-
 namespace base {
 class SingleThreadTaskRunner;
 class TaskRunner;
@@ -45,12 +41,7 @@ class SurfaceManager;
 
 // Holds parameters for constructing WebMediaPlayerImpl without having
 // to plumb arguments through various abstraction layers.
-#if defined(USE_NEVA_MEDIA)
-class MEDIA_BLINK_EXPORT WebMediaPlayerParams
-    : public neva::WebMediaPlayerParamsNeva {
-#else
 class MEDIA_BLINK_EXPORT WebMediaPlayerParams {
-#endif
  public:
   typedef base::Callback<void(const base::Closure&)> DeferLoadCB;
   typedef base::Callback<Context3D()> Context3DCB;

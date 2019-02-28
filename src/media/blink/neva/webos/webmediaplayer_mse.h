@@ -26,6 +26,7 @@
 #include "media/base/media_log.h"
 #include "media/base/neva/webos/media_platform_api_webos.h"
 #include "media/blink/neva/video_frame_provider_impl.h"
+#include "media/blink/neva/webmediaplayer_params_neva.h"
 #include "media/blink/webmediaplayer_impl.h"
 #include "third_party/blink/public/platform/web_float_point.h"
 #include "third_party/blink/public/platform/web_media_player_source.h"
@@ -56,9 +57,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
       UrlIndex* url_index,
       std::unique_ptr<VideoFrameCompositor> compositor,
       const StreamTextureFactoryCreateCB& stream_texture_factory_create_cb,
-      std::unique_ptr<media::WebMediaPlayerParams> params,
-      const blink::WebFloatPoint additional_contents_scale,
-      const blink::WebString& app_id);
+      std::unique_ptr<WebMediaPlayerParams> params,
+      std::unique_ptr<WebMediaPlayerParamsNeva> params_neva);
   ~WebMediaPlayerMSE() override;
 
   void Load(LoadType load_type,

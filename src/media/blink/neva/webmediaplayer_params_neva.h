@@ -21,7 +21,6 @@
 #include "third_party/blink/public/platform/web_string.h"
 
 namespace media {
-namespace neva {
 
 class WebMediaPlayerParamsNeva {
  public:
@@ -40,6 +39,10 @@ class WebMediaPlayerParamsNeva {
     return application_id_;
   }
 
+  bool use_unlimited_media_policy() const {
+    return use_unlimited_media_policy_;
+  }
+
   void set_additional_contents_scale (
       const blink::WebFloatPoint additional_contents_scale) {
     additional_contents_scale_ = additional_contents_scale;
@@ -49,12 +52,16 @@ class WebMediaPlayerParamsNeva {
     application_id_ = application_id;
   }
 
+  void set_use_unlimited_media_policy(const bool use_unlimited_media_policy) {
+    use_unlimited_media_policy_ = use_unlimited_media_policy;
+  }
+
  protected:
   blink::WebFloatPoint additional_contents_scale_;
   blink::WebString application_id_;
+  bool use_unlimited_media_policy_ = false;
 };
 
-} // namespace neva
 } // namespace media
 
 #endif // MEDIA_BLINK_NEVA_WEBMEDIAPLAYER_PARAMS_NEVA_H_

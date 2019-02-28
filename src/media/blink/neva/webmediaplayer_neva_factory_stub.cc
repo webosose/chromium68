@@ -32,7 +32,8 @@ blink::WebMediaPlayer* WebMediaPlayerNevaFactory::CreateWebMediaPlayerNeva(
     UrlIndex* url_index,
     std::unique_ptr<VideoFrameCompositor> compositor,
     const StreamTextureFactoryCreateCB& stream_texture_factory_create_cb,
-    std::unique_ptr<WebMediaPlayerParams> params) {
+    std::unique_ptr<WebMediaPlayerParams> params,
+    std::unique_ptr<WebMediaPlayerParamsNeva> params_neva) {
   return nullptr;
 }
 

@@ -555,6 +555,20 @@ void WebView::SetSupportDolbyHDRContents(bool support) {
   // TODO(jose.dapena): patch not ported
 }
 
+void WebView::SetUseUnlimitedMediaPolicy(bool enabled) {
+  content::RendererPreferences* renderer_prefs =
+      web_contents_->GetMutableRendererPrefs();
+
+  if (renderer_prefs->use_unlimited_media_policy == enabled)
+    return;
+
+  renderer_prefs->use_unlimited_media_policy = enabled;
+
+  content::RenderViewHost* rvh = web_contents_->GetRenderViewHost();
+  if (rvh)
+    rvh->SyncRendererPrefs();
+}
+
 void WebView::UpdatePreferencesAttributeForPrefs(
     content::WebPreferences* preferences,
     WebView::Attribute attribute,

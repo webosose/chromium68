@@ -159,6 +159,7 @@ class WebView : public content::WebContentsDelegate,
   void SetMediaCodecCapability(const std::string& capability);
   void SetSearchKeywordForCustomPlayer(bool enabled);
   void SetSupportDolbyHDRContents(bool support);
+  void SetUseUnlimitedMediaPolicy(bool enabled);
   void UpdatePreferencesAttribute(WebView::Attribute attribute, bool enable);
   void UpdatePreferencesAttribute(WebView::Attribute attribute, double value);
   void SetFontFamily(WebView::FontFamily fontFamily, const std::string& font);

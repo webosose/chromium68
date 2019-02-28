@@ -61,9 +61,8 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
     UrlIndex* url_index,
     std::unique_ptr<VideoFrameCompositor> compositor,
     const StreamTextureFactoryCreateCB& stream_texture_factory_create_cb,
-    std::unique_ptr<media::WebMediaPlayerParams> params,
-    const blink::WebFloatPoint additional_contents_scale,
-    const blink::WebString& app_id)
+    std::unique_ptr<WebMediaPlayerParams> params,
+    std::unique_ptr<WebMediaPlayerParamsNeva> params_neva)
     : media::WebMediaPlayerImpl(frame,
                                 client,
                                 encrypted_client,
@@ -72,8 +71,8 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
                                 url_index,
                                 std::move(compositor),
                                 std::move(params)),
-      additional_contents_scale_(additional_contents_scale),
-      app_id_(app_id.Utf8()),
+      additional_contents_scale_(params_neva->additional_contents_scale()),
+      app_id_(params_neva->application_id().Utf8()),
       is_suspended_(false),
       status_on_suspended_(UnknownStatus),
       last_computed_rect_changed_since_updated_(false),
@@ -116,7 +115,8 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
 
   SetRenderMode(client_->RenderMode());
 
-  delegate_->DidMediaCreated(delegate_id_, true);
+  delegate_->DidMediaCreated(delegate_id_,
+                             !params_neva->use_unlimited_media_policy());
 }
 
 WebMediaPlayerMSE::~WebMediaPlayerMSE() {

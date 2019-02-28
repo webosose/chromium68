@@ -84,6 +84,7 @@
 #if defined(USE_NEVA_MEDIA)
 #include "media/base/media_switches_neva.h"
 #include "media/blink/neva/webmediaplayer_neva_factory.h"
+#include "media/blink/neva/webmediaplayer_params_neva.h"
 #include "media/renderers/neva/neva_media_player_renderer_factory.h"
 #endif
 
@@ -344,9 +345,13 @@ blink::WebMediaPlayer* MediaFactory::CreateMediaPlayer(
       render_frame_->GetRendererPreferences();
   const RenderWidget* render_widget = render_frame_->GetRenderWidget();
 
-  params->set_application_id(
+  std::unique_ptr<media::WebMediaPlayerParamsNeva> params_neva(
+      new media::WebMediaPlayerParamsNeva());
+  params_neva->set_application_id(
       blink::WebString::FromUTF8(renderer_prefs.application_id));
-  params->set_additional_contents_scale(
+  params_neva->set_use_unlimited_media_policy(
+      renderer_prefs.use_unlimited_media_policy);
+  params_neva->set_additional_contents_scale(
       render_widget->GetWebScreenInfo().additional_contents_scale);
 
   if (use_neva_media && media::WebMediaPlayerNevaFactory::Playable(client))
@@ -355,7 +360,7 @@ blink::WebMediaPlayer* MediaFactory::CreateMediaPlayer(
         std::move(factory_selector), url_index_.get(), std::move(vfc),
         base::Bind(&RenderThreadImpl::GetStreamTextureFactory,
                    base::Unretained(content::RenderThreadImpl::current())),
-        std::move(params));
+        std::move(params), std::move(params_neva));
 #endif
 
   media::WebMediaPlayerImpl* media_player = new media::WebMediaPlayerImpl(

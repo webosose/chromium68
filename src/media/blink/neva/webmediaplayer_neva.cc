@@ -158,14 +158,15 @@ blink::WebMediaPlayer* WebMediaPlayerNeva::Create(
     blink::WebMediaPlayerClient* client,
     WebMediaPlayerDelegate* delegate,
     const StreamTextureFactoryCreateCB& stream_texture_factory_create_cb,
-    std::unique_ptr<WebMediaPlayerParams> params) {
+    std::unique_ptr<WebMediaPlayerParams> params,
+    std::unique_ptr<WebMediaPlayerParamsNeva> params_neva) {
   blink::WebMediaPlayer::LoadType load_type = client->LoadType();
   if (load_type == blink::WebMediaPlayer::kLoadTypeURL &&
       MediaPlayerNevaFactory::CanSupportMediaType(
           client->ContentMIMEType().Latin1()))
     return new WebMediaPlayerNeva(frame, client, delegate,
                                   stream_texture_factory_create_cb,
-                                  std::move(params));
+                                  std::move(params), std::move(params_neva));
   return nullptr;
 }
 
@@ -178,7 +179,8 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
     blink::WebMediaPlayerClient* client,
     WebMediaPlayerDelegate* delegate,
     const StreamTextureFactoryCreateCB& stream_texture_factory_create_cb,
-    std::unique_ptr<WebMediaPlayerParams> params)
+    std::unique_ptr<WebMediaPlayerParams> params,
+    std::unique_ptr<WebMediaPlayerParamsNeva> params_neva)
     : frame_(frame),
       client_(client),
       delegate_(delegate),
@@ -206,12 +208,12 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
                                   : base::ThreadTaskRunnerHandle::Get()),
       render_mode_(blink::WebMediaPlayer::RenderModeNone),
       content_position_offset_(0.0f),
-      additional_contents_scale_(params->additional_contents_scale()),
+      additional_contents_scale_(params_neva->additional_contents_scale()),
       is_fullscreen_(false),
       is_fullscreen_mode_(false),
       active_video_region_changed_(false),
       is_video_offscreen_(false),
-      app_id_(params->application_id().Utf8().data()),
+      app_id_(params_neva->application_id().Utf8().data()),
       is_loading_(false) {
   DCHECK(main_thread_checker_.CalledOnValidThread());
 
@@ -238,7 +240,9 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
   video_frame_provider_->SetWebMediaPlayerClient(client);
   SetRenderMode(GetClient()->RenderMode());
 
-  delegate_->DidMediaCreated(delegate_id_, player_api_->RequireMediaResource());
+  bool require_media_resource = player_api_->RequireMediaResource() &&
+                                !params_neva->use_unlimited_media_policy();
+  delegate_->DidMediaCreated(delegate_id_, require_media_resource);
 }
 
 WebMediaPlayerNeva::~WebMediaPlayerNeva() {

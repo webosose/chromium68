@@ -182,6 +182,11 @@ struct CONTENT_EXPORT RendererPreferences {
 
   // Security Origin
   std::string file_security_origin;
+
+  // This is the media player handling policy override for MediaStatePolicy.
+  // If the value is |true|, all media players in this renderer are managed
+  // under unlimited media policy.
+  bool use_unlimited_media_policy;
   ///@}
 };
 

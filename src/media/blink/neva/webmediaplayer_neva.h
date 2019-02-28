@@ -37,6 +37,7 @@
 #include "media/blink/neva/media_info_loader.h"
 #include "media/blink/neva/media_player_neva_interface.h"
 #include "media/blink/neva/video_frame_provider_impl.h"
+#include "media/blink/neva/webmediaplayer_params_neva.h"
 #include "media/blink/webmediaplayer_delegate.h"
 #include "third_party/blink/public/platform/web_audio_source_provider.h"
 #include "third_party/blink/public/platform/web_float_point.h"
@@ -98,7 +99,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
       blink::WebMediaPlayerClient* client,
       WebMediaPlayerDelegate* delegate,
       const StreamTextureFactoryCreateCB& stream_texture_factory_create_cb,
-      std::unique_ptr<WebMediaPlayerParams> params);
+      std::unique_ptr<WebMediaPlayerParams> params,
+      std::unique_ptr<WebMediaPlayerParamsNeva> params_neva);
 
   // This class implements blink::WebMediaPlayer by keeping the private media
   // player api which is supported by target platform
@@ -107,7 +109,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
       blink::WebMediaPlayerClient* client,
       WebMediaPlayerDelegate* delegate,
       const StreamTextureFactoryCreateCB& stream_texture_factory_create_cb,
-      std::unique_ptr<WebMediaPlayerParams> params);
+      std::unique_ptr<WebMediaPlayerParams> params,
+      std::unique_ptr<WebMediaPlayerParamsNeva> params_neva);
   ~WebMediaPlayerNeva() override;
 
   void Load(LoadType load_type,

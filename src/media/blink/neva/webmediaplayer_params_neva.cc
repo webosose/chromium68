@@ -18,8 +18,6 @@
 
 namespace media {
 
-namespace neva {
-
 WebMediaPlayerParamsNeva::WebMediaPlayerParamsNeva()
     : additional_contents_scale_(blink::WebFloatPoint(1.0f,1.0f)) {}
 
@@ -29,5 +27,4 @@ WebMediaPlayerParamsNeva::WebMediaPlayerParamsNeva(
     : additional_contents_scale_(additional_contents_scale),
       application_id_(application_id) {}
 
-} // namespace neva
 } // namespace media
