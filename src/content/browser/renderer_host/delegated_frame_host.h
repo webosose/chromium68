@@ -36,6 +36,10 @@ namespace content {
 
 class DelegatedFrameHost;
 
+#if defined(USE_NEVA_APPRUNTIME)
+class ClosedKeepAliveWebAppTrigger;
+#endif
+
 // The DelegatedFrameHostClient is the interface from the DelegatedFrameHost,
 // which manages delegated frames, and the ui::Compositor being used to
 // display them.
@@ -48,6 +52,10 @@ class CONTENT_EXPORT DelegatedFrameHostClient {
 
   // Returns the color that the resize gutters should be drawn with.
   virtual SkColor DelegatedFrameHostGetGutterColor() const = 0;
+
+#if defined(USE_NEVA_APPRUNTIME)
+  virtual bool DelegatedFrameHostIsKeepAliveWebApp() const = 0;
+#endif
 
   virtual void OnFirstSurfaceActivation(
       const viz::SurfaceInfo& surface_info) = 0;
@@ -201,6 +209,7 @@ class CONTENT_EXPORT DelegatedFrameHost
 
  private:
   friend class DelegatedFrameHostClient;
+
   FRIEND_TEST_ALL_PREFIXES(RenderWidgetHostViewAuraTest,
                            SkippedDelegatedFrames);
   FRIEND_TEST_ALL_PREFIXES(RenderWidgetHostViewAuraTest,
@@ -266,6 +275,8 @@ class CONTENT_EXPORT DelegatedFrameHost
   bool deferred_resume_drawing_ = false;
   bool did_first_swap_ = false;
   bool was_hidden_ = false;
+
+  std::unique_ptr<ClosedKeepAliveWebAppTrigger> keep_alive_trigger_;
   base::CancelableOnceClosure background_cleanup_task_;
   base::WeakPtrFactory<DelegatedFrameHost> weak_factory_;
 #endif

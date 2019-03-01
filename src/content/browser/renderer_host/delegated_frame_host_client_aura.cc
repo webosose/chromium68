@@ -42,6 +42,12 @@ SkColor DelegatedFrameHostClientAura::DelegatedFrameHostGetGutterColor() const {
   return SK_ColorWHITE;
 }
 
+#if defined(USE_NEVA_APPRUNTIME)
+bool DelegatedFrameHostClientAura::DelegatedFrameHostIsKeepAliveWebApp() const {
+  render_widget_host_view_->IsKeepAliveWebApp();
+}
+#endif
+
 void DelegatedFrameHostClientAura::OnFirstSurfaceActivation(
     const viz::SurfaceInfo& surface_info) {}
 

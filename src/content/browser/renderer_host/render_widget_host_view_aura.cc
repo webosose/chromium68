@@ -2433,6 +2433,13 @@ gfx::Size RenderWidgetHostViewAura::GetCompositorViewportPixelSize() const {
   return gfx::ScaleToCeiledSize(GetRequestedRendererSize(),
                                 GetDeviceScaleFactor() * window_scale_ratio_);
 }
+
+bool RenderWidgetHostViewAura::IsKeepAliveWebApp() const {
+  RenderViewHost* rvh = RenderViewHost::From(host());
+  if (rvh)
+    return rvh->GetWebkitPreferences().keep_alive_webapp;
+  return false;
+}
 #endif
 
 void RenderWidgetHostViewAura::OnSelectionBoundsChanged(

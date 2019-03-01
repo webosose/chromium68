@@ -329,6 +329,7 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
   void SetEnableHtmlSystemKeyboardAttr(bool enable);
   bool SystemKeyboardDisabled() const override;
   gfx::Size GetCompositorViewportPixelSize() const override;
+  bool IsKeepAliveWebApp() const;
 #endif
 
   // RenderWidgetHostViewEventHandler::Delegate:

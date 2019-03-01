@@ -48,6 +48,34 @@ viz::CompositorFrame CreateDelegatedFrame(float scale_factor, gfx::Size size) {
 }
 
 }  // namespace
+
+class ClosedKeepAliveWebAppTrigger : public viz::BeginFrameObserverBase {
+ public:
+  ClosedKeepAliveWebAppTrigger(DelegatedFrameHost* host) : host_(host) {
+    base::SingleThreadTaskRunner* taskRunner =
+        content::BrowserThread::GetTaskRunnerForThread(
+            content::BrowserThread::UI)
+            .get();
+    begin_frame_source_ = std::make_unique<viz::DelayBasedBeginFrameSource>(
+        std::make_unique<viz::DelayBasedTimeSource>(taskRunner),
+        viz::BeginFrameSource::kNotRestartableId);
+    begin_frame_source_->AddObserver(this);
+  }
+
+  ~ClosedKeepAliveWebAppTrigger() override = default;
+
+  // viz::BeginFrameObserverBase
+  bool OnBeginFrameDerivedImpl(const viz::BeginFrameArgs& args) override {
+    host_->OnBeginFrame(args);
+    return true;
+  }
+
+  void OnBeginFrameSourcePausedChanged(bool paused) override {}
+
+ private:
+  DelegatedFrameHost* host_;
+  std::unique_ptr<viz::SyntheticBeginFrameSource> begin_frame_source_;
+};
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +148,9 @@ void DelegatedFrameHost::WasShown(
         compositor_->ResumeDrawing();
     }
   }
+
+  if (!compositor_ && client_->DelegatedFrameHostIsKeepAliveWebApp())
+    keep_alive_trigger_ = std::make_unique<ClosedKeepAliveWebAppTrigger>(this);
 #endif
 }
 
@@ -370,6 +401,9 @@ void DelegatedFrameHost::SubmitCompositorFrame(
                                   std::move(hit_test_region_list));
 
 #if defined(USE_NEVA_APPRUNTIME)
+  if (keep_alive_trigger_)
+    keep_alive_trigger_.reset();
+
   if (compositor_ && deferred_resume_drawing_) {
     deferred_resume_drawing_ = false;
     compositor_->ResumeDrawing();
@@ -540,6 +574,12 @@ void DelegatedFrameHost::SetCompositor(ui::Compositor* compositor) {
   DCHECK(!compositor_);
   if (!compositor)
     return;
+
+#if defined(USE_NEVA_APPRUNTIME)
+  if (keep_alive_trigger_)
+    keep_alive_trigger_.reset();
+#endif
+
   compositor_ = compositor;
   compositor_->AddObserver(this);
   if (should_register_frame_sink_id_)
