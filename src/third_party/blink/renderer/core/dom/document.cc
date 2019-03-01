@@ -4939,6 +4939,11 @@ void Document::DispatchEventsForPrinting() {
   scripted_animation_controller_->DispatchEventsAndCallbacksForPrinting();
 }
 
+void Document::DispatchWebOSAccessibilityReady() {
+  if (RuntimeEnabledFeatures::WebOSAccessibilityReadyEventEnabled())
+    DispatchEvent(Event::Create(EventTypeNames::webOSAccessibilityReady));
+}
+
 Document::EventFactorySet& Document::EventFactories() {
   DEFINE_STATIC_LOCAL(EventFactorySet, event_factory, ());
   return event_factory;

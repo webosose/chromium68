@@ -318,5 +318,6 @@
     "pipelinestarted",
     "updatecamerastate",
 ///@}
+    "webOSAccessibilityReady",
   ],
 }

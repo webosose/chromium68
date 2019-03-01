@@ -528,4 +528,8 @@ void WebRuntimeFeatures::EnableAutoplayIgnoresWebAudio(bool enable) {
   RuntimeEnabledFeatures::SetAutoplayIgnoresWebAudioEnabled(enable);
 }
 
+void WebRuntimeFeatures::EnableWebOSAccessibilityReadyEvent(bool enable) {
+  RuntimeEnabledFeatures::SetWebOSAccessibilityReadyEventEnabled(enable);
+}
+
 }  // namespace blink

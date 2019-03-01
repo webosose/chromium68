@@ -1063,6 +1063,11 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
       prefs.network_stable_timeout >= 0.0f)
     settings->SetNetworkStableTimeout(prefs.network_stable_timeout);
 #endif
+
+#if defined(OS_WEBOS)
+  settings->SetAudioGuidanceOn(prefs.audio_guidance_on);
+  WebRuntimeFeatures::EnableWebOSAccessibilityReadyEvent(true);
+#endif  // defined(OS_WEBOS)
 }
 
 /*static*/

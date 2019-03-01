@@ -210,6 +210,10 @@ void WebRemoteFrameImpl::ReplaceBaseURL(const WebString& url) const {
 }
 #endif
 
+void WebRemoteFrameImpl::DispatchWebOSAccessibilityReady() {
+  NOTREACHED();
+}
+
 void WebRemoteFrameImpl::SetReplicatedOrigin(
     const WebSecurityOrigin& origin,
     bool is_potentially_trustworthy_opaque_origin) {

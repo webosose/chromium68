@@ -129,4 +129,7 @@
     attribute EventHandler onpipelinestarted;
     attribute EventHandler onupdatecamerastate;
 ///@}
+
+    // webOS webosaccessibilityready event
+    [RuntimeEnabled=WebOSAccessibilityReadyEvent] attribute EventHandler onwebOSAccessibilityReady;
 };

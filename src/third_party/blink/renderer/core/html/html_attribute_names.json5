@@ -247,6 +247,7 @@
     "onwebkitfullscreenchange",
     "onwebkitfullscreenerror",
     "onwebkittransitionend",
+    "onwebOSAccessibilityReady",
     "onwheel",
     "open",
     "optimum",

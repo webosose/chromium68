@@ -2182,6 +2182,7 @@ void RenderFrameImpl::OnSetAccessibilityMode(ui::AXMode new_mode) {
   if (new_mode.has_mode(ui::AXMode::kWebContents) &&
       !old_mode.has_mode(ui::AXMode::kWebContents)) {
     render_accessibility_ = new RenderAccessibilityImpl(this, new_mode);
+    GetWebFrame()->DispatchWebOSAccessibilityReady();
   } else if (!new_mode.has_mode(ui::AXMode::kWebContents) &&
              old_mode.has_mode(ui::AXMode::kWebContents)) {
     // Note: this isn't called automatically by the destructor because

@@ -446,6 +446,8 @@ AttributeTriggers* HTMLElement::TriggersForAttributeName(
        EventTypeNames::webkitfullscreenerror, nullptr},
       {onwebkittransitionendAttr, kNoWebFeature,
        EventTypeNames::webkitTransitionEnd, nullptr},
+      {onwebOSAccessibilityReadyAttr, kNoWebFeature,
+       EventTypeNames::webOSAccessibilityReady, nullptr},
       {onwheelAttr, kNoWebFeature, EventTypeNames::wheel, nullptr},
 
       {aria_activedescendantAttr, WebFeature::kARIAActiveDescendantAttribute,

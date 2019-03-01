@@ -2066,6 +2066,14 @@ void WebLocalFrameImpl::ResetStateToMarkNextPaintForContainer() {
 }
 #endif
 
+void WebLocalFrameImpl::DispatchWebOSAccessibilityReady() {
+  if (!GetFrame())
+    return;
+
+  Document* document = GetFrame()->GetDocument();
+  document->DispatchWebOSAccessibilityReady();
+}
+
 #if defined(USE_NEVA_MEDIA)
 void WebLocalFrameImpl::SetSuppressMediaPlay(bool suppress) {
   suppress_media_play_ = suppress;

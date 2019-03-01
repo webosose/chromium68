@@ -193,6 +193,7 @@ class WebRuntimeFeatures {
   BLINK_PLATFORM_EXPORT static void EnableExperimentalProductivityFeatures(
       bool);
   BLINK_PLATFORM_EXPORT static void EnableAutoplayIgnoresWebAudio(bool);
+  BLINK_PLATFORM_EXPORT static void EnableWebOSAccessibilityReadyEvent(bool);
 
  private:
   WebRuntimeFeatures();

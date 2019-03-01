@@ -1145,6 +1145,7 @@ class CORE_EXPORT Document : public ContainerNode,
   void EnqueueVisualViewportResizeEvent();
 
   void DispatchEventsForPrinting();
+  void DispatchWebOSAccessibilityReady();
 
   bool HasFullscreenSupplement() const { return has_fullscreen_supplement_; }
   void SetHasFullscreenSupplement() { has_fullscreen_supplement_ = true; }

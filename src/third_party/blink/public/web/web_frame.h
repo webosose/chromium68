@@ -212,6 +212,7 @@ class BLINK_EXPORT WebFrame {
   // Get the viewport size
   virtual WebSize viewportSize() { return WebSize(0, 0); }
 #endif
+  virtual void DispatchWebOSAccessibilityReady() = 0;
 
  protected:
   explicit WebFrame(WebTreeScopeType);

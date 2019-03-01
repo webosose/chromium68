@@ -263,6 +263,7 @@ class CORE_EXPORT WebLocalFrameImpl final
   void SetViewportSize(const WebSize& size) override { viewport_size_ = size; }
   WebSize viewportSize() override { return viewport_size_; }
 #endif
+  void DispatchWebOSAccessibilityReady() override;
 #if defined(USE_NEVA_MEDIA)
   void SetSuppressMediaPlay(bool suppress) override;
   bool IsSuppressedMediaPlay() const override;
