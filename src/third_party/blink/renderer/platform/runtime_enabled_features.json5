@@ -1447,8 +1447,5 @@
       status: "experimental",
     },
 ///@}
-    {
-      name: "WebOSAccessibilityReadyEvent",
-    },
   ],
 }

@@ -976,12 +976,6 @@
       initial: "false",
     },
 
-    // Enable webOS accessibility ready event
-    {
-      name: "webOSAccessibilityReadyEventEnabled",
-      initial: "false",
-    },
-
     // Enable v8 code cache for local resource
     {
       name: "localResourceCodeCacheEnabled",

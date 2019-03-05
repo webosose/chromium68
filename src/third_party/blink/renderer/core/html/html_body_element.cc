@@ -229,12 +229,6 @@ void HTMLBodyElement::ParseAttribute(
         EventTypeNames::languagechange,
         CreateAttributeEventListener(GetDocument().GetFrame(), name, value,
                                      EventParameterName()));
-  } else if (RuntimeEnabledFeatures::WebOSAccessibilityReadyEventEnabled &&
-             name == onwebOSAccessibilityReadyAttr) {
-    GetDocument().SetWindowAttributeEventListener(
-        EventTypeNames::webOSAccessibilityReady,
-        CreateAttributeEventListener(GetDocument().GetFrame(), name, value,
-                                     EventParameterName()));
   } else {
     HTMLElement::ParseAttribute(params);
   }

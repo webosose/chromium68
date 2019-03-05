@@ -103,7 +103,6 @@ class CORE_EXPORT WebRemoteFrameImpl final
   void ReplaceBaseURL(const WebString& url) const override;
   void SetViewportSize(const WebSize& size) override { }
 #endif
-  void DispatchWebOSAccessibilityReady() override;
 
   void Trace(blink::Visitor*);
 
