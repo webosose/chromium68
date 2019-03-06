@@ -377,6 +377,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
 
   double volume_ = 0.0f;
 
+  bool is_negative_playback_rate_ = false;
+
   // Seek gets pending if another seek is in progress. Only last pending seek
   // will have effect.
   bool pending_seek_;

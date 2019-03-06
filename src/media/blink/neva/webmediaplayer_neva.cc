@@ -498,6 +498,7 @@ void WebMediaPlayerNeva::SetRate(double rate) {
   }
 
   player_api_->SetRate(rate);
+  is_negative_playback_rate_ = rate < 0.0f;
 }
 
 void WebMediaPlayerNeva::SetVolume(double volume) {
@@ -730,13 +731,14 @@ void WebMediaPlayerNeva::OnLoadComplete() {
 
 void WebMediaPlayerNeva::OnPlaybackComplete() {
   // When playback is about to finish, android media player often stops
-  // at a time which is not the end of the playback This makes webkit never
+  // at a time which is smaller than the duration. This makes webkit never
   // know that the playback has finished. To solve this, we set the
-  // current time,|paused_time_|, bounds of the interpolator
-  // when OnPlaybackComplete() get called.
-  Pause();
+  // current time to media duration when OnPlaybackComplete() get called.
+  // But in case of negative playback, we set the current time to zero.
+  base::TimeDelta bound =
+      is_negative_playback_rate_ ? base::TimeDelta() : duration_;
   interpolator_.SetBounds(
-      paused_time_, paused_time_,
+      bound, bound,
       base::TimeTicks::Now());  // TODO(wanchang): fix 3rd argument
   client_->TimeChanged();
 
