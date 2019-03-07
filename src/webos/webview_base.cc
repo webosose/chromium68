@@ -47,6 +47,7 @@ WebViewBase::WebViewBase(int width, int height)
 
 WebViewBase::~WebViewBase() {
   RemoveStateFromIOThread(GetWebContents());
+  webview_->SetDelegate(nullptr);
   delete webview_;
 }
 
