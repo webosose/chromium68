@@ -449,6 +449,10 @@ void WebAppWindow::InputPanelRectChanged(int32_t x,
 }
 
 void WebAppWindow::UpdateViewportY() {
+  if (!web_contents_ || web_contents_->IsBeingDestroyed() ||
+      !web_contents_->GetContentNativeView())
+    return;
+
   gfx::Rect bounds = web_contents_->GetContentNativeView()->bounds();
   if (bounds.y() == viewport_shift_height_)
     return;
