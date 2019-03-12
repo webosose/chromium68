@@ -67,6 +67,7 @@ source_set("injection") {
 
   if (is_webos) {
     deps += [
+      "//neva/injection/webosservicebridge:webosservicebridge_injection",
       "//neva/injection/webossystem:webossystem_injection",
     ]
 

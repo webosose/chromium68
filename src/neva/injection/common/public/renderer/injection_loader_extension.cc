@@ -19,6 +19,7 @@
 #include "base/logging.h"
 
 #if defined(OS_WEBOS)
+#include "neva/injection/webosservicebridge/webosservicebridge_injection.h"
 #include "neva/injection/webossystem/webossystem_injection.h"
 #endif
 
@@ -59,6 +60,9 @@ InjectionInstallFunction InjectionLoaderExtension::GetInjectionInstallFunction(
   if (name ==
       extensions_v8::WebOSSystemInjectionExtension::kWebOSSystemInjectionName)
     return extensions_v8::WebOSSystemInjectionExtension::Install;
+  if (name == extensions_v8::WebOSServiceBridgeInjectionExtension::
+                  kWebOSServiceBridgeInjectionName)
+    return extensions_v8::WebOSServiceBridgeInjectionExtension::Install;
   NOTREACHED() << "Non-existing injection " << name;
 #endif
   return nullptr;

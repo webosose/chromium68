@@ -19,6 +19,7 @@
 #include "base/bind.h"
 #include "base/json/json_writer.h"
 #include "base/logging_pmlog.h"
+#include "base/trace_event/neva/lttng/pmtracer.h"
 #include "base/values.h"
 #include "gin/arguments.h"
 #include "gin/dictionary.h"
@@ -28,8 +29,7 @@
 #include "gin/wrappable.h"
 #include "injection/common/public/renderer/injection_base.h"
 #include "injection/common/public/renderer/injection_webos.h"
-#include "luna_service_mgr.h"
-#include "base/trace_event/neva/lttng/pmtracer.h"
+#include "injection/webosservicebridge/webosservicebridge_injection.h"
 #include "third_party/blink/public/web/blink.h"
 #include "third_party/blink/public/web/web_local_frame.h"
 #include <string>
@@ -71,221 +71,6 @@ void WebOSSystemDataManager::DoInitialize(const std::string& json) {
   if (!initialized_ && json != "") {
     Initialize(json, cached_data_keys_);
     initialized_ = true;
-  }
-}
-
-class WebOSServiceBridgeInjection : public LunaServiceManagerListener {
- public:
-  static const char kOnServiceCallbackMethodName[];
-  static const char kCallMethodName[];
-  static const char kCancelMethodName[];
-
-  // To handle luna call in webOSSystem.onclose callback
-  static std::set<WebOSServiceBridgeInjection*> waiting_responses_;
-  static bool is_closing_;
-
-  static void CallService(gin::Arguments* args);
-  static void CancelServiceCall(gin::Arguments* args);
-  static void OnServiceCallback(const gin::Arguments& args);
-
-  WebOSServiceBridgeInjection() { Init(); }
-  ~WebOSServiceBridgeInjection();
-
-  void Init();
-  void Call();
-  void Call(const char* uri, const char* payload);
-  void Cancel();
-  virtual void ServiceResponse(const char* body);
-
- private:
-  friend class WebOSSystemInjection;
-  void SetupIdentifier();
-  void CloseNotify();
-
-  static void FirstWeakCallback(
-      const v8::WeakCallbackInfo<WebOSServiceBridgeInjection>& data);
-  static void SecondWeakCallback(
-      const v8::WeakCallbackInfo<WebOSServiceBridgeInjection>& data);
-
-  v8::Persistent<v8::Object> object_;
-  bool canceled_ = false;
-  std::string identifier_;
-  std::shared_ptr<LunaServiceManager> lsm_;
-};
-
-const char WebOSServiceBridgeInjection::kOnServiceCallbackMethodName[] =
-    "onservicecallback";
-const char WebOSServiceBridgeInjection::kCallMethodName[] = "call";
-const char WebOSServiceBridgeInjection::kCancelMethodName[] = "cancel";
-
-// To handle luna call in webOSSystem.onclose callback
-bool WebOSServiceBridgeInjection::is_closing_ = false;
-std::set<WebOSServiceBridgeInjection*>
-    WebOSServiceBridgeInjection::waiting_responses_;
-
-// static
-void WebOSServiceBridgeInjection::CallService(gin::Arguments* args) {
-  v8::Local<v8::Object> holder;
-  if (!args->GetHolder(&holder))
-    return;
-  v8::Local<v8::External> wrap =
-      v8::Local<v8::External>::Cast(holder->GetInternalField(0));
-  WebOSServiceBridgeInjection* self =
-      static_cast<WebOSServiceBridgeInjection*>(wrap->Value());
-
-  if (!self)
-    return;
-
-  if (args->Length() < 2) {
-    self->Call();
-    return;
-  }
-
-  v8::Local<v8::Value> url;
-  v8::Local<v8::Value> params;
-
-  if (!args->GetNext(&url) || !args->GetNext(&params) || !url->IsString() ||
-      !params->IsString())
-    self->Call();
-  else
-    self->Call(gin::V8ToString(url).c_str(), gin::V8ToString(params).c_str());
-}
-
-// static
-void WebOSServiceBridgeInjection::CancelServiceCall(gin::Arguments* args) {
-  v8::Local<v8::Object> holder;
-  if (!args->GetHolder(&holder))
-    return;
-  v8::Local<v8::External> wrap =
-      v8::Local<v8::External>::Cast(holder->GetInternalField(0));
-  WebOSServiceBridgeInjection* self =
-      static_cast<WebOSServiceBridgeInjection*>(wrap->Value());
-
-  if (self)
-    self->Cancel();
-}
-
-void WebOSServiceBridgeInjection::OnServiceCallback(
-    const gin::Arguments& args) {
-  // NOTIMPLEMENTED();
-}
-
-// static
-void WebOSServiceBridgeInjection::FirstWeakCallback(
-    const v8::WeakCallbackInfo<WebOSServiceBridgeInjection>& data) {
-  WebOSServiceBridgeInjection* bridge = data.GetParameter();
-  bridge->object_.Reset();
-  data.SetSecondPassCallback(SecondWeakCallback);
-}
-
-// static
-void WebOSServiceBridgeInjection::SecondWeakCallback(
-    const v8::WeakCallbackInfo<WebOSServiceBridgeInjection>& data) {
-  WebOSServiceBridgeInjection* bridge = data.GetParameter();
-  delete bridge;
-}
-
-WebOSServiceBridgeInjection::~WebOSServiceBridgeInjection() {
-  Cancel();
-
-  if (!object_.IsEmpty())
-    object_.Reset();
-}
-
-void WebOSServiceBridgeInjection::SetupIdentifier() {
-  const char* data = "webOSSystem.getIdentifier()";
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  v8::HandleScope handle_scope(isolate);
-  v8::Local<v8::String> source = v8::String::NewFromUtf8(isolate, data);
-  v8::Local<v8::Script> script = v8::Script::Compile(source);
-  v8::Local<v8::Value> result = script->Run();
-  if (!result.IsEmpty() && result->IsString())
-    identifier_ = *v8::String::Utf8Value(result);
-}
-
-void WebOSServiceBridgeInjection::CloseNotify() {
-  if (!WebOSServiceBridgeInjection::is_closing_ ||
-      !WebOSServiceBridgeInjection::waiting_responses_.empty())
-    return;
-
-  const char* data = "webOSSystem.onCloseNotify(\"didRunOnCloseCallback\")";
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  v8::HandleScope handle_scope(isolate);
-  v8::Local<v8::String> source = v8::String::NewFromUtf8(isolate, data);
-  v8::Local<v8::Script> script = v8::Script::Compile(source);
-  script->Run();
-}
-
-void WebOSServiceBridgeInjection::Init() {
-  SetupIdentifier();
-  lsm_ = LunaServiceManager::GetManager(identifier_);
-}
-
-void WebOSServiceBridgeInjection::Call() {
-  Call("", "");
-}
-
-void WebOSServiceBridgeInjection::Call(const char* uri, const char* payload) {
-  if (identifier_.empty())
-    return;
-
-  if (lsm_) {
-    if (WebOSServiceBridgeInjection::is_closing_) {
-      auto ret = waiting_responses_.insert(this);
-      if (!lsm_->Call(uri, payload, this))
-        waiting_responses_.erase(ret.first);
-    } else
-      lsm_->Call(uri, payload, this);
-  }
-}
-
-void WebOSServiceBridgeInjection::Cancel() {
-  if (!lsm_ || canceled_)
-    return;
-
-  canceled_ = true;
-  if (GetListenerToken())
-    lsm_->Cancel(this);
-
-  if (WebOSServiceBridgeInjection::is_closing_)
-    waiting_responses_.erase(this);
-}
-
-void WebOSServiceBridgeInjection::ServiceResponse(const char* body) {
-  if (object_.IsEmpty() || object_.IsNearDeath())
-    return;
-
-  bool shouldCallCloseNotify = false;
-  if (WebOSServiceBridgeInjection::is_closing_) {
-    waiting_responses_.erase(this);
-    if (waiting_responses_.empty())
-      shouldCallCloseNotify = true;
-  }
-
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  v8::HandleScope handle_scope(isolate);
-  v8::Local<v8::Object> recv = v8::Local<v8::Object>::New(isolate, object_);
-  v8::Context::Scope context_scope(recv->CreationContext());
-  v8::Local<v8::String> callback_key(v8::String::NewFromUtf8(
-      isolate, WebOSServiceBridgeInjection::kOnServiceCallbackMethodName));
-
-  if (!recv->Has(callback_key))
-    return;
-
-  v8::Local<v8::Value> func_value = recv->Get(callback_key);
-  if (!func_value->IsFunction())
-    return;
-
-  v8::Local<v8::Function> func = v8::Local<v8::Function>::Cast(func_value);
-
-  const int argc = 1;
-  v8::Local<v8::Value> argv[] = {v8::String::NewFromUtf8(isolate, body)};
-  func->Call(recv, argc, argv);
-
-  if (shouldCallCloseNotify) {
-    // This function should be executed after context_scope(context)
-    // Unless there will be libv8.so crash
-    CloseNotify();
   }
 }
 
@@ -468,14 +253,6 @@ class WebOSSystemInjection : public gin::Wrappable<WebOSSystemInjection>,
   void UpdateInjectionData(gin::Arguments* args);
   void ReloadInjectionData();
 
-  // webOSServiceBridge
-  void InstallWebOSServiceBridge(v8::Isolate* isolate,
-                                 v8::Local<v8::Context> context);
-  static void WebOSServiceBridgeConstructorCallback(gin::Arguments* args);
-  static v8::Local<v8::ObjectTemplate> MakeRequestTemplate(
-      v8::Isolate* isolate);
-  static v8::Persistent<v8::ObjectTemplate> request_template_;
-
   std::string GetInjectionData(const std::string& name);
 
   WebOSSystemDataManager* data_manager_;
@@ -484,7 +261,6 @@ class WebOSSystemInjection : public gin::Wrappable<WebOSSystemInjection>,
 };
 
 gin::WrapperInfo WebOSSystemInjection::kWrapperInfo = {gin::kEmbedderNativeGin};
-v8::Persistent<v8::ObjectTemplate> WebOSSystemInjection::request_template_;
 
 WebOSSystemInjection::WebOSSystemInjection() {
   data_manager_ = new WebOSSystemDataManager(CallFunction("initialize"));
@@ -572,13 +348,6 @@ void WebOSSystemInjection::BuildExtraObjects(v8::Local<v8::Object> obj,
       "  }"
       "});"
 
-      // Place this code always at the end of injection API
-      // Support PalmServiceBridge for backward compatibility
-      "var PalmServiceBridge;"
-      "if (typeof(PalmServiceBridge) == 'undefined') {"
-      "  PalmServiceBridge = webOSServiceBridge;"
-      "};"
-
       // Support PalmSystem for backward compatibility
       "var palmGetResource;"
       "if (typeof(palmGetResource) == 'undefined') {"
@@ -590,8 +359,6 @@ void WebOSSystemInjection::BuildExtraObjects(v8::Local<v8::Object> obj,
       "  PalmSystem = webOSSystem;"
       "};";
 
-  // Build webOSServiceBridge
-  InstallWebOSServiceBridge(isolate, context);
   // Build webOSSystem.window
   gin::Handle<WindowInjection> window_obj =
       gin::CreateHandle(isolate, new WindowInjection(this));
@@ -1234,76 +1001,6 @@ std::string WebOSSystemInjection::GetResource(gin::Arguments* args) {
 
 double WebOSSystemInjection::DevicePixelRatio() {
   return std::stod(GetInjectionData("devicePixelRatio"));
-}
-
-void WebOSSystemInjection::InstallWebOSServiceBridge(
-    v8::Isolate* isolate,
-    v8::Local<v8::Context> context) {
-  v8::HandleScope handle_scope(isolate);
-
-  if (context.IsEmpty())
-    return;
-
-  v8::Context::Scope context_scope(context);
-  v8::Local<v8::Object> global = context->Global();
-
-  v8::Local<v8::FunctionTemplate> templ =
-      gin::CreateFunctionTemplateForConstructorBehavior(
-          isolate,
-          base::Bind(
-              &WebOSSystemInjection::WebOSServiceBridgeConstructorCallback));
-
-  global->Set(gin::StringToSymbol(isolate, "webOSServiceBridge"),
-              templ->GetFunction());
-}
-
-// static
-v8::Local<v8::ObjectTemplate> WebOSSystemInjection::MakeRequestTemplate(
-    v8::Isolate* isolate) {
-  v8::EscapableHandleScope handle_scope(isolate);
-  v8::Local<v8::ObjectTemplate> instance_templ =
-      gin::ObjectTemplateBuilder(isolate)
-          .SetMethod(WebOSServiceBridgeInjection::kCallMethodName,
-                     &WebOSServiceBridgeInjection::CallService)
-          .SetMethod(WebOSServiceBridgeInjection::kCancelMethodName,
-                     &WebOSServiceBridgeInjection::CancelServiceCall)
-          .SetMethod(WebOSServiceBridgeInjection::kOnServiceCallbackMethodName,
-                     &WebOSServiceBridgeInjection::OnServiceCallback)
-          .Build();
-
-  return handle_scope.Escape(instance_templ);
-}
-
-// static
-void WebOSSystemInjection::WebOSServiceBridgeConstructorCallback(
-    gin::Arguments* args) {
-  if (!args->IsConstructCall()) {
-    args->isolate()->ThrowException(v8::Exception::Error(gin::StringToV8(
-        args->isolate(), kMethodInvocationAsConstructorDisallowed)));
-    return;
-  }
-
-  v8::Isolate* isolate = args->isolate();
-  v8::HandleScope handle_scope(isolate);
-
-  if (request_template_.IsEmpty()) {
-    v8::Handle<v8::ObjectTemplate> object_templ = MakeRequestTemplate(isolate);
-    request_template_.Reset(isolate, object_templ);
-  }
-
-  v8::Handle<v8::ObjectTemplate> instance_template =
-      v8::Local<v8::ObjectTemplate>::New(isolate, request_template_);
-
-  v8::Local<v8::Object> instance = instance_template->NewInstance();
-
-  WebOSServiceBridgeInjection* p = new WebOSServiceBridgeInjection();
-  p->object_.Reset(isolate, instance);
-  p->object_.SetWeak(p, WebOSServiceBridgeInjection::FirstWeakCallback,
-                     v8::WeakCallbackType::kParameter);
-
-  instance->SetInternalField(0, v8::External::New(isolate, p));
-
-  args->Return(instance);
 }
 
 void WebOSSystemInjectionExtension::Install(blink::WebLocalFrame* frame) {

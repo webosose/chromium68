@@ -20,6 +20,7 @@
 #include "content/public/browser/web_contents.h"
 #include "neva/injection/browser_control/browser_control_injection.h"
 #include "neva/injection/sample/sample_injection.h"
+#include "neva/injection/webosservicebridge/webosservicebridge_injection.h"
 #include "neva/injection/webossystem/webossystem_injection.h"
 #include "neva/neva_chromium/content/common/injection_messages.h"
 
@@ -31,6 +32,8 @@ std::set<std::string> allowed_injections = {
 #if defined(OS_WEBOS)
     std::string(extensions_v8::WebOSSystemInjectionExtension::
                     kWebOSSystemInjectionName),
+    std::string(extensions_v8::WebOSServiceBridgeInjectionExtension::
+                    kWebOSServiceBridgeInjectionName),
 #endif
 #if defined(ENABLE_SAMPLE_WEBAPI)
     std::string(extensions_v8::SampleInjectionExtension::kInjectionName),

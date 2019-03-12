@@ -14,24 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef CHROME_INJECTION_WEBOSSYSTEM_INJECTION_H_
-#define CHROME_INJECTION_WEBOSSYSTEM_INJECTION_H_
+#ifndef NEVA_INJECTION_WEBOSSYSTEM_WEBOSSYSTEM_INJECTION_H_
+#define NEVA_INJECTION_WEBOSSYSTEM_WEBOSSYSTEM_INJECTION_H_
 
 #include "base/compiler_specific.h"
-#include "injection/common/public/renderer/injection_data_manager.h"
+#include "neva/injection/common/public/renderer/injection_data_manager.h"
+#include "neva/injection/webossystem/webossystem_export.h"
 #include "v8/include/v8.h"
-
-#if defined(COMPONENT_BUILD)
-
-#if defined(WEBOSSYSTEM_IMPLEMENTATION)
-#define WEBOSSYSTEM_EXPORT __attribute__((visibility("default")))
-#else
-#define WEBOSSYSTEM_EXPORT
-#endif  // defined(WEBOSSYSTEM_IMPLEMENTATION)
-
-#else
-#define WEBOSSYSTEM_EXPORT
-#endif  // defined(COMPONENT_BUILD)
 
 namespace blink {
 class WebLocalFrame;
@@ -53,4 +42,4 @@ class WEBOSSYSTEM_EXPORT WebOSSystemInjectionExtension {
 
 }  // namespace extensions_v8
 
-#endif  // CHROME_INJECTION_WEBOSSYSTEM_INJECTION_H_
+#endif  // NEVA_INJECTION_WEBOSSYSTEM_WEBOSSYSTEM_INJECTION_H_
