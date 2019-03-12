@@ -404,7 +404,8 @@ void WaylandTextInput::OnKeysym(void* data,
   if (state == WL_KEYBOARD_KEY_STATE_RELEASED &&
       (key_code == KEY_ENTER || key_code == KEY_KPENTER) &&
       (wl_text_input->input_content_type_ !=
-       ui::InputContentType::INPUT_CONTENT_TYPE_TEXT_AREA))
+       ui::InputContentType::INPUT_CONTENT_TYPE_TEXT_AREA) &&
+      (wl_text_input->state_ == InputPanelShown))
     hide_ime = true;
 
   if (key_code == KEY_TAB)
