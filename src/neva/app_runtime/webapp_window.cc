@@ -247,14 +247,15 @@ void WebAppWindow::SetUseVirtualKeyboard(bool enable) {
 }
 
 void WebAppWindow::SetupWebContents(content::WebContents* web_contents) {
-  if (!webview_) {
+  if (web_contents && !webview_) {
     webview_ = new views::WebView(web_contents->GetBrowserContext());
     SetLayoutManager(std::make_unique<views::FillLayout>());
     AddChildView(webview_);
     Layout();
   }
-
-  webview_->SetWebContents(web_contents);
+  if (webview_) {
+    webview_->SetWebContents(web_contents);
+  }
   web_contents_ = web_contents;
 }
 

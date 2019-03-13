@@ -51,6 +51,7 @@ app_runtime::CustomCursorType ToAppruntimeCursorType(CustomCursorType type) {
 WebAppWindowBase::WebAppWindowBase() {}
 
 WebAppWindowBase::~WebAppWindowBase() {
+  DetachWebContents();
   if (webapp_window_) {
     webapp_window_->SetDelegate(nullptr);
     webapp_window_->Close();
