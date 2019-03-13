@@ -19,6 +19,7 @@
 #if defined(OS_WEBOS)
 #include "ozone/wayland/group/webos_surface_group.h"
 #include "ozone/wayland/group/webos_surface_group_compositor.h"
+#include "ozone/wayland/input/webos_text_input.h"
 #endif
 
 namespace ozonewayland {
@@ -44,6 +45,10 @@ WaylandWindow::~WaylandWindow() {
     if (seat->GetGrabWindowHandle() == handle_)
       seat->SetGrabWindowHandle(0, 0);
   }
+
+#if defined(OS_WEBOS)
+  seat->GetTextInput()->OnWindowAboutToDestroy(handle_);
+#endif
 
   delete window_;
   delete shell_surface_;

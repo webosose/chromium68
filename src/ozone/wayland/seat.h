@@ -51,6 +51,7 @@ class WaylandSeat {
   void SetSurroundingText(const std::string& text,
                           size_t cursor_position,
                           size_t anchor_position);
+  WaylandTextInput* GetTextInput() const { return text_input_; }
 
  private:
   static void OnSeatCapabilities(void *data,
