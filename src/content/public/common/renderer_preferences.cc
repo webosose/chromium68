@@ -52,7 +52,8 @@ RendererPreferences::RendererPreferences()
 ///@name USE_NEVA_APPRUNTIME
 ///@{
       ,
-      allow_fake_bold_text(true)
+      allow_fake_bold_text(true),
+      use_unlimited_media_policy(false)
 ///@}
 {
 }
