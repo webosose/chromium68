@@ -726,7 +726,7 @@ void WebAppWindow::InitWindow() {
 
   init_params.delegate = this;
   init_params.show_state = ToUiWindowShowState(params_.show_state);
-  app_runtime::AppRuntimeDesktopNativeWidgetAura* desktop_native_widget_aura_ =
+  desktop_native_widget_aura_ =
       new app_runtime::AppRuntimeDesktopNativeWidgetAura(this);
   desktop_native_widget_aura_->SetNativeEventDelegate(this);
   init_params.native_widget = desktop_native_widget_aura_;
