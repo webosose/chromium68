@@ -15,6 +15,7 @@
 #include "ui/platform_window/platform_window_delegate.h"
 #include "ui/platform_window/platform_window_handler/wm_drag_handler.h"
 #include "ui/platform_window/platform_window_handler/wm_move_resize_handler.h"
+#include "ui/platform_window/platform_window_init_properties.h"
 
 namespace gfx {
 class PointF;
@@ -28,8 +29,6 @@ class PlatformWindowDelegate;
 class WaylandConnection;
 class XDGPopupWrapper;
 class XDGSurfaceWrapper;
-
-struct PlatformWindowInitProperties;
 
 namespace {
 class XDGShellObjectFactory;
@@ -155,6 +154,12 @@ class WaylandWindow : public PlatformWindow,
 
   WmMoveResizeHandler* AsWmMoveResizeHandler();
 
+  // It's important to set opaque region for opaque windows (provides
+  // optimization hint for the Wayland compositor).
+  void MaybeUpdateOpaqueRegion();
+
+  bool IsOpaqueWindow() const;
+
   PlatformWindowDelegate* delegate_;
   WaylandConnection* connection_;
   WaylandWindow* parent_window_ = nullptr;
@@ -190,6 +195,9 @@ class WaylandWindow : public PlatformWindow,
   // Stores a pending state of the window, which is used before the surface is
   // activated.
   ui::PlatformWindowState pending_state_;
+
+  // Stores current opacity of the window. Set on ::Initialize call.
+  ui::PlatformWindowOpacity opacity_;
 
   bool is_active_ = false;
   bool is_minimizing_ = false;
