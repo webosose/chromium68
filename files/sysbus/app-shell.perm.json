@@ -1,5 +1,6 @@
 {
     "com.webos.app.enactbrowser": [
+        "settings.read",
         "signals.all"
     ],
     "com.webos.browser.memorymanager.client": [
