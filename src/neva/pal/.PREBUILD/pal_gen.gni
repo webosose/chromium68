@@ -4,6 +4,7 @@
 # native_controls_interface.json
 # native_dialogs_interface.json
 # sample_interface.json
+# systemlocale.json
 
 pal_gen_dir = "$root_gen_dir/neva"
 
@@ -23,10 +24,12 @@ pal_gen_interface_h = [
   "$pal_gen_dir/pal/ipc/native_controls_messages.h",
   "$pal_gen_dir/pal/ipc/native_dialogs_messages.h",
   "$pal_gen_dir/pal/ipc/sample_messages.h",
+  "$pal_gen_dir/pal/ipc/system_locale_messages.h",
   "$pal_gen_dir/pal/public/interfaces/memory_manager_interface.h",
   "$pal_gen_dir/pal/public/interfaces/native_controls_interface.h",
   "$pal_gen_dir/pal/public/interfaces/native_dialogs_interface.h",
   "$pal_gen_dir/pal/public/interfaces/sample_interface.h",
+  "$pal_gen_dir/pal/public/interfaces/system_locale_interface.h",
 ]
 
 pal_gen_interface_host_sources = [
@@ -38,6 +41,8 @@ pal_gen_interface_host_sources = [
   "$pal_gen_dir/pal/ipc/browser/native_dialogs/native_dialogs_host.h",
   "$pal_gen_dir/pal/ipc/browser/sample/sample_host.cc",
   "$pal_gen_dir/pal/ipc/browser/sample/sample_host.h",
+  "$pal_gen_dir/pal/ipc/browser/system_locale/system_locale_host.cc",
+  "$pal_gen_dir/pal/ipc/browser/system_locale/system_locale_host.h",
 ]
 
 pal_gen_interface_proxy_sources = [
@@ -49,6 +54,8 @@ pal_gen_interface_proxy_sources = [
   "$pal_gen_dir/pal/ipc/renderer/native_dialogs/native_dialogs_proxy.h",
   "$pal_gen_dir/pal/ipc/renderer/sample/sample_proxy.cc",
   "$pal_gen_dir/pal/ipc/renderer/sample/sample_proxy.h",
+  "$pal_gen_dir/pal/ipc/renderer/system_locale/system_locale_proxy.cc",
+  "$pal_gen_dir/pal/ipc/renderer/system_locale/system_locale_proxy.h",
 ]
 
 pal_gen_remote_interface_observer_notify_sources = [
@@ -56,6 +63,7 @@ pal_gen_remote_interface_observer_notify_sources = [
   "$pal_gen_dir/remote_pal_ipc/native_controls/native_controls_remote_pal_interface_notify_ipc.cc",
   "$pal_gen_dir/remote_pal_ipc/native_dialogs/native_dialogs_remote_pal_interface_notify_ipc.cc",
   "$pal_gen_dir/remote_pal_ipc/sample/sample_remote_pal_interface_notify_ipc.cc",
+  "$pal_gen_dir/remote_pal_ipc/system_locale/system_locale_remote_pal_interface_notify_ipc.cc",
 ]
 
 pal_gen_remote_interface_observer_sources = [
@@ -67,6 +75,8 @@ pal_gen_remote_interface_observer_sources = [
   "$pal_gen_dir/remote_pal_ipc/native_dialogs/native_dialogs_remote_pal_observer.h",
   "$pal_gen_dir/remote_pal_ipc/sample/sample_remote_pal_observer.cc",
   "$pal_gen_dir/remote_pal_ipc/sample/sample_remote_pal_observer.h",
+  "$pal_gen_dir/remote_pal_ipc/system_locale/system_locale_remote_pal_observer.cc",
+  "$pal_gen_dir/remote_pal_ipc/system_locale/system_locale_remote_pal_observer.h",
 ]
 
 pal_gen_remote_interface_sources = [
@@ -79,6 +89,8 @@ pal_gen_remote_interface_sources = [
   "$pal_gen_dir/remote_pal_ipc/remote_pal_ipc_gen.cc",
   "$pal_gen_dir/remote_pal_ipc/sample/sample_remote_pal_interface_ipc.cc",
   "$pal_gen_dir/remote_pal_ipc/sample/sample_remote_pal_interface_ipc.h",
+  "$pal_gen_dir/remote_pal_ipc/system_locale/system_locale_remote_pal_interface_ipc.cc",
+  "$pal_gen_dir/remote_pal_ipc/system_locale/system_locale_remote_pal_interface_ipc.h",
 ]
 
 pal_gen_source_json = [
@@ -86,4 +98,5 @@ pal_gen_source_json = [
   "native_controls_interface.json",
   "native_dialogs_interface.json",
   "sample_interface.json",
+  "systemlocale.json",
 ]

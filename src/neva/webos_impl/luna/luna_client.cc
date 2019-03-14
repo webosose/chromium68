@@ -1,4 +1,4 @@
-// Copyright (c) 2018 LG Electronics, Inc.
+// Copyright 2018 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "neva/webos_impl/luna/luna_client.h"
+
 #include <glib.h>
 #include <lunaservice.h>
 
+#include "base/json/json_reader.h"
 #include "base/logging.h"
-#include "neva/webos_impl/luna/luna_client.h"
+#include "base/values.h"
 
 namespace {
 
@@ -50,7 +53,7 @@ bool filterMessage(::LSHandle* handle, ::LSMessage* reply, void* ctx) {
   return false;
 }
 
-} // namespace
+}  // namespace
 
 namespace lunabus {
 
@@ -98,9 +101,9 @@ unsigned long LunaClient::Call(const char* uri,
       : ::LSCallOneReply(
             handle_, uri, payload, filterMessage, handler, &token, &err);
 
-  if (result)
+  if (result) {
     handler->SetToken(token);
-  else {
+  } else {
     logError(err);
     token = 0;
   }
@@ -114,12 +117,12 @@ unsigned long LunaClient::Signal(const char* payload, Handler* handler) {
 
   LSErrorSafe err;
   ::LSMessageToken token = 0;
-  const bool result =
-      ::LSCall(handle_, kSignalUri, payload, filterMessage, handler, &token, &err);
+  const bool result = ::LSCall(handle_, kSignalUri, payload, filterMessage,
+                               handler, &token, &err);
 
-  if (result)
+  if (result) {
     handler->SetToken(token);
-  else {
+  } else {
     logError(err);
     token = 0;
   }
@@ -147,4 +150,4 @@ bool LunaClient::Initialize(const char* id) {
   return false;
 }
 
-} //  namepspace luna
+}  // namespace lunabus

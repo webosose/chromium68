@@ -1,0 +1,33 @@
+{
+    "name": "SystemLocale",
+    "methods": [
+      {
+        "method": "bool Initialize",
+        "no_IPC"  : true,
+        "in_args" : [
+          "const char* identifier"
+        ],
+        "out_args": []
+      },
+      {
+        "method": "void Shutdown",
+        "no_IPC"  : true,
+        "in_args" : [],
+        "out_args": []
+      }
+    ],
+    "broadcasts": [
+      {
+        "method": "void SystemLocaleChanged",
+        "no_IPC"  : true,
+        "args": [
+          "const std::string& system_locale_json"
+        ]
+      }
+    ],
+    "comment": [
+      "This interface is intended for subscribing to webOS locale update.",
+      "",
+      "Introduced-by: RP Blink team"
+    ]
+}

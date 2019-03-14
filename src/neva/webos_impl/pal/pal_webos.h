@@ -1,4 +1,4 @@
-// Copyright (c) 2018 LG Electronics, Inc.
+// Copyright 2018 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #define NEVA_WEBOS_IMPL_PAL_PAL_WEBOS_H_
 
 #include <memory>
+
 #include "pal/public/pal.h"
 
 namespace pal {
@@ -29,10 +30,12 @@ class PalWebOS : public Pal {
 
   MemoryManagerInterface* GetMemoryManagerInterface() override;
   SampleInterface* GetSampleInterface() override;
+  SystemLocaleInterface* GetSystemLocaleInterface() override;
 
  private:
   std::unique_ptr<MemoryManagerInterface> memoryManagerInterfaceInstance_;
   std::unique_ptr<SampleInterface> sampleInterfaceInstance_;
+  std::unique_ptr<SystemLocaleInterface> systemLocaleInterfaceInstance_;
 };
 
 }  // namespace pal

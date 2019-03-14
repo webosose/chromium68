@@ -1,4 +1,4 @@
-# Copyright (c) 2018 LG Electronics, Inc.
+# Copyright 2018 LG Electronics, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ source_set("pal_webos_impl") {
     "pal_webos.h",
     "memorymanager/memorymanager_interface_webos.cc",
     "memorymanager/memorymanager_interface_webos.h",
+    "systemlocale/systemlocale_interface_webos.cc",
+    "systemlocale/systemlocale_interface_webos.h",
     "../../common_impl/pal/sample/sample_interface_common.cc",
     "../../common_impl/pal/sample/sample_interface_common.h",
   ]

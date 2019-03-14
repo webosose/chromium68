@@ -8,6 +8,7 @@
 #include "extensions/browser/media_capture_util.h"
 #include "extensions/common/constants.h"
 #include "extensions/shell/browser/shell_extension_web_contents_observer.h"
+#include "extensions/shell/neva/language_listener.h"
 
 #if defined(ENABLE_MEMORYMANAGER_WEBAPI)
 #include "content/public/browser/render_view_host.h"
@@ -28,6 +29,9 @@ void ShellAppDelegate::InitWebContents(content::WebContents* web_contents) {
   web_contents->EnableInspectable();
 #endif
   ShellExtensionWebContentsObserver::CreateForWebContents(web_contents);
+
+  content::WebContentsUserData<neva::LanguageListener>::CreateForWebContents(
+      web_contents);
 }
 
 void ShellAppDelegate::RenderViewCreated(

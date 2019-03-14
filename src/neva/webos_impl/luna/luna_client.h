@@ -1,4 +1,4 @@
-// Copyright (c) 2018 LG Electronics, Inc.
+// Copyright 2018 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@
 #define NEVA_WEBOS_IMPL_LUNA_LUNA_CLIENT_H
 
 #include <string>
-#include <functional>
+
+#include "base/macros.h"
 
 struct LSHandle;
 
@@ -60,6 +61,6 @@ class LunaClient {
   DISALLOW_COPY_AND_ASSIGN(LunaClient);
 };
 
-} // luna
+}  // namespace lunabus
 
 #endif  // NEVA_WEBOS_IMPL_LUNA_LUNA_CLIENT_H
