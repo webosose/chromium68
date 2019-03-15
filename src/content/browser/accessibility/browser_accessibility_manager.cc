@@ -405,23 +405,6 @@ void BrowserAccessibilityManager::OnAccessibilityEvents(
     connected_to_parent_tree_node_ = false;
   }
 
-  // Fire alert event first.
-  for (uint32_t index = 0; index < details.size(); index++) {
-    const AXEventNotificationDetails& detail = details[index];
-
-    // Find the node corresponding to the id that's the target of the
-    // event (which may not be the root of the update tree).
-    ui::AXNode* node = tree_->GetFromId(detail.id);
-    if (!node)
-      continue;
-
-    if (detail.event_type == ax::mojom::Event::kAlert) {
-      BrowserAccessibility* event_target = GetFromAXNode(node);
-      if (event_target)
-        FireBlinkEvent(ax::mojom::Event::kAlert, event_target);
-    }
-  }
-
   // Based on the changes to the tree, fire focus events if needed.
   // Screen readers might not do the right thing if they're not aware of what
   // has focus, so always try that first. Nothing will be fired if the window
@@ -445,9 +428,6 @@ void BrowserAccessibilityManager::OnAccessibilityEvents(
   // Fire events from Blink.
   for (uint32_t index = 0; index < details.size(); index++) {
     const AXEventNotificationDetails& detail = details[index];
-
-    if (detail.event_type == ax::mojom::Event::kAlert)
-      continue;
 
     if (detail.event_type == ax::mojom::Event::kFocus ||
         detail.event_type == ax::mojom::Event::kBlur) {
