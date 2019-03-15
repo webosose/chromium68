@@ -51,6 +51,7 @@ class MEDIA_EXPORT MediaPlatformAPI
   virtual void Initialize(const AudioDecoderConfig& audio_config,
                           const VideoDecoderConfig& video_config,
                           const PipelineStatusCB& init_cb) = 0;
+  virtual void ReInitializeIfNeeded() {}
   virtual void SetDisplayWindow(const gfx::Rect& rect,
                                 const gfx::Rect& in_rect,
                                 bool fullscreen) = 0;

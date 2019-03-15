@@ -52,6 +52,16 @@ void VideoDecoderWebOS::Initialize(const VideoDecoderConfig& config,
   config_ = config;
   InitCB initialize_cb = BindToCurrentLoop(init_cb);
 
+  // In webOS, related resource is loaded when MediaPlatformAPI::Initialize()
+  // is called. To support MSE/EME, we need to add key system to loading
+  // payload, but key system can be noticed after Initialize. This means
+  // MediaPlatformAPI can be initialized without MSE/EME information even if
+  // the video is actually encrypted video. To cover such case, we call
+  // MediaPlatformAPI::ReInitilizeIfNeeded() for updating key system information
+  // into payload.
+  if (config.IsValidConfig() && config.is_encrypted() && media_platform_api_)
+    media_platform_api_->ReInitializeIfNeeded();
+
   // Our decoder couldn't decode encrypted video. But we still have
   // another chance for using this decoder for decrypted content,
   // when DecryptingDemuxerStream is created.
