@@ -47,6 +47,11 @@
 #include "ozone/ui/webui/ozone_webui.h"
 #endif
 
+#if defined(OS_WEBOS)
+#include "content/public/browser/luna_service_delegate.h"
+#include "neva/app_runtime/browser/webos/webos_luna_service.h"
+#endif
+
 namespace app_runtime {
 
 AppRuntimeBrowserMainParts::AppRuntimeBrowserMainParts(
@@ -99,6 +104,10 @@ void AppRuntimeBrowserMainParts::ToolkitInitialized() {
 }
 
 void AppRuntimeBrowserMainParts::PreMainMessageLoopRun() {
+#if defined(OS_WEBOS)
+  neva::WebOSLunaService::GetInstance()->Initialize();
+  content::SetLunaServiceDelegate(neva::WebOSLunaService::GetInstance());
+#endif
   url_request_context_factory_->InitializeOnUIThread();
 
   browser_context_adapter_.reset(

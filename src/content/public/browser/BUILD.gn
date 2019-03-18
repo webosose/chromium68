@@ -237,8 +237,6 @@ jumbo_source_set("browser_sources") {
     "resource_throttle.cc",
     "resource_throttle.h",
     "restore_type.h",
-    "runtime_delegate_webos.cc",
-    "runtime_delegate_webos.h",
     "save_page_type.h",
     "screen_orientation_delegate.h",
     "security_style_explanation.cc",
@@ -326,6 +324,15 @@ jumbo_source_set("browser_sources") {
 
   if (use_neva_media) {
     sources += [ "neva/media_state_manager.h" ]
+  }
+
+  if (is_webos) {
+    sources += [
+      "luna_service_delegate.cc",
+      "luna_service_delegate.h",
+      "runtime_delegate_webos.cc",
+      "runtime_delegate_webos.h",
+    ]
   }
 
   configs += [

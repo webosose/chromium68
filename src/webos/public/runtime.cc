@@ -16,6 +16,7 @@
 
 #include "webos/public/runtime.h"
 
+#include "neva/app_runtime/browser/webos/webos_luna_service.h"
 #include "webos/public/runtime_delegates.h"
 
 namespace webos {
@@ -25,8 +26,7 @@ Runtime* Runtime::GetInstance() {
 }
 
 Runtime::Runtime()
-    : luna_service_delegate_(NULL),
-      cookie_store_util_delegate_(NULL),
+    : cookie_store_util_delegate_(NULL),
       platform_delegate_(NULL),
       is_mrcu_paired_(false),
       is_network_connected_(true),
@@ -35,20 +35,13 @@ Runtime::Runtime()
 
 Runtime::~Runtime() {}
 
-void Runtime::InitializeLunaService(
-    LunaServiceDelegate* luna_service_delegate) {
-  luna_service_delegate_ = luna_service_delegate;
-}
-
 void Runtime::InitializeCookieStoreUtil(
     CookieStoreUtilDelegate* cookie_store_util_delegate) {
   cookie_store_util_delegate_ = cookie_store_util_delegate;
 }
 
 LSHandle* Runtime::GetLSHandle() {
-  if (luna_service_delegate_)
-    return luna_service_delegate_->GetLSHandle();
-  return NULL;
+  return neva::WebOSLunaService::GetInstance()->GetHandle();
 }
 
 void Runtime::FlushStoreCookie(PowerOffState power_off_state,

@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef WEBOS_BROWSER_LUNA_SERVICE_WEBOS_LUNA_SERVICE_H_
-#define WEBOS_BROWSER_LUNA_SERVICE_WEBOS_LUNA_SERVICE_H_
+#ifndef NEVA_APP_RUNTIME_BROWSER_WEBOS_WEBOS_LUNA_SERVICE_H_
+#define NEVA_APP_RUNTIME_BROWSER_WEBOS_WEBOS_LUNA_SERVICE_H_
 
 #include <lunaservice.h>
 #include <string>
@@ -24,14 +24,21 @@
 #include "base/memory/ptr_util.h"
 #include "base/memory/singleton.h"
 #include "base/values.h"
-#include "webos/public/runtime_delegates.h"
+#include "content/public/browser/luna_service_delegate.h"
 
-namespace webos {
+namespace neva {
 
 // WebOSLunaService for webapp.
-class WebOSLunaService : public LunaServiceDelegate {
+class WebOSLunaService : public content::LunaServiceDelegate {
  public:
   static WebOSLunaService* GetInstance();
+
+  class Delegate {
+   public:
+    virtual ~Delegate() {}
+
+    virtual void NotifySystemLocale(const std::string&) {}
+  };
 
   bool LunaServiceCall(const std::string& uri,
                        const base::Value* parameters,
@@ -42,8 +49,10 @@ class WebOSLunaService : public LunaServiceDelegate {
   void Initialize();
   void Finalize();
   void LaunchSettingsApplication(int target_id);
+  void SetDelegate(Delegate* delegate) { delegate_ = delegate; }
 
-  LSHandle* GetLSHandle() override { return handle_; }
+  // content::LunaServiceDelegate
+  LSHandle* GetHandle() override { return handle_; }
 
  private:
   friend struct base::DefaultSingletonTraits<WebOSLunaService>;
@@ -51,6 +60,8 @@ class WebOSLunaService : public LunaServiceDelegate {
   // This object is is a singleton
   WebOSLunaService();
   virtual ~WebOSLunaService();
+
+  Delegate* delegate_;
 
   LSHandle* handle_;
   GMainContext* context_;
@@ -64,6 +75,8 @@ class WebOSLunaService : public LunaServiceDelegate {
 
   void GetSystemSettings();
 
+  void NotifySystemLocale(const std::string& ui);
+
   // LunaServiceCallBack
   static bool GetSystemSettingsCb(LSHandle* handle,
                                   LSMessage* reply,
@@ -75,6 +88,6 @@ class WebOSLunaService : public LunaServiceDelegate {
   DISALLOW_COPY_AND_ASSIGN(WebOSLunaService);
 };
 
-}  // namespace webos
+}  // namespace neva
 
-#endif  // WEBOS_BROWSER_LUNA_SERVICE_WEBOS_LUNA_SERVICE_H_
+#endif  // NEVA_APP_RUNTIME_BROWSER_WEBOS_WEBOS_LUNA_SERVICE_H_

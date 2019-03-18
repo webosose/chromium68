@@ -26,13 +26,6 @@ class LSHandle;
 
 namespace webos {
 
-class WEBOS_EXPORT LunaServiceDelegate {
- public:
-  virtual ~LunaServiceDelegate() {}
-
-  virtual LSHandle* GetLSHandle() = 0;
-};
-
 class WEBOS_EXPORT CookieStoreUtilDelegate {
  public:
   virtual ~CookieStoreUtilDelegate() {}

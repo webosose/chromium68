@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018 LG Electronics, Inc.
+// Copyright (c) 2019 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,27 +14,29 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef CONTENT_PUBLIC_BROWSER_RUNTIME_DELEGATE_WEBOS_H_
-#define CONTENT_PUBLIC_BROWSER_RUNTIME_DELEGATE_WEBOS_H_
+#ifndef CONTENT_PUBLIC_BROWSER_LUNA_SERVICE_DELEGATE_H_
+#define CONTENT_PUBLIC_BROWSER_LUNA_SERVICE_DELEGATE_H_
+
+#include <lunaservice.h>
 
 #include "content/common/content_export.h"
 
 namespace content {
 
-class RuntimeDelegateWebOS;
+class LunaServiceDelegate;
 
-// Setter and getter for the runtime delegate for WebOS. The delegate should be
-// set before creating BrowserAccessibilityManager.
-CONTENT_EXPORT void SetRuntimeDelegateWebOS(RuntimeDelegateWebOS* delegate);
-RuntimeDelegateWebOS* GetRuntimeDelegateWebOS();
+// Setter and getter for the luna service delegate for WebOS. The delegate
+// should be set before creating BrowserAccessibilityManager.
+CONTENT_EXPORT void SetLunaServiceDelegate(LunaServiceDelegate* delegate);
+LunaServiceDelegate* GetLunaServiceDelegate();
 
-class CONTENT_EXPORT RuntimeDelegateWebOS {
+class CONTENT_EXPORT LunaServiceDelegate {
  public:
-  virtual ~RuntimeDelegateWebOS() {}
+  virtual ~LunaServiceDelegate() {}
 
-  virtual bool IsForegroundAppEnyo() = 0;
+  virtual LSHandle* GetHandle() = 0;
 };
 
 }  // namespace content
 
-#endif  // CONTENT_PUBLIC_BROWSER_RUNTIME_DELEGATE_WEBOS_H_
+#endif  // CONTENT_PUBLIC_BROWSER_LUNA_SERVICE_DELEGATE_H_

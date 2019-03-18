@@ -38,7 +38,6 @@ class WEBOS_EXPORT Runtime {
  public:
   static Runtime* GetInstance();
 
-  void InitializeLunaService(LunaServiceDelegate* luna_service_delegate);
   void InitializeCookieStoreUtil(
       CookieStoreUtilDelegate* cookie_store_util_delegate);
   void InitializePlatformDelegate(PlatformDelegate* platform_delegate) {
@@ -80,7 +79,6 @@ class WEBOS_EXPORT Runtime {
   explicit Runtime();
   virtual ~Runtime();
 
-  LunaServiceDelegate* luna_service_delegate_;
   CookieStoreUtilDelegate* cookie_store_util_delegate_;
   PlatformDelegate* platform_delegate_;
 

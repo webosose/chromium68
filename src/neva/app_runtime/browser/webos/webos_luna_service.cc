@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "webos/browser/luna_service/webos_luna_service.h"
+#include "neva/app_runtime/browser/webos/webos_luna_service.h"
 
 #include <glib.h>
 
@@ -23,12 +23,11 @@
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/logging_pmlog.h"
-#include "webos/public/runtime.h"
 
 #define DEBUG_LOG(format, ...) \
   PMLOG_DEBUG(WebOSLunaService, format, ##__VA_ARGS__)
 
-namespace webos {
+namespace neva {
 
 enum LAUNCH_TARGET {
   NETWORK = 1,
@@ -208,9 +207,16 @@ void WebOSLunaService::LaunchSettingsApplication(int target_id) {
   }
 }
 
+void WebOSLunaService::NotifySystemLocale(const std::string& ui) {
+  if (delegate_)
+    delegate_->NotifySystemLocale(ui);
+}
+
 bool WebOSLunaService::GetSystemSettingsCb(LSHandle* handle,
                                            LSMessage* reply,
                                            void* context) {
+  WebOSLunaService* luna_service = static_cast<WebOSLunaService*>(context);
+
   std::string payload = const_cast<char*>(LSMessageGetPayload(reply));
   std::unique_ptr<base::Value> value(base::JSONReader().ReadToValue(payload));
   const base::DictionaryValue* resourceponse = nullptr;
@@ -232,7 +238,7 @@ bool WebOSLunaService::GetSystemSettingsCb(LSHandle* handle,
 
   std::string ui;
   if (locales->GetString("UI", &ui)) {
-    Runtime::GetInstance()->SetLocale(ui);
+    luna_service->NotifySystemLocale(ui);
     return true;
   }
 
@@ -246,4 +252,4 @@ bool WebOSLunaService::LaunchApplicationStatusCb(LSHandle* handle,
   return false;
 }
 
-}  // namespace webos
+}  // namespace neva

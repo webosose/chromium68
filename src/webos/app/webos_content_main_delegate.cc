@@ -22,6 +22,7 @@
 #include "base/logging.h"
 #include "content/public/common/content_switches.h"
 #include "neva/app_runtime/browser/app_runtime_content_browser_client.h"
+#include "webos/browser/webos_luna_service_delegate.h"
 #include "webos/common/webos_resource_delegate.h"
 #include "webos/renderer/webos_content_renderer_client.h"
 
@@ -40,6 +41,9 @@ bool WebOSContentMainDelegate::BasicStartupComplete(int* exit_code) {
   std::string process_type =
         parsedCommandLine->GetSwitchValueASCII(switches::kProcessType);
   if (process_type.empty()) {
+    webos_luna_service_delegate_.reset(new WebOSLunaServiceDelegate);
+    neva::WebOSLunaService::GetInstance()->SetDelegate(
+        webos_luna_service_delegate_.get());
     startup_callback_.Run();
   }
   return false;

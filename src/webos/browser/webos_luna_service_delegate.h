@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018 LG Electronics, Inc.
+// Copyright (c) 2019 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,21 +14,27 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef WEBOS_COMMON_WEBOS_RUNTIME_DELEGATE_H_
-#define WEBOS_COMMON_WEBOS_RUNTIME_DELEGATE_H_
+#ifndef WEBOS_BROWSER_WEBOS_LUNA_SERVICE_DELEGATE_H
+#define WEBOS_BROWSER_WEBOS_LUNA_SERVICE_DELEGATE_H
 
-#include "content/public/browser/runtime_delegate_webos.h"
+#include <string>
+
+#include "base/memory/ptr_util.h"
+#include "neva/app_runtime/browser/webos/webos_luna_service.h"
 
 namespace webos {
 
-class WebOSRuntimeDelegate : public content::RuntimeDelegateWebOS {
+class WebOSLunaServiceDelegate : public neva::WebOSLunaService::Delegate {
  public:
-  virtual ~WebOSRuntimeDelegate();
+  WebOSLunaServiceDelegate() {}
 
-  // Overriden from content::RuntimeDelegateWebOS.
-  bool IsForegroundAppEnyo() override;
+  // neva::WebOSLunaService::Delegate
+  void NotifySystemLocale(const std::string& ui) override;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(WebOSLunaServiceDelegate);
 };
 
 }  // namespace webos
 
-#endif /* WEBOS_COMMON_WEBOS_RUNTIME_DELEGATE_H_ */
+#endif  // WEBOS_BROWSER_WEBOS_LUNA_SERVICE_DELEGATE_H

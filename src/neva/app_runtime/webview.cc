@@ -74,7 +74,7 @@
 #include "ui/gfx/font_render_params.h"
 
 #if defined(OS_WEBOS)
-#include "webos/browser/luna_service/webos_luna_service.h"
+#include "neva/app_runtime/browser/webos/webos_luna_service.h"
 #endif
 
 #if defined(USE_APPDRM)
@@ -167,7 +167,7 @@ void MojoAppRuntimeHostImpl::DidClearWindowObject() {
 
 void MojoAppRuntimeHostImpl::DoLaunchSettingsApplication(int target_id) {
 #if defined(OS_WEBOS)
-  webos::WebOSLunaService::GetInstance()->LaunchSettingsApplication(target_id);
+  neva::WebOSLunaService::GetInstance()->LaunchSettingsApplication(target_id);
 #endif
 }
 
