@@ -332,6 +332,15 @@ void OzoneWaylandWindow::SetCursor(PlatformCursor cursor) {
   SetCursor();
 }
 
+void OzoneWaylandWindow::ResetCustomCursor() {
+  if (bitmap_) {
+    SetCursor();
+    return;
+  }
+
+  SetCustomCursor(app_runtime::CustomCursorType::kNotUse, "", 0, 0);
+}
+
 void OzoneWaylandWindow::MoveCursorTo(const gfx::Point& location) {
   sender_->Send(new WaylandDisplay_MoveCursor(location));
 }

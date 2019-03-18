@@ -89,6 +89,7 @@ class OzoneWaylandWindow : public PlatformWindow,
   PlatformImeController* GetPlatformImeController() override;
   void SetWindowProperty(const std::string& name,
                          const std::string& value) override;
+  void ResetCustomCursor() override;
   void CreateGroup(const WindowGroupConfiguration&) override;
   void AttachToGroup(const std::string& group,
                      const std::string& layer) override;

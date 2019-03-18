@@ -89,6 +89,7 @@ class WaylandPlatformWindow {
                                const std::string& path,
                                int hotspot_x,
                                int hotspot_y) {}
+  virtual void ResetCustomCursor() {}
   virtual void CreateGroup(const ui::WindowGroupConfiguration& config) {}
   virtual void AttachToGroup(const std::string& name,
                              const std::string& layer) {}

@@ -204,7 +204,10 @@ void DesktopWindowTreeHostOzone::OnWidgetInitDone() {
 }
 
 void DesktopWindowTreeHostOzone::OnActiveWindowChanged(bool active) {
-  NOTIMPLEMENTED();
+#if defined(OS_WEBOS)
+  if (active)
+    platform_window_->ResetCustomCursor();
+#endif
 }
 
 std::unique_ptr<corewm::Tooltip>
