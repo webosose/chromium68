@@ -25,7 +25,7 @@ namespace content {
 
 class LunaServiceDelegate;
 
-// Setter and getter for the luna service delegate for WebOS. The delegate
+// Setter and getter for the luna service delegate for webOS. The delegate
 // should be set before creating BrowserAccessibilityManager.
 CONTENT_EXPORT void SetLunaServiceDelegate(LunaServiceDelegate* delegate);
 LunaServiceDelegate* GetLunaServiceDelegate();
