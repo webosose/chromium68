@@ -840,6 +840,10 @@ void WebMediaPlayerNeva::OnVideoSizeChanged(int width, int height) {
       delegate_->DidPause(
           delegate_id_ /*, false*/);  // TODO(wanchang): check 2nd argument
   }
+
+#if defined(VIDEO_HOLE)
+  UpdateVideoHoleBoundary(true);
+#endif
 }
 
 void WebMediaPlayerNeva::OnTimeUpdate(base::TimeDelta current_timestamp,
