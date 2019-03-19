@@ -47,7 +47,8 @@ WaylandWindow::~WaylandWindow() {
   }
 
 #if defined(OS_WEBOS)
-  seat->GetTextInput()->OnWindowAboutToDestroy(handle_);
+  if (seat)
+    seat->GetTextInput()->OnWindowAboutToDestroy(handle_);
 #endif
 
   delete window_;
