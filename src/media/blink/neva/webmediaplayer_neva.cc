@@ -842,7 +842,8 @@ void WebMediaPlayerNeva::OnVideoSizeChanged(int width, int height) {
   }
 
 #if defined(VIDEO_HOLE)
-  UpdateVideoHoleBoundary(true);
+  if (!RenderTexture())
+    UpdateVideoHoleBoundary(true);
 #endif
 }
 
