@@ -32,7 +32,7 @@ scoped_refptr<SimpleFontData> LocalFontFaceSource::CreateFontData(
   // Fonts sends, compare crbug.com/765980. So for now, we continue to
   // pass font_description to avoid breaking Google Fonts.
   FontDescription unstyled_description(font_description);
-#if !defined(OS_ANDROID)
+#if !defined(OS_ANDROID) && !defined(OS_WEBOS)
   unstyled_description.SetStretch(NormalWidthValue());
   unstyled_description.SetStyle(NormalSlopeValue());
   unstyled_description.SetWeight(NormalWeightValue());
