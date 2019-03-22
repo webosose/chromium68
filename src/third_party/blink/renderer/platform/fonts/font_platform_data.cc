@@ -307,8 +307,8 @@ WebFontRenderStyle FontPlatformData::QuerySystemRenderStyle(
   if (family.length() && Platform::Current()->GetSandboxSupport()) {
     bool is_bold = font_style.weight() >= SkFontStyle::kSemiBold_Weight;
     bool is_italic = font_style.slant() != SkFontStyle::kUpright_Slant;
-    const int size_and_style = (((int)text_size) << 2) | (((int)is_bold) << 1) |
-                               (((int)is_italic) << 0);
+    const int size_and_style = (((int)text_size) << 2) | (((int)is_bold) << 0) |
+                               (((int)is_italic) << 1);
     Platform::Current()->GetSandboxSupport()->GetWebFontRenderStyleForStrike(
         family.data(), size_and_style, &result);
   }
