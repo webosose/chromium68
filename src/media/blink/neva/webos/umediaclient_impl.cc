@@ -65,9 +65,6 @@ UMediaClientImpl::UMediaClientImpl(
       has_audio_(false),
       fullscreen_(false),
       num_audio_tracks_(0),
-      tile_no_(0),
-      tile_count_(0),
-      is_videowall_streaming_(false),
       is_local_source_(false),
       is_seeking_(false),
       is_suspended_(false),
@@ -823,8 +820,6 @@ void UMediaClientImpl::DispatchVideoInfo(
 
   if (!update_ums_info_cb_.is_null())
     update_ums_info_cb_.Run(MediaInfoToJson(videoInfo));
-  if (is_videowall_streaming_)
-    setVideoWallDisplay(videoInfo);
   system_media_manager_->VideoInfoUpdated(videoInfo);
 }
 #else  // UMS_INTERNAL_API_VERSION == 2
@@ -1180,38 +1175,6 @@ void UMediaClientImpl::DispatchBufferingEnd() {
   if (!buffering_state_cb_.is_null())
     buffering_state_cb_.Run(UMediaClientImpl::kWebOSBufferingEnd);
 }
-
-#if UMS_INTERNAL_API_VERSION == 2
-void UMediaClientImpl::setVideoWallDisplay(
-    const struct ums::video_info_t& videoInfo) {
-  using namespace uMediaServer;
-  THIS_FUNC_LOG(1);
-  int gridCount = sqrt(tile_count_);
-  int videoWidth = videoInfo.width / gridCount;
-  int videoHeight = videoInfo.height / gridCount;
-  int xCoordinate = ((tile_no_ - 1) % gridCount) * videoWidth;
-  int yCoordinate = ((tile_no_ - 1) / gridCount) * videoHeight;
-
-  system_media_manager_->SetDisplayWindow(
-      gfx::Rect(xCoordinate, yCoordinate, videoWidth, videoHeight),
-      previous_display_window_, false);
-}
-#else  // UMS_INTERNAL_API_VERSION == 2
-void UMediaClientImpl::setVideoWallDisplay(
-    const struct uMediaServer::video_info_t& videoInfo) {
-  using namespace uMediaServer;
-  THIS_FUNC_LOG(1);
-  int gridCount = sqrt(tile_count_);
-  int videoWidth = videoInfo.width / gridCount;
-  int videoHeight = videoInfo.height / gridCount;
-  int xCoordinate = ((tile_no_ - 1) % gridCount) * videoWidth;
-  int yCoordinate = ((tile_no_ - 1) / gridCount) * videoHeight;
-
-  system_media_manager_->SetDisplayWindow(
-      gfx::Rect(xCoordinate, yCoordinate, videoWidth, videoHeight),
-      previous_display_window_, false);
-}
-#endif
 
 std::string UMediaClientImpl::MediaInfoToJson(
     const PlaybackNotification notification) {
@@ -1707,11 +1670,6 @@ std::string UMediaClientImpl::UpdateMediaOption(const std::string& mediaOption,
           media_option["mediaTransportType"] = "URI";
           is_usb_file_ = true;
         }
-      }
-      if (media_option.isMember("videoWallInfo")) {
-        tile_no_ = media_option["videoWallInfo"]["tileNo"].asUInt();
-        tile_count_ = media_option["videoWallInfo"]["tileCount"].asUInt();
-        is_videowall_streaming_ = true;
       }
     }
   }

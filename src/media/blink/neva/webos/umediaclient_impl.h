@@ -197,11 +197,6 @@ class UMediaClientImpl : public WebOSMediaClient,
     LOADING_ACTION_UNLOAD
   } LoadingAction;
 
-#if UMS_INTERNAL_API_VERSION == 2
-  void setVideoWallDisplay(const struct ums::video_info_t&);
-#else
-  void setVideoWallDisplay(const struct uMediaServer::video_info_t&);
-#endif
   std::string MediaInfoToJson(const PlaybackNotification);
 
 #if UMS_INTERNAL_API_VERSION == 2
@@ -278,9 +273,6 @@ class UMediaClientImpl : public WebOSMediaClient,
   bool has_audio_;
   bool fullscreen_;
   int num_audio_tracks_;
-  int tile_no_;
-  int tile_count_;
-  bool is_videowall_streaming_;
   bool is_local_source_;
   bool is_usb_file_ = false;
   bool is_seeking_;
