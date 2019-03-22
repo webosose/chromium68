@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018 LG Electronics, Inc.
+// Copyright 2016 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include <cstdint>
 
 #include "base/logging.h"
+#include "ui/views/widget/desktop_aura/neva/ui_constants.h"
 #include "webos/common/webos_constants.h"
 
 namespace webos {
@@ -81,6 +82,7 @@ inline bool ExistsInUiKeyMaskType(std::uint32_t key_mask) {
     case ui::KeyMask::kLocalOk:
     case ui::KeyMask::kRemoteMagnifierGroup:
     case ui::KeyMask::kMinimalPlaybackGroup:
+    case ui::KeyMask::kGuide:
       return true;
     default:
       LOG(WARNING) << __func__ << "(): unknown key mask value: " << key_mask;
@@ -89,6 +91,9 @@ inline bool ExistsInUiKeyMaskType(std::uint32_t key_mask) {
 }
 
 inline ui::KeyMask ToKeyMask(WebOSKeyMask key_mask) {
+  if (key_mask == WebOSKeyMask::KEY_MASK_DEFAULT)
+    return ui::KeyMask::kDefault;
+
   std::uint32_t key_masks = static_cast<std::uint32_t>(key_mask);
   std::uint32_t result = 0;
 

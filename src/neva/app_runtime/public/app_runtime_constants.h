@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018 LG Electronics, Inc.
+// Copyright 2016 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,7 +63,8 @@ enum class KeyMask : std::uint32_t {
   kLocalOk = 1 << 20,
   kRemoteMagnifierGroup = 1 << 21,
   kMinimalPlaybackGroup = 1 << 22,
-  kDefault = 0XFFFFFFF8
+  kGuide = 1 << 23,
+  kDefault = 0xFFFFFFF8
 };
 
 enum class CustomCursorType {

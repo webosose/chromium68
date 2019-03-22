@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018 LG Electronics, Inc.
+// Copyright 2016 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,8 @@ enum WebOSKeyMask {
   KEY_MASK_LOCALOK              = 1 << 20,
   KEY_MASK_REMOTEMAGNIFIERGROUP = 1 << 21,
   KEY_MASK_MINIMALPLAYBACKGROUP = 1 << 22,
-  KEY_MASK_DEFAULT              = 0XFFFFFFF8
+  KEY_MASK_GUIDE                = 1 << 23,
+  KEY_MASK_DEFAULT              = 0xFFFFFFF8
 };
 
 enum CustomCursorType {

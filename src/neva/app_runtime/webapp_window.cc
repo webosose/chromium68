@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2018 LG Electronics, Inc.
+// Copyright 2016 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -130,6 +130,7 @@ inline bool ExistsInUiKeyMaskType(std::uint32_t key_mask) {
     case ui::KeyMask::kLocalOk:
     case ui::KeyMask::kRemoteMagnifierGroup:
     case ui::KeyMask::kMinimalPlaybackGroup:
+    case ui::KeyMask::kGuide:
       return true;
     default:
       LOG(WARNING) << __func__ << "(): unknown key mask value: " << key_mask;
@@ -563,6 +564,9 @@ void WebAppWindow::SetInputRegion(const std::vector<gfx::Rect>& region) {
 
 // static
 ui::KeyMask WebAppWindow::FromExposedKeyMaskType(KeyMask key_mask) {
+  if (key_mask == KeyMask::kDefault)
+    return ui::KeyMask::kDefault;
+
   std::uint32_t key_masks = static_cast<std::uint32_t>(key_mask);
   std::uint32_t result = 0;
 
