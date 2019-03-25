@@ -80,7 +80,7 @@ class UMediaClientImpl : public WebOSMediaClient,
   void SetPlaybackRate(float playback_rate) override;
   double GetPlaybackVolume() const override { return volume_; }
   void SetPlaybackVolume(double volume, bool forced = false) override;
-  bool SelectTrack(std::string& type, int32_t index) override;
+  bool SelectTrack(const MediaTrackType type, const std::string& id) override;
   void Suspend(SuspendReason reason) override;
   void Resume() override;
   bool IsRecoverableOnResume() override;
@@ -96,7 +96,6 @@ class UMediaClientImpl : public WebOSMediaClient,
   double BufferEnd() const override { return buffer_end_; }
   bool HasAudio() override { return has_audio_; }
   bool HasVideo() override { return has_video_; }
-  int GetNumAudioTracks() override { return num_audio_tracks_; }
   gfx::Size GetNaturalVideoSize() override { return natural_video_size_; }
   void SetNaturalVideoSize(const gfx::Size& size) override {
     natural_video_size_ = size;
@@ -273,7 +272,7 @@ class UMediaClientImpl : public WebOSMediaClient,
   bool has_video_;
   bool has_audio_;
   bool fullscreen_;
-  int num_audio_tracks_;
+  std::map<std::string, int32_t> audio_track_ids_;
   bool is_local_source_;
   bool is_usb_file_ = false;
   bool is_seeking_;

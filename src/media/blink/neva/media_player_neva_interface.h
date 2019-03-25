@@ -20,6 +20,7 @@
 #include <string>
 #include "base/time/time.h"
 #include "media/base/neva/media_constants.h"
+#include "media/base/neva/media_track_info.h"
 #include "media/blink/webmediaplayer_delegate.h"
 #include "third_party/blink/public/platform/web_rect.h"
 #include "ui/gfx/geometry/rect_f.h"
@@ -40,6 +41,8 @@ class MediaPlayerNevaClient {
   virtual void OnSeekComplete(const base::TimeDelta& current_time) = 0;
   virtual void OnMediaError(int error_type) = 0;
   virtual void OnVideoSizeChanged(int width, int height) = 0;
+  virtual void OnAudioTracksUpdated(
+      const std::vector<struct MediaTrackInfo>& audio_track_info) = 0;
 
   // Called to update the current time.
   virtual void OnTimeUpdate(base::TimeDelta current_timestamp,
@@ -106,8 +109,8 @@ class MediaPlayerNeva {
   virtual bool IsPreloadable(const std::string& content_media_option) = 0;
   virtual bool HasVideo() = 0;
   virtual bool HasAudio() = 0;
-  virtual int NumAudioTracks();
-  virtual bool SelectTrack(std::string& type, int32_t index);
+  virtual bool SelectTrack(const MediaTrackType type,
+                           const std::string& id) = 0;
   virtual void SwitchToAutoLayout() {}
   virtual void SetDisplayWindow(const gfx::Rect& out,
                                 const gfx::Rect& in,

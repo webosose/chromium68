@@ -77,8 +77,9 @@ class MediaPlayerCamera : public media::MediaPlayerNeva,
   bool IsPreloadable(const std::string& content_media_option) override;
   bool HasVideo() override { return has_video_; }
   bool HasAudio() override { return has_audio_; }
-  int NumAudioTracks() override { return 0; }
-  bool SelectTrack(std::string& type, int32_t index) override { return false; }
+  bool SelectTrack(const MediaTrackType type, const std::string& id) override {
+    return false;
+  }
   void SwitchToAutoLayout() override {}
   void SetDisplayWindow(const gfx::Rect& out_rect,
                         const gfx::Rect& in_rect,

@@ -93,6 +93,9 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
     PlayingStatus,
     PausedStatus,
   };
+
+  using MediaTrackId = std::pair<WebMediaPlayer::TrackId, std::string>;
+
   static bool CanSupportMediaType(const std::string& mime);
   static blink::WebMediaPlayer* Create(
       blink::WebLocalFrame* frame,
@@ -205,6 +208,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   void OnSeekComplete(const base::TimeDelta& current_time) override;
   void OnMediaError(int error_type) override;
   void OnVideoSizeChanged(int width, int height) override;
+  void OnAudioTracksUpdated(
+      const std::vector<struct MediaTrackInfo>& audio_track_info) override;
 
   // Called to update the current time.
   void OnTimeUpdate(base::TimeDelta current_timestamp,
@@ -448,8 +453,7 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
 
   base::RepeatingTimer paintTimer_;
 
-  bool SelectTrack(std::string& type, int32_t index);
-  std::vector<WebMediaPlayer::TrackId> audio_track_ids_;
+  std::vector<MediaTrackId> audio_track_ids_;
 
   const scoped_refptr<base::SingleThreadTaskRunner> compositor_task_runner_;
   std::unique_ptr<VideoFrameProviderImpl> video_frame_provider_;

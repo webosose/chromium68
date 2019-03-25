@@ -64,7 +64,6 @@ UMediaClientImpl::UMediaClientImpl(
       has_video_(false),
       has_audio_(false),
       fullscreen_(false),
-      num_audio_tracks_(0),
       is_local_source_(false),
       is_seeking_(false),
       is_suspended_(false),
@@ -266,7 +265,8 @@ void UMediaClientImpl::SetPlaybackVolume(double volume, bool forced) {
   uMediaServer::uMediaClient::setVolume(volume_level, duration, type);
 }
 
-bool UMediaClientImpl::SelectTrack(std::string& type, int32_t index) {
+bool UMediaClientImpl::SelectTrack(const MediaTrackType type,
+                                   const std::string& id) {
   NOTIMPLEMENTED();
   return false;
 }
@@ -764,7 +764,6 @@ void UMediaClientImpl::DispatchSourceInfo(
 
     has_video_ = (sourceInfo.programs[0].video_stream > 0) ? true : false;
     has_audio_ = (sourceInfo.programs[0].audio_stream > 0) ? true : false;
-    num_audio_tracks_ = has_audio_ ? 1 : 0;
 
     if (IsInsufficientSourceInfo()) {
       has_audio_ = true;
@@ -845,8 +844,6 @@ void UMediaClientImpl::DispatchSourceInfo(
   if (sourceInfo.numPrograms > 0 && sourceInfo.programInfo.size()) {
     has_video_ = sourceInfo.programInfo[0].numVideoTracks ? true : false;
     has_audio_ = sourceInfo.programInfo[0].numAudioTracks ? true : false;
-    num_audio_tracks_ =
-        has_audio_ ? sourceInfo.programInfo[0].numAudioTracks : 0;
     seekable_ = sourceInfo.seekable;
 
     if (sourceInfo.startDate == -1)
@@ -869,6 +866,8 @@ void UMediaClientImpl::DispatchSourceInfo(
         duration_change_cb_.Run();
       }
     }
+
+    std::vector<struct MediaTrackInfo> audio_track_info;
 
     for (int i = 0; i < sourceInfo.programInfo[0].numAudioTracks; i++) {
       std::string id, kind;
@@ -893,9 +892,19 @@ void UMediaClientImpl::DispatchSourceInfo(
       std::string language =
           sourceInfo.programInfo[0].audioTrackInfo[i].language.c_str();
 
-      if (!add_audio_track_cb_.is_null())
-        add_audio_track_cb_.Run(id, kind, language, false);
+      struct MediaTrackInfo info;
+      info.type = MediaTrackType::kAudio;
+      info.id = id;
+      info.kind = kind;
+      info.language = language;
+      info.enabled = false;
+      audio_track_info.push_back(info);
+
+      audio_track_ids_[id] = static_cast<int32_t>(i);
     }
+
+    if (!add_audio_track_cb_.is_null() && audio_track_info.size() > 0)
+      add_audio_track_cb_.Run(audio_track_info);
 
     if (sourceInfo.programInfo[0].numVideoTracks > 0) {
       // Support only single track.

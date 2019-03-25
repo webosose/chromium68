@@ -542,12 +542,6 @@ bool WebMediaPlayerNeva::HasAudio() const {
   return player_api_->HasAudio();
 }
 
-bool WebMediaPlayerNeva::SelectTrack(std::string& type, int32_t index) {
-  FUNC_LOG(1);
-  DCHECK(main_thread_checker_.CalledOnValidThread());
-  return player_api_->SelectTrack(type, index);
-}
-
 bool WebMediaPlayerNeva::Paused() const {
   FUNC_LOG(1);
   return !is_playing_;
@@ -851,6 +845,31 @@ void WebMediaPlayerNeva::OnVideoSizeChanged(int width, int height) {
 #endif
 }
 
+void WebMediaPlayerNeva::OnAudioTracksUpdated(
+    const std::vector<struct MediaTrackInfo>& audio_track_info) {
+  for (auto& audio_track : audio_track_info) {
+    // Check current id is already added or not.
+    auto it = std::find_if(audio_track_ids_.begin(), audio_track_ids_.end(),
+                           [&audio_track](const MediaTrackId& id) {
+                             return audio_track.id == id.second;
+                           });
+    if (it != audio_track_ids_.end())
+      continue;
+
+    // TODO(neva): Use kind info. And as per comment in WebMediaPlayerImpl,
+    // only the first audio track is enabled by default to match blink logic.
+    WebMediaPlayer::TrackId track_id = GetClient()->AddAudioTrack(
+        blink::WebString::FromUTF8(audio_track.id),
+        blink::WebMediaPlayerClient::kAudioTrackKindMain,
+        blink::WebString::FromUTF8("Audio Track"),
+        blink::WebString::FromUTF8(audio_track.language), false);
+    if (!track_id.IsNull() && !track_id.IsEmpty())
+      audio_track_ids_.push_back(MediaTrackId(track_id, audio_track.id));
+  }
+
+  // TODO(neva): Should we remove unavailable audio track?
+}
+
 void WebMediaPlayerNeva::OnTimeUpdate(base::TimeDelta current_timestamp,
                                       base::TimeTicks current_time_ticks) {
   DCHECK(main_thread_checker_.CalledOnValidThread());
@@ -914,16 +933,6 @@ void WebMediaPlayerNeva::UpdateReadyState(WebMediaPlayer::ReadyState state) {
       network_state_ == WebMediaPlayer::kNetworkStateLoading)
     UpdateNetworkState(WebMediaPlayer::kNetworkStateLoaded);
 
-  if (state >= WebMediaPlayer::kReadyStateHaveMetadata &&
-      ready_state_ < WebMediaPlayer::kReadyStateHaveMetadata) {
-    for (int i = 0; i < player_api_->NumAudioTracks(); i++) {
-      WebMediaPlayer::TrackId id = GetClient()->AddAudioTrack(
-          "audio", blink::WebMediaPlayerClient::kAudioTrackKindMain,
-          "Audio Track", "", false);
-      if (id != 0)
-        audio_track_ids_.push_back(id);
-    }
-  }
   ready_state_ = state;
   // Always notify to ensure client has the latest value.
   GetClient()->ReadyStateChanged();
@@ -1305,16 +1314,15 @@ void WebMediaPlayerNeva::SetDisableAudio(bool disable) {
 }
 
 void WebMediaPlayerNeva::EnabledAudioTracksChanged(
-    const blink::WebVector<TrackId>& enabledTrackIds) {
-  if (enabledTrackIds.size()) {
-    for (size_t j = 0; j < audio_track_ids_.size(); j++) {
-      if (enabledTrackIds[enabledTrackIds.size() - 1] == audio_track_ids_[j]) {
-        std::string type = "audio";
-        SelectTrack(type, j);
-        break;
-      }
-    }
-  }
+    const blink::WebVector<TrackId>& enabled_track_ids) {
+  auto it = std::find_if(
+      audio_track_ids_.begin(), audio_track_ids_.end(),
+      [&enabled_track_ids](const MediaTrackId& id) {
+        return enabled_track_ids[enabled_track_ids.size() - 1] == id.first;
+      });
+
+  if (it != audio_track_ids_.end())
+    player_api_->SelectTrack(MediaTrackType::kAudio, it->second);
 }
 
 bool WebMediaPlayerNeva::IsHLSStream() const {

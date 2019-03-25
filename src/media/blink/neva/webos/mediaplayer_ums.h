@@ -85,8 +85,7 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
   bool IsPreloadable(const std::string& content_media_option) override;
   bool HasVideo() override;
   bool HasAudio() override;
-  int NumAudioTracks() override;
-  bool SelectTrack(std::string& type, int32_t index) override;
+  bool SelectTrack(const MediaTrackType type, const std::string& id) override;
   // gfx::Size NaturalVideoSize() override;
   // double Duration() override;
   // double CurrentTime() override;
@@ -120,8 +119,8 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
   void OnDurationChange();
   void OnVideoSizeChange();
   void OnVideoDisplayWindowChange();
-  void OnAddAudioTrack(const std::string& id, const std::string& kind,
-                       const std::string& language, bool enabled);
+  void OnAddAudioTrack(
+      const std::vector<struct MediaTrackInfo>& audio_track_info);
   void OnAddVideoTrack(const std::string& id, const std::string& kind,
                        const std::string& language, bool enabled);
   void UpdateUMSInfo(const std::string& detail);

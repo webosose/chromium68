@@ -1,4 +1,4 @@
-// Copyright (c) 2018 LG Electronics, Inc.
+// Copyright (c) 2019 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,13 +14,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "media/blink/neva/media_player_neva_interface.h"
+#ifndef MEDIA_BASE_NEVA_MEDIA_TRACK_INFO_H_
+#define MEDIA_BASE_NEVA_MEDIA_TRACK_INFO_H_
 
 namespace media {
 
-bool MediaPlayerNeva::SelectTrack(const MediaTrackType type,
-                                  const std::string& id) {
-  return false;
-}
+enum class MediaTrackType { kAudio, kVideo };
 
-} // media namaspace
+struct MediaTrackInfo {
+  MediaTrackType type;
+  std::string id;
+  std::string kind;
+  std::string language;
+  bool enabled;
+};
+
+}  // namespace media
+
+#endif  // MEDIA_BASE_NEVA_MEDIA_TRACK_INFO_H_

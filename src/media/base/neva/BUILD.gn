@@ -21,6 +21,7 @@ source_set("neva") {
     "media_constants.h",
     "media_platform_api.cc",
     "media_platform_api.h",
+    "media_track_info.h",
     "media_type_restriction.h",
     "neva_mime_util_internal.h",
     "video_util_neva.cc",

@@ -59,7 +59,7 @@ class WebOSMediaClientStub
   void SetPlaybackRate(float playback_rate) override;
   double GetPlaybackVolume() const override;
   void SetPlaybackVolume(double volume, bool forced = false) override;
-  bool SelectTrack(std::string& type, int32_t index) override;
+  bool SelectTrack(const MediaTrackType type, const std::string& id) override;
   void Suspend(SuspendReason reason) override;
   void Resume() override;
   bool IsRecoverableOnResume() override;
@@ -75,7 +75,6 @@ class WebOSMediaClientStub
   double BufferEnd() const override;
   bool HasAudio() override;
   bool HasVideo() override;
-  int GetNumAudioTracks() override;
   gfx::Size GetNaturalVideoSize() override;
   void SetNaturalVideoSize(const gfx::Size& size) override;
 

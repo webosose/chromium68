@@ -69,7 +69,8 @@ double WebOSMediaClientStub::GetPlaybackVolume() const { return 0.0f; }
 
 void WebOSMediaClientStub::SetPlaybackVolume(double volume, bool forced) {}
 
-bool WebOSMediaClientStub::SelectTrack(std::string& type, int32_t index) {
+bool WebOSMediaClientStub::SelectTrack(const MediaTrackType type,
+                                       const std::string& id) {
   return false;
 }
 
@@ -114,10 +115,6 @@ bool WebOSMediaClientStub::HasAudio() {
 
 bool WebOSMediaClientStub::HasVideo() {
   return false;
-}
-
-int WebOSMediaClientStub::GetNumAudioTracks() {
-  return 0;
 }
 
 gfx::Size WebOSMediaClientStub::GetNaturalVideoSize() {

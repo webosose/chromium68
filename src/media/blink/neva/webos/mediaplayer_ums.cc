@@ -200,14 +200,10 @@ bool MediaPlayerUMS::HasAudio() {
   return umedia_client_->HasAudio();
 }
 
-int MediaPlayerUMS::NumAudioTracks() {
+bool MediaPlayerUMS::SelectTrack(const MediaTrackType type,
+                                 const std::string& id) {
   FUNC_LOG(1);
-  return umedia_client_->GetNumAudioTracks();
-}
-
-bool MediaPlayerUMS::SelectTrack(std::string& type, int32_t index) {
-  FUNC_LOG(1);
-  return umedia_client_->SelectTrack(type, index);
+  return umedia_client_->SelectTrack(type, id);
 }
 
 void MediaPlayerUMS::SwitchToAutoLayout() {
@@ -369,11 +365,9 @@ void MediaPlayerUMS::UpdateUMSInfo(const std::string& detail) {
         blink::WebMediaPlayer::kMediaEventUpdateUMSMediaInfo, detail);
 }
 
-void MediaPlayerUMS::OnAddAudioTrack(const std::string& id,
-                                     const std::string& kind,
-                                     const std::string& language,
-                                     bool enabled) {
-  NOTIMPLEMENTED();
+void MediaPlayerUMS::OnAddAudioTrack(
+    const std::vector<struct MediaTrackInfo>& audio_track_info) {
+  client_->OnAudioTracksUpdated(audio_track_info);
 }
 
 void MediaPlayerUMS::OnAddVideoTrack(const std::string& id,

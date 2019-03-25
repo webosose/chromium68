@@ -22,6 +22,7 @@
 #include "base/threading/thread.h"
 #include "base/time/time.h"
 #include "media/base/neva/media_constants.h"
+#include "media/base/neva/media_track_info.h"
 #include "media/base/pipeline.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/geometry/size.h"
@@ -65,10 +66,8 @@ class WebOSMediaClient {
 
   typedef base::Callback<void(const gfx::Rect&)> ActiveRegionCB;
 
-  typedef base::Callback<void(const std::string& id,
-                              const std::string& kind,
-                              const std::string& language,
-                              bool enabled)>
+  typedef base::Callback<void(
+      const std::vector<struct MediaTrackInfo>& audio_track_info)>
       AddAudioTrackCB;
   typedef base::Callback<void(const std::string& id,
                               const std::string& kind,
@@ -116,7 +115,8 @@ class WebOSMediaClient {
   virtual void SetPlaybackRate(float playback_rate) = 0;
   virtual double GetPlaybackVolume() const = 0;
   virtual void SetPlaybackVolume(double volume, bool forced = false) = 0;
-  virtual bool SelectTrack(std::string& type, int32_t index) = 0;
+  virtual bool SelectTrack(const MediaTrackType type,
+                           const std::string& id) = 0;
   virtual void Suspend(SuspendReason reason) = 0;
   virtual void Resume() = 0;
   virtual bool IsRecoverableOnResume() = 0;
@@ -132,7 +132,6 @@ class WebOSMediaClient {
   virtual double BufferEnd() const = 0;
   virtual bool HasAudio() = 0;
   virtual bool HasVideo() = 0;
-  virtual int GetNumAudioTracks() = 0;
   virtual gfx::Size GetNaturalVideoSize() = 0;
   virtual void SetNaturalVideoSize(const gfx::Size& size) = 0;
   virtual bool SetDisplayWindow(const gfx::Rect& out_rect,
