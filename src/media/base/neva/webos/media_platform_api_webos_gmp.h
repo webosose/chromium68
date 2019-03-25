@@ -78,6 +78,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSGmp : public MediaPlatformAPIWebOS {
 
   void SetVisibility(bool visible) override;
   bool Visibility() override;
+  void SetDisableAudio(bool) override {}
   base::Optional<gfx::Size> GetNaturalSize() override;
   // End of MediaPlatformAPIWebOS
 

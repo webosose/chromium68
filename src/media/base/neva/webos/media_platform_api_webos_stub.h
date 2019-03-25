@@ -51,6 +51,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSStub : public MediaPlatformAPIWebOS {
 
   void SetVisibility(bool visible) override;
   bool Visibility() override;
+  void SetDisableAudio(bool) override {}
   base::Optional<gfx::Size> GetNaturalSize() override;
 
  private:

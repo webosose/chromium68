@@ -94,6 +94,7 @@ class WebOSMediaClientStub
   bool IsSupportedBackwardTrickPlay() override;
   bool IsSupportedPreload() override;
   bool CheckUseMediaPlayerManager(const std::string& media_option) override;
+  void SetDisableAudio(bool) override {}
 };
 
 }  // namespace media

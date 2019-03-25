@@ -94,6 +94,7 @@ class MediaPlayerCamera : public media::MediaPlayerNeva,
   bool HasVisibility() const override { return true; }
   void SetVisibility(bool) override {}
   bool RequireMediaResource() override { return false; }
+  void SetDisableAudio(bool) override {}
 
   // uMediaServer::uMediaClient implementation
   bool onLoadCompleted() override;
