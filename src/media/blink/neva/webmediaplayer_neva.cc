@@ -820,6 +820,8 @@ void WebMediaPlayerNeva::OnVideoSizeChanged(int width, int height) {
   natural_size_.width = width;
   natural_size_.height = height;
 
+  client_->SizeChanged();
+
   // set video size first then update videoframe since videoframe
   // needs video size.
   video_frame_provider_->SetNaturalVideoSize(NaturalSize());
