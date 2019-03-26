@@ -6,8 +6,30 @@
 #include "v8/include/v8.h"
 #include <glib.h>
 #include <lunaservice.h>
+#include <random>
 #include <stdlib.h>
 #include <unistd.h>
+
+namespace {
+
+const char random_char() {
+  const std::string random_src =
+      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  std::mt19937 rd{std::random_device{}()};
+  std::uniform_int_distribution<int> mrand{0, random_src.size() - 1};
+  return random_src[mrand(rd)];
+}
+
+std::string unique_id_with_suffix(std::string& id) {
+  std::string unique_id = id + "._%%%%%%%%";
+  for (auto& ch : unique_id) {
+    if (ch == '%')
+      ch = random_char();
+  }
+  return unique_id;
+}
+
+}  // namespace
 
 // static
 std::mutex LunaServiceManager::storage_lock_;
@@ -90,7 +112,7 @@ void LunaServiceManager::Init() {
 
   bool is_phone = identifier_.find("com.palm.app.phone") == 0;
 
-  std::string identifier = identifier_ + '-' + std::to_string(getpid());
+  std::string identifier = unique_id_with_suffix(identifier_);
 
   init = LSRegisterApplicationService(identifier.c_str(), identifier_.c_str(),
                                       &sh_, &lserror);
