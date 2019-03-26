@@ -61,7 +61,7 @@ class WebOSLunaService : public content::LunaServiceDelegate {
   WebOSLunaService();
   virtual ~WebOSLunaService();
 
-  Delegate* delegate_;
+  Delegate* delegate_ = nullptr;
 
   LSHandle* handle_;
   GMainContext* context_;
