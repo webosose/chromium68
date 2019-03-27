@@ -72,6 +72,16 @@ class WEBOS_EXPORT WebViewBase
       MEMORY_PRESSURE_CRITICAL = 2
   };
 
+  struct ProxySettings {
+    bool enabled;
+    std::string mode;
+    std::string ip;
+    std::string port;
+    std::string username;
+    std::string password;
+    std::string bypass_list;
+  };
+
   static void SetFileAccessBlocked(bool blocked);
 
   WebViewBase(int width = 1920, int height = 1080);
@@ -104,10 +114,7 @@ class WEBOS_EXPORT WebViewBase
   void SetViewportSize(int width, int height);
   void NotifyMemoryPressure(MemoryPressureLevel level);
   void SetVisible(bool visible);
-  void SetProxyServer(const std::string& proxyIp,
-                      const std::string& proxyPort,
-                      const std::string& proxyUsername,
-                      const std::string& proxyPassword);
+  void SetProxyServer(const ProxySettings& proxy_settings);
   void SetPrerenderState();
   void SetVisibilityState(WebPageVisibilityState visibilityState);
   void DeleteWebStorages(const std::string& identifier);

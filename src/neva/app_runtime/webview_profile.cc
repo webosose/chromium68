@@ -20,6 +20,7 @@
 #include "browser/browsing_data/browsing_data_remover.h"
 #include "browser/app_runtime_browser_context_adapter.h"
 #include "neva/app_runtime/app/app_runtime_main_delegate.h"
+#include "neva/app_runtime/public/proxy_settings.h"
 
 namespace app_runtime {
 
@@ -45,11 +46,8 @@ BrowserContextAdapter* WebViewProfile::GetBrowserContextAdapter() const {
   return browser_context_adapter_;
 }
 
-void WebViewProfile::SetProxyServer(const std::string& ip,
-                    const std::string& port,
-                    const std::string& username,
-                    const std::string& password) {
-  browser_context_adapter_->SetProxyServer(ip, port, username, password);
+void WebViewProfile::SetProxyServer(const ProxySettings& proxy_settings) {
+  browser_context_adapter_->SetProxyServer(proxy_settings);
 }
 
 void WebViewProfile::AppendExtraWebSocketHeader(const std::string& key,

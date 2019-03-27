@@ -18,12 +18,14 @@
 #define NEVA_APP_RUNTIME_WEBVIEW_PROFILE_H_
 
 #include <string>
+#include <vector>
 
 #include "neva/app_runtime/public/app_runtime_export.h"
 
 namespace app_runtime {
 
 class BrowserContextAdapter;
+struct ProxySettings;
 
 class APP_RUNTIME_EXPORT WebViewProfile {
  public:
@@ -31,10 +33,7 @@ class APP_RUNTIME_EXPORT WebViewProfile {
 
   static WebViewProfile* GetDefaultProfile();
 
-  void SetProxyServer(const std::string& ip,
-                      const std::string& port,
-                      const std::string& username,
-                      const std::string& password);
+  void SetProxyServer(const ProxySettings& proxy_settings);
   void AppendExtraWebSocketHeader(const std::string& key,
                                   const std::string& value);
 

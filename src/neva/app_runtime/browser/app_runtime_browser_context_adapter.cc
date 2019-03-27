@@ -51,12 +51,9 @@ void BrowserContextAdapter::AppendExtraWebSocketHeader(
   browser_context_->AppendExtraWebSocketHeader(key, value);
 }
 
-void BrowserContextAdapter::SetProxyServer(const std::string& proxyIp,
-                                           const std::string& proxyPort,
-                                           const std::string& proxyUsername,
-                                           const std::string& proxyPassword) {
-  browser_context_->SetProxyServer(proxyIp, proxyPort, proxyUsername,
-                                   proxyPassword);
+void BrowserContextAdapter::SetProxyServer(
+    const ProxySettings& proxy_settings) {
+  browser_context_->SetProxyServer(proxy_settings);
 }
 
 void BrowserContextAdapter::FlushCookieStore() {

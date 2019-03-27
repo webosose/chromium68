@@ -18,6 +18,7 @@
 #define NEVA_APP_RUNTIME_BROWSER_APP_RUNTIME_BROWSER_CONTEXT_ADAPTER_H_
 
 #include <string>
+#include <vector>
 
 #include "base/macros.h"
 
@@ -25,6 +26,7 @@ namespace app_runtime {
 
 class AppRuntimeBrowserContext;
 class URLRequestContextFactory;
+struct ProxySettings;
 
 class BrowserContextAdapter {
  public:
@@ -41,10 +43,7 @@ class BrowserContextAdapter {
   void AppendExtraWebSocketHeader(const std::string& key,
                                   const std::string& value);
 
-  void SetProxyServer(const std::string& proxyIp,
-                      const std::string& proxyPort,
-                      const std::string& proxyUsername,
-                      const std::string& proxyPassword);
+  void SetProxyServer(const ProxySettings& proxy_settings);
 
   void FlushCookieStore();
 

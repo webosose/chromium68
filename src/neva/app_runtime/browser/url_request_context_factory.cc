@@ -33,6 +33,7 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/cookie_store_factory.h"
+#include "content/public/common/content_neva_switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "net/base/proxy_server.h"
@@ -66,6 +67,7 @@
 #include "neva/app_runtime/browser/app_runtime_browser_switches.h"
 #include "neva/app_runtime/browser/app_runtime_http_user_agent_settings.h"
 #include "neva/app_runtime/browser/net/app_runtime_network_delegate.h"
+#include "neva/app_runtime/public/proxy_settings.h"
 
 #include <memory>
 
@@ -78,6 +80,24 @@ namespace {
 const char kCacheStoreFile[] = "Cache";
 const char kCookieStoreFile[] = "Cookies";
 const int kDefaultDiskCacheSize = 16 * 1024 * 1024;  // default size is 16MB
+
+constexpr net::NetworkTrafficAnnotationTag kNevaProxyTrafficAnnotation =
+    net::DefineNetworkTrafficAnnotation("neva_proxy_config", R"(
+    semantics {
+      sender: "NEVA Proxy Config"
+      description:
+        "Creates a proxy based on configuration received from settings."
+      trigger:
+        "On start up, or on any change of proxy settings."
+      data:
+        "Proxy configurations."
+      destination: OTHER
+      destination_other:
+        "The proxy server specified in the configuration."
+    }
+    policy {
+      cookies_allowed: YES
+    })");
 
 class SSLConfigServiceTLS13 : public net::SSLConfigService {
  public:
@@ -270,8 +290,6 @@ void URLRequestContextFactory::InitializeSystemContextDependencies() {
   http_server_properties_.reset(new net::HttpServerPropertiesImpl);
 
   std::unique_ptr<net::ProxyConfigService> proxy_config_service;
-  net::ProxyConfig proxy_config;
-
   proxy_config_service.reset(new net::ProxyConfigServiceFixed(
       net::ProxyConfigWithAnnotation::CreateDirect()));
 
@@ -498,34 +516,47 @@ net::URLRequestContext* URLRequestContextFactory::CreateMainRequestContext(
 }
 
 void URLRequestContextFactory::SetProxyServer(
-    const std::string& ip,
-    const std::string& port,
-    const std::string& name,
-    const std::string& password,
-    const std::string& proxy_bypass_list) {
-  if (!proxy_resolution_service_) {
-    std::unique_ptr<net::ProxyConfigService> proxy_config_service;
-    proxy_config_service.reset(new net::ProxyConfigServiceFixed(
-        net::ProxyConfigWithAnnotation::CreateDirect()));
+    const ProxySettings& proxy_settings) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
-    proxy_resolution_service_ =
-        net::ProxyResolutionService::CreateUsingSystemProxyResolver(
-            std::move(proxy_config_service), nullptr);
-  } else if (!ip.empty() && !port.empty()) {
-    std::string proxy_string = ip + ":" + port;
+  if (proxy_settings.enabled) {
+    // copied to local variables for clarity
+    std::string proxy_mode = proxy_settings.mode;
+    std::string proxy_ip = proxy_settings.ip;
+    std::string proxy_port = proxy_settings.port;
+    std::string proxy_username = proxy_settings.username;
+    std::string proxy_password = proxy_settings.password;
+    std::string proxy_bypass_list = proxy_settings.bypass_list;
+
+    // Merge given settings bypass list with one from command line.
+    if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+            switches::kNevaProxyBypassList)) {
+      std::string cmd_line_proxy_bypass_list =
+          base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
+              switches::kNevaProxyBypassList);
+      std::stringstream ss;
+      if (!proxy_bypass_list.empty())
+        ss << proxy_bypass_list << ',';
+      ss << cmd_line_proxy_bypass_list;
+      proxy_bypass_list = ss.str();
+    }
+
+    std::string proxy_string = proxy_ip + ":" + proxy_port;
     net::ProxyServer proxy_for_http =
         net::ProxyServer::FromURI(proxy_string, net::ProxyServer::SCHEME_HTTP);
     if (!proxy_for_http.is_valid())
       return;
 
-    proxy_for_http.SetAuth(net::AuthCredentials(
-        base::UTF8ToUTF16(name.c_str()), base::UTF8ToUTF16(password.c_str())));
+    proxy_for_http.SetAuth(
+        net::AuthCredentials(base::UTF8ToUTF16(proxy_username.c_str()),
+                             base::UTF8ToUTF16(proxy_password.c_str())));
 
     net::ProxyConfig proxy_config;
     proxy_config.proxy_rules().type =
         net::ProxyConfig::ProxyRules::Type::PROXY_LIST;
     proxy_config.proxy_rules().single_proxies.SetSingleProxyServer(
         proxy_for_http);
+
     if (!proxy_bypass_list.empty()) {
       // Note that this uses "suffix" matching. So a bypass of "google.com"
       // is understood to mean a bypass of "*google.com".
@@ -536,9 +567,14 @@ void URLRequestContextFactory::SetProxyServer(
 
     std::unique_ptr<net::ProxyConfigService> proxy_config_service =
         std::make_unique<net::ProxyConfigServiceFixed>(
-            net::ProxyConfigWithAnnotation(
-                proxy_config,
-                proxy_resolution_service_->config()->traffic_annotation()));
+            net::ProxyConfigWithAnnotation(proxy_config,
+                                           kNevaProxyTrafficAnnotation));
+    proxy_resolution_service_->ResetConfigService(
+        std::move(proxy_config_service));
+  } else {
+    std::unique_ptr<net::ProxyConfigService> proxy_config_service;
+    proxy_config_service.reset(new net::ProxyConfigServiceFixed(
+        net::ProxyConfigWithAnnotation::CreateDirect()));
     proxy_resolution_service_->ResetConfigService(
         std::move(proxy_config_service));
   }

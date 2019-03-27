@@ -24,6 +24,7 @@ namespace app_runtime {
 class AppRuntimeContextNetworkDelegate;
 class BrowserContextAdapter;
 class URLRequestContextFactory;
+struct ProxySettings;
 
 class AppRuntimeBrowserContext : public content::BrowserContext {
  public:
@@ -61,10 +62,7 @@ class AppRuntimeBrowserContext : public content::BrowserContext {
   content::BackgroundSyncController* GetBackgroundSyncController() override;
   content::BrowsingDataRemoverDelegate* GetBrowsingDataRemoverDelegate() override;
 
-  void SetProxyServer(const std::string& ip,
-                      const std::string& port,
-                      const std::string& username,
-                      const std::string& password);
+  void SetProxyServer(const ProxySettings& proxy_settings);
   void AppendExtraWebSocketHeader(const std::string& key,
                                   const std::string& value);
 
@@ -73,11 +71,7 @@ class AppRuntimeBrowserContext : public content::BrowserContext {
  private:
   class AppRuntimeResourceContext;
 
-  void SetProxyServerIO(const std::string& ip,
-                        const std::string& port,
-                        const std::string& username,
-                        const std::string& password,
-                        const std::string& proxy_bypass_list);
+  void SetProxyServerIO(const ProxySettings& proxy_settings);
 
   void AppendExtraWebSocketHeaderIO(const std::string& key,
                                     const std::string& value);

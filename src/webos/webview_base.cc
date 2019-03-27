@@ -25,6 +25,7 @@
 #include "net/http/http_util.h"
 #include "neva/app_runtime/common/app_runtime_user_agent.h"
 #include "neva/app_runtime/public/app_runtime_event.h"
+#include "neva/app_runtime/public/proxy_settings.h"
 #include "neva/app_runtime/webview.h"
 #include "neva/app_runtime/webview_profile.h"
 #include "webos/browser/webos_webview_renderer_state.h"
@@ -225,12 +226,16 @@ void WebViewBase::SetVisible(bool visible) {
   webview_->SetVisible(visible);
 }
 
-void WebViewBase::SetProxyServer(const std::string& proxyIp,
-                                 const std::string& proxyPort,
-                                 const std::string& proxyUsername,
-                                 const std::string& proxyPassword) {
-  GetProfile()->SetProxyServer(proxyIp, proxyPort, proxyUsername,
-                               proxyPassword);
+void WebViewBase::SetProxyServer(const ProxySettings& proxy_settings) {
+  app_runtime::ProxySettings app_runtime_proxy_settings;
+  app_runtime_proxy_settings.enabled = proxy_settings.enabled;
+  app_runtime_proxy_settings.mode = proxy_settings.mode;
+  app_runtime_proxy_settings.ip = proxy_settings.ip;
+  app_runtime_proxy_settings.port = proxy_settings.port;
+  app_runtime_proxy_settings.username = proxy_settings.username;
+  app_runtime_proxy_settings.password = proxy_settings.password;
+  app_runtime_proxy_settings.bypass_list = proxy_settings.bypass_list;
+  GetProfile()->SetProxyServer(app_runtime_proxy_settings);
 }
 
 app_runtime::WebPageVisibilityState WebViewBase::FromNativeVisibilityState(
