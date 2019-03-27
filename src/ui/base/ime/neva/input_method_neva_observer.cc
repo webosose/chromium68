@@ -100,7 +100,7 @@ void InputMethodNevaObserver::OnTextInputStateChanged(const TextInputClient* cli
       if (!client->SystemKeyboardDisabled())
         OnShowIme();
     } else {
-      OnHideIme();
+      OnHideIme(ImeHiddenType::kDeactivate);
     }
   }
 }
@@ -109,7 +109,7 @@ void InputMethodNevaObserver::OnInputMethodDestroyed(const InputMethod* input_me
   if (!is_enabled_)
     return;
 
-  OnHideIme();
+  OnHideIme(ImeHiddenType::kDeactivate);
 }
 
 void InputMethodNevaObserver::OnShowImeIfNeeded() {

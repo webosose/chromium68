@@ -20,6 +20,7 @@
 #include <string>
 
 #include "ui/base/ime/input_method_observer.h"
+#include "ui/base/ime/neva/input_method_common.h"
 #include "ui/base/ime/text_input_type.h"
 #include "ui/base/ime/ui_base_ime_export.h"
 
@@ -40,7 +41,7 @@ class UI_BASE_IME_EXPORT InputMethodNevaObserver
   void OnShowImeIfNeeded() override;
 
   virtual void OnShowIme() = 0;
-  virtual void OnHideIme() = 0;
+  virtual void OnHideIme(ImeHiddenType) = 0;
   virtual void OnTextInputTypeChanged(ui::TextInputType text_input_type,
                                       int text_input_flags) = 0;
   virtual void SetSurroundingText(const std::string& text,
