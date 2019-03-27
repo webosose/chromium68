@@ -497,8 +497,8 @@ void OzoneWaylandWindow::ShowInputPanel() {
   sender_->Send(new WaylandDisplay_ShowInputPanel(handle_));
 }
 
-void OzoneWaylandWindow::HideInputPanel() {
-  sender_->Send(new WaylandDisplay_HideInputPanel());
+void OzoneWaylandWindow::HideInputPanel(ImeHiddenType hidden_type) {
+  sender_->Send(new WaylandDisplay_HideInputPanel(hidden_type));
 }
 
 void OzoneWaylandWindow::SetInputContentType(ui::TextInputType text_input_type,

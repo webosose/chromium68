@@ -39,7 +39,7 @@ class WaylandTextInput {
 
   void ResetIme();
   void ShowInputPanel(wl_seat* input_seat, unsigned handle);
-  void HideInputPanel(wl_seat* input_seat);
+  void HideInputPanel(wl_seat* input_seat, ui::ImeHiddenType);
   void SetActiveWindow(WaylandWindow* window);
   void SetHiddenState();
   void SetInputContentType(ui::InputContentType content_type,
