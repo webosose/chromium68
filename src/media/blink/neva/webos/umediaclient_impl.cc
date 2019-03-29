@@ -43,13 +43,13 @@ namespace media {
 
 // static
 std::unique_ptr<WebOSMediaClient> WebOSMediaClient::Create(
-    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+    const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner,
     const std::string& app_id) {
-  return std::make_unique<UMediaClientImpl>(task_runner, app_id);
+  return std::make_unique<UMediaClientImpl>(main_task_runner, app_id);
 }
 
 UMediaClientImpl::UMediaClientImpl(
-    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+    const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner,
     const std::string& app_id)
     : uMediaClient(app_id),
       duration_(0.0f),
@@ -83,10 +83,10 @@ UMediaClientImpl::UMediaClientImpl(
       playback_rate_on_eos_(0),
       playback_rate_on_paused_(1.0f),
       volume_(1.0),
-      main_task_runner_(task_runner),
+      main_task_runner_(main_task_runner),
       ls_client_(app_id),
       system_media_manager_(
-          SystemMediaManager::Create(AsWeakPtr(), task_runner)),
+          SystemMediaManager::Create(AsWeakPtr(), main_task_runner)),
       preload_(PreloadNone),
       loading_state_(LOADING_STATE_NONE),
       pending_loading_action_(LOADING_ACTION_NONE),
@@ -103,6 +103,7 @@ UMediaClientImpl::UMediaClientImpl(
 }
 
 UMediaClientImpl::~UMediaClientImpl() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
   weak_ptr_.reset();
 
@@ -138,6 +139,7 @@ void UMediaClientImpl::Load(bool video,
                             const ActiveRegionCB& active_region_cb,
                             const base::Closure& waiting_for_decryption_key_cb,
                             const EncryptedCB& encrypted_cb) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << " url=" << url << " payload=" << payload;
 
   video_ = video;
@@ -189,6 +191,7 @@ void UMediaClientImpl::Load(bool video,
 
 void UMediaClientImpl::Seek(base::TimeDelta time,
                             const media::PipelineStatusCB& seek_cb) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
 
   ended_ = false;
@@ -199,10 +202,12 @@ void UMediaClientImpl::Seek(base::TimeDelta time,
 }
 
 float UMediaClientImpl::GetPlaybackRate() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return playback_rate_;
 }
 
 void UMediaClientImpl::SetPlaybackRate(float playback_rate) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << " rate=" << playback_rate;
   if (MediaId().empty()) {
     playback_rate_ = playback_rate;
@@ -249,6 +254,7 @@ void UMediaClientImpl::SetPlaybackRate(float playback_rate) {
 }
 
 void UMediaClientImpl::SetPlaybackVolume(double volume, bool forced) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (volume_ == volume && !forced)
     return;
 
@@ -267,11 +273,13 @@ void UMediaClientImpl::SetPlaybackVolume(double volume, bool forced) {
 
 bool UMediaClientImpl::SelectTrack(const MediaTrackType type,
                                    const std::string& id) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   NOTIMPLEMENTED();
   return false;
 }
 
 void UMediaClientImpl::Suspend(SuspendReason reason) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << " - MediaId: " << MediaId();
   is_suspended_ = true;
 
@@ -299,6 +307,7 @@ void UMediaClientImpl::Suspend(SuspendReason reason) {
 }
 
 void UMediaClientImpl::Resume() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << " - MediaId: " << MediaId()
               << " loading_state=" << loading_state_
               << " IsReleasedMediaResource=" << IsReleasedMediaResource()
@@ -324,10 +333,12 @@ void UMediaClientImpl::Resume() {
 }
 
 bool UMediaClientImpl::IsRecoverableOnResume() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return true;
 }
 
 void UMediaClientImpl::SetPreload(Preload preload) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << " app_id_=" << app_id_ << " preload=" << preload;
 #if defined(USE_GST_MEDIA)
   // g-media-pipeline doesn't support preload
@@ -343,11 +354,13 @@ void UMediaClientImpl::SetPreload(Preload preload) {
 }
 
 bool UMediaClientImpl::IsPreloadable(const std::string& content_media_option) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   UpdateMediaOption(content_media_option, 0.0f);
   return use_pipeline_preload_;
 }
 
 std::string UMediaClientImpl::MediaId() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return uMediaServer::uMediaClient::getMediaId();
 }
 
@@ -355,6 +368,7 @@ bool UMediaClientImpl::SetDisplayWindow(const gfx::Rect& outRect,
                                         const gfx::Rect& inRect,
                                         bool fullscreen,
                                         bool forced) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!buffering_state_have_meta_data_) {
     FUNC_LOG(1) << " - setDisplayWindow is aborted";
     return false;
@@ -368,26 +382,32 @@ bool UMediaClientImpl::SetDisplayWindow(const gfx::Rect& outRect,
 }
 
 void UMediaClientImpl::SetVisibility(bool visible) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   system_media_manager_->SetVisibility(visible);
 }
 
 bool UMediaClientImpl::Visibility() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return system_media_manager_->GetVisibility();
 }
 
 void UMediaClientImpl::SetFocus() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return system_media_manager_->SetAudioFocus();
 }
 
 bool UMediaClientImpl::Focus() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return system_media_manager_->GetAudioFocus();
 }
 
 void UMediaClientImpl::SwitchToAutoLayout() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   system_media_manager_->SwitchToAutoLayout();
 }
 
 bool UMediaClientImpl::DidLoadingProgress() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!duration_)
     return false;
 
@@ -400,10 +420,12 @@ bool UMediaClientImpl::DidLoadingProgress() {
 }
 
 bool UMediaClientImpl::UsesIntrinsicSize() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return true;
 }
 
 void UMediaClientImpl::Unload() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (MediaId().empty())
     return;
 
@@ -419,16 +441,19 @@ void UMediaClientImpl::Unload() {
 }
 
 bool UMediaClientImpl::IsSupportedBackwardTrickPlay() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   NOTIMPLEMENTED();
   return false;
 }
 
 bool UMediaClientImpl::IsSupportedPreload() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return false;
 }
 
 bool UMediaClientImpl::CheckUseMediaPlayerManager(
     const std::string& mediaOption) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
 #if defined(USE_GST_MEDIA)
   return false;
 #else
@@ -454,6 +479,7 @@ bool UMediaClientImpl::CheckUseMediaPlayerManager(
 }
 
 void UMediaClientImpl::SetDisableAudio(bool disable) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   audio_disabled_ = disable;
 }
 
@@ -464,6 +490,7 @@ bool UMediaClientImpl::onPlaying() {
 }
 
 void UMediaClientImpl::DispatchPlaying() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!requests_play_) {
     FUNC_LOG(1) << " ignored";
     return;
@@ -495,6 +522,7 @@ bool UMediaClientImpl::onPaused() {
 }
 
 void UMediaClientImpl::DispatchPaused() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!requests_pause_) {
     FUNC_LOG(1) << " ignored";
     return;
@@ -511,17 +539,18 @@ void UMediaClientImpl::DispatchPaused() {
 }
 
 bool UMediaClientImpl::onSeekDone() {
-  if (!is_seeking_)
-    return true;
-
-  is_seeking_ = false;
   main_task_runner_->PostTask(
       FROM_HERE, base::Bind(&UMediaClientImpl::DispatchSeekDone, weak_ptr_));
   return true;
 }
 
 void UMediaClientImpl::DispatchSeekDone() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
+  if (!is_seeking_)
+    return;
+  is_seeking_ = false;
+
   if (!seek_cb_.is_null())
     base::ResetAndReturn(&seek_cb_).Run(media::PIPELINE_OK);
   if (!update_ums_info_cb_.is_null())
@@ -536,6 +565,7 @@ bool UMediaClientImpl::onEndOfStream() {
 }
 
 void UMediaClientImpl::DispatchEndOfStream(bool isForward) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << " isForward=" << isForward;
   bool ignore_eos = false;
   playback_rate_on_eos_ = playback_rate_;
@@ -556,9 +586,6 @@ void UMediaClientImpl::DispatchEndOfStream(bool isForward) {
 }
 
 bool UMediaClientImpl::onLoadCompleted() {
-  if (is_loaded())
-    return true;
-
   main_task_runner_->PostTask(
       FROM_HERE,
       base::Bind(&UMediaClientImpl::DispatchLoadCompleted, weak_ptr_));
@@ -566,6 +593,7 @@ bool UMediaClientImpl::onLoadCompleted() {
 }
 
 void UMediaClientImpl::DispatchLoadCompleted() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
 
   if (is_loaded()) {
@@ -619,13 +647,6 @@ void UMediaClientImpl::DispatchLoadCompleted() {
 }
 
 bool UMediaClientImpl::onPreloadCompleted() {
-  if (is_loaded())
-    return true;
-
-  // if don't use pipeline preload, skip preloadCompleted Event
-  if (!use_pipeline_preload_)
-    return true;
-
   main_task_runner_->PostTask(
       FROM_HERE,
       base::Bind(&UMediaClientImpl::DispatchPreloadCompleted, weak_ptr_));
@@ -633,7 +654,15 @@ bool UMediaClientImpl::onPreloadCompleted() {
 }
 
 void UMediaClientImpl::DispatchPreloadCompleted() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
+
+  if (is_loaded())
+    return;
+
+  // if don't use pipeline preload, skip preloadCompleted Event
+  if (!use_pipeline_preload_)
+    return;
 
   loading_state_ = LOADING_STATE_PRELOADED;
 
@@ -657,9 +686,6 @@ void UMediaClientImpl::DispatchPreloadCompleted() {
 }
 
 bool UMediaClientImpl::onUnloadCompleted() {
-  if (loading_state_ == LOADING_STATE_UNLOADED)
-    return true;
-
   main_task_runner_->PostTask(
       FROM_HERE,
       base::Bind(&UMediaClientImpl::DispatchUnloadCompleted, weak_ptr_));
@@ -667,6 +693,7 @@ bool UMediaClientImpl::onUnloadCompleted() {
 }
 
 void UMediaClientImpl::DispatchUnloadCompleted() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
   if (loading_state_ == LOADING_STATE_UNLOADED) {
     VLOG(1) << "ignore duplicated UnloadCompleted event";
@@ -688,6 +715,7 @@ bool UMediaClientImpl::onCurrentTime(int64_t currentTime) {
 }
 
 void UMediaClientImpl::DispatchCurrentTime(int64_t currentTime) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (ended_) {
     VLOG(1) << "ignore currentTime event on ended - " << currentTime;
     return;
@@ -710,6 +738,7 @@ bool UMediaClientImpl::onBufferRange(
 
 void UMediaClientImpl::DispatchBufferRange(
     const struct uMediaServer::buffer_range_t& bufferRange) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   buffer_end_ = static_cast<double>(bufferRange.endTime);
   if (duration_ > 0) {
     if (bufferRange.remainingTime == -1 || buffer_end_ > duration_)
@@ -751,6 +780,7 @@ bool UMediaClientImpl::onVideoInfo(const struct ums::video_info_t& videoInfo) {
 
 void UMediaClientImpl::DispatchSourceInfo(
     const struct ums::source_info_t& sourceInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   THIS_FUNC_LOG(1);
   if (sourceInfo.programs.size() > 0) {
     if (sourceInfo.duration >= 0) {
@@ -804,6 +834,7 @@ void UMediaClientImpl::DispatchSourceInfo(
 
 void UMediaClientImpl::DispatchAudioInfo(
     const struct ums::audio_info_t& audioInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   has_audio_ = true;
   if (!update_ums_info_cb_.is_null())
     update_ums_info_cb_.Run(MediaInfoToJson(audioInfo));
@@ -813,6 +844,7 @@ void UMediaClientImpl::DispatchAudioInfo(
 
 void UMediaClientImpl::DispatchVideoInfo(
     const struct ums::video_info_t& videoInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   THIS_FUNC_LOG(1);
   has_video_ = true;
   gfx::Size naturalVideoSize(videoInfo.width, videoInfo.height);
@@ -838,6 +870,7 @@ bool UMediaClientImpl::onSourceInfo(
 
 void UMediaClientImpl::DispatchSourceInfo(
     const struct uMediaServer::source_info_t& sourceInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
 
   // Now numPrograms is always 1. if the value is 0, this case is invalid.
@@ -977,6 +1010,7 @@ bool UMediaClientImpl::onAudioInfo(
 
 void UMediaClientImpl::DispatchAudioInfo(
     const struct uMediaServer::audio_info_t& audioInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   has_audio_ = true;
   if (!update_ums_info_cb_.is_null())
     update_ums_info_cb_.Run(MediaInfoToJson(audioInfo));
@@ -994,6 +1028,7 @@ bool UMediaClientImpl::onVideoInfo(
 
 void UMediaClientImpl::DispatchVideoInfo(
     const struct uMediaServer::video_info_t& video_info) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
 
   has_video_ = true;
@@ -1018,10 +1053,6 @@ void UMediaClientImpl::DispatchVideoInfo(
 
 bool UMediaClientImpl::onError(int64_t error_code,
                                const std::string& errorText) {
-  // ignore buffer full/low error
-  if (error_code == SMP_BUFFER_FULL || error_code == SMP_BUFFER_LOW)
-    return true;
-
   main_task_runner_->PostTask(
       FROM_HERE, base::Bind(&UMediaClientImpl::DispatchError, weak_ptr_,
                             error_code, errorText));
@@ -1030,8 +1061,13 @@ bool UMediaClientImpl::onError(int64_t error_code,
 
 void UMediaClientImpl::DispatchError(int64_t error_code,
                                      const std::string& errorText) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << " MediaId=" << MediaId() << " error_code=" << error_code
               << " msg=" << errorText;
+
+  // ignore buffer full/low error
+  if (error_code == SMP_BUFFER_FULL || error_code == SMP_BUFFER_LOW)
+    return;
 
   media::PipelineStatus status = CheckErrorCode(error_code);
   if (status != media::PIPELINE_OK) {
@@ -1059,6 +1095,7 @@ bool UMediaClientImpl::onExternalSubtitleTrackInfo(
 
 void UMediaClientImpl::DispatchExternalSubtitleTrackInfo(
     const struct uMediaServer::external_subtitle_track_info_t& trackInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!update_ums_info_cb_.is_null())
     update_ums_info_cb_.Run(MediaInfoToJson(trackInfo));
 }
@@ -1152,6 +1189,7 @@ bool UMediaClientImpl::onUserDefinedChanged(const char* message) {
 }
 
 void UMediaClientImpl::DispatchUserDefinedChanged(const std::string& message) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (message.find("EOF") != std::string::npos &&
       message.find("pre_EOF") == std::string::npos) {
     system_media_manager_->EofReceived();
@@ -1168,6 +1206,7 @@ bool UMediaClientImpl::onBufferingStart() {
 }
 
 void UMediaClientImpl::DispatchBufferingStart() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
   if (current_time_ == 0.0f && requests_play_)
     return;
@@ -1185,6 +1224,7 @@ bool UMediaClientImpl::onBufferingEnd() {
 }
 
 void UMediaClientImpl::DispatchBufferingEnd() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
   buffering_ = false;
   if (!buffering_state_cb_.is_null())
@@ -1193,6 +1233,7 @@ void UMediaClientImpl::DispatchBufferingEnd() {
 
 std::string UMediaClientImpl::MediaInfoToJson(
     const PlaybackNotification notification) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1235,6 +1276,7 @@ std::string UMediaClientImpl::MediaInfoToJson(
 #if UMS_INTERNAL_API_VERSION == 2
 std::string UMediaClientImpl::MediaInfoToJson(
     const struct ums::source_info_t& value) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1319,6 +1361,7 @@ std::string UMediaClientImpl::MediaInfoToJson(
 // refer to uMediaServer/include/public/dto_type.h
 std::string UMediaClientImpl::MediaInfoToJson(
     const struct ums::video_info_t& value) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1354,6 +1397,7 @@ std::string UMediaClientImpl::MediaInfoToJson(
 
 std::string UMediaClientImpl::MediaInfoToJson(
     const struct ums::audio_info_t& value) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1378,6 +1422,7 @@ std::string UMediaClientImpl::MediaInfoToJson(
 #else  // UMS_INTERNAL_API_VERSION == 2
 std::string UMediaClientImpl::MediaInfoToJson(
     const struct uMediaServer::source_info_t& value) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1478,6 +1523,7 @@ std::string UMediaClientImpl::MediaInfoToJson(
 
 std::string UMediaClientImpl::MediaInfoToJson(
     const struct uMediaServer::video_info_t& value) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1508,6 +1554,7 @@ std::string UMediaClientImpl::MediaInfoToJson(
 
 std::string UMediaClientImpl::MediaInfoToJson(
     const struct uMediaServer::audio_info_t& value) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1529,6 +1576,7 @@ std::string UMediaClientImpl::MediaInfoToJson(
 
 std::string UMediaClientImpl::MediaInfoToJson(
     const struct uMediaServer::external_subtitle_track_info_t& value) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1557,6 +1605,7 @@ std::string UMediaClientImpl::MediaInfoToJson(
 
 std::string UMediaClientImpl::MediaInfoToJson(int64_t errorCode,
                                               const std::string& errorText) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1576,6 +1625,7 @@ std::string UMediaClientImpl::MediaInfoToJson(int64_t errorCode,
 }
 
 std::string UMediaClientImpl::MediaInfoToJson(const std::string& message) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1613,6 +1663,7 @@ std::string UMediaClientImpl::MediaInfoToJson(const std::string& message) {
 
 std::string UMediaClientImpl::MediaInfoToJson(
     const struct uMediaServer::master_clock_info_t& masterClockInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1633,6 +1684,7 @@ std::string UMediaClientImpl::MediaInfoToJson(
 
 std::string UMediaClientImpl::MediaInfoToJson(
     const struct uMediaServer::slave_clock_info_t& slaveClockInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsRequiredUMSInfo())
     return std::string();
 
@@ -1651,6 +1703,7 @@ std::string UMediaClientImpl::MediaInfoToJson(
 
 std::string UMediaClientImpl::UpdateMediaOption(const std::string& mediaOption,
                                                 double start) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   Json::Reader reader;
   Json::FastWriter writer;
   Json::Value media_option;
@@ -1753,6 +1806,7 @@ std::string UMediaClientImpl::UpdateMediaOption(const std::string& mediaOption,
 }
 
 bool UMediaClientImpl::IsRequiredUMSInfo() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (media_transport_type_ == "DLNA" || media_transport_type_ == "HLS-LG" ||
       media_transport_type_ == "USB" || media_transport_type_ == "MIRACAST" ||
       media_transport_type_ == "DPS" || use_umsinfo_)
@@ -1761,6 +1815,7 @@ bool UMediaClientImpl::IsRequiredUMSInfo() {
 }
 
 bool UMediaClientImpl::IsInsufficientSourceInfo() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (media_transport_type_ == "HLS" || media_transport_type_ == "MSIIS" ||
       media_transport_type_ == "WIDEVINE" || media_transport_type_ == "DPS")
     return true;
@@ -1768,6 +1823,7 @@ bool UMediaClientImpl::IsInsufficientSourceInfo() {
 }
 
 bool UMediaClientImpl::IsAdaptiveStreaming() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (media_transport_type_.compare(0, 3, "HLS") == 0 ||
       media_transport_type_ == "MIRACAST" || media_transport_type_ == "MSIIS" ||
       media_transport_type_ == "MPEG-DASH" ||
@@ -1777,6 +1833,7 @@ bool UMediaClientImpl::IsAdaptiveStreaming() {
 }
 
 bool UMediaClientImpl::IsNotSupportedSourceInfo() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (media_transport_type_ == "MIRACAST" || media_transport_type_ == "UDP" ||
       media_transport_type_ == "RTSP" || media_transport_type_ == "RTP")
     return true;
@@ -1784,11 +1841,13 @@ bool UMediaClientImpl::IsNotSupportedSourceInfo() {
 }
 
 bool UMediaClientImpl::IsAppName(const char* app_name) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return base::StartsWith(app_id_, app_name,
                           base::CompareCase::INSENSITIVE_ASCII);
 }
 
 bool UMediaClientImpl::Is2kVideoAndOver() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!video_)
     return false;
 
@@ -1810,6 +1869,7 @@ bool UMediaClientImpl::Is2kVideoAndOver() {
 }
 
 bool UMediaClientImpl::IsSupportedAudioOutputOnTrickPlaying() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (media_transport_type_ == "DLNA" || media_transport_type_ == "HLS-LG" ||
       media_transport_type_ == "USB" || media_transport_type_ == "DPS")
     return true;
@@ -1817,6 +1877,7 @@ bool UMediaClientImpl::IsSupportedAudioOutputOnTrickPlaying() {
 }
 
 bool UMediaClientImpl::IsSupportedSeekableRanges() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (media_transport_type_ == "MPEG-DASH" ||
       media_transport_type_ == "MSIIS") {
     return true;
@@ -1829,6 +1890,7 @@ bool UMediaClientImpl::IsSupportedSeekableRanges() {
 }
 
 void UMediaClientImpl::EnableSubtitle(bool enable) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (MediaId().empty())
     return;
 
@@ -1846,6 +1908,7 @@ void UMediaClientImpl::EnableSubtitle(bool enable) {
 }
 
 bool UMediaClientImpl::CheckAudioOutput(float playback_rate) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (playback_rate == 1.0f)
     return true;
 
@@ -1862,6 +1925,7 @@ bool UMediaClientImpl::CheckAudioOutput(float playback_rate) {
 }
 
 void UMediaClientImpl::LoadInternal() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   AudioStreamClass stream_type = kMedia;
   if (use_pipeline_preload_ && !is_suspended_)
     NotifyForeground();
@@ -1874,6 +1938,7 @@ void UMediaClientImpl::LoadInternal() {
 }
 
 bool UMediaClientImpl::UnloadInternal() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   loading_state_ = LOADING_STATE_UNLOADING;
   return uMediaServer::uMediaClient::unload();
 }
@@ -1881,6 +1946,7 @@ bool UMediaClientImpl::UnloadInternal() {
 bool UMediaClientImpl::LoadAsyncInternal(const std::string& uri,
                                          AudioStreamClass audio_class,
                                          const std::string& media_payload) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << " loading_state_ " << loading_state_ << " -> "
               << LOADING_STATE_LOADING;
   loading_state_ = LOADING_STATE_LOADING;
@@ -1890,6 +1956,7 @@ bool UMediaClientImpl::LoadAsyncInternal(const std::string& uri,
 bool UMediaClientImpl::PreloadInternal(const std::string& uri,
                                        AudioStreamClass audio_class,
                                        const std::string& media_payload) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << " loading_state_ " << loading_state_ << " -> "
               << LOADING_STATE_PRELOADING;
   loading_state_ = LOADING_STATE_PRELOADING;
@@ -1897,15 +1964,18 @@ bool UMediaClientImpl::PreloadInternal(const std::string& uri,
 }
 
 void UMediaClientImpl::NotifyForeground() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   VLOG(1) << "call uMediaServer::uMediaClient::notifyForeground()";
   uMediaServer::uMediaClient::notifyForeground();
 }
 
 bool UMediaClientImpl::IsMpegDashContents() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return media_transport_type_ == "MPEG-DASH";
 }
 
 bool UMediaClientImpl::Send(const std::string& message) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return system_media_manager_->SendCustomMessage(message);
 }
 

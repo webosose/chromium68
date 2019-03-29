@@ -22,10 +22,10 @@ bool MediaPlayerNevaFactory::CanSupportMediaType(const std::string &mime_type) {
     return false;
 }
 MediaPlayerNeva* MediaPlayerNevaFactory::CreateMediaPlayerNeva(
-        MediaPlayerNevaClient* client,
-        const std::string &mime_type,
-        const scoped_refptr<base::SingleThreadTaskRunner>& task_runner) {
-    return nullptr;
+    MediaPlayerNevaClient* client,
+    const std::string& mime_type,
+    const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner) {
+  return nullptr;
 }
 
 } // media namespace

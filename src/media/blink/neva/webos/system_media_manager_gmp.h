@@ -43,7 +43,7 @@ class SystemMediaManagerGmp : public SystemMediaManager {
  public:
   SystemMediaManagerGmp(
       const base::WeakPtr<UMediaClientImpl>& umedia_client,
-      const scoped_refptr<base::SingleThreadTaskRunner>& task_runner);
+      const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner);
   ~SystemMediaManagerGmp() override;
 
   long Initialize(const bool is_video,

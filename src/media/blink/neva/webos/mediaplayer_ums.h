@@ -153,8 +153,7 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
 
   base::TimeDelta last_time_update_timestamp_;
 
-  base::MessageLoop* main_loop_;
-  scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
+  scoped_refptr<base::SingleThreadTaskRunner> main_task_runner_;
   DISALLOW_COPY_AND_ASSIGN(MediaPlayerUMS);
 };
 

@@ -343,6 +343,10 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
 
   blink::WebLocalFrame* frame_;
 
+  // Task runner for posting tasks on Chrome's main thread. Also used
+  // for DCHECKs so methods calls won't execute in the wrong thread.
+  const scoped_refptr<base::SingleThreadTaskRunner> main_task_runner_;
+
   blink::WebMediaPlayerClient* client_;
 
   // WebMediaPlayer notifies the |delegate_| of playback state changes using
@@ -365,11 +369,6 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerNeva
   // The video frame object used for rendering by the compositor.
   scoped_refptr<media::VideoFrame> current_frame_;
   base::Lock current_frame_lock_;
-
-  base::ThreadChecker main_thread_checker_;
-
-  // Message loop for media thread.
-  scoped_refptr<base::SingleThreadTaskRunner> media_task_runner_;
 
   // URL of the media file to be fetched.
   GURL url_;

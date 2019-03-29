@@ -30,15 +30,16 @@
 namespace media {
 std::unique_ptr<SystemMediaManager> SystemMediaManager::Create(
     const base::WeakPtr<UMediaClientImpl>& umedia_client,
-    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner) {
-  return std::make_unique<SystemMediaManagerGmp>(umedia_client, task_runner);
+    const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner) {
+  return std::make_unique<SystemMediaManagerGmp>(umedia_client,
+                                                 main_task_runner);
 }
 
 SystemMediaManagerGmp::SystemMediaManagerGmp(
     const base::WeakPtr<UMediaClientImpl>& umedia_client,
-    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner)
+    const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner)
     : umedia_client_(umedia_client),
-      main_task_runner_(task_runner),
+      main_task_runner_(main_task_runner),
       weak_factory_(this) {
   FUNC_LOG(1) << " umedia_client_=" << umedia_client_.get();
 }

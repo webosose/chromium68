@@ -66,7 +66,7 @@ class SystemMediaManager {
 
   static std::unique_ptr<SystemMediaManager> Create(
       const base::WeakPtr<UMediaClientImpl>& umedia_client,
-      const scoped_refptr<base::SingleThreadTaskRunner>& task_runner);
+      const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner);
 
   virtual ~SystemMediaManager(){};
 

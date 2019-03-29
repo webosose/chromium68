@@ -182,12 +182,13 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
     std::unique_ptr<WebMediaPlayerParams> params,
     std::unique_ptr<WebMediaPlayerParamsNeva> params_neva)
     : frame_(frame),
+      main_task_runner_(
+          frame->GetTaskRunner(blink::TaskType::kMediaElementEvent)),
       client_(client),
       delegate_(delegate),
       delegate_id_(0),
       defer_load_cb_(params->defer_load_cb()),
       buffered_(static_cast<size_t>(1)),
-      media_task_runner_(params->media_task_runner()),
       pending_seek_(false),
       seeking_(false),
       did_loading_progress_(false),
@@ -215,7 +216,7 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
       is_video_offscreen_(false),
       app_id_(params_neva->application_id().Utf8().data()),
       is_loading_(false) {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
 
   if (delegate_)
     delegate_id_ = delegate_->AddObserver(this);
@@ -232,7 +233,7 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
 
   std::string mime_type = client_->ContentMIMEType().Latin1();
   player_api_.reset(MediaPlayerNevaFactory::CreateMediaPlayerNeva(
-      this, mime_type, media_task_runner_, app_id_));
+      this, mime_type, main_task_runner_, app_id_));
 
   video_frame_provider_ = std::make_unique<VideoFrameProviderImpl>(
       stream_texture_factory_create_cb, compositor_task_runner_);
@@ -250,7 +251,7 @@ WebMediaPlayerNeva::WebMediaPlayerNeva(
 }
 
 WebMediaPlayerNeva::~WebMediaPlayerNeva() {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   GetClient()->SetCcLayer(nullptr);
 
   if (video_layer_.get()) {
@@ -279,6 +280,7 @@ WebMediaPlayerNeva::~WebMediaPlayerNeva() {
 void WebMediaPlayerNeva::Load(LoadType load_type,
                               const blink::WebMediaPlayerSource& src,
                               CORSMode cors_mode) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   LOG(INFO) << __func__;
 
   DCHECK(src.IsURL());
@@ -331,8 +333,8 @@ void WebMediaPlayerNeva::UpdatePlayingState(bool is_playing) {
 void WebMediaPlayerNeva::DoLoad(LoadType load_type,
                                 const blink::WebURL& url,
                                 CORSMode cors_mode) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
-  DCHECK(main_thread_checker_.CalledOnValidThread());
   // We should use MediaInfoLoader for all URLs but because of missing
   // scheme handlers in WAM we use it only for file scheme for now.
   // By using MediaInfoLoader url gets passed to network delegate which
@@ -354,6 +356,7 @@ void WebMediaPlayerNeva::DoLoad(LoadType load_type,
 }
 
 void WebMediaPlayerNeva::DidLoadMediaInfo(bool ok, const GURL& url) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
   if (!ok) {
     info_loader_.reset();
@@ -368,6 +371,7 @@ void WebMediaPlayerNeva::DidLoadMediaInfo(bool ok, const GURL& url) {
 }
 
 void WebMediaPlayerNeva::LoadMedia() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
 
   std::string mime_type(GetClient()->ContentMIMEType().Utf8().data());
@@ -384,6 +388,7 @@ void WebMediaPlayerNeva::LoadMedia() {
 
 void WebMediaPlayerNeva::OnActiveRegionChanged(
     const blink::WebRect& active_region) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   LOG(INFO) << __func__ << " (" << gfx::Rect(active_region).ToString() << ")";
   video_frame_provider_->ActiveRegionChanged(active_region);
   if (!NaturalSize().IsEmpty())
@@ -391,8 +396,8 @@ void WebMediaPlayerNeva::OnActiveRegionChanged(
 }
 
 void WebMediaPlayerNeva::Play() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   LOG(INFO) << __func__;
-  DCHECK(main_thread_checker_.CalledOnValidThread());
   if (!has_activation_permit_) {
     LOG(INFO) << "block to play on suspended";
     status_on_suspended_ = PlayingStatus;
@@ -415,8 +420,8 @@ void WebMediaPlayerNeva::Play() {
 }
 
 void WebMediaPlayerNeva::Pause() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   LOG(INFO) << __func__;
-  DCHECK(main_thread_checker_.CalledOnValidThread());
 
   UpdatePlayingState(false);
   player_api_->Pause();
@@ -431,6 +436,7 @@ void WebMediaPlayerNeva::Pause() {
 }
 
 void WebMediaPlayerNeva::EnteredFullscreen() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
   if (!is_fullscreen_mode_) {
     is_fullscreen_mode_ = true;
@@ -439,6 +445,7 @@ void WebMediaPlayerNeva::EnteredFullscreen() {
 }
 
 void WebMediaPlayerNeva::ExitedFullscreen() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
   if (is_fullscreen_mode_) {
     is_fullscreen_mode_ = false;
@@ -447,17 +454,19 @@ void WebMediaPlayerNeva::ExitedFullscreen() {
 }
 
 void WebMediaPlayerNeva::BecameDominantVisibleContent(bool is_dominant) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << "is_dominant=" << is_dominant;
 }
 
 void WebMediaPlayerNeva::SetIsEffectivelyFullscreen(
     blink::WebFullscreenVideoStatus status) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << "fs status=" << (int)status;
 }
 
 void WebMediaPlayerNeva::Seek(double seconds) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
-  DCHECK(main_thread_checker_.CalledOnValidThread());
 
   playback_completed_ = false;
 
@@ -488,8 +497,8 @@ void WebMediaPlayerNeva::Seek(double seconds) {
 }
 
 void WebMediaPlayerNeva::SetRate(double rate) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
-  DCHECK(main_thread_checker_.CalledOnValidThread());
 
   // Limit rates to reasonable values by clamping.
   rate = std::max(kMinRate, std::min(rate, kMaxRate));
@@ -506,15 +515,16 @@ void WebMediaPlayerNeva::SetRate(double rate) {
 }
 
 void WebMediaPlayerNeva::SetVolume(double volume) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+
   volume_ = volume;
   player_api_->SetVolume(volume_);
 }
 
 void WebMediaPlayerNeva::SetPreload(Preload preload) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
-  DCHECK(main_thread_checker_.CalledOnValidThread());
   switch (preload) {
     case WebMediaPlayer::kPreloadNone:
       player_api_->SetPreload(MediaPlayerNeva::PreloadNone);
@@ -531,28 +541,30 @@ void WebMediaPlayerNeva::SetPreload(Preload preload) {
 }
 
 bool WebMediaPlayerNeva::HasVideo() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
-  DCHECK(main_thread_checker_.CalledOnValidThread());
   return player_api_->HasVideo();
 }
 
 bool WebMediaPlayerNeva::HasAudio() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
-  DCHECK(main_thread_checker_.CalledOnValidThread());
   return player_api_->HasAudio();
 }
 
 bool WebMediaPlayerNeva::Paused() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
   return !is_playing_;
 }
 
 bool WebMediaPlayerNeva::Seeking() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return seeking_;
 }
 
 double WebMediaPlayerNeva::Duration() const {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
 
   if (ready_state_ == WebMediaPlayer::kReadyStateHaveNothing)
     return std::numeric_limits<double>::quiet_NaN();
@@ -561,7 +573,7 @@ double WebMediaPlayerNeva::Duration() const {
 }
 
 double WebMediaPlayerNeva::CurrentTime() const {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   // If the player is processing a seek, return the seek time.
   // Blink may still query us if updatePlaybackState() occurs while seeking.
   if (Seeking()) {
@@ -586,31 +598,38 @@ double WebMediaPlayerNeva::CurrentTime() const {
 }
 
 WebSize WebMediaPlayerNeva::NaturalSize() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return natural_size_;
 }
 
 WebSize WebMediaPlayerNeva::VisibleRect() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   // FIXME: Need to check visible rect: really it is natural size.
   return natural_size_;
 }
 
 WebMediaPlayer::NetworkState WebMediaPlayerNeva::GetNetworkState() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return network_state_;
 }
 
 WebMediaPlayer::ReadyState WebMediaPlayerNeva::GetReadyState() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return ready_state_;
 }
 
 blink::WebString WebMediaPlayerNeva::GetErrorMessage() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return blink::WebString();
 }
 
 blink::WebTimeRanges WebMediaPlayerNeva::Buffered() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return buffered_;
 }
 
 blink::WebTimeRanges WebMediaPlayerNeva::Seekable() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (ready_state_ < WebMediaPlayer::kReadyStateHaveMetadata)
     return blink::WebTimeRanges();
 
@@ -622,6 +641,7 @@ blink::WebTimeRanges WebMediaPlayerNeva::Seekable() const {
 }
 
 bool WebMediaPlayerNeva::DidLoadingProgress() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   bool ret = did_loading_progress_;
   did_loading_progress_ = false;
   return ret;
@@ -632,7 +652,7 @@ void WebMediaPlayerNeva::Paint(blink::WebCanvas* canvas,
                                cc::PaintFlags& flags,
                                int already_uploaded_id,
                                VideoFrameUploadMetadata* out_metadata) {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   // TODO(wanchang): check android impl
   return;
 }
@@ -640,43 +660,47 @@ void WebMediaPlayerNeva::Paint(blink::WebCanvas* canvas,
 // TODO(neva): need to check why |DidGetOpaqueResponseFromServiceWorker| is
 // added.
 bool WebMediaPlayerNeva::DidGetOpaqueResponseFromServiceWorker() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return false;
 }
 
 bool WebMediaPlayerNeva::HasSingleSecurityOrigin() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   // TODO(wanchang): check android impl
   return true;
 }
 
 bool WebMediaPlayerNeva::DidPassCORSAccessCheck() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   // TODO(wanchang): check android impl
   return false;
 }
 
 double WebMediaPlayerNeva::MediaTimeForTimeValue(double timeValue) const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return base::TimeDelta::FromSecondsD(timeValue).InSecondsF();
 }
 
 unsigned WebMediaPlayerNeva::DecodedFrameCount() const {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   // TODO(wanchang): check android impl
   return 0;
 }
 
 unsigned WebMediaPlayerNeva::DroppedFrameCount() const {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   // TODO(wanchang): check android impl
   return 0;
 }
 
 size_t WebMediaPlayerNeva::AudioDecodedByteCount() const {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   // TODO(wanchang): check android impl
   return 0;
 }
 
 size_t WebMediaPlayerNeva::VideoDecodedByteCount() const {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   // TODO(wanchang): check android impl
   return 0;
 }
@@ -685,8 +709,8 @@ void WebMediaPlayerNeva::OnMediaMetadataChanged(base::TimeDelta duration,
                                                 int width,
                                                 int height,
                                                 bool success) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
-  DCHECK(main_thread_checker_.CalledOnValidThread());
 
   bool need_to_signal_duration_changed = false;
 
@@ -721,6 +745,7 @@ void WebMediaPlayerNeva::OnMediaMetadataChanged(base::TimeDelta duration,
 }
 
 void WebMediaPlayerNeva::OnLoadComplete() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   is_loading_ = false;
   if (ready_state_ < WebMediaPlayer::kReadyStateHaveEnoughData)
     UpdateReadyState(WebMediaPlayer::kReadyStateHaveEnoughData);
@@ -728,6 +753,7 @@ void WebMediaPlayerNeva::OnLoadComplete() {
 }
 
 void WebMediaPlayerNeva::OnPlaybackComplete() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   // When playback is about to finish, android media player often stops
   // at a time which is smaller than the duration. This makes webkit never
   // know that the playback has finished. To solve this, we set the
@@ -750,6 +776,7 @@ void WebMediaPlayerNeva::OnPlaybackComplete() {
 }
 
 void WebMediaPlayerNeva::OnBufferingUpdate(int percentage) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   buffered_[0].end = Duration() * percentage / 100;
   did_loading_progress_ = true;
   did_loading_progress_ = true;
@@ -759,7 +786,7 @@ void WebMediaPlayerNeva::OnBufferingUpdate(int percentage) {
 }
 
 void WebMediaPlayerNeva::OnSeekComplete(const base::TimeDelta& current_time) {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   seeking_ = false;
   if (pending_seek_) {
     pending_seek_ = false;
@@ -774,6 +801,7 @@ void WebMediaPlayerNeva::OnSeekComplete(const base::TimeDelta& current_time) {
 }
 
 void WebMediaPlayerNeva::OnMediaError(int error_type) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   LOG(ERROR) << __func__ << "("
              << MediaErrorToString((MediaPlayerNeva::MediaError)error_type)
              << ")";
@@ -800,8 +828,8 @@ void WebMediaPlayerNeva::OnMediaError(int error_type) {
 }
 
 void WebMediaPlayerNeva::OnVideoSizeChanged(int width, int height) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1);
-  DCHECK(main_thread_checker_.CalledOnValidThread());
 
   // Ignore OnVideoSizeChanged before kReadyStateHaveMetadata.
   // OnVideoSizeChanged will be called again from OnMediaMetadataChanged
@@ -849,6 +877,7 @@ void WebMediaPlayerNeva::OnVideoSizeChanged(int width, int height) {
 
 void WebMediaPlayerNeva::OnAudioTracksUpdated(
     const std::vector<struct MediaTrackInfo>& audio_track_info) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   for (auto& audio_track : audio_track_info) {
     // Check current id is already added or not.
     auto it = std::find_if(audio_track_ids_.begin(), audio_track_ids_.end(),
@@ -874,7 +903,7 @@ void WebMediaPlayerNeva::OnAudioTracksUpdated(
 
 void WebMediaPlayerNeva::OnTimeUpdate(base::TimeDelta current_timestamp,
                                       base::TimeTicks current_time_ticks) {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
 
   if (Seeking())
     return;
@@ -900,18 +929,20 @@ void WebMediaPlayerNeva::OnTimeUpdate(base::TimeDelta current_timestamp,
 }
 
 void WebMediaPlayerNeva::OnMediaPlayerPlay() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   UpdatePlayingState(true);
   client_->PlaybackStateChanged();
 }
 
 void WebMediaPlayerNeva::OnMediaPlayerPause() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   UpdatePlayingState(false);
   client_->PlaybackStateChanged();
 }
 
 void WebMediaPlayerNeva::UpdateNetworkState(
     WebMediaPlayer::NetworkState state) {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   VLOG(1) << __func__ << "(" << NetworkStateToString(state) << ")";
   if (ready_state_ == WebMediaPlayer::kReadyStateHaveNothing &&
       (state == WebMediaPlayer::kNetworkStateNetworkError ||
@@ -927,7 +958,7 @@ void WebMediaPlayerNeva::UpdateNetworkState(
 }
 
 void WebMediaPlayerNeva::UpdateReadyState(WebMediaPlayer::ReadyState state) {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   VLOG(1) << __func__ << "(" << ReadyStateToString(state) << ")";
 
   if (state == WebMediaPlayer::kReadyStateHaveEnoughData &&
@@ -958,6 +989,7 @@ bool WebMediaPlayerNeva::CopyVideoTextureToPlatformTexture(
     bool flip_y,
     int already_uploaded_id,
     VideoFrameUploadMetadata* out_metadata) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!RenderTexture())
     return false;
   scoped_refptr<media::VideoFrame> video_frame;
@@ -1013,13 +1045,14 @@ bool WebMediaPlayerNeva::CopyVideoTextureToPlatformTexture(
 }
 
 blink::WebAudioSourceProvider* WebMediaPlayerNeva::GetAudioSourceProvider() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return audio_source_provider_.get();
 }
 
 void WebMediaPlayerNeva::WillDestroyCurrentMessageLoop() {}
 
 void WebMediaPlayerNeva::Repaint() {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
 
   GetClient()->Repaint();
 }
@@ -1141,12 +1174,13 @@ bool WebMediaPlayerNeva::UpdateBoundaryRectangle() {
 #endif
 
 blink::WebMediaPlayerClient* WebMediaPlayerNeva::GetClient() {
-  DCHECK(main_thread_checker_.CalledOnValidThread());
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   DCHECK(client_);
   return client_;
 }
 
 void WebMediaPlayerNeva::OnSuspend() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (is_suspended_) {
     delegate_->DidMediaSuspended(delegate_id_);
     return;
@@ -1170,6 +1204,7 @@ void WebMediaPlayerNeva::OnSuspend() {
 }
 
 void WebMediaPlayerNeva::OnMediaActivationPermitted() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   // If we already have activation permit, just skip.
   if (has_activation_permit_) {
     delegate_->DidMediaActivated(delegate_id_);
@@ -1191,6 +1226,7 @@ void WebMediaPlayerNeva::OnMediaActivationPermitted() {
 }
 
 void WebMediaPlayerNeva::OnResume() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!is_suspended_) {
     delegate_->DidMediaActivated(delegate_id_);
     return;
@@ -1210,7 +1246,7 @@ void WebMediaPlayerNeva::OnResume() {
 
   if (!player_api_->IsRecoverableOnResume()) {
     player_api_.reset(MediaPlayerNevaFactory::CreateMediaPlayerNeva(
-        this, client_->ContentMIMEType().Latin1(), media_task_runner_, app_id_));
+        this, client_->ContentMIMEType().Latin1(), main_task_runner_, app_id_));
     player_api_->SetVolume(volume_);
     LoadMedia();
     SetDisplayWindow();
@@ -1228,6 +1264,7 @@ void WebMediaPlayerNeva::OnResume() {
 }
 
 void WebMediaPlayerNeva::OnLoadPermitted() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   LOG(ERROR) << __func__;
 
   FUNC_LOG(1);
@@ -1242,32 +1279,39 @@ void WebMediaPlayerNeva::OnLoadPermitted() {
 }
 
 bool WebMediaPlayerNeva::UsesIntrinsicSize() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return player_api_->UsesIntrinsicSize();
 }
 
 blink::WebString WebMediaPlayerNeva::MediaId() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return blink::WebString::FromUTF8(player_api_->MediaId());
 }
 
 bool WebMediaPlayerNeva::HasAudioFocus() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return player_api_->HasAudioFocus();
 }
 
 void WebMediaPlayerNeva::SetAudioFocus(bool focus) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   player_api_->SetAudioFocus(focus);
 }
 
 bool WebMediaPlayerNeva::HasVisibility() const {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   return player_api_->HasVisibility();
 }
 
 void WebMediaPlayerNeva::SetVisibility(bool visibility) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   player_api_->SetVisibility(visibility);
 }
 
 void WebMediaPlayerNeva::OnCustomMessage(
     const blink::WebMediaPlayer::MediaEventType media_event_type,
     const std::string& detail) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << __func__ << " detail: " << detail;
 
   if (!detail.empty())
@@ -1276,10 +1320,12 @@ void WebMediaPlayerNeva::OnCustomMessage(
 }
 
 void WebMediaPlayerNeva::OnAudioFocusChanged() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   client_->OnAudioFocusChanged();
 }
 
 void WebMediaPlayerNeva::OnVideoDisplayWindowChange() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(1) << " renderTexture: " << RenderTexture();
 
   if (RenderTexture()) {
@@ -1293,6 +1339,7 @@ void WebMediaPlayerNeva::OnVideoDisplayWindowChange() {
 }
 
 void WebMediaPlayerNeva::SetRenderMode(blink::WebMediaPlayer::RenderMode mode) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (render_mode_ == mode)
     return;
 
@@ -1309,6 +1356,7 @@ void WebMediaPlayerNeva::SetRenderMode(blink::WebMediaPlayer::RenderMode mode) {
 }
 
 void WebMediaPlayerNeva::SetDisableAudio(bool disable) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (audio_disabled_ == disable)
     return;
   LOG(INFO) << __func__ << " disable=" << disable;
@@ -1317,6 +1365,7 @@ void WebMediaPlayerNeva::SetDisableAudio(bool disable) {
 
 void WebMediaPlayerNeva::EnabledAudioTracksChanged(
     const blink::WebVector<TrackId>& enabled_track_ids) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   auto it = std::find_if(
       audio_track_ids_.begin(), audio_track_ids_.end(),
       [&enabled_track_ids](const MediaTrackId& id) {
@@ -1339,6 +1388,7 @@ void WebMediaPlayerNeva::OnMediaSourceOpened(
 }
 
 void WebMediaPlayerNeva::OnFrameHidden() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsBackgroundedSuspendEnabled())
     return;
 
@@ -1346,6 +1396,7 @@ void WebMediaPlayerNeva::OnFrameHidden() {
 }
 
 void WebMediaPlayerNeva::OnFrameShown() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (!IsBackgroundedSuspendEnabled())
     return;
 
@@ -1353,6 +1404,7 @@ void WebMediaPlayerNeva::OnFrameShown() {
 }
 
 void WebMediaPlayerNeva::OnDidCommitCompositorFrame() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   if (RenderTexture())
     return;
 #if defined(VIDEO_HOLE)

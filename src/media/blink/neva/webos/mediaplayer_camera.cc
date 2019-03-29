@@ -31,11 +31,11 @@ namespace media {
 
 MediaPlayerCamera::MediaPlayerCamera(
     MediaPlayerNevaClient* client,
-    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+    const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner,
     const std::string& app_id)
     : uMediaClient(app_id),
       client_(client),
-      main_task_runner_(base::MessageLoop::current()->task_runner()),
+      main_task_runner_(main_task_runner),
       has_audio_(false),
       has_video_(false),
       loaded_(false),
@@ -47,6 +47,7 @@ MediaPlayerCamera::MediaPlayerCamera(
 }
 
 MediaPlayerCamera::~MediaPlayerCamera() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2) << " media_id : " << media_id_.c_str();
   weak_ptr_.reset();
   if (!media_id_.empty() && loaded_)
@@ -62,6 +63,7 @@ void MediaPlayerCamera::Initialize(const bool is_video,
                                    const std::string& user_agent,
                                    const std::string& cookies,
                                    const std::string& payload) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2) << " app_id: " << app_id.c_str() << " url : " << url.c_str()
               << " payload - " << (payload.empty() ? "{}" : payload.c_str());
 
@@ -118,6 +120,7 @@ void MediaPlayerCamera::Initialize(const bool is_video,
 }
 
 void MediaPlayerCamera::Start() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
 
   if (!time_update_timer_.IsRunning()) {
@@ -128,6 +131,7 @@ void MediaPlayerCamera::Start() {
 }
 
 void MediaPlayerCamera::Pause() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
 
   time_update_timer_.Stop();
@@ -136,10 +140,12 @@ void MediaPlayerCamera::Pause() {
 }
 
 void MediaPlayerCamera::SetRate(double playback_rate) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2) << " playback_rate =" << playback_rate;
 }
 
 bool MediaPlayerCamera::IsPreloadable(const std::string& content_media_option) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
   return false;
 }
@@ -148,6 +154,7 @@ void MediaPlayerCamera::SetDisplayWindow(const gfx::Rect& out_rect,
                                          const gfx::Rect& in_rect,
                                          bool full_screen,
                                          bool forced) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2) << " full_screen: " << full_screen << " forced:" << forced;
 
   using namespace uMediaServer;
@@ -320,6 +327,7 @@ bool MediaPlayerCamera::onUserDefinedChanged(const char* payload) {
 }
 
 void MediaPlayerCamera::DispatchLoadCompleted() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   media_id_ = std::string(uMediaServer::uMediaClient::media_id);
   FUNC_LOG(2) << " loadCompleted : " << media_id_;
 
@@ -353,11 +361,13 @@ void MediaPlayerCamera::DispatchLoadCompleted() {
 }
 
 void MediaPlayerCamera::DispatchUnloadCompleted() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2) << " UnloadCompleted : " << media_id_;
   loaded_ = false;
 }
 
 void MediaPlayerCamera::DispatchPlaying() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
   if (client_) {
     client_->OnMediaPlayerPlay();
@@ -375,6 +385,7 @@ void MediaPlayerCamera::DispatchPlaying() {
 }
 
 void MediaPlayerCamera::DispatchPaused() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
   if (client_) {
     client_->OnMediaPlayerPause();
@@ -392,6 +403,7 @@ void MediaPlayerCamera::DispatchPaused() {
 }
 
 void MediaPlayerCamera::DispatchUserDefinedChanged(const std::string& message) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2) << " message : " << message;
 
   Json::Value root;
@@ -423,6 +435,7 @@ void MediaPlayerCamera::DispatchUserDefinedChanged(const std::string& message) {
 #if UMS_INTERNAL_API_VERSION == 2
 void MediaPlayerCamera::DispatchAudioInfo(
     const struct ums::audio_info_t& audioInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
 
   has_audio_ = true;
@@ -447,6 +460,7 @@ void MediaPlayerCamera::DispatchAudioInfo(
 
 void MediaPlayerCamera::DispatchVideoInfo(
     const struct ums::video_info_t& videoInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
 
   has_video_ = true;
@@ -489,6 +503,7 @@ void MediaPlayerCamera::DispatchVideoInfo(
 
 void MediaPlayerCamera::DispatchSourceInfo(
     const struct ums::source_info_t& sourceInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
 
   if (sourceInfo.programs.size() > 0) {
@@ -530,6 +545,7 @@ void MediaPlayerCamera::DispatchSourceInfo(
 #else
 void MediaPlayerCamera::DispatchAudioInfo(
     const struct uMediaServer::audio_info_t& audioInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
   has_audio_ = true;
   if (client_) {
@@ -548,6 +564,7 @@ void MediaPlayerCamera::DispatchAudioInfo(
 
 void MediaPlayerCamera::DispatchVideoInfo(
     const struct uMediaServer::video_info_t& videoInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
   has_video_ = true;
   if (client_) {
@@ -569,16 +586,19 @@ void MediaPlayerCamera::DispatchVideoInfo(
 
 void MediaPlayerCamera::DispatchSourceInfo(
     const struct uMediaServer::source_info_t& sourceInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
 }
 #endif
 
 void MediaPlayerCamera::DispatchCurrentTime(int64_t currentTime) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   current_time_ = currentTime / 1000.;
 }
 
 void MediaPlayerCamera::DispatchError(long long errorCode,
                                       const std::string& errorText) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
   Json::Value root;
   Json::Reader reader;
@@ -604,6 +624,7 @@ void MediaPlayerCamera::DispatchError(long long errorCode,
 }
 
 void MediaPlayerCamera::DispatchEndOfStream() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
   if (client_) {
     Json::Value root;
@@ -618,6 +639,7 @@ void MediaPlayerCamera::DispatchEndOfStream() {
 }
 
 void MediaPlayerCamera::DispatchFileGenerated() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
   if (client_) {
     Json::Value root;
@@ -633,6 +655,7 @@ void MediaPlayerCamera::DispatchFileGenerated() {
 
 void MediaPlayerCamera::DispatchRecordInfo(
     const uMediaServer::record_info_t& recordInfo) {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
   if (client_) {
     Json::Value root;
@@ -652,6 +675,7 @@ void MediaPlayerCamera::DispatchRecordInfo(
 }
 
 void MediaPlayerCamera::UpdateCurrentTimeFired() {
+  DCHECK(main_task_runner_->BelongsToCurrentThread());
   FUNC_LOG(2);
   base::TimeDelta current_time = base::TimeDelta::FromSecondsD(current_time_);
   if (last_time_update_time_ == current_time)
