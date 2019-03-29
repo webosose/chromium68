@@ -47,18 +47,22 @@ blink::WebMediaPlayer* WebMediaPlayerNevaFactory::CreateWebMediaPlayerNeva(
     const StreamTextureFactoryCreateCB& stream_texture_factory_create_cb,
     std::unique_ptr<WebMediaPlayerParams> params,
     std::unique_ptr<WebMediaPlayerParamsNeva> params_neva) {
-  if (client->LoadType() == blink::WebMediaPlayer::kLoadTypeMediaSource) {
-    return new media::WebMediaPlayerMSE(
-        frame, client, encrypted_client, delegate,
-        std::move(renderer_factory_selector), url_index, std::move(compositor),
-        stream_texture_factory_create_cb, std::move(params),
-        std::move(params_neva));
+  switch (client->LoadType()) {
+    case blink::WebMediaPlayer::kLoadTypeMediaSource:
+      return new media::WebMediaPlayerMSE(
+          frame, client, encrypted_client, delegate,
+          std::move(renderer_factory_selector), url_index,
+          std::move(compositor), stream_texture_factory_create_cb,
+          std::move(params), std::move(params_neva));
+    case blink::WebMediaPlayer::kLoadTypeURL:
+      return media::WebMediaPlayerNeva::Create(
+          frame, client, delegate, stream_texture_factory_create_cb,
+          std::move(params), std::move(params_neva));
+    default:
+      NOTREACHED();
+      return nullptr;
   }
 
-  if (client->LoadType() == blink::WebMediaPlayer::kLoadTypeURL)
-    return media::WebMediaPlayerNeva::Create(
-        frame, client, delegate, stream_texture_factory_create_cb,
-        std::move(params), std::move(params_neva));
   NOTREACHED();
   return nullptr;
 }
