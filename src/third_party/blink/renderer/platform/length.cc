@@ -43,8 +43,12 @@ class CalculationValueHandleMap {
     // FIXME calc(): https://bugs.webkit.org/show_bug.cgi?id=80489
     // This monotonically increasing handle generation scheme is potentially
     // wasteful of the handle space. Consider reusing empty handles.
+
+    // Mantissa has only 23bits. So many numbers above 0x1000000(16777216)
+    // cannot be represented properly with accuracy of 32-bit floating point
+    // numbers.
     while (map_.Contains(index_))
-      index_++;
+      index_ = (index_ + 1) % 0x1000000;
 
     map_.Set(index_, std::move(calc_value));
 
