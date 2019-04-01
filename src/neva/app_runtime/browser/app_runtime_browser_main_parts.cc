@@ -20,6 +20,7 @@
 #include "base/logging.h"
 #include "base/run_loop.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/threading/platform_thread.h"
 #include "components/os_crypt/key_storage_config_linux.h"
 #include "components/os_crypt/os_crypt.h"
 #include "content/public/browser/browser_thread.h"
@@ -182,8 +183,8 @@ void AppRuntimeBrowserMainParts::PreMainMessageLoopRun() {
 void AppRuntimeBrowserMainParts::ArmWatchdog(content::BrowserThread::ID thread,
                                              watchdog::Watchdog* watchdog) {
   watchdog->Arm();
-  if (!watchdog->GetWatchingThreadTid())
-    watchdog->SetWatchingThreadTid((pid_t)syscall(SYS_gettid));
+  if (!watchdog->HasThreadInfo())
+    watchdog->SetCurrentThreadInfo();
 
   content::BrowserThread::PostDelayedTask(
       thread, FROM_HERE,

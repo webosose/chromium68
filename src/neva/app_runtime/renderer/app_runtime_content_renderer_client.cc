@@ -78,8 +78,8 @@ void AppRuntimeContentRendererClient::RenderThreadStarted() {
 
 void AppRuntimeContentRendererClient::ArmWatchdog() {
   watchdog_->Arm();
-  if (!watchdog_->GetWatchingThreadTid())
-    watchdog_->SetWatchingThreadTid((pid_t)syscall(SYS_gettid));
+  if (!watchdog_->HasThreadInfo())
+    watchdog_->SetCurrentThreadInfo();
 
   // Check it's currently running on RenderThread
   CHECK(content::RenderThread::Get());
