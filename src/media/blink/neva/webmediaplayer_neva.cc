@@ -707,10 +707,8 @@ void WebMediaPlayerNeva::OnMediaMetadataChanged(base::TimeDelta duration,
     }
   }
 
-  if (ready_state_ != WebMediaPlayer::kReadyStateHaveEnoughData) {
+  if (ready_state_ < WebMediaPlayer::kReadyStateHaveMetadata)
     UpdateReadyState(WebMediaPlayer::kReadyStateHaveMetadata);
-    UpdateReadyState(WebMediaPlayer::kReadyStateHaveEnoughData);
-  }
 
   // TODO(wolenetz): Should we just abort early and set network state to an
   // error if success == false? See http://crbug.com/248399
@@ -724,6 +722,8 @@ void WebMediaPlayerNeva::OnMediaMetadataChanged(base::TimeDelta duration,
 
 void WebMediaPlayerNeva::OnLoadComplete() {
   is_loading_ = false;
+  if (ready_state_ < WebMediaPlayer::kReadyStateHaveEnoughData)
+    UpdateReadyState(WebMediaPlayer::kReadyStateHaveEnoughData);
   delegate_->DidMediaActivated(delegate_id_);
 }
 
