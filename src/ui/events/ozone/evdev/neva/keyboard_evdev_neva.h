@@ -27,8 +27,7 @@ class KeyboardEvdevNeva : public KeyboardEvdev {
  public:
    KeyboardEvdevNeva(EventModifiers* modifiers,
                      KeyboardLayoutEngine* keyboard_layout_engine,
-                     const EventDispatchCallback& callback)
-    : KeyboardEvdev(modifiers, keyboard_layout_engine, callback) {}
+                     const EventDispatchCallback& callback);
 
    virtual ~KeyboardEvdevNeva() {}
 
