@@ -42,10 +42,14 @@ source_set("webos") {
   sources = [
     "lunaservice_client.cc",
     "lunaservice_client.h",
+    "media_info_util_webos.cc",
+    "media_info_util_webos.h",
     "media_platform_api_webos.h",
   ]
   if (use_gst_media) {
     sources += [
+      "media_info_util_webos_gmp.cc",
+      "media_info_util_webos_gmp.h",
       "media_platform_api_webos_gmp.cc",
       "media_platform_api_webos_gmp.h",
       "neva_mime_util_internal_webosose.cc",

@@ -197,24 +197,6 @@ class UMediaClientImpl : public WebOSMediaClient,
     LOADING_ACTION_UNLOAD
   } LoadingAction;
 
-  std::string MediaInfoToJson(const PlaybackNotification);
-
-#if UMS_INTERNAL_API_VERSION == 2
-  std::string MediaInfoToJson(const struct ums::source_info_t&);
-  std::string MediaInfoToJson(const struct ums::video_info_t&);
-  std::string MediaInfoToJson(const struct ums::audio_info_t&);
-#else
-  std::string MediaInfoToJson(const struct uMediaServer::source_info_t&);
-  std::string MediaInfoToJson(const struct uMediaServer::video_info_t&);
-  std::string MediaInfoToJson(const struct uMediaServer::audio_info_t&);
-#endif
-  std::string MediaInfoToJson(
-      const struct uMediaServer::external_subtitle_track_info_t&);
-  std::string MediaInfoToJson(int64_t errorCode, const std::string& errorText);
-  std::string MediaInfoToJson(const std::string& message);
-  std::string MediaInfoToJson(const struct uMediaServer::master_clock_info_t&);
-  std::string MediaInfoToJson(const struct uMediaServer::slave_clock_info_t&);
-
   std::string UpdateMediaOption(const std::string& mediaOption, double start);
   bool IsRequiredUMSInfo();
   bool IsInsufficientSourceInfo();

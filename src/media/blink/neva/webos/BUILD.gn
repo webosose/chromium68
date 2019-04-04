@@ -44,10 +44,6 @@ source_set("webos") {
       "system_media_manager_gmp.cc",
       "system_media_manager_gmp.h",
     ]
-    defines = [
-      "UMS_INTERNAL_API_VERSION=2",
-      "USE_GST_MEDIA"
-    ]
   } else {
     sources += [
       "webos_mediaclient_stub.cc",

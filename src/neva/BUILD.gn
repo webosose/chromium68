@@ -91,6 +91,13 @@ config("config") {
     defines += [ "USE_VIDEO_TEXTURE=1" ]
   }
 
+  if (use_gst_media) {
+    defines += [
+      "USE_GST_MEDIA",
+      "UMS_INTERNAL_API_VERSION=2",
+    ]
+  }
+
   if (use_cbe) {
     defines += [
       "USE_CBE=1",

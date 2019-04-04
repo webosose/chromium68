@@ -24,6 +24,7 @@
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "media/base/bind_to_current_loop.h"
+#include "media/base/neva/webos/media_info_util_webos.h"
 #include "media/base/neva/webos/webos_media_pipeline_error.h"
 #include "media/base/video_util.h"
 #include "media/blink/neva/webos/media_util.h"
@@ -510,8 +511,9 @@ void UMediaClientImpl::DispatchPlaying() {
   if (!playback_state_cb_.is_null())
     playback_state_cb_.Run(true);
 
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(NotifyPlaying));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null())
+    update_ums_info_cb_.Run(PlaybackNotificationToJson(
+        MediaId(), PlaybackNotification::NotifyPlaying));
 
 }
 
@@ -553,8 +555,9 @@ void UMediaClientImpl::DispatchSeekDone() {
 
   if (!seek_cb_.is_null())
     base::ResetAndReturn(&seek_cb_).Run(media::PIPELINE_OK);
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(NotifySeekDone));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null())
+    update_ums_info_cb_.Run(PlaybackNotificationToJson(
+        MediaId(), PlaybackNotification::NotifySeekDone));
 }
 
 bool UMediaClientImpl::onEndOfStream() {
@@ -581,8 +584,14 @@ void UMediaClientImpl::DispatchEndOfStream(bool isForward) {
       ended_cb_.Run();
   }
 
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(NotifyEndOfStream));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null()) {
+    PlaybackNotification notification =
+        playback_rate_on_eos_ >= 0.0f
+            ? PlaybackNotification::NotifyEndOfStreamForward
+            : PlaybackNotification::NotifyEndOfStreamBackward;
+    update_ums_info_cb_.Run(
+        PlaybackNotificationToJson(MediaId(), notification));
+  }
 }
 
 bool UMediaClientImpl::onLoadCompleted() {
@@ -621,8 +630,9 @@ void UMediaClientImpl::DispatchLoadCompleted() {
   system_media_manager_->PlayStateChanged(
       SystemMediaManager::SystemMediaManager::PlayState::kLoaded);
 
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(NotifyLoadCompleted));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null())
+    update_ums_info_cb_.Run(PlaybackNotificationToJson(
+        MediaId(), PlaybackNotification::NotifyLoadCompleted));
 
   if (IsNotSupportedSourceInfo()) {
     has_audio_ = true;
@@ -666,7 +676,9 @@ void UMediaClientImpl::DispatchPreloadCompleted() {
 
   loading_state_ = LOADING_STATE_PRELOADED;
 
-  update_ums_info_cb_.Run(MediaInfoToJson(NotifyPreloadCompleted));
+  if (IsRequiredUMSInfo())
+    update_ums_info_cb_.Run(PlaybackNotificationToJson(
+        MediaId(), PlaybackNotification::NotifyPreloadCompleted));
 
   if (IsNotSupportedSourceInfo()) {
     has_audio_ = true;
@@ -828,16 +840,22 @@ void UMediaClientImpl::DispatchSourceInfo(
   updated_source_info_ = true;
   system_media_manager_->SourceInfoUpdated(has_audio_, has_video_);
 
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(sourceInfo));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null()) {
+    std::string json_string = SourceInfoToJson(MediaId(), sourceInfo);
+
+    if (previous_source_info_ != json_string) {
+      previous_source_info_ = json_string;
+      update_ums_info_cb_.Run(json_string);
+    }
+  }
 }
 
 void UMediaClientImpl::DispatchAudioInfo(
     const struct ums::audio_info_t& audioInfo) {
   DCHECK(main_task_runner_->BelongsToCurrentThread());
   has_audio_ = true;
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(audioInfo));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null())
+    update_ums_info_cb_.Run(AudioInfoToJson(MediaId(), audioInfo));
 
   system_media_manager_->AudioInfoUpdated(audioInfo);
 }
@@ -855,8 +873,15 @@ void UMediaClientImpl::DispatchVideoInfo(
       video_size_change_cb_.Run();
   }
 
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(videoInfo));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null()) {
+    std::string json_string = VideoInfoToJson(MediaId(), videoInfo);
+
+    if (previous_video_info_ != json_string) {
+      previous_video_info_ = json_string;
+      update_ums_info_cb_.Run(json_string);
+    }
+  }
+
   system_media_manager_->VideoInfoUpdated(videoInfo);
 }
 #else  // UMS_INTERNAL_API_VERSION == 2
@@ -996,8 +1021,14 @@ void UMediaClientImpl::DispatchSourceInfo(
   updated_source_info_ = true;
   system_media_manager_->SourceInfoUpdated(has_audio_, has_video_);
 
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(sourceInfo));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null()) {
+    std::string json_string = SourceInfoToJson(MediaId(), sourceInfo);
+
+    if (previous_source_info_ != json_string) {
+      previous_source_info_ = json_string;
+      update_ums_info_cb_.Run(json_string);
+    }
+  }
 }
 
 bool UMediaClientImpl::onAudioInfo(
@@ -1012,8 +1043,8 @@ void UMediaClientImpl::DispatchAudioInfo(
     const struct uMediaServer::audio_info_t& audioInfo) {
   DCHECK(main_task_runner_->BelongsToCurrentThread());
   has_audio_ = true;
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(audioInfo));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null())
+    update_ums_info_cb_.Run(AudioInfoToJson(MediaId(), audioInfo));
 
   system_media_manager_->AudioInfoUpdated(audioInfo);
 }
@@ -1044,8 +1075,14 @@ void UMediaClientImpl::DispatchVideoInfo(
     if (!video_size_change_cb_.is_null())
       video_size_change_cb_.Run();
   }
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(video_info));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null()) {
+    std::string json_string = VideoInfoToJson(MediaId(), video_info);
+
+    if (previous_video_info_ != json_string) {
+      previous_video_info_ = json_string;
+      update_ums_info_cb_.Run(json_string);
+    }
+  }
 
   system_media_manager_->VideoInfoUpdated(video_info);
 }
@@ -1077,8 +1114,8 @@ void UMediaClientImpl::DispatchError(int64_t error_code,
         SystemMediaManager::PlayState::kUnloaded);
   }
 
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(error_code, errorText));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null())
+    update_ums_info_cb_.Run(ErrorInfoToJson(MediaId(), error_code, errorText));
 
   if (status != media::PIPELINE_OK && !error_cb_.is_null())
     base::ResetAndReturn(&error_cb_).Run(status);
@@ -1096,8 +1133,9 @@ bool UMediaClientImpl::onExternalSubtitleTrackInfo(
 void UMediaClientImpl::DispatchExternalSubtitleTrackInfo(
     const struct uMediaServer::external_subtitle_track_info_t& trackInfo) {
   DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(trackInfo));
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null())
+    update_ums_info_cb_.Run(
+        ExternalSubtitleTrackInfoToJson(MediaId(), trackInfo));
 }
 
 media::PipelineStatus UMediaClientImpl::CheckErrorCode(int64_t error_code) {
@@ -1194,8 +1232,16 @@ void UMediaClientImpl::DispatchUserDefinedChanged(const std::string& message) {
       message.find("pre_EOF") == std::string::npos) {
     system_media_manager_->EofReceived();
   }
-  if (!update_ums_info_cb_.is_null())
-    update_ums_info_cb_.Run(MediaInfoToJson(message));
+
+  if (IsRequiredUMSInfo() && !update_ums_info_cb_.is_null()) {
+    std::string json_string = UserDefinedInfoToJson(MediaId(), message);
+
+    if (previous_user_defined_changed_ == json_string)
+      return;
+
+    previous_user_defined_changed_ = json_string;
+    update_ums_info_cb_.Run(json_string);
+  }
 }
 
 bool UMediaClientImpl::onBufferingStart() {
@@ -1229,476 +1275,6 @@ void UMediaClientImpl::DispatchBufferingEnd() {
   buffering_ = false;
   if (!buffering_state_cb_.is_null())
     buffering_state_cb_.Run(UMediaClientImpl::kWebOSBufferingEnd);
-}
-
-std::string UMediaClientImpl::MediaInfoToJson(
-    const PlaybackNotification notification) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::FastWriter writer;
-
-  eventInfo["type"] = "playbackNotificationInfo";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  switch (notification) {
-    case NotifySeekDone:
-      eventInfo["info"] = "seekDone";
-      break;
-    case NotifyPlaying:
-      eventInfo["info"] = "playing";
-      break;
-    case NotifyPaused:
-      eventInfo["info"] = "paused";
-      break;
-    case NotifyPreloadCompleted:
-      eventInfo["info"] = "preloadCompleted";
-      break;
-    case NotifyLoadCompleted:
-      eventInfo["info"] = "loadCompleted";
-      break;
-    case NotifyEndOfStream:
-      eventInfo["info"] = "endOfStream";
-      if (playback_rate_on_eos_ > 0.0f)
-        eventInfo["direction"] = "forward";
-      else if (playback_rate_on_eos_ < 0.0f)
-        eventInfo["direction"] = "backward";
-      break;
-    default:
-      return std::string("");
-  }
-
-  return writer.write(eventInfo);
-}
-
-#if UMS_INTERNAL_API_VERSION == 2
-std::string UMediaClientImpl::MediaInfoToJson(
-    const struct ums::source_info_t& value) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::Value sourceInfo;
-  Json::FastWriter writer;
-  std::string res;
-
-  eventInfo["type"] = "sourceInfo";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  sourceInfo["container"] = value.container.c_str();
-  sourceInfo["seekable"] = value.seekable;
-  sourceInfo["numPrograms"] = value.programs.size();
-
-  Json::Value programInfos(Json::arrayValue);
-  for (int i = 0; i < value.programs.size(); i++) {
-    Json::Value programInfo;
-    programInfo["duration"] = static_cast<double>(value.duration);
-
-    int numAudioTracks = 0;
-    if (value.programs[i].audio_stream > 0 &&
-        value.programs[i].audio_stream < value.audio_streams.size()) {
-      numAudioTracks = 1;
-    }
-    programInfo["numAudioTracks"] = numAudioTracks;
-    Json::Value audioTrackInfos(Json::arrayValue);
-    for (int j = 0; j < numAudioTracks; j++) {
-      Json::Value audioTrackInfo;
-      int asi = value.programs[i].audio_stream;
-
-      audioTrackInfo["codec"] = value.audio_streams[asi].codec.c_str();
-      audioTrackInfo["bitRate"] = value.audio_streams[asi].bit_rate;
-      audioTrackInfo["sampleRate"] = value.audio_streams[asi].sample_rate;
-
-      audioTrackInfos.append(audioTrackInfo);
-    }
-    if (numAudioTracks)
-      programInfo["audioTrackInfo"] = audioTrackInfos;
-
-    int numVideoTracks = 0;
-    if (value.programs[i].video_stream > 0 &&
-        value.programs[i].video_stream < value.video_streams.size()) {
-      numVideoTracks = 1;
-    }
-
-    Json::Value videoTrackInfos(Json::arrayValue);
-    for (int j = 0; j < numVideoTracks; j++) {
-      Json::Value videoTrackInfo;
-      int vsi = value.programs[i].video_stream;
-
-      float frame_rate = ((float)value.video_streams[vsi].frame_rate.num) /
-                         ((float)value.video_streams[vsi].frame_rate.den);
-
-      videoTrackInfo["codec"] = value.video_streams[vsi].codec.c_str();
-      videoTrackInfo["width"] = value.video_streams[vsi].width;
-      videoTrackInfo["height"] = value.video_streams[vsi].height;
-      videoTrackInfo["frameRate"] = frame_rate;
-
-      videoTrackInfo["bitRate"] = value.video_streams[vsi].bit_rate;
-
-      videoTrackInfos.append(videoTrackInfo);
-    }
-    if (numVideoTracks)
-      programInfo["videoTrackInfo"] = videoTrackInfos;
-
-    programInfos.append(programInfo);
-  }
-  sourceInfo["programInfo"] = programInfos;
-
-  eventInfo["info"] = sourceInfo;
-  res = writer.write(eventInfo);
-
-  if (previous_source_info_ == res)
-    return std::string();
-
-  previous_source_info_ = res;
-
-  return res;
-}
-
-// refer to uMediaServer/include/public/dto_type.h
-std::string UMediaClientImpl::MediaInfoToJson(
-    const struct ums::video_info_t& value) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::Value videoInfo;
-  Json::Value frameRate;
-  Json::FastWriter writer;
-  std::string res;
-
-  eventInfo["type"] = "videoInfo";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  videoInfo["width"] = value.width;
-  videoInfo["height"] = value.height;
-  frameRate["num"] = value.frame_rate.num;
-  frameRate["den"] = value.frame_rate.den;
-  videoInfo["frameRate"] = frameRate;
-  videoInfo["codec"] = value.codec.c_str();
-  videoInfo["bitRate"] = value.bit_rate;
-
-  eventInfo["info"] = videoInfo;
-  res = writer.write(eventInfo);
-
-  LOG(INFO) << __func__ << " video_info=" << res;
-
-  if (previous_video_info_ == res)
-    return std::string();
-
-  previous_video_info_ = res;
-
-  return res;
-}
-
-std::string UMediaClientImpl::MediaInfoToJson(
-    const struct ums::audio_info_t& value) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::Value audioInfo;
-  Json::FastWriter writer;
-  std::string res;
-
-  eventInfo["type"] = "audioInfo";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  audioInfo["sampleRate"] = value.sample_rate;
-  audioInfo["codec"] = value.codec.c_str();
-  audioInfo["bitRate"] = value.bit_rate;
-
-  eventInfo["info"] = audioInfo;
-  res = writer.write(eventInfo);
-
-  return res;
-}
-
-#else  // UMS_INTERNAL_API_VERSION == 2
-std::string UMediaClientImpl::MediaInfoToJson(
-    const struct uMediaServer::source_info_t& value) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::Value sourceInfo;
-  Json::FastWriter writer;
-  std::string res;
-
-  eventInfo["type"] = "sourceInfo";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  sourceInfo["container"] = value.container.c_str();
-  sourceInfo["seekable"] = value.seekable;
-  sourceInfo["trickable"] = value.trickable;
-  sourceInfo["rotation"] = value.rotation;
-  sourceInfo["numPrograms"] = value.numPrograms;
-
-  Json::Value programInfos(Json::arrayValue);
-  for (int i = 0; i < value.numPrograms; i++) {
-    Json::Value programInfo;
-    programInfo["duration"] =
-        static_cast<int64_t>(value.programInfo[i].duration);
-    programInfo["numAudioTracks"] = value.programInfo[i].numAudioTracks;
-    Json::Value audioTrackInfos(Json::arrayValue);
-    for (int j = 0; j < value.programInfo[i].numAudioTracks; j++) {
-      Json::Value audioTrackInfo;
-      audioTrackInfo["language"] =
-          value.programInfo[i].audioTrackInfo[j].language.c_str();
-      audioTrackInfo["codec"] =
-          value.programInfo[i].audioTrackInfo[j].codec.c_str();
-      audioTrackInfo["profile"] =
-          value.programInfo[i].audioTrackInfo[j].profile.c_str();
-      audioTrackInfo["level"] =
-          value.programInfo[i].audioTrackInfo[j].level.c_str();
-      audioTrackInfo["bitRate"] =
-          value.programInfo[i].audioTrackInfo[j].bitRate;
-      audioTrackInfo["sampleRate"] =
-          value.programInfo[i].audioTrackInfo[j].sampleRate;
-      audioTrackInfo["channels"] =
-          value.programInfo[i].audioTrackInfo[j].channels;
-      audioTrackInfos.append(audioTrackInfo);
-    }
-    if (value.programInfo[i].numAudioTracks)
-      programInfo["audioTrackInfo"] = audioTrackInfos;
-
-    programInfo["numVideoTracks"] = value.programInfo[i].numVideoTracks;
-    Json::Value videoTrackInfos(Json::arrayValue);
-    for (int j = 0; j < value.programInfo[i].numVideoTracks; j++) {
-      Json::Value videoTrackInfo;
-      videoTrackInfo["angleNumber"] =
-          value.programInfo[i].videoTrackInfo[j].angleNumber;
-      videoTrackInfo["codec"] =
-          value.programInfo[i].videoTrackInfo[j].codec.c_str();
-      videoTrackInfo["profile"] =
-          value.programInfo[i].videoTrackInfo[j].profile.c_str();
-      videoTrackInfo["level"] =
-          value.programInfo[i].videoTrackInfo[j].level.c_str();
-      videoTrackInfo["width"] = value.programInfo[i].videoTrackInfo[j].width;
-      videoTrackInfo["height"] = value.programInfo[i].videoTrackInfo[j].height;
-      videoTrackInfo["aspectRatio"] =
-          value.programInfo[i].videoTrackInfo[j].aspectRatio.c_str();
-      videoTrackInfo["frameRate"] =
-          value.programInfo[i].videoTrackInfo[j].frameRate;
-      videoTrackInfo["bitRate"] =
-          value.programInfo[i].videoTrackInfo[j].bitRate;
-      videoTrackInfo["progressive"] =
-          value.programInfo[i].videoTrackInfo[j].progressive;
-      videoTrackInfos.append(videoTrackInfo);
-    }
-    if (value.programInfo[i].numVideoTracks)
-      programInfo["videoTrackInfo"] = videoTrackInfos;
-
-    programInfo["numSubtitleTracks"] = value.programInfo[i].numSubtitleTracks;
-    Json::Value subtitleTrackInfos(Json::arrayValue);
-    for (int j = 0; j < value.programInfo[i].numSubtitleTracks; j++) {
-      Json::Value subtitleTrackInfo;
-      subtitleTrackInfo["language"] =
-          value.programInfo[i].subtitleTrackInfo[j].language.c_str();
-      subtitleTrackInfos.append(subtitleTrackInfo);
-    }
-    if (value.programInfo[i].numSubtitleTracks)
-      programInfo["subtitleTrackInfo"] = subtitleTrackInfos;
-
-    programInfos.append(programInfo);
-  }
-  sourceInfo["programInfo"] = programInfos;
-
-  eventInfo["info"] = sourceInfo;
-  res = writer.write(eventInfo);
-
-  if (previous_source_info_ == res)
-    return std::string();
-
-  previous_source_info_ = res;
-
-  return res;
-}
-
-std::string UMediaClientImpl::MediaInfoToJson(
-    const struct uMediaServer::video_info_t& value) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::Value videoInfo;
-  Json::FastWriter writer;
-  std::string res;
-
-  eventInfo["type"] = "videoInfo";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  videoInfo["aspectRatio"] = value.aspectRatio.c_str();
-  videoInfo["width"] = value.width;
-  videoInfo["height"] = value.height;
-  videoInfo["frameRate"] = value.frameRate;
-  videoInfo["mode3D"] = value.mode3D.c_str();
-
-  eventInfo["info"] = videoInfo;
-  res = writer.write(eventInfo);
-
-  if (previous_video_info_ == res)
-    return std::string();
-
-  previous_video_info_ = res;
-
-  return res;
-}
-
-std::string UMediaClientImpl::MediaInfoToJson(
-    const struct uMediaServer::audio_info_t& value) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::Value audioInfo;
-  Json::FastWriter writer;
-
-  eventInfo["type"] = "audioInfo";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  audioInfo["sampleRate"] = value.sampleRate;
-  audioInfo["channels"] = value.channels;
-
-  eventInfo["info"] = audioInfo;
-
-  return writer.write(eventInfo);
-}
-#endif  // UMS_INTERNAL_API_VERSION == 2
-
-std::string UMediaClientImpl::MediaInfoToJson(
-    const struct uMediaServer::external_subtitle_track_info_t& value) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::Value externalSubtitleTrackInfo;
-  Json::FastWriter writer;
-
-  eventInfo["type"] = "externalSubtitleTrackInfo";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  externalSubtitleTrackInfo["uri"] = value.uri.c_str();
-  externalSubtitleTrackInfo["hitEncoding"] = value.hitEncoding.c_str();
-  externalSubtitleTrackInfo["numSubtitleTracks"] = value.numSubtitleTracks;
-
-  Json::Value tracks(Json::arrayValue);
-  for (int i = 0; i < value.numSubtitleTracks; i++) {
-    Json::Value track;
-    track["description"] = value.tracks[i].description.c_str();
-    tracks.append(track);
-  }
-  externalSubtitleTrackInfo["tracks"] = tracks;
-
-  eventInfo["info"] = externalSubtitleTrackInfo;
-  return writer.write(eventInfo);
-}
-
-std::string UMediaClientImpl::MediaInfoToJson(int64_t errorCode,
-                                              const std::string& errorText) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::Value error;
-  Json::FastWriter writer;
-
-  eventInfo["type"] = "error";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  error["errorCode"] = errorCode;
-  error["errorText"] = errorText;
-
-  eventInfo["info"] = error;
-
-  return writer.write(eventInfo);
-}
-
-std::string UMediaClientImpl::MediaInfoToJson(const std::string& message) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::Value userDefinedChanged;
-  Json::Reader reader;
-  Json::FastWriter writer;
-  std::string res;
-
-  eventInfo["type"] = "userDefinedChanged";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  if (message.empty()) {
-    FUNC_LOG(1) << " - message is empty";
-    return std::string();
-  }
-
-  if (!reader.parse(message, userDefinedChanged)) {
-    FUNC_LOG(1) << " - json_reader.parse error: " << message;
-    return std::string();
-  }
-
-  FUNC_LOG(1) << " - message: " << message;
-
-  eventInfo["info"] = userDefinedChanged;
-  res = writer.write(eventInfo);
-
-  if (previous_user_defined_changed_ == res)
-    return std::string();
-
-  previous_user_defined_changed_ = res;
-
-  return res;
-}
-
-std::string UMediaClientImpl::MediaInfoToJson(
-    const struct uMediaServer::master_clock_info_t& masterClockInfo) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::Value setMasterClockResult;
-  Json::FastWriter writer;
-
-  eventInfo["type"] = "setMasterClockResult";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  setMasterClockResult["result"] = masterClockInfo.result;
-  setMasterClockResult["port"] = masterClockInfo.port;
-  setMasterClockResult["baseTime"] = masterClockInfo.baseTime;
-
-  eventInfo["info"] = setMasterClockResult;
-  return writer.write(eventInfo);
-}
-
-std::string UMediaClientImpl::MediaInfoToJson(
-    const struct uMediaServer::slave_clock_info_t& slaveClockInfo) {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  if (!IsRequiredUMSInfo())
-    return std::string();
-
-  Json::Value eventInfo;
-  Json::Value setSlaveClockResult;
-  Json::FastWriter writer;
-
-  eventInfo["type"] = "setSlaveClockResult";
-  eventInfo["mediaId"] = MediaId().c_str();
-
-  setSlaveClockResult["result"] = slaveClockInfo.result;
-
-  eventInfo["info"] = setSlaveClockResult;
-  return writer.write(eventInfo);
 }
 
 std::string UMediaClientImpl::UpdateMediaOption(const std::string& mediaOption,

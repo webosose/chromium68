@@ -31,16 +31,6 @@ namespace media {
 
 class WebOSMediaClient {
  public:
-  enum PlaybackNotification {
-    NotifyPreloadCompleted,
-    NotifyLoadCompleted,
-    NotifyUnloadCompleted,
-    NotifyEndOfStream,
-    NotifyPaused,
-    NotifyPlaying,
-    NotifySeekDone,
-  };
-
   enum BufferingState {
     kHaveMetadata,
     kLoadCompleted,
