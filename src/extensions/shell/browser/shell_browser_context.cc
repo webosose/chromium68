@@ -73,6 +73,15 @@ ShellBrowserContext::CreateRequestContextForStoragePartition(
   }
   return context_getter.get();
 }
+
+net::URLRequestContextGetter*
+ShellBrowserContext::CreateMediaRequestContextForStoragePartition(
+    const base::FilePath& partition_path,
+    bool in_memory) {
+  auto iter = isolated_url_request_getters_.find(partition_path);
+  return iter != isolated_url_request_getters_.end() ? iter->second.get()
+                                                     : nullptr;
+}
 #endif
 
 net::URLRequestContextGetter* ShellBrowserContext::CreateRequestContext(

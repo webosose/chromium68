@@ -30,6 +30,10 @@ class ShellBrowserContext final : public content::ShellBrowserContext {
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors) override;
+
+  net::URLRequestContextGetter* CreateMediaRequestContextForStoragePartition(
+      const base::FilePath& partition_path,
+      bool in_memory) override;
 #endif
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
