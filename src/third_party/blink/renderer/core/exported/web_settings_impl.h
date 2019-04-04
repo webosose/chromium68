@@ -212,10 +212,8 @@ class CORE_EXPORT WebSettingsImpl final : public WebSettingsImplNeva {
   void SetMaxTimeupdateEventFrequency(int) override;
 #endif
   void SetLowPriorityIframesThreshold(WebEffectiveConnectionType) override;
-#if defined(OS_WEBOS)
-  bool GetWebSecurityEnabled() const override;
-#endif
 #if defined(USE_NEVA_APPRUNTIME)
+  bool GetWebSecurityEnabled() const override;
   void SetAllowLocalResourceLoad(bool) override;
   bool GetAllowLocalResourceLoad() const override;
 #endif
