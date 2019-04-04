@@ -24,6 +24,13 @@ class ShellBrowserContext final : public content::ShellBrowserContext {
   // content::BrowserContext implementation.
   content::BrowserPluginGuestManager* GetGuestManager() override;
   storage::SpecialStoragePolicy* GetSpecialStoragePolicy() override;
+#if defined(USE_NEVA_APPRUNTIME)
+  net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
+      const base::FilePath& partition_path,
+      bool in_memory,
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::URLRequestInterceptorScopedVector request_interceptors) override;
+#endif
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors) override;
@@ -32,6 +39,10 @@ class ShellBrowserContext final : public content::ShellBrowserContext {
   void InitURLRequestContextOnIOThread();
 
   scoped_refptr<storage::SpecialStoragePolicy> storage_policy_;
+#if defined(USE_NEVA_APPRUNTIME)
+  std::map<base::FilePath, scoped_refptr<net::URLRequestContextGetter>>
+      isolated_url_request_getters_;
+#endif
   ShellBrowserMainParts* browser_main_parts_;
 
   DISALLOW_COPY_AND_ASSIGN(ShellBrowserContext);

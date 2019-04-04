@@ -52,6 +52,29 @@ storage::SpecialStoragePolicy* ShellBrowserContext::GetSpecialStoragePolicy() {
   return storage_policy_.get();
 }
 
+#if defined(USE_NEVA_APPRUNTIME)
+net::URLRequestContextGetter*
+ShellBrowserContext::CreateRequestContextForStoragePartition(
+    const base::FilePath& partition_path,
+    bool in_memory,
+    content::ProtocolHandlerMap* protocol_handlers,
+    content::URLRequestInterceptorScopedVector request_interceptors) {
+  scoped_refptr<net::URLRequestContextGetter>& context_getter =
+      isolated_url_request_getters_[partition_path];
+  if (!context_getter) {
+    InfoMap* extension_info_map =
+        browser_main_parts_->extension_system()->info_map();
+    context_getter = new ShellURLRequestContextGetter(
+        this, IgnoreCertificateErrors(), GetPath(),
+        content::BrowserThread::GetTaskRunnerForThread(
+            content::BrowserThread::IO),
+        protocol_handlers, std::move(request_interceptors),
+        nullptr /* net_log */, extension_info_map);
+  }
+  return context_getter.get();
+}
+#endif
+
 net::URLRequestContextGetter* ShellBrowserContext::CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors) {
