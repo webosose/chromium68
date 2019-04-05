@@ -49,6 +49,7 @@ void WebAppWindow::CompositorBuffersSwapped() {
 }
 
 void WebAppWindow::CursorVisibilityChange(bool visible) {
+  app_runtime::WebAppWindow::CursorVisibilityChange(visible);
   Runtime::GetInstance()->OnCursorVisibilityChanged(visible);
 }
 

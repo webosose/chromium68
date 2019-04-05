@@ -27,6 +27,7 @@
 #include "neva/app_runtime/public/webapp_window_delegate.h"
 #include "neva/app_runtime/public/window_group_configuration.h"
 #include "neva/app_runtime/ui/desktop_aura/app_runtime_desktop_native_widget_aura.h"
+#include "ui/aura/client/cursor_client.h"
 #include "ui/aura/window.h"
 #include "ui/aura/window_tree_host.h"
 #include "ui/base/ime/input_method.h"
@@ -409,6 +410,18 @@ void WebAppWindow::CompositorBuffersSwapped() {
 }
 
 void WebAppWindow::CursorVisibilityChange(bool visible) {
+  aura::Window* window = GetWidget()->GetNativeWindow();
+  if (window) {
+    aura::client::CursorClient* client =
+        aura::client::GetCursorClient(window->GetRootWindow());
+    if (!client)
+      return;
+
+    if (visible)
+      client->ShowCursor();
+    else
+      client->HideCursor();
+  }
 }
 
 bool WebAppWindow::IsTextInputOverlapped() {
