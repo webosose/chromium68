@@ -694,6 +694,14 @@ void WebAppWindow::DeleteDelegate() {
 
 void WebAppWindow::OnMouseEvent(ui::MouseEvent* event) {
   switch (event->type()) {
+    case ui::EventType::ET_MOUSE_PRESSED:
+    case ui::EventType::ET_MOUSE_DRAGGED:
+    case ui::EventType::ET_MOUSE_RELEASED:
+    case ui::EventType::ET_MOUSE_MOVED:
+    case ui::EventType::ET_MOUSE_ENTERED:
+    case ui::EventType::ET_MOUSE_EXITED:
+    case ui::EventType::ET_MOUSE_CAPTURE_CHANGED:
+      break;
     case ui::EventType::ET_MOUSEWHEEL: {
       int input_panel_real_height =
           input_panel_rect_.height() > 0 ? input_panel_height() : 0;

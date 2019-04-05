@@ -114,6 +114,52 @@ void WebAppWindow::WindowHostStateAboutToChange(ui::WidgetState state) {
 
 void WebAppWindow::OnMouseEvent(ui::MouseEvent* event) {
   app_runtime::WebAppWindow::OnMouseEvent(event);
+
+  float x = event->x();
+  float y = event->y();
+  int flags = event->flags();
+
+  switch (event->type()) {
+    case ui::EventType::ET_MOUSE_PRESSED: {
+      WebOSMouseEvent ev(WebOSEvent::MouseButtonPress, x, y, flags);
+      if (Event(&ev))
+        event->StopPropagation();
+      break;
+    }
+    case ui::EventType::ET_MOUSE_RELEASED: {
+      WebOSMouseEvent ev(WebOSEvent::Type::MouseButtonRelease, x, y, flags);
+      if (Event(&ev))
+        event->StopPropagation();
+      break;
+    }
+    case ui::EventType::ET_MOUSE_MOVED: {
+      WebOSMouseEvent ev(WebOSEvent::Type::MouseMove, x, y);
+      if (Event(&ev))
+        event->StopPropagation();
+      break;
+    }
+    case ui::EventType::ET_MOUSE_ENTERED: {
+      WebOSMouseEvent ev(WebOSEvent::Type::Enter, x, y);
+      Event(&ev);
+      break;
+    }
+    case ui::EventType::ET_MOUSE_EXITED: {
+      WebOSMouseEvent ev(WebOSEvent::Type::Leave, x, y);
+      Event(&ev);
+      break;
+    }
+    case ui::EventType::ET_MOUSEWHEEL: {
+      ui::MouseWheelEvent* wheel_event =
+          static_cast<ui::MouseWheelEvent*>(event);
+      WebOSMouseWheelEvent ev(WebOSEvent::Type::Wheel, x, y,
+                              wheel_event->x_offset(), wheel_event->y_offset());
+      if (Event(&ev))
+        event->StopPropagation();
+      break;
+    }
+    default:
+      break;
+  }
 }
 
 void WebAppWindow::OnKeyEvent(ui::KeyEvent* event) {
