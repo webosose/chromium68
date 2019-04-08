@@ -20,6 +20,7 @@
 namespace gfx {
 class Point;
 class Rect;
+class Size;
 }
 
 namespace ui {
