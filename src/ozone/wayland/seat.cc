@@ -138,8 +138,8 @@ void WaylandSeat::ShowInputPanel(unsigned handle) {
   text_input_->ShowInputPanel(seat_, handle);
 }
 
-void WaylandSeat::HideInputPanel(ui::ImeHiddenType hidden_type) {
-  text_input_->HideInputPanel(seat_, hidden_type);
+void WaylandSeat::HideInputPanel() {
+  text_input_->HideInputPanel(seat_);
 }
 
 void WaylandSeat::SetInputContentType(ui::InputContentType content_type,

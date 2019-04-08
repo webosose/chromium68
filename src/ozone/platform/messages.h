@@ -29,7 +29,6 @@
 #include "ipc/neva/redefined_param_traits_macros.h"
 #include "ozone/platform/input_content_type.h"
 #include "third_party/skia/include/core/SkBitmap.h"
-#include "ui/base/ime/neva/input_method_common.h"
 #include "ui/events/event_constants.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/ipc/geometry/gfx_param_traits.h"
@@ -46,7 +45,6 @@ IPC_ENUM_TRAITS_MAX_VALUE(ui::EventFlags,
                           ui::EF_FORWARD_MOUSE_BUTTON)
 IPC_ENUM_TRAITS_MAX_VALUE(ui::EventType,
                           ui::ET_LAST)
-IPC_ENUM_TRAITS_MAX_VALUE(ui::ImeHiddenType, ui::ImeHiddenType::kDeactivate)
 IPC_ENUM_TRAITS_MAX_VALUE(ui::InputContentType,
                           ui::INPUT_CONTENT_TYPE_DATE_TIME_FIELD)
 IPC_ENUM_TRAITS_MAX_VALUE(ui::WidgetState,
@@ -265,8 +263,8 @@ IPC_MESSAGE_CONTROL0(WaylandDisplay_ImeReset)  // NOLINT(readability/fn_size)
 IPC_MESSAGE_CONTROL1(WaylandDisplay_ShowInputPanel,  // NOLINT(readability/fn_size)
                      unsigned /* window handle */)
 
-IPC_MESSAGE_CONTROL1(WaylandDisplay_HideInputPanel,  // NOLINT(readability/fn_size)
-                     ui::ImeHiddenType /* hidden_type */)
+IPC_MESSAGE_CONTROL0(WaylandDisplay_HideInputPanel)  // NOLINT(readability/
+                                                     //         fn_size)
 
 IPC_MESSAGE_CONTROL3(WaylandDisplay_SetInputContentType,  // NOLINT(readability/fn_size)
                      ui::InputContentType /* text_input_type */,

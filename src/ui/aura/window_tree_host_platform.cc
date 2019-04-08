@@ -291,9 +291,9 @@ void WindowTreeHostPlatform::OnShowIme() {
 #endif
 }
 
-void WindowTreeHostPlatform::OnHideIme(ui::ImeHiddenType hidden_type) {
+void WindowTreeHostPlatform::OnHideIme() {
 #if defined(USE_OZONE)
-  platform_window_->HideInputPanel(hidden_type);
+  platform_window_->HideInputPanel();
 #endif
 }
 
