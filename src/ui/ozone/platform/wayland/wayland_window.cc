@@ -365,6 +365,10 @@ void WaylandWindow::ToggleFullscreen() {
   connection_->ScheduleFlush();
 }
 
+void WaylandWindow::ToggleFullscreenWithSize(const gfx::Size& size) {
+  NOTIMPLEMENTED();
+}
+
 void WaylandWindow::Maximize() {
   DCHECK(xdg_surface_);
 
