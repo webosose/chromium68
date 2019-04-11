@@ -22,6 +22,7 @@
 #include "content/shell/browser/shell_network_delegate.h"
 #include "content/shell/common/layout_test/layout_test_switches.h"
 #include "content/shell/common/shell_content_client.h"
+#include "content/shell/common/shell_neva_switches.h"
 #include "content/shell/common/shell_switches.h"
 #include "net/cert/cert_verifier.h"
 #include "net/cert/ct_policy_enforcer.h"
@@ -47,6 +48,8 @@
 #endif  // BUILDFLAG(ENABLE_REPORTING)
 
 namespace content {
+
+const int kDefaultDiskCacheSize = 16 * 1024 * 1024;  // default size is 16MB
 
 #if defined(USE_NEVA_APPRUNTIME)
 namespace {
@@ -162,10 +165,17 @@ net::URLRequestContext* ShellURLRequestContextGetter::GetURLRequestContext() {
     if (!off_the_record_) {
       cache_params.path = base_path_.Append(FILE_PATH_LITERAL("Cache"));
       cache_params.type = net::URLRequestContextBuilder::HttpCacheParams::DISK;
+      if (command_line.HasSwitch(switches::kShellDiskCacheSize))
+        base::StringToInt(
+            command_line.GetSwitchValueASCII(switches::kShellDiskCacheSize),
+            &cache_params.max_size);
+      else
+        cache_params.max_size = kDefaultDiskCacheSize;
     } else {
       cache_params.type =
           net::URLRequestContextBuilder::HttpCacheParams::IN_MEMORY;
     }
+
     builder.EnableHttpCache(cache_params);
 
     net::HttpNetworkSession::Params network_session_params;

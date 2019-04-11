@@ -18,6 +18,9 @@
 
 namespace switches {
 
+// Forces the maximum disk space to be used by the disk cache, in bytes.
+const char kShellDiskCacheSize[] = "disk-cache-size";
+
 // Use platform implementation for JS dialogs (alert, prompt, confirm)
 const char kUseExternalJsDialogs[] = "use-external-js-dialogs";
 

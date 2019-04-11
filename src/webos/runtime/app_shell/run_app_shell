@@ -18,6 +18,8 @@ export MSE_VIDEO_BUFFER_SIZE_LIMIT=52428800
 export OVERRIDE_USER_AGENT_STRING="Mozilla/5.0 (Web0S; Linux) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.0 Safari/537.36"
 # Setup MAX gpu limit
 export MAX_GPU_MEM_LIMIT=60
+# setup 32Mb maximum for DiskCache
+export APPSHELL_DISKCACHE_MAXSIZE=33554432
 
 while [[ "$1" != ""  &&  "$2" != "" ]]; do
     PARAM=$1
@@ -131,7 +133,11 @@ MEM_FLAGS=" \
   --force-gpu-mem-available-mb=${MAX_GPU_MEM_LIMIT}\
 "
 
-CHROME_FLAGS="${CHROME_COMPOSITING_FLAGS} ${CHROME_FLAGS} ${MEM_FLAGS}"
+TUNING_FLAGS=" \
+    --disk-cache-size=${APPSHELL_DISKCACHE_MAXSIZE} \
+"
+
+CHROME_FLAGS="${CHROME_COMPOSITING_FLAGS} ${CHROME_FLAGS} ${MEM_FLAGS} ${TUNING_FLAGS}"
 
 JS_FLAGS=" \
   --configure_heap_details\

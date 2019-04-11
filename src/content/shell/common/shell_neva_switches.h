@@ -19,6 +19,7 @@
 
 namespace switches {
 
+extern const char kShellDiskCacheSize[];
 extern const char kUseExternalJsDialogs[];
 
 }  // namespace switches
