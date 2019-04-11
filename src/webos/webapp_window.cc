@@ -113,6 +113,16 @@ void WebAppWindow::WindowHostStateAboutToChange(ui::WidgetState state) {
 }
 
 void WebAppWindow::OnMouseEvent(ui::MouseEvent* event) {
+  // synthesized mouse events are treated as genuine by the Enyo framework,
+  // thus, causing unexpected behavior (e.g., making the spotlight either
+  // blinking or being improperly set)
+  if (event->IsSynthesized() && (event->type() == ui::ET_MOUSE_EXITED ||
+                                 event->type() == ui::ET_MOUSE_ENTERED ||
+                                 event->type() == ui::ET_MOUSE_MOVED)) {
+    event->StopPropagation();
+    return;
+  }
+
   app_runtime::WebAppWindow::OnMouseEvent(event);
 
   float x = event->x();
