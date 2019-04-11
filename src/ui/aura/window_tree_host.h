@@ -223,6 +223,8 @@ class AURA_EXPORT WindowTreeHost : public ui::internal::InputMethodDelegate,
   void OnWindowHostClose();
 #endif
 
+  virtual void ToggleFullscreen() {}
+
  protected:
   friend class ScopedKeyboardHook;
   friend class TestScreen;  // TODO(beng): see if we can remove/consolidate.

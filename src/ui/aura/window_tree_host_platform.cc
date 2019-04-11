@@ -316,4 +316,20 @@ void WindowTreeHostPlatform::SetSurroundingText(const std::string& text,
 }
 ///@}
 
+void WindowTreeHostPlatform::ToggleFullscreen() {
+#if defined(USE_OZONE)
+  // TODO(kalyan): Take into account wm decorations. i.e Dock, panel etc.
+  display::Screen* screen = display::Screen::GetScreen();
+  if (!screen)
+    NOTREACHED() << "Unable to retrieve valid display::Screen";
+
+  display::Display display = screen->GetPrimaryDisplay();
+  const gfx::Rect& rect_in_pixels = display.bounds();
+  gfx::RectF rect_in_dip = gfx::RectF(rect_in_pixels);
+  GetRootTransform().TransformRectReverse(&rect_in_dip);
+  platform_window_->ToggleFullscreenWithSize(
+      gfx::ToEnclosingRect(rect_in_dip).size());
+#endif
+}
+
 }  // namespace aura

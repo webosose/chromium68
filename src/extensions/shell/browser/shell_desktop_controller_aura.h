@@ -23,6 +23,10 @@
 #include "ui/display/manager/display_configurator.h"
 #endif
 
+#if defined(OS_WEBOS)
+#include "content/public/browser/neva/webos_luna_service.h"
+#endif
+
 namespace aura {
 class WindowTreeHost;
 }  // namespace aura
@@ -70,6 +74,9 @@ class ShellDesktopControllerAura
       public chromeos::PowerManagerClient::Observer,
       public display::DisplayConfigurator::Observer,
 #endif
+#if defined(OS_WEBOS)
+      public content::WebOSLunaService::Delegate,
+#endif
       public ui::internal::InputMethodDelegate,
       public KeepAliveStateObserver {
  public:
@@ -93,6 +100,11 @@ class ShellDesktopControllerAura
   // display::DisplayConfigurator::Observer:
   void OnDisplayModeChanged(
       const display::DisplayConfigurator::DisplayStateList& displays) override;
+#endif
+
+#if defined(OS_WEBOS)
+  // content::WebOSLunaService::Delegate
+  void NotifyRelaunch() override;
 #endif
 
   // ui::internal::InputMethodDelegate:

@@ -16,7 +16,7 @@
 
 #include "webos/public/runtime.h"
 
-#include "neva/app_runtime/browser/webos/webos_luna_service.h"
+#include "content/public/browser/neva/webos_luna_service.h"
 #include "webos/public/runtime_delegates.h"
 
 namespace webos {
@@ -41,7 +41,7 @@ void Runtime::InitializeCookieStoreUtil(
 }
 
 LSHandle* Runtime::GetLSHandle() {
-  return neva::WebOSLunaService::GetInstance()->GetHandle();
+  return content::WebOSLunaService::GetInstance()->GetHandle();
 }
 
 void Runtime::FlushStoreCookie(PowerOffState power_off_state,

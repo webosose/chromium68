@@ -195,6 +195,8 @@ void ShellDesktopControllerAura::AddAppWindow(AppWindow* app_window,
   if (!app_id.empty()) {
     root_window_controllers_[display.id()]->host()->SetWindowProperty(kAppId, app_id);
   }
+
+  content::WebOSLunaService::GetInstance()->SetDelegate(this);
 #endif
 }
 
@@ -238,6 +240,13 @@ void ShellDesktopControllerAura::OnDisplayModeChanged(
     if (it != root_window_controllers_.end())
       it->second->UpdateSize(display_mode->current_mode()->size());
   }
+}
+#endif
+
+#if defined(OS_WEBOS)
+void ShellDesktopControllerAura::NotifyRelaunch() {
+  if (GetPrimaryHost())
+    GetPrimaryHost()->ToggleFullscreen();
 }
 #endif
 

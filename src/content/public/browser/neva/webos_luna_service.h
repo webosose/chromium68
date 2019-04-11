@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef NEVA_APP_RUNTIME_BROWSER_WEBOS_WEBOS_LUNA_SERVICE_H_
-#define NEVA_APP_RUNTIME_BROWSER_WEBOS_WEBOS_LUNA_SERVICE_H_
+#ifndef CONTENT_PUBLIC_BROWSER_NEVA_WEBOS_LUNA_SERVICE_H_
+#define CONTENT_PUBLIC_BROWSER_NEVA_WEBOS_LUNA_SERVICE_H_
 
 #include <lunaservice.h>
 #include <string>
@@ -26,10 +26,10 @@
 #include "base/values.h"
 #include "content/public/browser/luna_service_delegate.h"
 
-namespace neva {
+namespace content {
 
 // WebOSLunaService for webapp.
-class WebOSLunaService : public content::LunaServiceDelegate {
+class WebOSLunaService : public LunaServiceDelegate {
  public:
   static WebOSLunaService* GetInstance();
 
@@ -38,6 +38,8 @@ class WebOSLunaService : public content::LunaServiceDelegate {
     virtual ~Delegate() {}
 
     virtual void NotifySystemLocale(const std::string&) {}
+
+    virtual void NotifyRelaunch() {}
   };
 
   bool LunaServiceCall(const std::string& uri,
@@ -46,8 +48,9 @@ class WebOSLunaService : public content::LunaServiceDelegate {
                        void* context);
   void LunaServiceCancel(LSMessageToken* token);
 
-  void Initialize();
+  void Initialize(const std::string& app_id = std::string());
   void Finalize();
+  void RegisterApp();
   void LaunchSettingsApplication(int target_id);
   void SetDelegate(Delegate* delegate) { delegate_ = delegate; }
 
@@ -73,6 +76,8 @@ class WebOSLunaService : public content::LunaServiceDelegate {
   // Single token should initialize with LSMESSAGE_TOKEN_INVALID
   std::vector<LSMessageToken> ls_token_vector_;
 
+  std::string app_id_;
+
   void GetSystemSettings();
 
   void NotifySystemLocale(const std::string& ui);
@@ -81,6 +86,7 @@ class WebOSLunaService : public content::LunaServiceDelegate {
   static bool GetSystemSettingsCb(LSHandle* handle,
                                   LSMessage* reply,
                                   void* context);
+  static bool RegisterAppCb(LSHandle* handle, LSMessage* reply, void* context);
   static bool LaunchApplicationStatusCb(LSHandle* handle,
                                         LSMessage* reply,
                                         void* context);
@@ -88,6 +94,6 @@ class WebOSLunaService : public content::LunaServiceDelegate {
   DISALLOW_COPY_AND_ASSIGN(WebOSLunaService);
 };
 
-}  // namespace neva
+}  // namespace content
 
-#endif  // NEVA_APP_RUNTIME_BROWSER_WEBOS_WEBOS_LUNA_SERVICE_H_
+#endif  // CONTENT_PUBLIC_BROWSER_NEVA_WEBOS_LUNA_SERVICE_H_

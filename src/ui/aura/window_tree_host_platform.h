@@ -52,6 +52,7 @@ class AURA_EXPORT WindowTreeHostPlatform : public WindowTreeHost,
   void MoveCursorToScreenLocationInPixels(
       const gfx::Point& location_in_pixels) override;
   void OnCursorVisibilityChangedNative(bool show) override;
+  void ToggleFullscreen() override;
 
  protected:
   // NOTE: neither of these calls CreateCompositor(); subclasses must call
