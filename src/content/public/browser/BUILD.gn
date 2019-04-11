@@ -330,6 +330,8 @@ jumbo_source_set("browser_sources") {
     sources += [
       "luna_service_delegate.cc",
       "luna_service_delegate.h",
+      "neva/webos_luna_service.cc",
+      "neva/webos_luna_service.h",
       "runtime_delegate_webos.cc",
       "runtime_delegate_webos.h",
     ]

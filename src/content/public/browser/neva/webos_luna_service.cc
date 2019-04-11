@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "neva/app_runtime/browser/webos/webos_luna_service.h"
+#include "content/public/browser/neva/webos_luna_service.h"
 
 #include <glib.h>
 
@@ -27,7 +27,7 @@
 #define DEBUG_LOG(format, ...) \
   PMLOG_DEBUG(WebOSLunaService, format, ##__VA_ARGS__)
 
-namespace neva {
+namespace content {
 
 enum LAUNCH_TARGET {
   NETWORK = 1,
@@ -36,6 +36,8 @@ enum LAUNCH_TARGET {
 
 const char kGetSystemSettings[] =
     "luna://com.webos.settingsservice/getSystemSettings";
+const char kRegisterApp[] =
+    "palm://com.webos.applicationManager/registerNativeApp";
 const char kLaunchApplication[] = "palm://com.webos.applicationManager/launch";
 const char kServiceName[] = "com.webos.settingsservice.client";
 
@@ -113,18 +115,20 @@ bool WebOSLunaService::LunaServiceCall(const std::string& uri,
   AutoLSError error;
   if (subscribe) {
     LSMessageToken token;
-    if (!LSCall(handle_, uri.c_str(), payload.c_str(), callback, context,
-                &token, &error)) {
-      DEBUG_LOG("LSCall failed : %s", error.message);
+    if (!LSCallFromApplication(handle_, uri.c_str(), payload.c_str(),
+                               app_id_.c_str(), callback, context, &token,
+                               &error)) {
+      DEBUG_LOG("LSCallFromApplication failed : %s", error.message);
       return false;
     }
     ls_token_vector_.push_back(token);
     return true;
   }
 
-  if (!LSCallOneReply(handle_, uri.c_str(), payload.c_str(), callback, context,
-                      nullptr, &error)) {
-    DEBUG_LOG("LSCallOneReply failed : %s", error.message);
+  if (!LSCallFromApplicationOneReply(handle_, uri.c_str(), payload.c_str(),
+                                     app_id_.c_str(), callback, context,
+                                     nullptr, &error)) {
+    DEBUG_LOG("LSCallFromApplicationOneReply failed : %s", error.message);
     return false;
   }
 
@@ -144,9 +148,11 @@ void WebOSLunaService::LunaServiceCancel(LSMessageToken* token) {
   *token = LSMESSAGE_TOKEN_INVALID;
 }
 
-void WebOSLunaService::Initialize() {
+void WebOSLunaService::Initialize(const std::string& app_id) {
   if (initialized_)
     return;
+
+  app_id_ = app_id;
 
   // Get system settings
   GetSystemSettings();
@@ -164,6 +170,18 @@ void WebOSLunaService::GetSystemSettings() {
   if (!LunaServiceCall(kGetSystemSettings, resource.get(),
                        &WebOSLunaService::GetSystemSettingsCb, this)) {
     DEBUG_LOG("GetSystemSettings LSCall failed");
+  }
+}
+
+void WebOSLunaService::RegisterApp() {
+  const std::unique_ptr<base::DictionaryValue> resource(
+      new base::DictionaryValue());
+
+  resource->SetBoolean(kSubscribe, true);
+
+  if (!LunaServiceCall(kRegisterApp, resource.get(),
+                       &WebOSLunaService::RegisterAppCb, this)) {
+    DEBUG_LOG("RegisterApp LSCall failed");
   }
 }
 
@@ -245,6 +263,13 @@ bool WebOSLunaService::GetSystemSettingsCb(LSHandle* handle,
   return false;
 }
 
+bool WebOSLunaService::RegisterAppCb(LSHandle* handle,
+                                     LSMessage* reply,
+                                     void* context) {
+  DEBUG_LOG("RegisterAppCb payload: %s", LSMessageGetPayload(reply));
+  return true;
+}
+
 bool WebOSLunaService::LaunchApplicationStatusCb(LSHandle* handle,
                                                  LSMessage* reply,
                                                  void* context) {
@@ -252,4 +277,4 @@ bool WebOSLunaService::LaunchApplicationStatusCb(LSHandle* handle,
   return false;
 }
 
-}  // namespace neva
+}  // namespace content
