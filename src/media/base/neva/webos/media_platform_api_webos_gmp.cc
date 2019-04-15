@@ -87,13 +87,18 @@ const char* GmpNotifyTypeToString(gint type) {
 
 // static
 scoped_refptr<MediaPlatformAPIWebOS> MediaPlatformAPIWebOS::Create(
-    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+    const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner,
+    const scoped_refptr<base::SingleThreadTaskRunner>& media_task_runner,
     bool video,
     const std::string& app_id,
+    const NaturalVideoSizeChangedCB& natural_video_size_changed_cb,
+    const base::Closure& resume_done_cb,
+    const base::Closure& suspend_done_cb,
     const ActiveRegionCB& active_region_cb,
     const PipelineStatusCB& error_cb) {
-  return base::MakeRefCounted<MediaPlatformAPIWebOSGmp>(task_runner, video,
-                                                        app_id, error_cb);
+  return base::MakeRefCounted<MediaPlatformAPIWebOSGmp>(
+      main_task_runner, media_task_runner, video, app_id,
+      natural_video_size_changed_cb, resume_done_cb, suspend_done_cb, error_cb);
 }
 
 void MediaPlatformAPIWebOSGmp::Callback(const gint type,
@@ -117,20 +122,28 @@ void MediaPlatformAPIWebOSGmp::Callback(const gint type,
   }
 
   std::string string_value(str_value ? str_value : std::string());
-  that->task_runner_->PostTask(
+  that->media_task_runner_->PostTask(
       FROM_HERE,
       base::Bind(&MediaPlatformAPIWebOSGmp::DispatchCallback,
                  base::Unretained(that), type, num_value, string_value));
 }
 
 MediaPlatformAPIWebOSGmp::MediaPlatformAPIWebOSGmp(
-    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+    const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner,
+    const scoped_refptr<base::SingleThreadTaskRunner>& media_task_runner,
     bool video,
     const std::string& app_id,
+    const NaturalVideoSizeChangedCB& natural_video_size_changed_cb,
+    const base::Closure& resume_done_cb,
+    const base::Closure& suspend_done_cb,
     const PipelineStatusCB& error_cb)
     : ls_client_(app_id),
-      task_runner_(task_runner),
+      main_task_runner_(main_task_runner),
+      media_task_runner_(media_task_runner),
       app_id_(app_id),
+      natural_video_size_changed_cb_(natural_video_size_changed_cb),
+      resume_done_cb_(resume_done_cb),
+      suspend_done_cb_(suspend_done_cb),
       error_cb_(error_cb),
       state_(State::INVALID),
       feeded_audio_pts_(-1),
@@ -172,7 +185,7 @@ void MediaPlatformAPIWebOSGmp::Initialize(
     const PipelineStatusCB& init_cb) {
   FUNC_THIS_LOG(1);
 
-  DCHECK(task_runner_->BelongsToCurrentThread());
+  DCHECK(media_task_runner_->BelongsToCurrentThread());
   DCHECK(!init_cb.is_null());
 
   std::lock_guard<std::recursive_mutex> lock(recursive_mutex_);
@@ -207,11 +220,6 @@ void MediaPlatformAPIWebOSGmp::Initialize(
   ResetFeedInfo();
 
   base::ResetAndReturn(&init_cb_).Run(PIPELINE_OK);
-}
-
-bool MediaPlatformAPIWebOSGmp::Loaded() {
-  std::lock_guard<std::recursive_mutex> lock(recursive_mutex_);
-  return load_completed_;
 }
 
 void MediaPlatformAPIWebOSGmp::SetDisplayWindow(const gfx::Rect& rect,
@@ -293,11 +301,6 @@ bool MediaPlatformAPIWebOSGmp::Feed(const scoped_refptr<DecoderBuffer>& buffer,
   return true;
 }
 
-uint64_t MediaPlatformAPIWebOSGmp::GetCurrentTime() {
-  std::lock_guard<std::recursive_mutex> lock(recursive_mutex_);
-  return current_time_;
-}
-
 bool MediaPlatformAPIWebOSGmp::Seek(base::TimeDelta time) {
   std::lock_guard<std::recursive_mutex> lock(recursive_mutex_);
   FUNC_THIS_LOG(1) << " time=" << time.InMilliseconds() << "ms";
@@ -364,14 +367,19 @@ void MediaPlatformAPIWebOSGmp::Suspend(SuspendReason reason) {
   FUNC_THIS_LOG(1) << " media_player_client_=" << media_player_client_.get()
                    << "is_finalized_=" << is_finalized_;
 
-  if (!media_player_client_)
+  if (!media_player_client_) {
+    suspend_done_cb_.Run();
     return;
+  }
   is_suspended_ = true;
-  if (!load_completed_)
+  if (!load_completed_) {
+    suspend_done_cb_.Run();
     return;
+  }
 
   if (is_finalized_) {
     media_player_client_->NotifyBackground();
+    suspend_done_cb_.Run();
     return;
   }
 
@@ -379,7 +387,8 @@ void MediaPlatformAPIWebOSGmp::Suspend(SuspendReason reason) {
 
   window_rect_.SetRect(0, 0, 0, 0);
   window_in_rect_.SetRect(0, 0, 0, 0);
-  natural_size_.reset();
+  natural_video_size_.SetSize(0, 0);
+  suspend_done_cb_.Run();
 }
 
 void MediaPlatformAPIWebOSGmp::Resume(
@@ -397,20 +406,16 @@ void MediaPlatformAPIWebOSGmp::Resume(
   if (released_media_resource_) {
     if (playback_rate_ == 0.0f)
       play_internal_ = false;
-    task_runner_->PostTask(
+    media_task_runner_->PostTask(
         FROM_HERE,
         base::Bind(&MediaPlatformAPIWebOSGmp::ReInitialize, this, paused_time));
+    resume_done_cb_.Run();
     return;
   }
 
   if (load_completed_)
     media_player_client_->NotifyForeground();
-}
-
-bool MediaPlatformAPIWebOSGmp::IsReleasedMediaResource() {
-  FUNC_THIS_LOG(1);
-  std::lock_guard<std::recursive_mutex> lock(recursive_mutex_);
-  return released_media_resource_;
+  resume_done_cb_.Run();
 }
 
 void MediaPlatformAPIWebOSGmp::SetVisibility(bool visible) {
@@ -418,16 +423,6 @@ void MediaPlatformAPIWebOSGmp::SetVisibility(bool visible) {
   // TODO: once SetVisibility api is ready, below workaround will be removed
   if (visible == false)
     SetDisplayWindow(gfx::Rect(0, 0, 1, 1), gfx::Rect(0, 0, 1, 1), false);
-  has_visibility_ = visible;
-}
-
-bool MediaPlatformAPIWebOSGmp::Visibility() {
-  std::lock_guard<std::recursive_mutex> lock(recursive_mutex_);
-  return has_visibility_;
-}
-
-base::Optional<gfx::Size> MediaPlatformAPIWebOSGmp::GetNaturalSize() {
-  return natural_size_;
 }
 
 bool MediaPlatformAPIWebOSGmp::AllowedFeedVideo() {
@@ -716,12 +711,12 @@ void MediaPlatformAPIWebOSGmp::UpdateVideoInfo(const std::string& info_str) {
   LOG(INFO) << "[" << this << "] " << __func__ << " video_info=" << video_width
             << "x" << video_height;
 
-  gfx::Size natural_size(video_width, video_height);
-  if (natural_size_ != natural_size) {
-    natural_size_ = natural_size;
+  gfx::Size natural_video_size(video_width, video_height);
+  if (natural_video_size_ != natural_video_size) {
+    natural_video_size_ = natural_video_size;
 
-    if (!size_change_cb_.is_null())
-      size_change_cb_.Run();
+    if (!natural_video_size_changed_cb_.is_null())
+      natural_video_size_changed_cb_.Run(natural_video_size_);
   }
 }
 

@@ -38,11 +38,17 @@ namespace media {
 class MEDIA_EXPORT MediaPlatformAPIWebOS : public MediaPlatformAPI {
  public:
   typedef base::Callback<void(const blink::WebRect&)> ActiveRegionCB;
+  using NaturalVideoSizeChangedCB = base::Callback<void(const gfx::Size&)>;
+
   MediaPlatformAPIWebOS() {}
   static scoped_refptr<MediaPlatformAPIWebOS> Create(
-      const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+      const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner,
+      const scoped_refptr<base::SingleThreadTaskRunner>& media_task_runner,
       bool video,
       const std::string& app_id,
+      const NaturalVideoSizeChangedCB& natural_video_size_changed_cb,
+      const base::Closure& resume_done_cb,
+      const base::Closure& suspend_done_cb,
       const ActiveRegionCB& active_region_cb,
       const PipelineStatusCB& error_cb);
 
@@ -56,7 +62,6 @@ class MEDIA_EXPORT MediaPlatformAPIWebOS : public MediaPlatformAPI {
   virtual void SetLoadCompletedCb(const LoadCompletedCB& loaded_cb) = 0;
   virtual bool Feed(const scoped_refptr<DecoderBuffer>& buffer,
                     FeedType type) = 0;
-  virtual uint64_t GetCurrentTime() = 0;
   virtual bool Seek(base::TimeDelta time) = 0;
   virtual void Suspend(SuspendReason reason) = 0;
   virtual void Resume(base::TimeDelta paused_time,
@@ -73,8 +78,6 @@ class MEDIA_EXPORT MediaPlatformAPIWebOS : public MediaPlatformAPI {
 
   virtual void SwitchToAutoLayout() = 0;
   virtual void SetVisibility(bool visible) = 0;
-  virtual bool Visibility() = 0;
-  virtual base::Optional<gfx::Size> GetNaturalSize() = 0;
   virtual void SetDisableAudio(bool disable) = 0;
 
  protected:

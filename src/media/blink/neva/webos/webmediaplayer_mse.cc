@@ -93,7 +93,10 @@ WebMediaPlayerMSE::WebMediaPlayerMSE(
 
   // Create MediaAPIs Wrapper
   media_platform_api_ = media::MediaPlatformAPIWebOS::Create(
-      media_task_runner_, client_->IsVideo(), app_id_,
+      main_task_runner_, media_task_runner_, client_->IsVideo(), app_id_,
+      BIND_TO_RENDER_LOOP(&WebMediaPlayerMSE::OnNaturalVideoSizeChanged),
+      BIND_TO_RENDER_LOOP(&WebMediaPlayerMSE::OnResumed),
+      BIND_TO_RENDER_LOOP(&WebMediaPlayerMSE::OnSuspended),
       BIND_TO_RENDER_LOOP_VIDEO_FRAME_PROVIDER(
           &VideoFrameProviderImpl::ActiveRegionChanged),
       BIND_TO_RENDER_LOOP(&WebMediaPlayerMSE::OnError));
@@ -249,6 +252,14 @@ void WebMediaPlayerMSE::OnSuspend() {
   if (HasVideo() && RenderTexture())
     video_frame_provider_->SetStorageType(media::VideoFrame::STORAGE_BLACK);
 
+  // Usually we wait until OnSuspended(), but send DidMediaSuspended()
+  // immediately when media_platform_api_ is null.
+  if (!media_platform_api_.get())
+    delegate_->DidMediaSuspended(delegate_id_);
+}
+
+void WebMediaPlayerMSE::OnSuspended() {
+  THIS_FUNC_LOG(1);
   delegate_->DidMediaSuspended(delegate_id_);
 }
 
@@ -287,10 +298,20 @@ void WebMediaPlayerMSE::OnResume() {
                               ? media::MediaPlatformAPI::RESTORE_PAUSED
                               : media::MediaPlatformAPI::RESTORE_PLAYING;
 
-  if (media_platform_api_.get()) {
+  if (media_platform_api_.get())
     media_platform_api_->Resume(paused_time_, restore_playback_mode);
-    UpdateVideoHoleBoundary(true);
+  else {
+    // Usually we wait until OnResumed(), but send DidMediaActivated()
+    // immediately when media_platform_api_ is null.
+    delegate_->DidMediaActivated(delegate_id_);
   }
+}
+
+void WebMediaPlayerMSE::OnResumed() {
+  THIS_FUNC_LOG(1);
+#if defined(VIDEO_HOLE)
+  UpdateVideoHoleBoundary(true);
+#endif
 
   client_->RequestSeek(paused_time_.InSecondsF());
 
@@ -312,6 +333,15 @@ void WebMediaPlayerMSE::OnLoadPermitted() {
   // call base-class implementation
   media::WebMediaPlayerImpl::Load(pending_load_type_, pending_source_,
                                   pending_cors_mode_);
+}
+
+void WebMediaPlayerMSE::OnNaturalVideoSizeChanged(
+    const gfx::Size& natural_video_size) {
+  THIS_FUNC_LOG(1) << " width: " << natural_video_size.width()
+                   << " , height: " << natural_video_size.height();
+  // Note that we don't update video hole boundary when only natural size is
+  // changed.
+  natural_video_size_ = natural_video_size;
 }
 
 void WebMediaPlayerMSE::OnError(PipelineStatus metadata) {
@@ -338,6 +368,9 @@ void WebMediaPlayerMSE::OnMetadata(const PipelineMetadata& metadata) {
   SetReadyState(WebMediaPlayer::kReadyStateHaveMetadata);
 
   if (HasVideo()) {
+    // TODO(neva): In here, we don't use natural size from platform api.
+    // We need to ensure that it is really fine.
+
     if (pipeline_metadata_.video_decoder_config.video_rotation() ==
             VIDEO_ROTATION_90 ||
         pipeline_metadata_.video_decoder_config.video_rotation() ==
@@ -378,25 +411,22 @@ void WebMediaPlayerMSE::UpdateVideoHoleBoundary(bool forced) {
   // uMediaServer's performance of video hole position update.
   // Current uMeidaServer cannot update video-hole position smoothly at times.
   if (forced || !throttleUpdateVideoHoleBoundary_.IsRunning()) {
-    // NOTE: We prefer to use video_size from media_platform_api because it is
-    // safer to calculate source_rect for setDisplayWindow. video_size is set by
+    // NOTE: We prefer to use natural_video_size_ because it is safer to
+    // calculate source_rect for SetDisplayWindow. natural_video_size_ is set by
     // platform media-pipeline and also video info is set to video sink at the
     // time.
-    base::Optional<gfx::Size> natural_size =
-        media_platform_api_->GetNaturalSize();
-    if (!natural_size)
-      natural_size = NaturalSize();
     if (!ComputeVideoHoleDisplayRect(
-            last_computed_rect_in_view_space_, *natural_size,
+            last_computed_rect_in_view_space_, natural_video_size_,
             additional_contents_scale_, client_->WebWidgetViewRect(),
             client_->ScreenRect(), is_fullscreen_mode_,
             source_rect_in_video_space_, visible_rect_in_screen_space_,
             is_fullscreen_)) {
       // visibile_rect_in_screen_space_ will be empty
       // when video position is out of the screen.
-      if (visible_rect_in_screen_space_.IsEmpty() && HasVisibility()) {
+      if (visible_rect_in_screen_space_.IsEmpty() && has_visibility_) {
         is_video_offscreen_ = true;
-        SetVisibility(false);
+        has_visibility_ = false;
+        SetVisibility(has_visibility_);
         return;
       }
       // If forced update is used or video was offscreen, it needs to update
@@ -406,15 +436,16 @@ void WebMediaPlayerMSE::UpdateVideoHoleBoundary(bool forced) {
       // update video position since source_rect_in_video_space_ might be
       // changed. Possibly source_rect_in_screen_space_ might be changed
       // without last_computed_rect_changed_since_updated_ is true when
-      // natural_size is changed (i.e DASH) in this case we ignore it because
-      // framework will handle it
+      // natural_video_size_ is changed (i.e DASH) in this case we ignore it
+      // because framework will handle it.
       if (!forced && !is_video_offscreen_ &&
           !last_computed_rect_changed_since_updated_)
         return;
     }
 
     if (is_video_offscreen_) {
-      SetVisibility(true);
+      has_visibility_ = true;
+      SetVisibility(has_visibility_);
       is_video_offscreen_ = false;
     }
 
@@ -474,11 +505,12 @@ bool WebMediaPlayerMSE::UpdateBoundaryRect() {
 }
 
 void WebMediaPlayerMSE::SetVisibility(bool visible) {
-  media_platform_api_->SetVisibility(visible);
+  has_visibility_ = visible;
+  media_platform_api_->SetVisibility(has_visibility_);
 }
 
 bool WebMediaPlayerMSE::HasVisibility() const {
-  return media_platform_api_->Visibility();
+  return has_visibility_;
 }
 
 void WebMediaPlayerMSE::OnDidCommitCompositorFrame() {

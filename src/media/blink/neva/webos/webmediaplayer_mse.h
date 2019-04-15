@@ -123,6 +123,9 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
     PausedStatus,
   };
 
+  void OnResumed();
+  void OnSuspended();
+  void OnNaturalVideoSizeChanged(const gfx::Size& natural_video_size);
   void OnError(PipelineStatus status) override;
   void OnMetadata(const PipelineMetadata& metadata) override;
 
@@ -136,6 +139,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
 
   base::OneShotTimer throttleUpdateVideoHoleBoundary_;
 
+  // This value is updated by using value from media platform api.
+  gfx::Size natural_video_size_;
   gfx::Rect source_rect_in_video_space_;
   gfx::Rect visible_rect_in_screen_space_;
   gfx::Rect last_computed_rect_in_view_space_;
@@ -154,6 +159,8 @@ class MEDIA_BLINK_EXPORT WebMediaPlayerMSE : public WebMediaPlayerImpl {
   blink::WebMediaPlayer::RenderMode render_mode_;
 
   bool has_activation_permit_ = false;
+
+  bool has_visibility_ = true;
 
   DISALLOW_COPY_AND_ASSIGN(WebMediaPlayerMSE);
 };

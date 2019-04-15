@@ -44,9 +44,13 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSGmp : public MediaPlatformAPIWebOS {
                        void* user_data);
 
   MediaPlatformAPIWebOSGmp(
-      const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+      const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner,
+      const scoped_refptr<base::SingleThreadTaskRunner>& media_task_runner,
       bool video,
       const std::string& app_id,
+      const NaturalVideoSizeChangedCB& natural_video_size_changed_cb,
+      const base::Closure& resume_done_cb,
+      const base::Closure& suspend_done_cb,
       const PipelineStatusCB& error_cb);
 
   ~MediaPlatformAPIWebOSGmp() override;
@@ -60,7 +64,6 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSGmp : public MediaPlatformAPIWebOS {
                         bool fullscreen) override;
   void SetLoadCompletedCb(const LoadCompletedCB& loaded_cb) override;
   bool Feed(const scoped_refptr<DecoderBuffer>& buffer, FeedType type) override;
-  uint64_t GetCurrentTime() override;
   bool Seek(base::TimeDelta time) override;
   void Suspend(SuspendReason reason) override;
   void Resume(base::TimeDelta paused_time,
@@ -77,9 +80,7 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSGmp : public MediaPlatformAPIWebOS {
   void SwitchToAutoLayout() override {}
 
   void SetVisibility(bool visible) override;
-  bool Visibility() override;
   void SetDisableAudio(bool) override {}
-  base::Optional<gfx::Size> GetNaturalSize() override;
   // End of MediaPlatformAPIWebOS
 
  private:
@@ -145,20 +146,23 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSGmp : public MediaPlatformAPIWebOS {
   void NotifyLoadComplete();
   bool MakeLoadData(int64_t start_time, MEDIA_LOAD_DATA_T* load_data);
 
-  bool Loaded();
   std::string GetMediaID();
-  bool IsReleasedMediaResource();
   void Unload();
 
   media::LunaServiceClient ls_client_;
-  scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
+  scoped_refptr<base::SingleThreadTaskRunner> main_task_runner_;
+  scoped_refptr<base::SingleThreadTaskRunner> media_task_runner_;
   std::string app_id_;
+
+  gfx::Size natural_video_size_;
+  NaturalVideoSizeChangedCB natural_video_size_changed_cb_;
+  base::Closure resume_done_cb_;
+  base::Closure suspend_done_cb_;
 
   PipelineStatusCB error_cb_;
   PipelineStatusCB init_cb_;
   PipelineStatusCB seek_cb_;
 
-  base::Closure size_change_cb_;
   LoadCompletedCB load_completed_cb_;
 
   std::recursive_mutex recursive_mutex_;
@@ -179,14 +183,10 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSGmp : public MediaPlatformAPIWebOS {
   gfx::Rect window_rect_;
   gfx::Rect window_in_rect_;
 
-  base::Optional<gfx::Size> natural_size_;
-
   float playback_rate_;
 
   AudioDecoderConfig audio_config_;
   VideoDecoderConfig video_config_;
-
-  bool has_visibility_;
 
   bool play_internal_;
   bool released_media_resource_;

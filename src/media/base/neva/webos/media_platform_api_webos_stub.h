@@ -36,7 +36,6 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSStub : public MediaPlatformAPIWebOS {
                         bool fullscreen) override;
   void SetLoadCompletedCb(const LoadCompletedCB& loaded_cb) override;
   bool Feed(const scoped_refptr<DecoderBuffer>& buffer, FeedType type) override;
-  uint64_t GetCurrentTime() override;
   bool Seek(base::TimeDelta time) override;
   void Suspend(SuspendReason reason) override;
   void Resume(base::TimeDelta paused_time,
@@ -50,15 +49,9 @@ class MEDIA_EXPORT MediaPlatformAPIWebOSStub : public MediaPlatformAPIWebOS {
   bool IsEOSReceived() override;
 
   void SetVisibility(bool visible) override;
-  bool Visibility() override;
   void SetDisableAudio(bool) override {}
-  base::Optional<gfx::Size> GetNaturalSize() override;
 
  private:
-  void SetNaturalSize(const gfx::Size& size);
-  bool Loaded();
-  std::string GetMediaID();
-  bool IsReleasedMediaResource();
   DISALLOW_COPY_AND_ASSIGN(MediaPlatformAPIWebOSStub);
 };
 

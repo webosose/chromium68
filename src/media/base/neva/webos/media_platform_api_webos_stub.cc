@@ -22,9 +22,13 @@ namespace media {
 
 // static
 scoped_refptr<MediaPlatformAPIWebOS> MediaPlatformAPIWebOS::Create(
-    const scoped_refptr<base::SingleThreadTaskRunner>& task_runner,
+    const scoped_refptr<base::SingleThreadTaskRunner>& main_task_runner,
+    const scoped_refptr<base::SingleThreadTaskRunner>& media_task_runner,
     bool video,
     const std::string& app_id,
+    const NaturalVideoSizeChangedCB& natural_video_size_changed_cb,
+    const base::Closure& resume_done_cb,
+    const base::Closure& suspend_done_cb,
     const ActiveRegionCB& active_region_cb,
     const PipelineStatusCB& error_cb) {
   return base::MakeRefCounted<MediaPlatformAPIWebOSStub>();
@@ -51,10 +55,6 @@ void MediaPlatformAPIWebOSStub::SetLoadCompletedCb(
 bool MediaPlatformAPIWebOSStub::Feed(const scoped_refptr<DecoderBuffer>& buffer,
                                      FeedType type) {
   return false;
-}
-
-uint64_t MediaPlatformAPIWebOSStub::GetCurrentTime() {
-  return 0;
 }
 
 bool MediaPlatformAPIWebOSStub::Seek(base::TimeDelta time) {
@@ -88,27 +88,5 @@ bool MediaPlatformAPIWebOSStub::IsEOSReceived() {
 }
 
 void MediaPlatformAPIWebOSStub::SetVisibility(bool visible) {}
-
-bool MediaPlatformAPIWebOSStub::Visibility() {
-  return true;
-}
-
-base::Optional<gfx::Size> MediaPlatformAPIWebOSStub::GetNaturalSize() {
-  return base::nullopt;
-}
-
-void MediaPlatformAPIWebOSStub::SetNaturalSize(const gfx::Size& size) {}
-
-bool MediaPlatformAPIWebOSStub::Loaded() {
-  return false;
-}
-
-std::string MediaPlatformAPIWebOSStub::GetMediaID() {
-  return std::string();
-}
-
-bool MediaPlatformAPIWebOSStub::IsReleasedMediaResource() {
-  return false;
-}
 
 }  // namespace media
