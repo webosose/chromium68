@@ -73,9 +73,9 @@ class SystemMediaManager {
   virtual long Initialize(const bool is_video,
                           const std::string& app_id,
                           const ActiveRegionCB& active_region_cb) = 0;
-  // |UMediaClientImpl| will call |UpdateHtmlMediaOption| before
-  // |UMediaClientImpl| continue to Load if htmeMediaOption exists
-  virtual void UpdateHtmlMediaOption(const Json::Value& option) = 0;
+  // |UMediaClientImpl| will call |UpdateMediaOption| before
+  // |UMediaClientImpl| continue to Load
+  virtual void UpdateMediaOption(const Json::Value& media_option) = 0;
   // Set video out position in screen space by using in_rect in video space
   virtual bool SetDisplayWindow(const gfx::Rect& out_rect,
                                 const gfx::Rect& in_rect,

@@ -51,7 +51,7 @@ class SystemMediaManagerGmp : public SystemMediaManager {
                   const ActiveRegionCB& active_region_cb) override {
     return 0;
   }
-  void UpdateHtmlMediaOption(const Json::Value& option) override {}
+  void UpdateMediaOption(const Json::Value& media_option) override {}
   bool SetDisplayWindow(const gfx::Rect& out_rect,
                         const gfx::Rect& in_rect,
                         bool fullscreen) override;

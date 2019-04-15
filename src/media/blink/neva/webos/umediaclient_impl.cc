@@ -1301,10 +1301,6 @@ std::string UMediaClientImpl::UpdateMediaOption(const std::string& mediaOption,
               media_option["htmlMediaOption"]["usePipelinePreload"].asBool();
         if (media_option["htmlMediaOption"].isMember("useSetUri"))
           use_set_uri_ = media_option["htmlMediaOption"]["useSetUri"].asBool();
-
-        system_media_manager_->UpdateHtmlMediaOption(
-            media_option["htmlMediaOption"]);
-        media_option.removeMember("htmlMediaOption");
       }
       if (media_option.isMember("mediaTransportType")) {
         media_transport_type_ = media_option["mediaTransportType"].asString();
@@ -1373,6 +1369,8 @@ std::string UMediaClientImpl::UpdateMediaOption(const std::string& mediaOption,
 
   if (media_option.empty())
     return std::string();
+
+  system_media_manager_->UpdateMediaOption(media_option);
 
   res = writer.write(media_option);
 
