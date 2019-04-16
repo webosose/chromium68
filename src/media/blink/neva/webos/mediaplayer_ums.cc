@@ -439,12 +439,8 @@ base::TimeDelta MediaPlayerUMS::GetCurrentTime() {
 
 void MediaPlayerUMS::OnTimeUpdateTimerFired() {
   FUNC_LOG(2);
-  base::TimeDelta current_timestamp = GetCurrentTime();
-  if (last_time_update_timestamp_ == current_timestamp)
-    return;
   if (client_)
-    client_->OnTimeUpdate(current_timestamp, base::TimeTicks::Now());
-  last_time_update_timestamp_ = current_timestamp;
+    client_->OnTimeUpdate(GetCurrentTime(), base::TimeTicks::Now());
 }
 
 }  // namespace content
