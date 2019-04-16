@@ -730,7 +730,7 @@ bool DesktopWindowTreeHostOzone::ShouldUpdateWindowTransparency() const {
 
 bool DesktopWindowTreeHostOzone::ShouldUseDesktopNativeCursorManager() const {
   //TODO: the value can be changed relate to platform requirements
-  return false;
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
