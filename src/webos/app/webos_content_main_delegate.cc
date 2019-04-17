@@ -42,7 +42,7 @@ bool WebOSContentMainDelegate::BasicStartupComplete(int* exit_code) {
         parsedCommandLine->GetSwitchValueASCII(switches::kProcessType);
   if (process_type.empty()) {
     webos_luna_service_delegate_.reset(new WebOSLunaServiceDelegate);
-    content::WebOSLunaService::GetInstance()->SetDelegate(
+    neva::WebOSLunaService::GetInstance()->SetDelegate(
         webos_luna_service_delegate_.get());
     startup_callback_.Run();
   }

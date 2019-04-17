@@ -20,15 +20,15 @@
 #include <string>
 
 #include "base/memory/ptr_util.h"
-#include "content/public/browser/neva/webos_luna_service.h"
+#include "neva/app_runtime/browser/webos/webos_luna_service.h"
 
 namespace webos {
 
-class WebOSLunaServiceDelegate : public content::WebOSLunaService::Delegate {
+class WebOSLunaServiceDelegate : public neva::WebOSLunaService::Delegate {
  public:
   WebOSLunaServiceDelegate() {}
 
-  // content::WebOSLunaService::Delegate
+  // neva::WebOSLunaService::Delegate
   void NotifySystemLocale(const std::string& ui) override;
 
  private:

@@ -118,6 +118,13 @@ static_library("app_runtime") {
     ":mojo_app_runtime_bindings",
   ]
 
+  if (is_webos) {
+    sources += [
+      "browser/webos/webos_luna_service.cc",
+      "browser/webos/webos_luna_service.h",
+    ]
+  }
+
   deps = [
     "//base/third_party/dynamic_annotations",
     "//cc/base",

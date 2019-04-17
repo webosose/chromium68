@@ -85,11 +85,6 @@
 #include "ozone/ui/webui/ozone_webui.h"
 #endif
 
-#if defined(OS_WEBOS)
-#include "extensions/common/switches.h"
-#include "content/public/browser/neva/webos_luna_service.h"
-#endif
-
 using base::CommandLine;
 using content::BrowserContext;
 
@@ -282,14 +277,6 @@ void ShellBrowserMainParts::PreMainMessageLoopRun() {
   }
 
   web_cache::WebCacheManager::GetInstance();
-#if defined(OS_WEBOS)
-  if (cmd->HasSwitch(extensions::switches::kWebOSAppId)) {
-    std::string webos_app_id =
-        cmd->GetSwitchValueASCII(extensions::switches::kWebOSAppId);
-    content::WebOSLunaService::GetInstance()->Initialize(webos_app_id);
-    content::WebOSLunaService::GetInstance()->RegisterApp();
-  }
-#endif
 }
 
 bool ShellBrowserMainParts::MainMessageLoopRun(int* result_code) {

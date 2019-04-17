@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef CONTENT_PUBLIC_BROWSER_NEVA_WEBOS_LUNA_SERVICE_H_
-#define CONTENT_PUBLIC_BROWSER_NEVA_WEBOS_LUNA_SERVICE_H_
+#ifndef NEVA_APP_RUNTIME_BROWSER_WEBOS_WEBOS_LUNA_SERVICE_H_
+#define NEVA_APP_RUNTIME_BROWSER_WEBOS_WEBOS_LUNA_SERVICE_H_
 
 #include <lunaservice.h>
 #include <string>
@@ -26,10 +26,10 @@
 #include "base/values.h"
 #include "content/public/browser/luna_service_delegate.h"
 
-namespace content {
+namespace neva {
 
 // WebOSLunaService for webapp.
-class WebOSLunaService : public LunaServiceDelegate {
+class WebOSLunaService : public content::LunaServiceDelegate {
  public:
   static WebOSLunaService* GetInstance();
 
@@ -46,9 +46,8 @@ class WebOSLunaService : public LunaServiceDelegate {
                        void* context);
   void LunaServiceCancel(LSMessageToken* token);
 
-  void Initialize(const std::string& app_id = std::string());
+  void Initialize();
   void Finalize();
-  void RegisterApp();
   void LaunchSettingsApplication(int target_id);
   void SetDelegate(Delegate* delegate) { delegate_ = delegate; }
 
@@ -74,8 +73,6 @@ class WebOSLunaService : public LunaServiceDelegate {
   // Single token should initialize with LSMESSAGE_TOKEN_INVALID
   std::vector<LSMessageToken> ls_token_vector_;
 
-  std::string app_id_;
-
   void GetSystemSettings();
 
   void NotifySystemLocale(const std::string& ui);
@@ -84,7 +81,6 @@ class WebOSLunaService : public LunaServiceDelegate {
   static bool GetSystemSettingsCb(LSHandle* handle,
                                   LSMessage* reply,
                                   void* context);
-  static bool RegisterAppCb(LSHandle* handle, LSMessage* reply, void* context);
   static bool LaunchApplicationStatusCb(LSHandle* handle,
                                         LSMessage* reply,
                                         void* context);
@@ -92,6 +88,6 @@ class WebOSLunaService : public LunaServiceDelegate {
   DISALLOW_COPY_AND_ASSIGN(WebOSLunaService);
 };
 
-}  // namespace content
+}  // namespace neva
 
-#endif  // CONTENT_PUBLIC_BROWSER_NEVA_WEBOS_LUNA_SERVICE_H_
+#endif  // NEVA_APP_RUNTIME_BROWSER_WEBOS_WEBOS_LUNA_SERVICE_H_
