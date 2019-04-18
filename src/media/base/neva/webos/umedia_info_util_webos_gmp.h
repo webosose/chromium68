@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef MEDIA_BASE_NEVA_WEBOS_MEDIA_INFO_UTIL_WEBOS_GMP_H_
-#define MEDIA_BASE_NEVA_WEBOS_MEDIA_INFO_UTIL_WEBOS_GMP_H_
+#ifndef MEDIA_BASE_NEVA_WEBOS_UMEDIA_INFO_UTIL_WEBOS_GMP_H_
+#define MEDIA_BASE_NEVA_WEBOS_UMEDIA_INFO_UTIL_WEBOS_GMP_H_
 
 #include <uMediaClient.h>
 
@@ -32,4 +32,4 @@ std::string AudioInfoToJson(const std::string&,
 
 }  // namespace media
 
-#endif  // MEDIA_BASE_NEVA_WEBOS_MEDIA_INFO_UTIL_WEBOS_GMP_H_
+#endif  // MEDIA_BASE_NEVA_WEBOS_UMEDIA_INFO_UTIL_WEBOS_GMP_H_

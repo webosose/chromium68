@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "media/base/neva/webos/media_info_util_webos_gmp.h"
+#include "media/base/neva/webos/umedia_info_util_webos_gmp.h"
 
 #include "base/logging.h"
 

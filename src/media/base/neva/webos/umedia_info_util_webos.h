@@ -14,15 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef MEDIA_BASE_NEVA_WEBOS_MEDIA_INFO_UTIL_WEBOS_H_
-#define MEDIA_BASE_NEVA_WEBOS_MEDIA_INFO_UTIL_WEBOS_H_
+#ifndef MEDIA_BASE_NEVA_WEBOS_UMEDIA_INFO_UTIL_WEBOS_H_
+#define MEDIA_BASE_NEVA_WEBOS_UMEDIA_INFO_UTIL_WEBOS_H_
 
 #include <uMediaClient.h>
 
 #include "third_party/jsoncpp/source/include/json/json.h"
 
 #if UMS_INTERNAL_API_VERSION == 2
-#include "media/base/neva/webos/media_info_util_webos_gmp.h"
+#include "media/base/neva/webos/umedia_info_util_webos_gmp.h"
 #endif
 
 namespace media {
@@ -57,4 +57,4 @@ std::string SlaveClockInfoToJson(
 
 }  // namespace media
 
-#endif  // MEDIA_BASE_NEVA_WEBOS_MEDIA_INFO_UTIL_WEBOS_H_
+#endif  // MEDIA_BASE_NEVA_WEBOS_UMEDIA_INFO_UTIL_WEBOS_H_
