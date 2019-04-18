@@ -174,6 +174,10 @@ class URLRequestContextFactory::MainURLRequestContextGetter
           browser_context_, &protocol_handlers_,
           std::move(request_interceptors_)));
       protocol_handlers_.clear();
+#if defined(USE_NSS_CERTS)
+      // Set request context used by NSS for Crl requests.
+      net::SetURLRequestContextForNSSHttpIO(request_context_.get());
+#endif
     }
     return request_context_.get();
   }
@@ -184,7 +188,11 @@ class URLRequestContextFactory::MainURLRequestContextGetter
   }
 
  private:
-  ~MainURLRequestContextGetter() override {}
+  ~MainURLRequestContextGetter() override {
+#if defined(USE_NSS_CERTS)
+    net::SetURLRequestContextForNSSHttpIO(nullptr);
+#endif
+  }
 
   content::BrowserContext* const browser_context_;
   URLRequestContextFactory* const factory_;
