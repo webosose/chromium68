@@ -19,6 +19,10 @@
 #include "extensions/shell/browser/shell_special_storage_policy.h"
 #include "extensions/shell/browser/shell_url_request_context_getter.h"
 
+#if defined(USE_NSS_CERTS)
+#include "net/cert_net/nss_ocsp.h"
+#endif
+
 namespace extensions {
 
 namespace {
@@ -42,6 +46,9 @@ ShellBrowserContext::ShellBrowserContext(
 
 ShellBrowserContext::~ShellBrowserContext() {
   content::BrowserContext::NotifyWillBeDestroyed(this);
+#if defined(USE_NSS_CERTS)
+  net::SetURLRequestContextForNSSHttpIO(nullptr);
+#endif
 }
 
 content::BrowserPluginGuestManager* ShellBrowserContext::GetGuestManager() {
@@ -114,9 +121,14 @@ net::URLRequestContextGetter* ShellBrowserContext::CreateRequestContext(
 void ShellBrowserContext::InitURLRequestContextOnIOThread() {
   DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
 
+#if defined(USE_NSS_CERTS)
+  net::SetURLRequestContextForNSSHttpIO(
+      url_request_context_getter()->GetURLRequestContext());
+#else
   // GetURLRequestContext() will create a URLRequestContext if it isn't
   // initialized.
   url_request_context_getter()->GetURLRequestContext();
+#endif
 }
 
 }  // namespace extensions
