@@ -158,6 +158,11 @@ class InputHandlerProxy : public cc::InputHandlerClient,
   EventDisposition HandleTouchMove(const blink::WebTouchEvent& event);
   EventDisposition HandleTouchEnd(const blink::WebTouchEvent& event);
 
+#if defined(USE_NEVA_APPRUNTIME)
+  blink::WebGestureEvent MaybeAdjustGestureScrollUpdate(
+      const blink::WebGestureEvent& event);
+#endif
+
   // Returns true if we actually had an active fling to cancel, also notifying
   // the client that the fling has ended. Note that if a boosted fling is active
   // and suppressing an active scroll sequence, a synthetic GestureScrollBegin

@@ -19,6 +19,18 @@
 namespace cc {
 namespace switches {
 
+// Sets custom mouse wheel gesture scroll delta value. Unit is pixel.
+// From this value, we can allow web apps to change scroll distance
+// for mouse wheel event.
+// This value is refered to scroll delta in gesture scroll update event
+// on renderer side.
+// Note that this value is valid only if renderer turns on native scroll and
+// threaded compositing. Also this value is initialized as default value(180)
+// when native scroll is enabled and this value is not provided in command
+// line argument.
+const char kCustomMouseWheelGestureScrollDeltaOnWebOSNativeScroll[] =
+    "custom-mouse-wheel-gesture-scroll-delta-on-webos-native-scroll";
+
 // Layer tree setting for decoded image working set budget in MB
 const char kDecodedImageWorkingSetBudgetMB[] =
     "decoded-image-working-set-budget-mb";
@@ -29,7 +41,7 @@ const char kEnableAggressiveReleasePolicy[] =
     "enable-aggressive-release-policy";
 
 // Enable native-scroll feature
-const char kEnableWebOSNativeScroll[] = "enable-native-scroll";
+const char kEnableWebOSNativeScroll[] = "enable-webos-native-scroll";
 
 // The factor by which to reduce the GPU memory size of the cache when under
 // memory pressure.

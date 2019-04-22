@@ -130,6 +130,13 @@ void MouseWheelEventQueue::ProcessMouseWheelAck(
         event_sent_for_gesture_ack_->event.PositionInScreen());
     scroll_update.resending_plugin_id = -1;
 
+#if defined(USE_NEVA_APPRUNTIME)
+    // This property is needed on native scroll. If native scroll is enabled,
+    // InputEventFilter inside renderer process will change scroll delta to
+    // custom value.
+    scroll_update.data.scroll_update.generated_from_mouse_wheel_event = true;
+#endif
+
     // Swap X & Y if Shift is down and when there is no horizontal movement.
     if ((event_sent_for_gesture_ack_->event.GetModifiers() &
          WebInputEvent::kShiftKey) != 0 &&

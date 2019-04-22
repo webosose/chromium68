@@ -76,6 +76,9 @@ struct ScrollUpdate {
   float velocity_x;
   float velocity_y;
   bool previous_update_in_sequence_prevented;
+
+  [EnableIf=use_neva_appruntime]
+  bool generated_from_mouse_wheel_event;
 };
 
 struct ScrollData {

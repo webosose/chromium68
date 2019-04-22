@@ -191,6 +191,29 @@ void AppRuntimeContentBrowserClient::AppendExtraCommandLineSwitches(
       // See PaintLayerScrollableArea.cpp::layerNeedsCompositingScrolling()
       if (!command_line->HasSwitch(switches::kEnablePreferCompositingToLCDText))
         command_line->AppendSwitch(switches::kEnablePreferCompositingToLCDText);
+
+      // Sets kCustomMouseWheelGestureScrollDeltaOnWebOSNativeScroll.
+      // If this value is provided from command line argument, then propagate
+      // the value to render process. If not, initialize this flag as default
+      // value.
+      static const int kDefaultGestureScrollDistanceOnNativeScroll = 180;
+      // We should find in browser's switch value.
+      if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+              cc::switches::
+                  kCustomMouseWheelGestureScrollDeltaOnWebOSNativeScroll)) {
+        std::string propagated_value(
+            base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
+                cc::switches::
+                    kCustomMouseWheelGestureScrollDeltaOnWebOSNativeScroll));
+        command_line->AppendSwitchASCII(
+            cc::switches::
+                kCustomMouseWheelGestureScrollDeltaOnWebOSNativeScroll,
+            propagated_value);
+      } else
+        command_line->AppendSwitchASCII(
+            cc::switches::
+                kCustomMouseWheelGestureScrollDeltaOnWebOSNativeScroll,
+            std::to_string(kDefaultGestureScrollDistanceOnNativeScroll));
     }
 
     use_native_scroll_map_.erase(iter_ns);

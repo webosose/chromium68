@@ -115,6 +115,12 @@ class WebGestureEvent : public WebInputEvent {
       // determining whether the observed scroll update sequence captures
       // the entirety of the generative motion.
       bool previous_update_in_sequence_prevented;
+#if defined(USE_NEVA_APPRUNTIME)
+      // True if this event was created in mouse wheel event queue.
+      // This property is used only if native scroll is enabled.
+      // See InputEventFilter.
+      bool generated_from_mouse_wheel_event;
+#endif
       InertialPhaseState inertial_phase;
       // Default initialized to ScrollUnits::PrecisePixels.
       ScrollUnits delta_units;

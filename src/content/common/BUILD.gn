@@ -603,6 +603,9 @@ mojom("mojo_bindings") {
   if (is_linux || is_chromeos) {
     enabled_features += [ "supports_thread_priorities" ]
   }
+  if (use_neva_appruntime) {
+    enabled_features += [ "use_neva_appruntime" ]
+  }
 
   import_dirs = [ "//mojo/services" ]
 
