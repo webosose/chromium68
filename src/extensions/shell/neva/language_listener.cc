@@ -42,10 +42,8 @@ namespace neva {
 DEFINE_WEB_CONTENTS_USER_DATA_KEY(LanguageListener);
 
 LanguageListener::LanguageListener(content::WebContents* web_contents)
-    : content::WebContentsObserver(web_contents) {
-  pal::SystemLocaleInterface* interface_ =
-      pal::Pal::GetPlatformInstance()->GetSystemLocaleInterface();
-
+    : content::WebContentsObserver(web_contents),
+      interface_(pal::Pal::GetPlatformInstance()->GetSystemLocaleInterface()) {
   if (!interface_) {
     LOG(ERROR) << __func__
                << "(): no PAL-implementation for the interface found";
