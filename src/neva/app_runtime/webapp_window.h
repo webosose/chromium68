@@ -40,6 +40,7 @@ namespace app_runtime {
 
 class AppRuntimeDesktopNativeWidgetAura;
 class AppRuntimeEvent;
+class WebAppScrollObserver;
 class WebAppWindowDelegate;
 class WindowGroupConfiguration;
 
@@ -150,8 +151,11 @@ class WebAppWindow : public views::NativeEventDelegate,
   int input_panel_height() {
     return input_panel_rect_.height() / scale_factor_;
   }
+  bool input_panel_visible() { return input_panel_visible_; }
 
  private:
+  friend WebAppScrollObserver;
+
   static views::Widget* CreateWebAppWindow(const WebAppWindowBase::CreateParams& create_params);
   void InitWindow();
   void ComputeScaleFactor();
@@ -180,6 +184,9 @@ class WebAppWindow : public views::NativeEventDelegate,
   base::string16 title_;
   ui::WidgetState window_host_state_;
   ui::WidgetState window_host_state_about_to_change_;
+
+  std::unique_ptr<WebAppScrollObserver> web_app_scroll_observer_;
+
   DISALLOW_COPY_AND_ASSIGN(WebAppWindow);
 };
 

@@ -21,6 +21,7 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "content/browser/web_contents/web_contents_view.h"
+#include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
 #include "neva/app_runtime/public/app_runtime_event.h"
@@ -35,16 +36,17 @@
 #include "ui/base/ui_base_types.h"
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
+#include "ui/events/blink/web_input_event.h"
 #include "ui/gfx/geometry/size.h"
 #include "ui/platform_window/neva/window_group_configuration.h"
 #include "ui/platform_window/neva/xinput_types.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/layout/fill_layout.h"
+#include "ui/views/test/desktop_test_views_delegate.h"
 #include "ui/views/view.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
-#include "ui/views/test/desktop_test_views_delegate.h"
 
 namespace app_runtime {
 
@@ -140,6 +142,54 @@ inline bool ExistsInUiKeyMaskType(std::uint32_t key_mask) {
 }
 
 }  // namespace
+
+// Scroll app window if needed when vkb is visible by moving native view
+// in case app didn't consume wheel event
+class WebAppScrollObserver
+    : public content::RenderWidgetHost::InputEventObserver {
+ public:
+  WebAppScrollObserver(WebAppWindow* window) : window_(window) {
+    window_->GetWebContents()
+        ->GetMainFrame()
+        ->GetView()
+        ->GetRenderWidgetHost()
+        ->AddInputEventObserver(this);
+  }
+  ~WebAppScrollObserver() override {
+    if (window_->GetWebContents())
+      window_->GetWebContents()
+          ->GetMainFrame()
+          ->GetView()
+          ->GetRenderWidgetHost()
+          ->RemoveInputEventObserver(this);
+  }
+
+  void OnInputEventAck(content::InputEventAckSource source,
+                       content::InputEventAckState state,
+                       const blink::WebInputEvent& event) override {
+    if (event.GetType() == blink::WebInputEvent::kMouseWheel &&
+        state != content::INPUT_EVENT_ACK_STATE_CONSUMED) {
+      int input_panel_real_height =
+          window_->input_panel_height() > 0 ? window_->input_panel_height() : 0;
+      gfx::Rect bounds =
+          window_->GetWebContents()->GetContentNativeView()->bounds();
+      const blink::WebMouseWheelEvent& wheel_event =
+          *static_cast<const blink::WebMouseWheelEvent*>(&event);
+      window_->GetWebContents()->GetContentNativeView()->SetBounds(gfx::Rect(
+          bounds.x(),
+          (static_cast<int>(wheel_event.delta_y) > 0)
+              ? std::min(bounds.y() + static_cast<int>(wheel_event.delta_y), 0)
+              : std::max(bounds.y() + static_cast<int>(wheel_event.delta_y),
+                         -input_panel_real_height),
+          bounds.width(), bounds.height()));
+    }
+  }
+
+ private:
+  WebAppWindow* window_;
+
+  DISALLOW_COPY_AND_ASSIGN(WebAppScrollObserver);
+};
 
 WebAppWindow::WebAppWindow(const WebAppWindowBase::CreateParams& params,
                            WebAppWindowDelegate* delegate)
@@ -439,11 +489,13 @@ bool WebAppWindow::IsTextInputOverlapped() {
 
 void WebAppWindow::InputPanelVisibilityChanged(bool visible) {
   if (visible) {
+    web_app_scroll_observer_.reset(new WebAppScrollObserver(this));
     if (input_panel_rect_.height() && IsTextInputOverlapped()) {
       viewport_shift_height_ = -input_panel_height();
       UpdateViewportY();
     }
   } else {
+    web_app_scroll_observer_.reset();
     viewport_shift_height_ = 0;
     UpdateViewportY();
   }
@@ -701,19 +753,7 @@ void WebAppWindow::OnMouseEvent(ui::MouseEvent* event) {
     case ui::EventType::ET_MOUSE_ENTERED:
     case ui::EventType::ET_MOUSE_EXITED:
     case ui::EventType::ET_MOUSE_CAPTURE_CHANGED:
-      break;
     case ui::EventType::ET_MOUSEWHEEL: {
-      int input_panel_real_height =
-          input_panel_rect_.height() > 0 ? input_panel_height() : 0;
-      ui::MouseWheelEvent* wheel_event =
-          static_cast<ui::MouseWheelEvent*>(event);
-      gfx::Rect bounds = web_contents_->GetContentNativeView()->bounds();
-      web_contents_->GetContentNativeView()->SetBounds(gfx::Rect(
-          bounds.x(), (wheel_event->y_offset() > 0)
-                          ? std::min(bounds.y() + wheel_event->y_offset(), 0)
-                          : std::max(bounds.y() + wheel_event->y_offset(),
-                                     -input_panel_real_height),
-          bounds.width(), bounds.height()));
       break;
     }
     default:
