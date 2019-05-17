@@ -172,7 +172,11 @@ void WaylandTextInput::ShowInputPanel(wl_seat* input_seat, unsigned handle) {
   if (!text_model_)
     CreateTextModel();
 
-  if (text_model_ && active_window_ && active_window_->Handle() == handle) {
+  if (!text_model_)
+    return;
+
+  if (active_window_ && active_window_->Handle() == handle ||
+      last_active_window_ && last_active_window_->Handle() == handle) {
     activated_ ? text_model_show_input_panel(text_model_) : ActivateTextModel();
     text_model_set_content_type(
         text_model_,
