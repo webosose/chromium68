@@ -217,12 +217,19 @@ static bool IsE(UChar ch) {
 }
 
 String NumberInputType::LocalizeValue(const String& proposed_value) const {
+#if defined(OS_WEBOS)
+  // Following UX rules for RTL, we don't localize input value and
+  // we use English-numbers only when input type is number.
+  // So, we don't actually call localizeValue() in this file.
+  return proposed_value;
+#else  // !defined(OS_WEBOS)
   if (proposed_value.IsEmpty())
     return proposed_value;
   // We don't localize scientific notations.
   if (proposed_value.Find(IsE) != kNotFound)
     return proposed_value;
   return GetElement().GetLocale().ConvertToLocalizedNumber(proposed_value);
+#endif  // defined(OS_WEBOS)
 }
 
 String NumberInputType::VisibleValue() const {
