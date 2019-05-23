@@ -44,7 +44,7 @@ SkColor DelegatedFrameHostClientAura::DelegatedFrameHostGetGutterColor() const {
 
 #if defined(USE_NEVA_APPRUNTIME)
 bool DelegatedFrameHostClientAura::DelegatedFrameHostIsKeepAliveWebApp() const {
-  render_widget_host_view_->IsKeepAliveWebApp();
+  return render_widget_host_view_->IsKeepAliveWebApp();
 }
 #endif
 
