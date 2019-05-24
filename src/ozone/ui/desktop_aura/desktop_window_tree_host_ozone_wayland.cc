@@ -88,6 +88,12 @@ DesktopWindowTreeHostOzone::DesktopWindowTreeHostOzone(
 }
 
 DesktopWindowTreeHostOzone::~DesktopWindowTreeHostOzone() {
+#if defined(USE_NEVA_APPRUNTIME)
+  views::NativeEventDelegate* native_event_delegate =
+      desktop_native_widget_aura_->GetNativeEventDelegate();
+  if (native_event_delegate)
+    native_event_delegate->KeyboardLeave();
+#endif
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableNevaIme))
     GetInputMethod()->RemoveObserver(this);
   window()->ClearProperty(kHostForRootWindow);
