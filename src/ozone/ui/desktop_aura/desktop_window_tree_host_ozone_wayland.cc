@@ -50,6 +50,10 @@
 #include "ui/wm/core/window_util.h"
 #include "ui/wm/public/window_move_client.h"
 
+#if defined(OS_WEBOS)
+#include "ozone/ui/desktop_aura/webos_drag_drop_client_wayland.h"
+#endif
+
 DEFINE_UI_CLASS_PROPERTY_TYPE(views::DesktopWindowTreeHostOzone*);
 
 namespace views {
@@ -224,8 +228,12 @@ DesktopWindowTreeHostOzone::CreateTooltip() {
 std::unique_ptr<aura::client::DragDropClient>
 DesktopWindowTreeHostOzone::CreateDragDropClient(
     DesktopNativeCursorManager* cursor_manager) {
+#if defined(OS_WEBOS)
+  drag_drop_client_ = new WebosDragDropClientWayland(window());
+#else
   drag_drop_client_ = new DesktopDragDropClientWayland(window(),
                                                        platform_window_.get());
+#endif
   return std::unique_ptr<aura::client::DragDropClient>(drag_drop_client_);
 }
 

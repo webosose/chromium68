@@ -14,6 +14,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import("//neva/neva.gni")
+
 platform_list_txt_file = "$root_gen_dir/ui/ozone/platform_list.txt"
 desktop_factory_ozone_list_cc_file = "$target_gen_dir/desktop_factory_ozone_list.cc"
 
@@ -34,6 +36,16 @@ source_set("views_ozone_wayland") {
     "ozone_util.h",
     desktop_factory_ozone_list_cc_file,
   ]
+  if (is_webos) {
+    sources += [
+      "drag_drop_tracker.cc",
+      "drag_drop_tracker.h",
+      "drag_image_view.cc",
+      "drag_image_view.h",
+      "webos_drag_drop_client_wayland.cc",
+      "webos_drag_drop_client_wayland.h",
+    ]
+  }
 
   defines = [ "VIEWS_IMPLEMENTATION" ]
 
