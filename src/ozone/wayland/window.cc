@@ -39,8 +39,10 @@ WaylandWindow::WaylandWindow(unsigned handle)
 WaylandWindow::~WaylandWindow() {
   WaylandSeat* seat = WaylandDisplay::GetInstance()->PrimarySeat();
   if (seat) {
-    if (seat->GetFocusWindowHandle() == handle_)
+    if (seat->GetFocusWindowHandle() == handle_) {
+      WaylandDisplay::GetInstance()->KeyboardLeave(handle_);
       seat->SetFocusWindowHandle(0);
+    }
 
     if (seat->GetGrabWindowHandle() == handle_)
       seat->SetGrabWindowHandle(0, 0);
