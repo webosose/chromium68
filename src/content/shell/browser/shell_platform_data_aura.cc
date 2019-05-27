@@ -9,7 +9,6 @@
 #include "ui/aura/client/default_capture_client.h"
 #include "ui/aura/env.h"
 #include "ui/aura/layout_manager.h"
-#include "ui/aura/test/test_screen.h"
 #include "ui/aura/window.h"
 #include "ui/aura/window_event_dispatcher.h"
 #include "ui/base/ime/input_method.h"
@@ -18,6 +17,7 @@
 #include "ui/wm/core/default_activation_client.h"
 
 #if !defined(USE_CBE)
+#include "ui/aura/test/test_screen.h"
 #include "ui/aura/test/test_focus_client.h"
 #include "ui/aura/test/test_window_parenting_client.h"
 #endif
@@ -79,6 +79,7 @@ ShellPlatformDataAura::ShellPlatformDataAura(const gfx::Size& initial_size) {
       screen_ = std::make_unique<aura::ScreenOzone>(std::move(platform_screen));
 #endif  // defined(USE_OZONE)
 
+#if !defined(USE_CBE)
     // Use aura::TestScreen for Ozone platforms that don't provide
     // PlatformScreen.
     // TODO(https://crbug.com/872339): Implement PlatformScreen for all
@@ -89,6 +90,7 @@ ShellPlatformDataAura::ShellPlatformDataAura(const gfx::Size& initial_size) {
       screen_.reset(
           aura::TestScreen::Create(gfx::ScaleToCeiledSize(initial_size, 2.0)));
     }
+#endif
     display::Screen::SetScreenInstance(screen_.get());
   }
 
