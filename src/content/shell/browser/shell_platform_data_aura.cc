@@ -24,6 +24,7 @@
 
 #if defined(USE_OZONE)
 #include "ui/aura/screen_ozone.h"
+#include "ui/ozone/public/ozone_platform.h"
 #endif
 
 namespace content {
