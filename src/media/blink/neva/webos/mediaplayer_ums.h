@@ -48,7 +48,7 @@ class MediaPlayerUMS : public base::SupportsWeakPtr<MediaPlayerUMS>,
   explicit MediaPlayerUMS(MediaPlayerNevaClient*,
                           const scoped_refptr<base::SingleThreadTaskRunner>&,
                           const std::string& app_id);
-  virtual ~MediaPlayerUMS() override;
+  ~MediaPlayerUMS() override;
 
   // media::RendererMediaBuiltinPlayerManagerInterface implementation
   // Initializes a MediaPlayerAndroid object in browser process.
