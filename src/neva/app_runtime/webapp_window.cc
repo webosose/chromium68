@@ -787,6 +787,12 @@ void WebAppWindow::OnKeyEvent(ui::KeyEvent* event) {
 void WebAppWindow::InitWindow() {
   widget_ = new views::Widget();
   views::Widget::InitParams init_params(ToViewsWigetType(params_.type));
+  // Update params width and and height with current window rect because bounds
+  // might have changed due to resize or orientation change. This is needed
+  // for keep alive apps.when WebAppWindow is not getting destroyed but
+  // reinitialized.
+  params_.width = rect_.width();
+  params_.height = rect_.height();
   init_params.bounds =
       gfx::Rect(params_.pos_x, params_.pos_y, params_.width, params_.height);
 
