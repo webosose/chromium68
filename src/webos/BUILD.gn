@@ -53,8 +53,6 @@ source_set("webos_impl") {
     "app/webos_main.h",
     "browser/net/webos_network_delegate.cc",
     "browser/net/webos_network_delegate.h",
-    "browser/webos_luna_service_delegate.cc",
-    "browser/webos_luna_service_delegate.h",
     "browser/webos_webview_renderer_state.cc",
     "browser/webos_webview_renderer_state.h",
     "common/webos_constants.h",
@@ -99,4 +97,11 @@ source_set("webos_impl") {
   ]
 
   include_dirs = [ "." ]
+
+  if (is_webos) {
+    sources += [
+      "browser/webos_luna_service_delegate.cc",
+      "browser/webos_luna_service_delegate.h",
+    ]
+  }
 }

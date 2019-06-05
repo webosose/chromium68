@@ -21,7 +21,9 @@
 #include "webos/common/webos_constants.h"
 #include "webos/common/webos_export.h"
 
+#if defined(OS_WEBOS)
 class LSHandle;
+#endif
 
 namespace base {
 template <typename T>
@@ -29,8 +31,9 @@ struct DefaultSingletonTraits;
 }  // namespace base
 
 namespace webos {
-
+#if defined(OS_WEBOS)
 class LunaServiceDelegate;
+#endif
 class CookieStoreUtilDelegate;
 class PlatformDelegate;
 
@@ -44,7 +47,10 @@ class WEBOS_EXPORT Runtime {
     platform_delegate_ = platform_delegate;
   }
 
+#if defined(OS_WEBOS)
   LSHandle* GetLSHandle();
+#endif
+
   void FlushStoreCookie(PowerOffState power_off_state, std::string timestamp);
 
   void OnCursorVisibilityChanged(bool visible);

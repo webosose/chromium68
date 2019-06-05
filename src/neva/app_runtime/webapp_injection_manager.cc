@@ -20,8 +20,10 @@
 #include "content/public/browser/web_contents.h"
 #include "neva/injection/browser_control/browser_control_injection.h"
 #include "neva/injection/sample/sample_injection.h"
+#if defined(OS_WEBOS)
 #include "neva/injection/webosservicebridge/webosservicebridge_injection.h"
 #include "neva/injection/webossystem/webossystem_injection.h"
+#endif
 #include "neva/neva_chromium/content/common/injection_messages.h"
 
 namespace app_runtime {
