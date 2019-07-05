@@ -16,6 +16,8 @@
 
 #include "neva/app_runtime/ui/desktop_aura/app_runtime_desktop_native_widget_aura.h"
 #include "neva/app_runtime/webapp_window.h"
+#include "ui/aura/client/drag_drop_client.h"
+#include "ui/aura/window_tree_host.h"
 #include "ui/wm/public/scoped_tooltip_disabler.h"
 
 namespace app_runtime {
@@ -48,6 +50,7 @@ views::NativeEventDelegate* AppRuntimeDesktopNativeWidgetAura::GetNativeEventDel
 void AppRuntimeDesktopNativeWidgetAura::InitNativeWidget(
     const views::Widget::InitParams& params) {
   DesktopNativeWidgetAura::InitNativeWidget(params);
+  aura::client::SetDragDropClient(host()->window(), nullptr);
   tooltip_disabler_.reset(
       new wm::ScopedTooltipDisabler(GetNativeView()->GetRootWindow()));
 }
