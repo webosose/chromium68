@@ -15,6 +15,10 @@
 #include "components/viz/service/display/overlay_candidate.h"
 #include "components/viz/service/viz_service_export.h"
 
+#if defined(VIDEO_HOLE) && defined(USE_NEVA_MEDIA)
+#include "components/viz/service/display/neva/neva_layer_overlay.h"
+#endif
+
 namespace cc {
 class DisplayResourceProvider;
 }
@@ -106,6 +110,10 @@ class VIZ_SERVICE_EXPORT OverlayProcessor {
                         gfx::Rect* damage_rect);
 
   DCLayerOverlayProcessor dc_processor_;
+
+#if defined(VIDEO_HOLE) && defined(USE_NEVA_MEDIA)
+  NevaLayerOverlayProcessor neva_processor_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(OverlayProcessor);
 };

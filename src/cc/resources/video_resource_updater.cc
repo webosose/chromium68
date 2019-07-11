@@ -552,6 +552,7 @@ void VideoResourceUpdater::AppendQuads(viz::RenderPass* render_pass,
       solid_color_draw_quad->SetAll(shared_quad_state, quad_rect,
                                     visible_quad_rect, false,
                                     SK_ColorTRANSPARENT, true);
+      solid_color_draw_quad->is_overlay_for_video_hole = true;
       break;
     }
 #endif  // defined(VIDEO_HOLE) && defined(USE_NEVA_MEDIA)

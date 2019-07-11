@@ -5,6 +5,7 @@
 import("//build/config/ui.gni")
 import("//components/viz/viz.gni")
 import("//gpu/vulkan/features.gni")
+import("//neva/neva.gni")
 import("//testing/libfuzzer/fuzzer_test.gni")
 
 config("viz_service_implementation") {
@@ -272,6 +273,13 @@ viz_component("service") {
 
   if (enable_vulkan) {
     deps += [ "//gpu/vulkan" ]
+  }
+
+  if (use_neva_media) {
+    sources += [
+      "display/neva/neva_layer_overlay.cc",
+      "display/neva/neva_layer_overlay.h",
+    ]
   }
 }
 

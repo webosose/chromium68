@@ -211,6 +211,9 @@ bool StructTraits<viz::mojom::DrawQuadDataView, viz::DrawQuad>::Read(
     return false;
   }
   out->needs_blending = data.needs_blending();
+#if defined(USE_NEVA_MEDIA)
+  out->is_overlay_for_video_hole = data.is_overlay_for_video_hole();
+#endif  // USE_NEVA_MEDIA
   return data.ReadDrawQuadState(out);
 }
 

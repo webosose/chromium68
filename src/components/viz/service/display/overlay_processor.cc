@@ -161,6 +161,13 @@ void OverlayProcessor::ProcessForOverlays(
     return;
   }
 
+#if defined(VIDEO_HOLE) && defined(USE_NEVA_MEDIA)
+  neva_processor_.Process(
+      resource_provider, gfx::RectF(render_passes->back()->output_rect),
+      render_passes, &overlay_damage_rect_, damage_rect);
+
+#endif
+
   // Only if that fails, attempt hardware overlay strategies.
   Strategy* successful_strategy = nullptr;
   for (const auto& strategy : strategies_) {
