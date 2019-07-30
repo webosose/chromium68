@@ -72,6 +72,7 @@ class BlinkView : public app_runtime::WebViewBase,
   void LoadFailed(const std::string& url,
                   int error_code,
                   const std::string& error_description) override;
+  void LoadAborted(const std::string& url) override;
   void LoadStopped(const std::string& url) override;
   void RenderProcessCreated(int pid) override;
   void RenderProcessGone() override;

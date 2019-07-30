@@ -144,6 +144,14 @@ void BlinkView::LoadFailed(const std::string& url,
     observer_->OnLoadFailed(this);
 }
 
+void BlinkView::LoadAborted(const std::string& url) {
+  LOG(INFO) << __func__
+            << "(): Load aborted notification is delivered"
+            << " for url [" << url << "]";
+  if (observer_)
+    observer_->OnLoadFailed(this);
+}
+
 void BlinkView::LoadStopped(const std::string& url) {
   LOG(INFO) << __func__ << "(): Load stopped notification is delivered";
   if (observer_)

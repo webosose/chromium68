@@ -246,10 +246,13 @@ class WebView : public content::WebContentsDelegate,
   // WebContentsObserver
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
   void DidStartLoading() override;
+  void DidStopLoading() override;
   void DidFinishLoad(content::RenderFrameHost* render_frame_host,
                      const GURL& validated_url) override;
   void DidUpdateFaviconURL(
       const std::vector<content::FaviconURL>& candidates) override;
+  void DidStartNavigation(
+      content::NavigationHandle* navigation_handle) override;
   void DidFinishNavigation(content::NavigationHandle* navigation_handle) override;
   void DidFailLoad(content::RenderFrameHost* render_frame_host,
                    const GURL& validated_url,

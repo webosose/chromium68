@@ -41,10 +41,14 @@ class WebViewDelegate {
   virtual void LoadFailed(const std::string& url,
                           int error_code,
                           const std::string& error_description) = 0;
+  virtual void LoadAborted(const std::string& url) = 0;
   virtual void LoadStopped(const std::string& url) = 0;
   virtual void RenderProcessCreated(int pid) = 0;
   virtual void RenderProcessGone() = 0;
   virtual void DocumentLoadFinished() = 0;
+  virtual void DidStartNavigation(const std::string& url, bool is_main_frame) {}
+  virtual void DidFinishNavigation(const std::string& url, bool is_main_frame) {
+  }
   virtual void DidHistoryBackOnTopPage() = 0;
   virtual void DidClearWindowObject() = 0;
   virtual void DidSwapCompositorFrame() = 0;
