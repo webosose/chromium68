@@ -1,3 +1,7 @@
+// Copyright 2017 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 // Copyright (c) 2019 LG Electronics, Inc. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -9,20 +13,10 @@
 
 #include "base/containers/flat_map.h"
 #include "components/viz/common/quads/render_pass.h"
+#include "ui/gfx/geometry/rect_f.h"
 
 namespace viz {
 class DisplayResourceProvider;
-
-// Holds all information necessary to construct a NevaLayer from a DrawQuad.
-class NevaLayerOverlay {
- public:
-  NevaLayerOverlay();
-  NevaLayerOverlay(const NevaLayerOverlay& other);
-  ~NevaLayerOverlay();
-
-  // The bounds for the NevaLayer in pixels.
-  gfx::RectF bounds_rect;
-};
 
 class NevaLayerOverlayProcessor {
  public:
@@ -35,13 +29,17 @@ class NevaLayerOverlayProcessor {
                gfx::Rect* overlay_damage_rect,
                gfx::Rect* damage_rect);
 
-private:
+  void ClearOverlayState() {
+    previous_frame_underlay_rect_ = gfx::Rect();
+    previous_frame_underlay_occlusion_ = gfx::Rect();
+  }
 
-  bool FromDrawQuad(DisplayResourceProvider* resource_provider,
-                             const gfx::RectF& display_rect,
-                             QuadList::ConstIterator quad_list_begin,
-                             QuadList::ConstIterator quad,
-                             NevaLayerOverlay* neva_layer_overlay);
+ private:
+  bool IsVideoHoleDrawQuad(DisplayResourceProvider* resource_provider,
+                           const gfx::RectF& display_rect,
+                           QuadList::ConstIterator quad_list_begin,
+                           QuadList::ConstIterator quad);
+  void AddPunchThroughRectIfNeeded(RenderPassId id, const gfx::Rect& rect);
 
   // Returns an iterator to the element after |it|.
   QuadList::Iterator ProcessRenderPassDrawQuad(RenderPass* render_pass,
@@ -54,27 +52,28 @@ private:
                          bool is_root,
                          gfx::Rect* overlay_damage_rect,
                          gfx::Rect* damage_rect);
-
   bool ProcessForUnderlay(const gfx::RectF& display_rect,
                           RenderPass* render_pass,
+                          const gfx::Rect& quad_rectangle,
+                          const gfx::RectF& occlusion_bounding_box,
                           const QuadList::Iterator& it,
                           bool is_root,
                           gfx::Rect* damage_rect,
                           gfx::Rect* this_frame_underlay_rect,
-                          NevaLayerOverlay* neva_layer);
+                          gfx::Rect* this_frame_underlay_occlusion);
 
+  gfx::Rect previous_frame_underlay_rect_;
+  gfx::Rect previous_frame_underlay_occlusion_;
+  gfx::RectF previous_display_rect_;
   bool processed_overlay_in_frame_ = false;
 
-  // Store information about punch-through rectangles for non-root
-  // RenderPasses. These rectangles are used to clear the corresponding areas
-  // in parent renderpasses.
-  struct PunchThroughRect {
-    gfx::Rect rect;
-    gfx::Transform transform_to_target;
-    float opacity;
-  };
+  // Store information about clipped punch-through rects in target space for
+  // non-root render passes. These rects are used to clear the corresponding
+  // areas in parent render passes.
+  base::flat_map<RenderPassId, std::vector<gfx::Rect>>
+      pass_punch_through_rects_;
 
-  base::flat_map<RenderPassId, std::vector<PunchThroughRect>> pass_info_;
+  DISALLOW_COPY_AND_ASSIGN(NevaLayerOverlayProcessor);
 };
 
 }  // namespace viz
