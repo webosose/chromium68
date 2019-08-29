@@ -23,12 +23,14 @@ struct WebPreferencesNeva {
   WebPreferencesNeva()
       : keep_alive_webapp(false),
         notify_fmp_directly(false),
+        gpu_rasterization_allowed(true),
         disallow_scrollbars_in_main_frame(false),
         network_stable_timeout(std::numeric_limits<double>::quiet_NaN()) {}
   bool keep_alive_webapp;
   bool notify_fmp_directly;
   bool disallow_scrollbars_in_main_frame;
   double network_stable_timeout;
+  bool gpu_rasterization_allowed;
 };
 
 }  // namespace content

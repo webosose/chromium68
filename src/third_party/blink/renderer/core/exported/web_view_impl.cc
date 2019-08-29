@@ -2895,6 +2895,14 @@ void WebViewImpl::UpdatePageDefinedViewportConstraints(
 
   matches_heuristics_for_gpu_rasterization_ =
       description.MatchesHeuristicsForGpuRasterization();
+
+#if defined(USE_NEVA_APPRUNTIME)
+  if (!GetPage()->GetSettings().GpuRasterizationAllowed()) {
+    VLOG(1) << "GPU rasterization explicitly disabled for web content";
+    matches_heuristics_for_gpu_rasterization_ = false;
+  }
+#endif
+
   if (layer_tree_view_) {
     layer_tree_view_->HeuristicsForGpuRasterizationUpdated(
         matches_heuristics_for_gpu_rasterization_);

@@ -209,6 +209,7 @@ class WEBOS_EXPORT WebViewBase
   void SetForceVideoTexture(bool enable);
   void SetNotifyFMPDirectly(bool enable);
   void SetNetworkStableTimeout(double timeout);
+  void SetGpuRasterizationAllowed(bool allowed);
 
   // FontFamily
   void SetStandardFontFamily(const std::string& font);

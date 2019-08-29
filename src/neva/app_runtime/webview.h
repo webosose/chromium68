@@ -89,6 +89,7 @@ class WebView : public content::WebContentsDelegate,
     ForceVideoTexture,
     NotifyFMPDirectly,
     NetworkStableTimeout,
+    GpuRasterizationAllowed,
   };
 
   enum FontFamily {

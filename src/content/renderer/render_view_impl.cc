@@ -1058,6 +1058,7 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
   settings->SetKeepAliveWebApp(prefs.keep_alive_webapp);
   settings->SetNotifyFMPDirectly(prefs.notify_fmp_directly);
   settings->SetDisallowScrollbarsInMainFrame(prefs.disallow_scrollbars_in_main_frame);
+  settings->SetGpuRasterizationAllowed(prefs.gpu_rasterization_allowed);
 
   if (!isnan(prefs.network_stable_timeout) &&
       prefs.network_stable_timeout >= 0.0f)

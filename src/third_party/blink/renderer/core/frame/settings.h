@@ -68,6 +68,12 @@ class CORE_EXPORT Settings : public SettingsNeva {
     Invalidate(SettingsDelegate::kFontFamilyChange);
   }
 
+#if defined(USE_NEVA_APPRUNTIME)
+  void NotifyGpuRasterizationAllowedChange() {
+    Invalidate(SettingsDelegate::kViewportDescriptionChange);
+  }
+#endif
+
   void SetTextAutosizingEnabled(bool);
   bool TextAutosizingEnabled() const { return text_autosizing_enabled_; }
 

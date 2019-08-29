@@ -48,6 +48,13 @@ class WebSettingsImplNeva : public WebSettings {
     settings_->SetDisallowScrollbarsInMainFrame(enabled);
   }
 
+  void SetGpuRasterizationAllowed(bool allowed) {
+    bool changed = allowed != settings_->GpuRasterizationAllowed();
+    settings_->SetGpuRasterizationAllowed(allowed);
+    if (changed)
+      settings_->NotifyGpuRasterizationAllowedChange();
+  }
+
  private:
   Settings* settings_;
 };

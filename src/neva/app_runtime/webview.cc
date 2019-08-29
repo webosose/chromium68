@@ -615,6 +615,9 @@ void WebView::UpdatePreferencesAttributeForPrefs(
     case Attribute::KeepAliveWebApp:
       preferences->keep_alive_webapp = enable;
       break;
+    case Attribute::GpuRasterizationAllowed:
+      preferences->gpu_rasterization_allowed = enable;
+      break;
     case Attribute::RequestQuotaEnabled:
     case Attribute::DisallowScrollingInMainFrame:
     case Attribute::V8DateUseSystemLocaloffset:

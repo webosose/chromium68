@@ -17,6 +17,8 @@
 #ifndef THIRD_PARTY_BLINK_RENDERER_CORE_FRAME_NEVA_SETTINGS_NEVA_H_
 #define THIRD_PARTY_BLINK_RENDERER_CORE_FRAME_NEVA_SETTINGS_NEVA_H_
 
+#include "third_party/blink/renderer/core/frame/settings_delegate.h"
+
 namespace blink {
 
 class SettingsNeva {
@@ -25,11 +27,17 @@ class SettingsNeva {
       : keep_alive_web_app_(false),
         notify_fmp_directly_(false),
         webos_native_scroll_enabled_(false),
-        disallow_scrollbars_in_main_frame_(false),
+        gpu_rasterization_allowed_(true),
+	disallow_scrollbars_in_main_frame_(false),
         network_stable_timeout_(0.f) {}
 
   void SetKeepAliveWebApp(bool keep_alive) { keep_alive_web_app_ = keep_alive; }
   bool KeepAliveWebApp() const { return keep_alive_web_app_; }
+
+  void SetGpuRasterizationAllowed(bool allowed) {
+    gpu_rasterization_allowed_ = allowed;
+  }
+  bool GpuRasterizationAllowed() { return gpu_rasterization_allowed_; }
 
   void SetNotifyFMPDirectly(bool directly) { notify_fmp_directly_ = directly; }
   bool NotifyFMPDirectly() const { return notify_fmp_directly_; }
@@ -55,6 +63,7 @@ class SettingsNeva {
   bool webos_native_scroll_enabled_ : 1;
   bool disallow_scrollbars_in_main_frame_ : 1;
   double network_stable_timeout_;
+  bool gpu_rasterization_allowed_ : 1;
 };
 
 }  // namespace blink

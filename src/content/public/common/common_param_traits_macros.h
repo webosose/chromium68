@@ -242,6 +242,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
   IPC_STRUCT_TRAITS_MEMBER(keep_alive_webapp)
   IPC_STRUCT_TRAITS_MEMBER(notify_fmp_directly)
   IPC_STRUCT_TRAITS_MEMBER(network_stable_timeout)
+  IPC_STRUCT_TRAITS_MEMBER(gpu_rasterization_allowed)
   IPC_STRUCT_TRAITS_MEMBER(disallow_scrollbars_in_main_frame)
   IPC_STRUCT_TRAITS_MEMBER(allow_local_resource_load)
 #endif

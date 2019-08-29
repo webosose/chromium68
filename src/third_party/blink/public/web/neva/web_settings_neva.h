@@ -27,6 +27,7 @@ class WebSettingsNeva {
   virtual void SetNetworkStableTimeout(double) = 0;
   virtual void SetWebOSNativeScrollEnabled(bool) = 0;
   virtual void SetDisallowScrollbarsInMainFrame(bool) = 0;
+  virtual void SetGpuRasterizationAllowed(bool) = 0;
 };
 
 }  // namespace blink
