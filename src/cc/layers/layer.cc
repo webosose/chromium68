@@ -801,16 +801,26 @@ void Layer::SetScrollOffsetFromImplSide(
   DCHECK(IsPropertyChangeAllowed());
   // This function only gets called during a BeginMainFrame, so there
   // is no need to call SetNeedsUpdate here.
-  DCHECK(layer_tree_host_ && layer_tree_host_->CommitRequested());
-  if (inputs_.scroll_offset == scroll_offset)
+  auto& property_trees = *layer_tree_host_->property_trees();
+  ScrollNode* scroll_node =
+      property_trees.scroll_tree.FindNodeFromElementId(element_id());
+  gfx::ScrollOffset clamped_scroll_offset =
+      scroll_node ? property_trees.scroll_tree.ClampScrollOffsetToLimits(
+                        scroll_offset, *scroll_node)
+                  : scroll_offset;
+  VLOG(3) << __func__ << " offset " << scroll_offset.x() << ","
+          << scroll_offset.y() << " clamped " << clamped_scroll_offset.x()
+          << "," << clamped_scroll_offset.y();
+
+  if (inputs_.scroll_offset == clamped_scroll_offset)
     return;
-  inputs_.scroll_offset = scroll_offset;
+  inputs_.scroll_offset = clamped_scroll_offset;
   SetNeedsPushProperties();
 
-  UpdateScrollOffset(scroll_offset);
+  UpdateScrollOffset(clamped_scroll_offset);
 
   if (!inputs_.did_scroll_callback.is_null())
-    inputs_.did_scroll_callback.Run(scroll_offset, element_id());
+    inputs_.did_scroll_callback.Run(clamped_scroll_offset, element_id());
 
   // The callback could potentially change the layer structure:
   // "this" may have been destroyed during the process.
@@ -842,6 +852,7 @@ void Layer::SetScrollable(const gfx::Size& bounds) {
   DCHECK(IsPropertyChangeAllowed());
   if (inputs_.scrollable && inputs_.scroll_container_bounds == bounds)
     return;
+  VLOG(3) << __func__ << " bound " << bounds.width() << "x" << bounds.height();
   bool was_scrollable = inputs_.scrollable;
   inputs_.scrollable = true;
   inputs_.scroll_container_bounds = bounds;
