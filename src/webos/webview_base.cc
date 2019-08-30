@@ -404,6 +404,14 @@ void WebViewBase::DropAllPeerConnections(DropPeerConnectionReason reason) {
   webview_->DropAllPeerConnections(app_runtime_reason);
 }
 
+void WebViewBase::ActivateRendererCompositor() {
+  webview_->ActivateRendererCompositor();
+}
+
+void WebViewBase::DeactivateRendererCompositor() {
+  webview_->DeactivateRendererCompositor();
+}
+
 void WebViewBase::DidDropAllPeerConnections(
     app_runtime::DropPeerConnectionReason reason) {
   DropPeerConnectionReason webos_reason;

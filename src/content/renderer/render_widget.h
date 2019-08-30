@@ -684,6 +684,11 @@ class CONTENT_EXPORT RenderWidget
   // Sends an ACK to the browser process during the next compositor frame.
   void OnWaitNextFrameForTests(int routing_id);
 
+#if defined(USE_NEVA_APPRUNTIME)
+  void OnActivateCompositor();
+  void OnDeactivateCompositor();
+#endif
+
   // Routing ID that allows us to communicate to the parent browser process
   // RenderWidgetHost.
   const int32_t routing_id_;

@@ -1318,4 +1318,24 @@ void WebView::SetUseNativeScroll(bool use_native_scroll) {
       web_contents_->GetMainFrame()->GetProcess()->GetID(), use_native_scroll);
 }
 
+void WebView::ActivateRendererCompositor() {
+  content::RenderViewHost* rvh = web_contents_->GetRenderViewHost();
+  if (!rvh)
+    return;
+  content::RenderWidgetHostImpl* rwhi =
+      static_cast<content::RenderViewHostImpl*>(rvh)->GetWidget();
+  if (rwhi)
+    rwhi->ActivateRendererCompositor();
+}
+
+void WebView::DeactivateRendererCompositor() {
+  content::RenderViewHost* rvh = web_contents_->GetRenderViewHost();
+  if (!rvh)
+    return;
+  content::RenderWidgetHostImpl* rwhi =
+      static_cast<content::RenderViewHostImpl*>(rvh)->GetWidget();
+  if (rwhi)
+    rwhi->DeactivateRendererCompositor();
+}
+
 }  // namespace app_runtime

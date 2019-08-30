@@ -719,6 +719,11 @@ class CONTENT_EXPORT RenderWidgetHostImpl
 
   void GetContentRenderingTimeoutFrom(RenderWidgetHostImpl* other);
 
+#if defined(USE_NEVA_APPRUNTIME)
+  void ActivateRendererCompositor();
+  void DeactivateRendererCompositor();
+#endif
+
  protected:
   // ---------------------------------------------------------------------------
   // The following method is overridden by RenderViewHost to send upwards to

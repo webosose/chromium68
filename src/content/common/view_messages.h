@@ -505,6 +505,10 @@ IPC_MESSAGE_ROUTED1(ViewMsg_DropAllPeerConnections,
 
 // Report application is being preloaded. Used for blocking writes on eMMC
 IPC_MESSAGE_ROUTED1(ViewMsg_SetAppPreloadHint, bool /* is_preload */)
+
+IPC_MESSAGE_ROUTED0(WidgetMsg_ActivateCompositor)
+IPC_MESSAGE_ROUTED0(WidgetMsg_DeactivateCompositor)
+
 #endif
 
 // Sets the viewport intersection and compositor raster area on the widget for

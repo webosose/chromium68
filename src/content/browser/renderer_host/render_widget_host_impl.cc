@@ -1956,6 +1956,16 @@ void RenderWidgetHostImpl::GetContentRenderingTimeoutFrom(
   }
 }
 
+#if defined(USE_NEVA_APPRUNTIME)
+void RenderWidgetHostImpl::ActivateRendererCompositor() {
+  Send(new WidgetMsg_ActivateCompositor(routing_id_));
+}
+
+void RenderWidgetHostImpl::DeactivateRendererCompositor() {
+  Send(new WidgetMsg_DeactivateCompositor(routing_id_));
+}
+#endif
+
 bool RenderWidgetHostImpl::IsMouseLocked() const {
   return view_ ? view_->IsMouseLocked() : false;
 }

@@ -147,6 +147,8 @@ class WEBOS_EXPORT WebViewBase
   void SetEnableHtmlSystemKeyboardAttr(bool enabled);
   void RequestInjectionLoading(const std::string& injection_name);
   void DropAllPeerConnections(DropPeerConnectionReason reason);
+  void ActivateRendererCompositor();
+  void DeactivateRendererCompositor();
 
   const std::string& GetUrl();
 
