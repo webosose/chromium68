@@ -802,7 +802,7 @@ void Layer::SetScrollOffsetFromImplSide(
   // This function only gets called during a BeginMainFrame, so there
   // is no need to call SetNeedsUpdate here.
   auto& property_trees = *layer_tree_host_->property_trees();
-  ScrollNode* scroll_node =
+  const ScrollNode* scroll_node =
       property_trees.scroll_tree.FindNodeFromElementId(element_id());
   gfx::ScrollOffset clamped_scroll_offset =
       scroll_node ? property_trees.scroll_tree.ClampScrollOffsetToLimits(
