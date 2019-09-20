@@ -38,6 +38,19 @@ class WindowGroupConfiguration;
 
 class WEBOS_EXPORT WebAppWindowBase : public WebAppWindowDelegate {
  public:
+  enum class LocationHint {
+    kUnknown,
+    kNorth,
+    kWest,
+    kSouth,
+    kEast,
+    kCenter,
+    kNorthWest,
+    kNorthEast,
+    kSouthWest,
+    kSouthEast,
+  };
+
   WebAppWindowBase();
   virtual ~WebAppWindowBase();
 
@@ -63,6 +76,7 @@ class WEBOS_EXPORT WebAppWindowBase : public WebAppWindowDelegate {
   void SetKeyMask(WebOSKeyMask key_mask);
   void SetKeyMask(WebOSKeyMask key_mask, bool set);
   void SetWindowProperty(const std::string& name, const std::string& value);
+  void SetLocationHint(LocationHint value);
   void SetOpacity(float opacity);
   void Resize(int width, int height);
   void SetScaleFactor(float scale);

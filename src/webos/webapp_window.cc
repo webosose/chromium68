@@ -22,9 +22,9 @@
 
 namespace webos {
 
-WebAppWindow::WebAppWindow(const app_runtime::WebAppWindowBase::CreateParams& params)
-    : app_runtime::WebAppWindow(params, nullptr),
-      keyboard_enter_(false) {
+WebAppWindow::WebAppWindow(
+    const app_runtime::WebAppWindow::CreateParams& params)
+    : app_runtime::WebAppWindow(params, nullptr), keyboard_enter_(false) {
   SetDeferredDeleting(true);
 }
 

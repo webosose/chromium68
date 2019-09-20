@@ -631,6 +631,15 @@ void WaylandDisplay::SetWindowProperty(unsigned w,
   widget->SetWindowProperty(name, value);
 }
 
+void WaylandDisplay::SetLocationHint(unsigned w, gfx::LocationHint value) {
+  WaylandWindow* widget = GetWidget(w);
+  if (!widget) {
+    LOG(ERROR) << __PRETTY_FUNCTION__ << ", window not found.";
+    return;
+  }
+  widget->SetLocationHint(value);
+}
+
 void WaylandDisplay::DetachWindowGroup(unsigned w) {
 #if defined(OS_WEBOS)
   WaylandWindow* widget = GetWidget(w);
@@ -1030,6 +1039,7 @@ bool WaylandDisplay::OnMessageReceived(const IPC::Message& message) {
   IPC_MESSAGE_HANDLER(WaylandDisplay_DragWillBeAccepted, DragWillBeAccepted)
   IPC_MESSAGE_HANDLER(WaylandDisplay_DragWillBeRejected, DragWillBeRejected)
   IPC_MESSAGE_HANDLER(WaylandDisplay_SetWindowProperty, SetWindowProperty)
+  IPC_MESSAGE_HANDLER(WaylandDisplay_SetLocationHint, SetLocationHint)
   IPC_MESSAGE_HANDLER(WaylandDisplay_SetSurroundingText, SetSurroundingText)
   IPC_MESSAGE_HANDLER(WaylandDisplay_XInputActivate, XInputActivate)
   IPC_MESSAGE_HANDLER(WaylandDisplay_XInputInvokeAction, XInputInvokeAction)

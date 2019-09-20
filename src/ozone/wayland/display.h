@@ -32,6 +32,7 @@
 #include "ui/events/event_constants.h"
 #include "ui/gl/gl_surface.h"
 #include "ui/gfx/geometry/rect.h"
+#include "ui/gfx/location_hint.h"
 #include "ui/ozone/public/gpu_platform_support.h"
 #include "ui/ozone/public/surface_factory_ozone.h"
 #include "ui/platform_window/neva/xinput_types.h"
@@ -273,6 +274,7 @@ class WaylandDisplay : public ui::SurfaceFactoryOzone,
   void SetWindowProperty(unsigned w,
                          const std::string& name,
                          const std::string& value);
+  void SetLocationHint(unsigned w, gfx::LocationHint value);
   void CreateWindowGroup(unsigned w,
                          const ui::WindowGroupConfiguration& config);
   void AttachToWindowGroup(unsigned w,

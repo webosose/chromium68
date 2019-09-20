@@ -11,6 +11,7 @@
 #include <wayland-client.h>
 #include "base/strings/string16.h"
 #include "ui/gfx/geometry/rect.h"
+#include "ui/gfx/location_hint.h"
 #include "ui/views/widget/desktop_aura/neva/ui_constants.h"
 
 struct wl_egl_window;
@@ -58,6 +59,7 @@ class WaylandWindow {
   void SetGroupKeyMask(ui::KeyMask key_mask);
   void SetKeyMask(ui::KeyMask key_mask, bool set);
   void SetWindowProperty(const std::string& name, const std::string& value);
+  void SetLocationHint(gfx::LocationHint value);
   void CreateGroup(const ui::WindowGroupConfiguration& config);
   void AttachToGroup(const std::string& group, const std::string& layer);
   void FocusGroupOwner();

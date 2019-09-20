@@ -179,6 +179,19 @@ void WaylandWindow::SetWindowProperty(const std::string& name,
   shell_surface_->SetWindowProperty(name, value);
 }
 
+void WaylandWindow::SetLocationHint(gfx::LocationHint value) {
+#if defined(OS_WEBOS)
+  if (!shell_surface_) {
+    LOG(ERROR) << "No shell_surface found";
+    return;
+  }
+
+  shell_surface_->SetLocationHint(value);
+#else
+  LOG(INFO) << "WaylandWindow::SetLocationHint() reached";
+#endif
+}
+
 void WaylandWindow::CreateGroup(const ui::WindowGroupConfiguration& config) {
 #if defined(OS_WEBOS)
   DLOG_ASSERT(!surface_group_);

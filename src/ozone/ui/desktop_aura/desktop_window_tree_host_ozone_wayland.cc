@@ -1222,6 +1222,10 @@ void DesktopWindowTreeHostOzone::SetWindowProperty(const std::string& name,
   platform_window_->SetWindowProperty(name, value);
 }
 
+void DesktopWindowTreeHostOzone::SetLocationHint(gfx::LocationHint value) {
+  platform_window_->SetLocationHint(value);
+}
+
 void DesktopWindowTreeHostOzone::SetUseVirtualKeyboard(bool enable) {
   SetImeEnabled(enable);
   if (!enable)

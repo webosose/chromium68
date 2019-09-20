@@ -28,6 +28,7 @@
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/gfx/geometry/rect.h"
+#include "ui/gfx/location_hint.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/platform_window/platform_window.h"
 #include "ui/views/widget/desktop_aura/neva/ui_constants.h"
@@ -89,6 +90,7 @@ class OzoneWaylandWindow : public PlatformWindow,
   PlatformImeController* GetPlatformImeController() override;
   void SetWindowProperty(const std::string& name,
                          const std::string& value) override;
+  void SetLocationHint(gfx::LocationHint value) override;
   void ResetCustomCursor() override;
   void CreateGroup(const WindowGroupConfiguration&) override;
   void AttachToGroup(const std::string& group,

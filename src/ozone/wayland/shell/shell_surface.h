@@ -12,6 +12,7 @@
 #include "ui/gfx/geometry/rect.h"
 
 #if defined(OS_WEBOS)
+#include "ui/gfx/location_hint.h"
 #include "ui/views/widget/desktop_aura/neva/ui_constants.h"
 #endif
 
@@ -42,6 +43,7 @@ class WaylandShellSurface {
 #if defined(OS_WEBOS)
   virtual void SetGroupKeyMask(ui::KeyMask key_mask) {}
   virtual void SetKeyMask(ui::KeyMask key_mask, bool set) {}
+  virtual void SetLocationHint(gfx::LocationHint value) {}
 #endif
   virtual void SetInputRegion(const std::vector<gfx::Rect>& region) {}
   virtual void SetWindowProperty(const std::string& name, const std::string& value);

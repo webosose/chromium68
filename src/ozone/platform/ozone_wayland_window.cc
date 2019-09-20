@@ -471,6 +471,10 @@ void OzoneWaylandWindow::SetWindowProperty(const std::string& name,
   sender_->Send(new WaylandDisplay_SetWindowProperty(handle_, name, value));
 }
 
+void OzoneWaylandWindow::SetLocationHint(gfx::LocationHint value) {
+  sender_->Send(new WaylandDisplay_SetLocationHint(handle_, value));
+}
+
 void OzoneWaylandWindow::CreateGroup(
     const ui::WindowGroupConfiguration& config) {
   sender_->Send(new WaylandDisplay_CreateWindowGroup(handle_, config));

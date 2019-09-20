@@ -19,6 +19,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/web_contents.h"
 #include "neva/app_runtime/webapp_window.h"
+#include "ui/gfx/location_hint.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
 #include "ui/views/widget/widget.h"
 
@@ -29,6 +30,95 @@ namespace {
 const int kDefaultWidth = 640;
 const int kDefaultHeight = 480;
 
+gfx::LocationHint ToGfxLocationHint(
+    WebAppWindowBase::LocationHint location_hint) {
+  switch (location_hint) {
+    case WebAppWindowBase::LocationHint::kUnknown:
+      return gfx::LocationHint::kUnknown;
+    case WebAppWindowBase::LocationHint::kNorth:
+      return gfx::LocationHint::kNorth;
+    case WebAppWindowBase::LocationHint::kWest:
+      return gfx::LocationHint::kWest;
+    case WebAppWindowBase::LocationHint::kSouth:
+      return gfx::LocationHint::kSouth;
+    case WebAppWindowBase::LocationHint::kEast:
+      return gfx::LocationHint::kEast;
+    case WebAppWindowBase::LocationHint::kCenter:
+      return gfx::LocationHint::kCenter;
+    case WebAppWindowBase::LocationHint::kNorthWest:
+      return gfx::LocationHint::kNorthWest;
+    case WebAppWindowBase::LocationHint::kNorthEast:
+      return gfx::LocationHint::kNorthEast;
+    case WebAppWindowBase::LocationHint::kSouthWest:
+      return gfx::LocationHint::kSouthWest;
+    case WebAppWindowBase::LocationHint::kSouthEast:
+      return gfx::LocationHint::kSouthEast;
+    default:
+      NOTREACHED() << __func__ << "(): unknown location hint value: "
+                   << static_cast<uint32_t>(location_hint);
+      return gfx::LocationHint::kUnknown;
+  }
+}
+
+views::Widget::InitParams::Type ToViewsWidgetType(
+    WebAppWindowBase::WidgetType type) {
+  switch (type) {
+    case WebAppWindowBase::WidgetType::kWindow:
+      return views::Widget::InitParams::TYPE_WINDOW;
+    case WebAppWindowBase::WidgetType::kPanel:
+      return views::Widget::InitParams::TYPE_PANEL;
+    case WebAppWindowBase::WidgetType::kWindowFrameless:
+      return views::Widget::InitParams::TYPE_WINDOW_FRAMELESS;
+    case WebAppWindowBase::WidgetType::kControl:
+      return views::Widget::InitParams::TYPE_CONTROL;
+    case WebAppWindowBase::WidgetType::kPopup:
+      return views::Widget::InitParams::TYPE_POPUP;
+    case WebAppWindowBase::WidgetType::kMenu:
+      return views::Widget::InitParams::TYPE_MENU;
+    case WebAppWindowBase::WidgetType::kTooltip:
+      return views::Widget::InitParams::TYPE_TOOLTIP;
+    case WebAppWindowBase::WidgetType::kBubble:
+      return views::Widget::InitParams::TYPE_BUBBLE;
+    case WebAppWindowBase::WidgetType::kDrag:
+      return views::Widget::InitParams::TYPE_DRAG;
+  }
+
+  NOTREACHED();
+}
+
+ui::WindowShowState ToUiWindowShowState(
+    WebAppWindowBase::WindowShowState state) {
+  switch (state) {
+    case WebAppWindowBase::WindowShowState::kDefault:
+      return ui::SHOW_STATE_DEFAULT;
+    case WebAppWindowBase::WindowShowState::kNormal:
+      return ui::SHOW_STATE_NORMAL;
+    case WebAppWindowBase::WindowShowState::kMinimized:
+      return ui::SHOW_STATE_MINIMIZED;
+    case WebAppWindowBase::WindowShowState::kMaximized:
+      return ui::SHOW_STATE_MAXIMIZED;
+    case WebAppWindowBase::WindowShowState::kInactive:
+      return ui::SHOW_STATE_INACTIVE;
+    case WebAppWindowBase::WindowShowState::kFullscreen:
+      return ui::SHOW_STATE_FULLSCREEN;
+    case WebAppWindowBase::WindowShowState::kEnd:
+      return ui::SHOW_STATE_END;
+  }
+
+  NOTREACHED();
+}
+
+WebAppWindow::CreateParams ToWebAppWindowParams(
+    const WebAppWindowBase::CreateParams& params) {
+  WebAppWindow::CreateParams result;
+  result.bounds =
+      gfx::Rect(params.pos_x, params.pos_y, params.width, params.height);
+  result.type = ToViewsWidgetType(params.type);
+  result.show_state = ToUiWindowShowState(params.show_state);
+  result.web_contents = static_cast<content::WebContents*>(params.web_contents);
+  result.location_hint = ToGfxLocationHint(params.location_hint);
+}
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -38,12 +128,11 @@ WebAppWindowBase::WebAppWindowBase() {
   CreateParams params;
   params.width = kDefaultWidth;
   params.height = kDefaultHeight;
-  webapp_window_ = new WebAppWindow(params, this);
+  webapp_window_ = new WebAppWindow(ToWebAppWindowParams(params), this);
 }
 
 WebAppWindowBase::WebAppWindowBase(const CreateParams& params)
-    : webapp_window_(new WebAppWindow(params, this)) {
-}
+    : webapp_window_(new WebAppWindow(ToWebAppWindowParams(params), this)) {}
 
 WebAppWindowBase::~WebAppWindowBase() {
   // As far as WebAppWindow is the instance of WidgetDelegateView,
@@ -152,6 +241,10 @@ void WebAppWindowBase::SetKeyMask(KeyMask key_mask, bool set) {
 void WebAppWindowBase::SetWindowProperty(const std::string& name,
                                          const std::string& value) {
   webapp_window_->SetWindowProperty(name, value);
+}
+
+void WebAppWindowBase::SetLocationHint(LocationHint value) {
+  webapp_window_->SetLocationHint(ToGfxLocationHint(value));
 }
 
 void WebAppWindowBase::SetOpacity(float opacity) {
