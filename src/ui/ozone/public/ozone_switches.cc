@@ -17,4 +17,7 @@ const char kOzoneDumpFile[] = "ozone-dump-file";
 // communication.
 const char kEnableDrmMojo[] = "enable-drm-mojo";
 
+// Try to enable wayland input method editor.
+const char kEnableWaylandIme[] = "enable-wayland-ime";
+
 }  // namespace switches

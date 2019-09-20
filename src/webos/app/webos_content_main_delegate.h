@@ -21,7 +21,9 @@
 
 #include "content/public/renderer/content_renderer_client.h"
 #include "neva/app_runtime/app/app_runtime_main_delegate.h"
+#if defined(OS_WEBOS)
 #include "webos/browser/webos_luna_service_delegate.h"
+#endif
 #include "webos/common/webos_content_client.h"
 
 namespace app_runtime {
@@ -44,7 +46,9 @@ class WebOSContentMainDelegate : public app_runtime::AppRuntimeMainDelegate {
  protected:
   WebOSContentClient content_client_;
   std::unique_ptr<content::ContentRendererClient> content_renderer_client_;
+#if defined(OS_WEBOS)
   std::unique_ptr<WebOSLunaServiceDelegate> webos_luna_service_delegate_;
+#endif
   base::Closure startup_callback_;
 };
 

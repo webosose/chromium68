@@ -76,7 +76,7 @@ class AURA_EXPORT Env : public ui::EventTarget,
   static Env* GetInstance();
   static Env* GetInstanceDontCreate();
 
-#if defined(OS_WEBOS)
+#if defined(USE_SINGLE_WINDOW_MODE)
   static Window* GetRootWindow();
   Window* RootWindow() const { return root_window_; }
 #endif
@@ -232,8 +232,8 @@ class AURA_EXPORT Env : public ui::EventTarget,
   // This may be set to true in tests to force using |last_mouse_location_|
   // rather than querying WindowTreeClient.
   bool always_use_last_mouse_location_ = false;
-#if defined(OS_WEBOS)
-  Window* root_window_;
+#if defined(USE_SINGLE_WINDOW_MODE)
+  Window* root_window_ = nullptr;
 #endif
   // Whether we set ourselves as the OSExchangeDataProviderFactory.
   bool is_os_exchange_data_provider_factory_ = false;

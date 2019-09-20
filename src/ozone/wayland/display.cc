@@ -493,13 +493,15 @@ void WaylandDisplay::CreateWidget(unsigned widget) {
 void WaylandDisplay::InitWindow(unsigned handle,
                                 unsigned parent,
                                 const gfx::Rect& rect,
-                                ui::WidgetType type) {
+                                ui::WidgetType type,
+                                int surface_id) {
 #if defined(OS_WEBOS)
   PointerVisibilityNotify(GetPointerCursorVisible());
 #endif
 
   WaylandWindow* window = GetWidget(handle);
 
+  window->SetSurfaceId(surface_id);
   WaylandWindow* parent_window = GetWidget(parent);
   DCHECK(window);
   switch (type) {

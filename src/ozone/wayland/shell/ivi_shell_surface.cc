@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "ozone/wayland/shell/ivi_shell_surface.h"
 
 #include "base/logging.h"
@@ -10,39 +13,41 @@
 #include "ozone/wayland/display.h"
 #include "ozone/wayland/protocol/ivi-application-client-protocol.h"
 #include "ozone/wayland/shell/shell.h"
-#define IVI_SURFACE_ID 7000
 
 namespace ozonewayland {
 
-int IVIShellSurface::last_ivi_surface_id_ = IVI_SURFACE_ID;
-
 IVIShellSurface::IVIShellSurface()
-    : WaylandShellSurface(),
-      ivi_surface_(NULL),
-      ivi_surface_id_(IVI_SURFACE_ID) {
-}
+    : WaylandShellSurface(), ivi_surface_(NULL) {}
 
 IVIShellSurface::~IVIShellSurface() {
   ivi_surface_destroy(ivi_surface_);
 }
 
 void IVIShellSurface::InitializeShellSurface(WaylandWindow* window,
-                                             WaylandWindow::ShellType type) {
+                                             WaylandWindow::ShellType type,
+                                             int surface_id) {
   DCHECK(!ivi_surface_);
   WaylandDisplay* display = WaylandDisplay::GetInstance();
   DCHECK(display);
   WaylandShell* shell = WaylandDisplay::GetInstance()->GetShell();
   DCHECK(shell && shell->GetIVIShell());
-  char *env;
-  if ((env = getenv("OZONE_WAYLAND_IVI_SURFACE_ID")))
-    ivi_surface_id_ = atoi(env);
-  else
-    ivi_surface_id_ = last_ivi_surface_id_ + 1;
-  ivi_surface_ = ivi_application_surface_create(
-                     shell->GetIVIShell(), ivi_surface_id_, GetWLSurface());
-  last_ivi_surface_id_ = ivi_surface_id_;
+
+  // The window_manager on AGL handles surface_id 0 as an invalid id.
+  if (surface_id == 0)
+    surface_id = static_cast<int>(getpid());
+
+  ivi_surface_ = ivi_application_surface_create(shell->GetIVIShell(),
+                                                surface_id, GetWLSurface());
 
   DCHECK(ivi_surface_);
+
+  static const ivi_surface_listener ivi_surface_event_listener = {
+    IVIShellSurface::HandleConfigure,
+  };
+
+  ivi_surface_add_listener(ivi_surface_,
+                           &ivi_surface_event_listener, window);
+
 }
 
 void IVIShellSurface::UpdateShellSurface(WaylandWindow::ShellType type,
@@ -68,5 +73,11 @@ bool IVIShellSurface::IsMinimized() const {
   return false;
 }
 
+void IVIShellSurface::HandleConfigure(void* data,
+                                     struct ivi_surface* surface,
+                                     int32_t width,
+                                     int32_t height) {
+  WaylandShellSurface::WindowResized(data, width, height);
+}
 
 }  // namespace ozonewayland

@@ -1081,9 +1081,10 @@ content::BrowserMainParts* ChromeContentBrowserClient::CreateBrowserMainParts(
   // Construct additional browser parts. Stages are called in the order in
   // which they are added.
 #if defined(TOOLKIT_VIEWS)
-  // Removed !defined(USE_OZONE) for ozone wayland external port
-  // ozone port for wayland should use ChromeBrowserMainExtraPartsViewsLinux
-#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
+  // OZONE_PLATFORM_WAYLAND_EXTERNAL uses ChromeBrowserMainExtraPartsViewsLinux,
+  // but upstream ozone uses ChromeBrowserMainExtraPartsViews instead.
+#if defined(OZONE_PLATFORM_WAYLAND_EXTERNAL) || \
+    (defined(OS_LINUX) && !defined(OS_CHROMEOS) && !defined(USE_OZONE))
   main_parts->AddParts(new ChromeBrowserMainExtraPartsViewsLinux());
 #else
   main_parts->AddParts(new ChromeBrowserMainExtraPartsViews());

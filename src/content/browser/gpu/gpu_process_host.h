@@ -112,6 +112,7 @@ class GpuProcessHost : public BrowserChildProcessHostDelegate,
 
   void BindInterface(const std::string& interface_name,
                      mojo::ScopedMessagePipeHandle interface_pipe);
+  void TerminateGpuProcess(const std::string& message);
 
   // Get the GPU process host for the GPU process with the given ID. Returns
   // null if the process no longer exists.
@@ -179,6 +180,12 @@ class GpuProcessHost : public BrowserChildProcessHostDelegate,
   class ConnectionFilterImpl;
 
   enum GpuInitializationStatus { UNKNOWN, SUCCESS, FAILURE };
+
+  enum class GpuTerminationOrigin {
+    kUnknownOrigin = 0,
+    kOzoneWaylandProxy = 1,
+    kMax = 2,
+  };
 
   static bool ValidateHost(GpuProcessHost* host);
 
@@ -283,6 +290,9 @@ class GpuProcessHost : public BrowserChildProcessHostDelegate,
   bool process_launched_;
 
   GpuInitializationStatus status_;
+
+  GpuTerminationOrigin termination_origin_ =
+      GpuTerminationOrigin::kUnknownOrigin;
 
   // Time Init started.  Used to log total GPU process startup time to UMA.
   base::TimeTicks init_start_time_;

@@ -899,7 +899,11 @@ test("ui_base_unittests") {
       "ime/win/tsf_text_store_unittest.cc",
     ]
     if (is_linux && use_aura && !is_chromeos) {
-      sources += [ "ime/input_method_auralinux_unittest.cc" ]
+      if (use_x11 || use_ozone) {
+        sources += [ "ime/input_method_auralinux_unittest.cc" ]
+      } else {
+        sources += [ "ime/input_method_minimal_unittest.cc" ]
+      }
     }
     if (use_x11) {
       sources += [ "ime/composition_text_util_pango_unittest.cc" ]
@@ -1029,7 +1033,7 @@ test("ui_base_unittests") {
     ]
     data_deps += [
       "//ui/resources:ui_test_pak",  # TODO(brettw): this does nothing.
-      "//third_party/mesa:osmesa",
+      "//third_party/mesa_headers",
     ]
   }
   if (is_linux || is_win || is_fuchsia) {

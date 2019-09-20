@@ -20,7 +20,8 @@ class IVIShellSurface : public WaylandShellSurface {
   ~IVIShellSurface() override;
 
   void InitializeShellSurface(WaylandWindow* window,
-                              WaylandWindow::ShellType type) override;
+                              WaylandWindow::ShellType type,
+                              int surface_id) override;
   void UpdateShellSurface(WaylandWindow::ShellType type,
                           WaylandShellSurface* shell_parent,
                           int x,
@@ -31,10 +32,13 @@ class IVIShellSurface : public WaylandShellSurface {
   void Unminimize() override;
   bool IsMinimized() const override;
 
+  static void HandleConfigure(void* data,
+                              struct ivi_surface* shell_surface,
+                              int32_t width,
+                              int32_t height);
+
  private:
   ivi_surface* ivi_surface_;
-  int ivi_surface_id_;
-  static int last_ivi_surface_id_;
   DISALLOW_COPY_AND_ASSIGN(IVIShellSurface);
 };
 

@@ -11,6 +11,7 @@
 #include "base/run_loop.h"
 #include "base/trace_event/trace_event.h"
 #include "build/build_config.h"
+#include "ui/aura/client/cursor_client.h"
 #include "ui/aura/window_event_dispatcher.h"
 #include "ui/aura/window_port.h"
 #include "ui/base/ime/input_method.h"
@@ -20,6 +21,7 @@
 #include "ui/events/event.h"
 #include "ui/events/keyboard_hook.h"
 #include "ui/events/keycodes/dom/dom_code.h"
+#include "ui/platform_window/platform_window_init_properties.h"
 
 #if defined(OS_ANDROID)
 #include "ui/platform_window/android/platform_window_android.h"
@@ -49,7 +51,10 @@ WindowTreeHostPlatform::WindowTreeHostPlatform(const gfx::Rect& bounds)
     : WindowTreeHostPlatform() {
   bounds_ = bounds;
   CreateCompositor();
-  CreateAndSetDefaultPlatformWindow();
+
+  ui::PlatformWindowInitProperties properties;
+  properties.bounds = bounds_;
+  CreateAndSetPlatformWindow(std::move(properties));
 }
 
 WindowTreeHostPlatform::WindowTreeHostPlatform()
@@ -61,21 +66,24 @@ WindowTreeHostPlatform::WindowTreeHostPlatform(
       widget_(gfx::kNullAcceleratedWidget),
       current_cursor_(ui::CursorType::kNull) {}
 
-void WindowTreeHostPlatform::CreateAndSetDefaultPlatformWindow() {
-#if defined(USE_OZONE)
+void WindowTreeHostPlatform::CreateAndSetPlatformWindow(
+    ui::PlatformWindowInitProperties properties) {
+#if defined(USE_OZONE) || defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   platform_window_ =
-      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, bounds_);
+      ui::OzonePlatform::GetInstance()->CreatePlatformWindow(this, std::move(properties));
+#if defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   bool ime_enabled =
       base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableNevaIme);
   if (ime_enabled)
     GetInputMethod()->AddObserver(this);
   SetImeEnabled(ime_enabled);
+#endif
 #elif defined(OS_WIN)
-  platform_window_.reset(new ui::WinWindow(this, bounds_));
+  platform_window_.reset(new ui::WinWindow(this, properties.bounds));
 #elif defined(OS_ANDROID)
   platform_window_.reset(new ui::PlatformWindowAndroid(this));
 #elif defined(USE_X11)
-  platform_window_.reset(new ui::X11Window(this, bounds_));
+  platform_window_.reset(new ui::X11Window(this, properties.bounds));
 #else
   NOTIMPLEMENTED();
 #endif
@@ -92,7 +100,7 @@ WindowTreeHostPlatform::~WindowTreeHostPlatform() {
   DestroyCompositor();
   DestroyDispatcher();
 
-  // |platform_window_| might have already been destroyed by this time.
+  // |platform_window_| may not exist yet.
   if (platform_window_)
     platform_window_->Close();
 }
@@ -139,7 +147,7 @@ void WindowTreeHostPlatform::ReleaseCapture() {
 
 void WindowTreeHostPlatform::SetWindowProperty(const std::string& name,
                                                const std::string& value) {
-#if defined(USE_OZONE)
+#if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   platform_window_->SetWindowProperty(name, value);
 #endif
 }
@@ -173,6 +181,10 @@ base::flat_map<std::string, std::string>
 WindowTreeHostPlatform::GetKeyboardLayoutMap() {
   NOTIMPLEMENTED();
   return {};
+}
+
+void WindowTreeHostPlatform::SetWindowSurfaceId(int surface_id) {
+  platform_window_->SetSurfaceId(surface_id);
 }
 
 void WindowTreeHostPlatform::SetCursorNative(gfx::NativeCursor cursor) {
@@ -230,8 +242,23 @@ void WindowTreeHostPlatform::OnDamageRect(const gfx::Rect& damage_rect) {
 void WindowTreeHostPlatform::DispatchEvent(ui::Event* event) {
   TRACE_EVENT0("input", "WindowTreeHostPlatform::DispatchEvent");
   ui::EventDispatchDetails details = SendEventToSink(event);
-  if (details.dispatcher_destroyed)
+  if (details.dispatcher_destroyed) {
     event->SetHandled();
+    return;
+  }
+
+  // Reset the cursor on ET_MOUSE_EXITED, so that when the mouse re-enters the
+  // window, the cursor is updated correctly.
+  if (event->type() == ui::ET_MOUSE_EXITED) {
+    client::CursorClient* cursor_client = client::GetCursorClient(window());
+    if (cursor_client) {
+      // The cursor-change needs to happen through the CursorClient so that
+      // other external states are updated correctly, instead of just changing
+      // |current_cursor_| here.
+      cursor_client->SetCursor(ui::CursorType::kNone);
+      DCHECK_EQ(ui::CursorType::kNone, current_cursor_.native_type());
+    }
+  }
 }
 
 void WindowTreeHostPlatform::OnCloseRequest() {
@@ -264,15 +291,12 @@ void WindowTreeHostPlatform::OnLostCapture() {
 }
 
 void WindowTreeHostPlatform::OnAcceleratedWidgetAvailable(
-    gfx::AcceleratedWidget widget,
-    float device_pixel_ratio) {
+    gfx::AcceleratedWidget widget) {
   widget_ = widget;
   // This may be called before the Compositor has been created.
   if (compositor())
     WindowTreeHost::OnAcceleratedWidgetAvailable();
 }
-
-void WindowTreeHostPlatform::OnAcceleratedWidgetDestroying() {}
 
 void WindowTreeHostPlatform::OnAcceleratedWidgetDestroyed() {
   gfx::AcceleratedWidget widget = compositor()->ReleaseAcceleratedWidget();
@@ -286,20 +310,20 @@ void WindowTreeHostPlatform::OnActivationChanged(bool active) {
 }
 
 void WindowTreeHostPlatform::OnShowIme() {
-#if defined(USE_OZONE)
+#if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   platform_window_->ShowInputPanel();
 #endif
 }
 
 void WindowTreeHostPlatform::OnHideIme(ui::ImeHiddenType hidden_type) {
-#if defined(USE_OZONE)
+#if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   platform_window_->HideInputPanel(hidden_type);
 #endif
 }
 
 void WindowTreeHostPlatform::OnTextInputTypeChanged(ui::TextInputType text_input_type,
                                                     int text_input_flags) {
-#if defined(USE_OZONE)
+#if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   if (text_input_type != ui::TEXT_INPUT_TYPE_NONE)
     platform_window_->SetInputContentType(text_input_type, text_input_flags);
 #endif
@@ -310,7 +334,7 @@ void WindowTreeHostPlatform::OnTextInputTypeChanged(ui::TextInputType text_input
 void WindowTreeHostPlatform::SetSurroundingText(const std::string& text,
                                                 size_t cursor_position,
                                                 size_t anchor_position) {
-#if defined(USE_OZONE)
+#if defined(USE_OZONE) && defined(OZONE_PLATFORM_WAYLAND_EXTERNAL)
   platform_window_->SetSurroundingText(text, cursor_position, anchor_position);
 #endif
 }

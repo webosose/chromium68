@@ -111,8 +111,13 @@ OzoneWaylandWindow::OzoneWaylandWindow(PlatformWindowDelegate* delegate,
   static int opaque_handle = 0;
   opaque_handle++;
   handle_ = opaque_handle;
-  delegate_->OnAcceleratedWidgetAvailable(opaque_handle, 1.0);
+  delegate_->OnAcceleratedWidgetAvailable(opaque_handle);
 
+  char* env;
+  if ((env = getenv("OZONE_WAYLAND_IVI_SURFACE_ID")))
+    surface_id_ = atoi(env);
+  else
+    surface_id_ = getpid();
   PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
   sender_->AddChannelObserver(this);
   window_manager_->OnRootWindowCreated(this);
@@ -163,8 +168,11 @@ void OzoneWaylandWindow::InitPlatformWindow(
   if (!sender_->IsConnected())
     return;
 
-  sender_->Send(
-      new WaylandDisplay_InitWindow(handle_, parent_, bounds_, type_));
+  sender_->Send(new WaylandDisplay_InitWindow(handle_,
+                                              parent_,
+                                              bounds_,
+                                              type_,
+                                              surface_id_));
 }
 
 void OzoneWaylandWindow::SetTitle(const base::string16& title) {
@@ -173,6 +181,10 @@ void OzoneWaylandWindow::SetTitle(const base::string16& title) {
     return;
 
   sender_->Send(new WaylandDisplay_Title(handle_, title_));
+}
+
+void OzoneWaylandWindow::SetSurfaceId(int surface_id) {
+  surface_id_ = surface_id;
 }
 
 void OzoneWaylandWindow::SetWindowShape(const SkPath& path) {
@@ -371,8 +383,11 @@ void OzoneWaylandWindow::OnGpuProcessLaunched() {
 void OzoneWaylandWindow::DeferredSendingToGpu() {
   sender_->Send(new WaylandDisplay_Create(handle_));
   if (init_window_)
-    sender_->Send(
-        new WaylandDisplay_InitWindow(handle_, parent_, bounds_, type_));
+    sender_->Send(new WaylandDisplay_InitWindow(handle_,
+                                                parent_,
+                                                bounds_,
+                                                type_,
+                                                surface_id_));
 
   if (state_ != WidgetState::UNINITIALIZED)
     sender_->Send(new WaylandDisplay_State(handle_, state_));
@@ -464,6 +479,12 @@ void OzoneWaylandWindow::ValidateBounds() {
 
 PlatformImeController* OzoneWaylandWindow::GetPlatformImeController() {
   return nullptr;
+}
+
+void OzoneWaylandWindow::SetRestoredBoundsInPixels(const gfx::Rect& bounds) {}
+
+gfx::Rect OzoneWaylandWindow::GetRestoredBoundsInPixels() const {
+  return gfx::Rect();
 }
 
 void OzoneWaylandWindow::SetWindowProperty(const std::string& name,

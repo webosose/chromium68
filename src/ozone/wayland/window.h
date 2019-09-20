@@ -48,12 +48,14 @@ class WaylandWindow {
   void SetShellAttributes(ShellType type, WaylandShellSurface* shell_parent,
                           int x, int y);
   void SetWindowTitle(const base::string16& title);
+  void SetWindowSurfaceId(int surface_id);
   void Maximize();
   void Minimize();
   void Restore();
   void SetFullscreen();
   void Show();
   void Hide();
+  void SetSurfaceId(int surface_id);
   void SetInputRegion(const std::vector<gfx::Rect>& region);
   void SetGroupKeyMask(ui::KeyMask key_mask);
   void SetKeyMask(ui::KeyMask key_mask, bool set);
@@ -90,6 +92,7 @@ class WaylandWindow {
 
   ShellType type_;
   unsigned handle_;
+  int surface_id_;
 #if defined(OS_WEBOS)
   WebOSSurfaceGroup* surface_group_;
   bool is_surface_group_client_;

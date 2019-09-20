@@ -29,6 +29,7 @@ WaylandWindow::WaylandWindow(unsigned handle)
       window_(NULL),
       type_(None),
       handle_(handle),
+      surface_id_(0),
 #if defined(OS_WEBOS)
       surface_group_(0),
       is_surface_group_client_(false),
@@ -55,14 +56,18 @@ WaylandWindow::~WaylandWindow() {
   delete shell_surface_;
 }
 
+void WaylandWindow::SetSurfaceId(int surface_id) {
+  surface_id_ = surface_id;
+}
+
 void WaylandWindow::SetShellAttributes(ShellType type) {
   if (type_ == type)
     return;
 
   if (!shell_surface_) {
     shell_surface_ =
-        WaylandDisplay::GetInstance()->GetShell()->CreateShellSurface(this,
-                                                                      type);
+        WaylandDisplay::GetInstance()->GetShell()->CreateShellSurface(
+            this, type, surface_id_);
   }
 
   type_ = type;
@@ -89,8 +94,8 @@ void WaylandWindow::SetShellAttributes(ShellType type,
 
   if (!shell_surface_) {
     shell_surface_ =
-        WaylandDisplay::GetInstance()->GetShell()->CreateShellSurface(this,
-                                                                      type);
+        WaylandDisplay::GetInstance()->GetShell()->CreateShellSurface(
+            this, type, surface_id_);
   }
 
   type_ = type;

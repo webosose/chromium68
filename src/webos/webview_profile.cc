@@ -17,7 +17,9 @@
 #include "webos/webview_profile.h"
 
 #include "base/time/time.h"
+#include "neva/app_runtime/browser/app_runtime_browser_context_adapter.h"
 #include "neva/app_runtime/webview_profile.h"
+#include "neva/app_runtime/public/proxy_settings.h"
 
 namespace webos {
 
@@ -37,6 +39,22 @@ WebViewProfile* WebViewProfile::GetDefaultProfile() {
 WebViewProfile::~WebViewProfile() {
   if (!is_default_)
     delete profile_;
+}
+
+app_runtime::WebViewProfile* WebViewProfile::GetProfileDelegate() {
+  return profile_;
+}
+
+void WebViewProfile::SetProxyServer(const ProxySettings& proxy_settings) {
+  app_runtime::ProxySettings app_runtime_proxy_settings;
+  app_runtime_proxy_settings.enabled = proxy_settings.enabled;
+  app_runtime_proxy_settings.mode = proxy_settings.mode;
+  app_runtime_proxy_settings.ip = proxy_settings.ip;
+  app_runtime_proxy_settings.port = proxy_settings.port;
+  app_runtime_proxy_settings.username = proxy_settings.username;
+  app_runtime_proxy_settings.password = proxy_settings.password;
+  app_runtime_proxy_settings.bypass_list = proxy_settings.bypass_list;
+  profile_->SetProxyServer(app_runtime_proxy_settings);
 }
 
 void WebViewProfile::AppendExtraWebSocketHeader(const std::string& key,

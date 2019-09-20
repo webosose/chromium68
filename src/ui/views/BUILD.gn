@@ -647,6 +647,7 @@ jumbo_component("views") {
       "//services/ui/public/interfaces",
       "//ui/aura",
       "//ui/platform_window",
+      "//ui/platform_window/platform_window_handler",
       "//ui/touch_selection",
       "//ui/wm",
       "//ui/wm/public",
@@ -694,13 +695,22 @@ jumbo_component("views") {
           "widget/desktop_aura/desktop_window_tree_host_win.h",
         ]
       } else if (use_ozone) {
-        public += [ "widget/desktop_aura/desktop_screen_ozone.h" ]
         sources += [
-          "widget/desktop_aura/desktop_factory_ozone.cc",
-          "widget/desktop_aura/desktop_factory_ozone.h",
           "widget/desktop_aura/desktop_screen_ozone.cc",
-          "widget/desktop_aura/desktop_window_tree_host_ozone.cc",
+          "widget/desktop_aura/desktop_screen_ozone.h",
         ]
+        if (ozone_platform_wayland_external) {
+          sources += [
+            "widget/desktop_aura/desktop_factory_ozone.cc",
+            "widget/desktop_aura/desktop_factory_ozone.h",
+            "widget/desktop_aura/desktop_window_tree_host_ozone.cc",
+          ]
+        } else {
+          sources += [
+            "widget/desktop_aura/desktop_drag_drop_client_ozone.cc",
+            "widget/desktop_aura/desktop_drag_drop_client_ozone.h",
+          ]
+        }
       }
       if (is_linux) {
         sources += [
@@ -1149,6 +1159,13 @@ test("views_unittests") {
     }
   }
 
+  if (is_linux && !is_chromeos && !use_x11) {
+    sources += [
+      "widget/desktop_aura/desktop_drag_drop_client_ozone_unittest.cc",
+      "widget/desktop_aura/desktop_window_tree_host_platform_unittest.cc",
+    ]
+  }
+
   if (!is_chromeos) {
     sources += [ "widget/desktop_widget_unittest.cc" ]
   }
@@ -1156,6 +1173,7 @@ test("views_unittests") {
   deps = [
     ":views_unittests_sources",
     "//mojo/edk",
+    "//ui/platform_window/platform_window_handler",
   ]
 }
 
@@ -1201,11 +1219,22 @@ source_set("views_interactive_ui_tests") {
       "corewm/desktop_capture_controller_unittest.cc",
       "widget/native_widget_aura_interactive_uitest.cc",
     ]
+
     deps += [
       "//ui/aura",
       "//ui/aura:test_support",
       "//ui/wm",
       "//ui/wm/public",
+    ]
+
+    if (!is_chromeos && ((is_linux && !use_x11) || is_fuchsia)) {
+      sources += [ "widget/desktop_aura/desktop_window_tree_host_platform_interactive_uitest.cc" ]
+    }
+
+    deps += [
+      "//ui/events/platform",
+      "//ui/platform_window",
+      "//ui/platform_window/platform_window_handler",
     ]
   }
 

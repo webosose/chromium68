@@ -195,7 +195,11 @@ bool GpuInit::InitializeAndStartSandbox(base::CommandLine* command_line,
   // may also have started at this point.
   ui::OzonePlatform::InitParams params;
   params.single_process = false;
-  params.using_mojo = command_line->HasSwitch(switches::kEnableDrmMojo);
+  params.using_mojo =
+      command_line->HasSwitch(switches::kEnableDrmMojo)
+      || ui::OzonePlatform::EnsureInstance()
+         ->GetPlatformProperties()
+         .requires_mojo;
   ui::OzonePlatform::InitializeForGPU(params);
 #endif
 
@@ -337,7 +341,8 @@ void GpuInit::InitializeInProcess(base::CommandLine* command_line,
   params.using_mojo = base::FeatureList::IsEnabled(features::kMash) ||
                       command_line->HasSwitch(switches::kEnableDrmMojo);
 #else
-  params.using_mojo = command_line->HasSwitch(switches::kEnableDrmMojo);
+  params.using_mojo = ui::OzonePlatform::EnsureInstance()
+                      ->GetPlatformProperties().requires_mojo;
 #endif
   ui::OzonePlatform::InitializeForGPU(params);
   ui::OzonePlatform::GetInstance()->AfterSandboxEntry();

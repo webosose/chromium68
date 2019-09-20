@@ -7,9 +7,11 @@
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/trace_event/trace_event.h"
+#include "ui/display/screen.h"
 #include "ui/events/devices/device_data_manager.h"
 #include "ui/ozone/platform_object.h"
 #include "ui/ozone/platform_selection.h"
+#include "ui/ozone/public/platform_screen.h"
 
 namespace ui {
 
@@ -19,6 +21,8 @@ bool g_platform_initialized_ui = false;
 bool g_platform_initialized_gpu = false;
 base::LazyInstance<base::OnceCallback<void(OzonePlatform*)>>::Leaky
     instance_callback = LAZY_INSTANCE_INITIALIZER;
+
+const OzonePlatform::PlatformProperties kDefaultPlatformProperties;
 
 base::Lock& GetOzoneInstanceLock() {
   static base::Lock lock;
@@ -110,8 +114,24 @@ void OzonePlatform::RegisterStartupCallback(
   std::move(callback).Run(inst);
 }
 
+bool OzonePlatform::IsNativePixmapConfigSupported(
+    gfx::BufferFormat format,
+    gfx::BufferUsage usage) const {
+  // Platform that support NativePixmap must override this method.
+  return false;
+}
+
 // static
 OzonePlatform* OzonePlatform::instance_ = nullptr;
+
+std::unique_ptr<PlatformScreen> OzonePlatform::CreateScreen() {
+  return nullptr;
+}
+
+const OzonePlatform::PlatformProperties&
+OzonePlatform::GetPlatformProperties() {
+  return kDefaultPlatformProperties;
+}
 
 base::MessageLoop::Type OzonePlatform::GetMessageLoopTypeForGpu() {
   return base::MessageLoop::TYPE_DEFAULT;

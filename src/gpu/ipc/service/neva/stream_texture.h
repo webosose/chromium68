@@ -68,7 +68,7 @@ class StreamTexture : public gpu::gles2::GLStreamTextureImage,
                             const gfx::Rect& bounds_rect,
                             const gfx::RectF& crop_rect,
                             bool enable_blend,
-                            gfx::GpuFence* gpu_fence) override;
+                            std::unique_ptr<gfx::GpuFence> gpu_fence) override;
 
   void OnMemoryDump(base::trace_event::ProcessMemoryDump* pmd,
                     uint64_t process_tracing_id,

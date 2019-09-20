@@ -138,8 +138,7 @@ void X11WindowBase::Create() {
   size_hints.win_gravity = StaticGravity;
   XSetWMNormalHints(xdisplay_, xwindow_, &size_hints);
 
-  // TODO(sky): provide real scale factor.
-  delegate_->OnAcceleratedWidgetAvailable(xwindow_, 1.f);
+  delegate_->OnAcceleratedWidgetAvailable(xwindow_);
 }
 
 void X11WindowBase::Show() {
@@ -296,6 +295,17 @@ void X11WindowBase::ConfineCursorToBounds(const gfx::Rect& bounds) {
 
 PlatformImeController* X11WindowBase::GetPlatformImeController() {
   return nullptr;
+}
+
+void X11WindowBase::SetRestoredBoundsInPixels(const gfx::Rect& bounds) {
+  // TODO: https://crbug.com/848131
+  NOTIMPLEMENTED();
+}
+
+gfx::Rect X11WindowBase::GetRestoredBoundsInPixels() const {
+  // TODO: https://crbug.com/848131
+  NOTIMPLEMENTED();
+  return gfx::Rect();
 }
 
 void X11WindowBase::UnConfineCursor() {

@@ -23,13 +23,23 @@ struct wl_registry;
 struct wl_seat;
 struct wl_shm;
 struct wl_shm_pool;
+struct wl_subcompositor;
+struct wl_subsurface;
 struct wl_surface;
 struct wl_touch;
+struct wp_presentation;
+struct wp_presentation_feedback;
 struct xdg_shell;
 struct xdg_surface;
+struct xdg_popup;
+struct zwp_linux_dmabuf_v1;
 struct zxdg_shell_v6;
 struct zxdg_surface_v6;
 struct zxdg_toplevel_v6;
+struct zxdg_popup_v6;
+struct zxdg_positioner_v6;
+struct zwp_text_input_manager_v1;
+struct zwp_text_input_v1;
 
 namespace wl {
 
@@ -127,6 +137,18 @@ struct ObjectTraits<wl_shm_pool> {
 };
 
 template <>
+struct ObjectTraits<wl_subcompositor> {
+  static const wl_interface* interface;
+  static void (*deleter)(wl_subcompositor*);
+};
+
+template <>
+struct ObjectTraits<wl_subsurface> {
+  static const wl_interface* interface;
+  static void (*deleter)(wl_subsurface*);
+};
+
+template <>
 struct ObjectTraits<wl_surface> {
   static const wl_interface* interface;
   static void (*deleter)(wl_surface*);
@@ -139,6 +161,18 @@ struct ObjectTraits<wl_touch> {
 };
 
 template <>
+struct ObjectTraits<wp_presentation> {
+  static const wl_interface* interface;
+  static void (*deleter)(wp_presentation*);
+};
+
+template <>
+struct ObjectTraits<wp_presentation_feedback> {
+  static const wl_interface* interface;
+  static void (*deleter)(wp_presentation_feedback*);
+};
+
+template <>
 struct ObjectTraits<xdg_shell> {
   static const wl_interface* interface;
   static void (*deleter)(xdg_shell*);
@@ -148,6 +182,18 @@ template <>
 struct ObjectTraits<xdg_surface> {
   static const wl_interface* interface;
   static void (*deleter)(xdg_surface*);
+};
+
+template <>
+struct ObjectTraits<xdg_popup> {
+  static const wl_interface* interface;
+  static void (*deleter)(xdg_popup*);
+};
+
+template <>
+struct ObjectTraits<zwp_linux_dmabuf_v1> {
+  static const wl_interface* interface;
+  static void (*deleter)(zwp_linux_dmabuf_v1*);
 };
 
 template <>
@@ -166,6 +212,30 @@ template <>
 struct ObjectTraits<zxdg_toplevel_v6> {
   static const wl_interface* interface;
   static void (*deleter)(zxdg_toplevel_v6*);
+};
+
+template <>
+struct ObjectTraits<zxdg_popup_v6> {
+  static const wl_interface* interface;
+  static void (*deleter)(zxdg_popup_v6*);
+};
+
+template <>
+struct ObjectTraits<zxdg_positioner_v6> {
+  static const wl_interface* interface;
+  static void (*deleter)(zxdg_positioner_v6*);
+};
+
+template <>
+struct ObjectTraits<zwp_text_input_manager_v1> {
+  static const wl_interface* interface;
+  static void (*deleter)(zwp_text_input_manager_v1*);
+};
+
+template <>
+struct ObjectTraits<zwp_text_input_v1> {
+  static const wl_interface* interface;
+  static void (*deleter)(zwp_text_input_v1*);
 };
 
 struct Deleter {

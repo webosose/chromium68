@@ -31,6 +31,8 @@ class OZONE_WAYLAND_EXPORT InputMethodContextImplWayland
   void Focus() override;
   void Blur() override;
   void SetCursorLocation(const gfx::Rect&) override;
+  void SetSurroundingText(const base::string16& text,
+                          const gfx::Range& selection_range) override;
 
   unsigned GetHandle() const { return handle_; }
 

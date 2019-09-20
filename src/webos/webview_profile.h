@@ -88,10 +88,24 @@ class WEBOS_EXPORT WebViewProfile {
     REMOVE_WIPE_PROFILE = REMOVE_ALL | REMOVE_NOCHECKS,
   };
 
+  struct ProxySettings {
+    bool enabled;
+    std::string mode;
+    std::string ip;
+    std::string port;
+    std::string username;
+    std::string password;
+    std::string bypass_list;
+  };
+
   WebViewProfile(const std::string& storage_name);
   ~WebViewProfile();
 
   static WebViewProfile* GetDefaultProfile();
+
+  app_runtime::WebViewProfile* GetProfileDelegate();
+
+  void SetProxyServer(const ProxySettings& proxy_settings);
 
   void AppendExtraWebSocketHeader(const std::string& key,
                                   const std::string& value);

@@ -7,19 +7,18 @@
 
 #include <memory>
 
+#include "base/callback.h"
 #include "base/macros.h"
 #include "base/message_loop/message_loop.h"
 #include "services/service_manager/public/cpp/bind_source_info.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
 #include "ui/events/system_input_injector.h"
+#include "ui/gfx/buffer_types.h"
+#include "ui/gfx/native_widget_types.h"
 #include "ui/ozone/ozone_export.h"
 
 namespace display {
 class NativeDisplayDelegate;
-}
-
-namespace gfx {
-class Rect;
 }
 
 namespace service_manager {
@@ -33,10 +32,13 @@ class InputController;
 class GpuPlatformSupport;
 class GpuPlatformSupportHost;
 class OverlayManagerOzone;
+class PlatformScreen;
 class PlatformWindow;
 class PlatformWindowDelegate;
 class SurfaceFactoryOzone;
 class SystemInputInjector;
+
+struct PlatformWindowInitProperties;
 
 // Base class for Ozone platform implementations.
 //
@@ -80,6 +82,26 @@ class OZONE_EXPORT OzonePlatform {
     bool using_mojo = false;
   };
 
+  // Struct used to indicate platform properties.
+  struct PlatformProperties {
+    // Fuchsia only: set to true when the platforms requires
+    // |view_owner_request| field in PlatformWindowInitProperties when creating
+    // a window.
+    bool needs_view_owner_request = false;
+
+    // Determine whether we should default to native decorations or the custom
+    // frame based on the currently-running window manager.
+    bool custom_frame_pref_default = false;
+
+    // Determine whether switching between system and custom frames is
+    // supported.
+    bool use_system_title_bar = false;
+
+    // Determines if the platform requires mojo communication for the IPC.
+    // Currently used only by the Ozone/Wayland platform.
+    bool requires_mojo = false;
+  };
+
   // Ensures the OzonePlatform instance without doing any initialization.
   // No-op in case the instance is already created.
   // This is useful in order call virtual methods that depend on the ozone
@@ -111,6 +133,10 @@ class OZONE_EXPORT OzonePlatform {
   static void RegisterStartupCallback(
       base::OnceCallback<void(OzonePlatform*)> callback);
 
+  // Returns true if the specified buffer format is supported.
+  virtual bool IsNativePixmapConfigSupported(gfx::BufferFormat format,
+                                             gfx::BufferUsage usage) const;
+
   // Factory getters to override in subclasses. The returned objects will be
   // injected into the appropriate layer at startup. Subclasses should not
   // inject these objects themselves. Ownership is retained by OzonePlatform.
@@ -123,9 +149,14 @@ class OZONE_EXPORT OzonePlatform {
   virtual std::unique_ptr<SystemInputInjector> CreateSystemInputInjector() = 0;
   virtual std::unique_ptr<PlatformWindow> CreatePlatformWindow(
       PlatformWindowDelegate* delegate,
-      const gfx::Rect& bounds) = 0;
+      PlatformWindowInitProperties properties) = 0;
   virtual std::unique_ptr<display::NativeDisplayDelegate>
   CreateNativeDisplayDelegate() = 0;
+  virtual std::unique_ptr<PlatformScreen> CreateScreen();
+
+  // Returns a struct that contains configuration and requirements for the
+  // current platform implementation.
+  virtual const PlatformProperties& GetPlatformProperties();
 
   // Returns the message loop type required for OzonePlatform instance that
   // will be initialized for the GPU process.

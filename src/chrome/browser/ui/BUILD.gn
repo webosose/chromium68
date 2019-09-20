@@ -1739,6 +1739,10 @@ split_static_library("ui") {
       "//third_party/libaddressinput:strings",
       "//ui/events",
     ]
+
+    if (use_ozone && !is_chromeos) {
+      deps += [ "//ui/ozone" ]
+    }
   }
 
   if (is_chromeos) {

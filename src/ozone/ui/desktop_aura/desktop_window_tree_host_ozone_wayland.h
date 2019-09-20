@@ -79,6 +79,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   // belongs to a particular window.
   gfx::Rect GetBoundsInScreen() const;
 
+  void SetWindowSurfaceId(int surface_id) override;
+
  protected:
   // Overridden from DesktopWindowTreeHost:
   void Init(const views::Widget::InitParams& params) override;
@@ -205,9 +207,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   void OnClosed() override;
   void OnWindowStateChanged(ui::PlatformWindowState new_state) override;
   void OnLostCapture() override;
-  void OnAcceleratedWidgetAvailable(gfx::AcceleratedWidget widget,
-                                    float device_pixel_ratio) override;
-  void OnAcceleratedWidgetDestroying() override;
+  void OnAcceleratedWidgetAvailable(gfx::AcceleratedWidget widget) override;
   void OnAcceleratedWidgetDestroyed() override;
   void OnActivationChanged(bool active) override;
   void OnDragEnter(unsigned windowhandle,
@@ -283,6 +283,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostOzone
   gfx::Rect previous_maximize_bounds_;
   gfx::AcceleratedWidget window_;
   base::string16 title_;
+  int pending_surface_id_;
 
 #if defined(OS_WEBOS)
   gfx::Size contents_size_;
