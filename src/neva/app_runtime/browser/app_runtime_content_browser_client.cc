@@ -17,6 +17,7 @@
 #include "neva/app_runtime/browser/app_runtime_content_browser_client.h"
 
 #include "base/command_line.h"
+#include "base/i18n/rtl.h"
 #include "base/logging.h"
 #include "base/neva/base_switches.h"
 #include "base/strings/utf_string_conversions.h"
@@ -37,6 +38,7 @@
 #include "neva/app_runtime/browser/url_request_context_factory.h"
 #include "neva/app_runtime/webview.h"
 #include "services/service_manager/sandbox/switches.h"
+#include "ui/base/resource/resource_bundle.h"
 
 namespace app_runtime {
 
@@ -281,6 +283,13 @@ void AppRuntimeContentBrowserClient::SetApplicationLocale(
     const std::string& locale) {
   if (current_locale_ == locale)
     return;
+
+  base::i18n::SetICUDefaultLocale(locale);
+
+  if (ui::ResourceBundle::HasSharedInstance()) {
+    ui::ResourceBundle::GetSharedInstance().ReloadLocaleResources(locale);
+    ui::ResourceBundle::GetSharedInstance().ReloadFonts();
+  }
 
   current_locale_ = locale;
   for (content::RenderProcessHost::iterator it(
