@@ -13,7 +13,8 @@ namespace ui {
 
 WaylandConnectionProxy::WaylandConnectionProxy(WaylandConnection* connection)
     : connection_(connection),
-      gpu_thread_runner_(base::ThreadTaskRunnerHandle::Get()) {}
+      gpu_thread_runner_(connection_ ? nullptr
+                                     : base::ThreadTaskRunnerHandle::Get()) {}
 
 WaylandConnectionProxy::~WaylandConnectionProxy() = default;
 
@@ -123,10 +124,12 @@ intptr_t WaylandConnectionProxy::Display() {
     return reinterpret_cast<intptr_t>(connection_->display());
 
 #if defined(WAYLAND_GBM)
+  // It must not be a single process mode. Thus, shared dmabuf approach is used,
+  // which requires |gbm_device_|.
+  DCHECK(gbm_device_);
   return EGL_DEFAULT_DISPLAY;
-#else
-  return 0;
 #endif
+  return 0;
 }
 
 void WaylandConnectionProxy::AddBindingWaylandConnectionClient(

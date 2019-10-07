@@ -31,8 +31,7 @@ GbmPixmapWayland::GbmPixmapWayland(WaylandSurfaceFactory* surface_manager,
     : surface_manager_(surface_manager), connection_(connection) {}
 
 GbmPixmapWayland::~GbmPixmapWayland() {
-  if (gbm_bo_)
-    connection_->DestroyZwpLinuxDmabuf(GetUniqueId());
+  connection_->DestroyZwpLinuxDmabuf(GetUniqueId());
 }
 
 bool GbmPixmapWayland::InitializeBuffer(gfx::Size size,
@@ -40,10 +39,6 @@ bool GbmPixmapWayland::InitializeBuffer(gfx::Size size,
                                         gfx::BufferUsage usage) {
   TRACE_EVENT1("Wayland", "GbmPixmapWayland::InitializeBuffer", "size",
                size.ToString());
-
-  if (!connection_->gbm_device())
-    return false;
-
   uint32_t flags = 0;
   switch (usage) {
     case gfx::BufferUsage::GPU_READ:
