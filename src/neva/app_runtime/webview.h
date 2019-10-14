@@ -50,6 +50,7 @@ class MojoAppRuntimeHostImpl : public mojom::AppRuntimeHost {
   void DidNonFirstMeaningfulPaint() override;
   void DidClearWindowObject() override;
   void DoLaunchSettingsApplication(int target_id) override;
+  void DidResumeDOM() override;
 
  private:
   void LoadVisuallyCommitted();

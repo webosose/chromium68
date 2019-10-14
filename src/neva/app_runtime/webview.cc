@@ -172,6 +172,11 @@ void MojoAppRuntimeHostImpl::DoLaunchSettingsApplication(int target_id) {
 #endif
 }
 
+void MojoAppRuntimeHostImpl::DidResumeDOM() {
+  if (web_view_delegate_)
+    web_view_delegate_->DidResumeDOM();
+}
+
 WebView::WebView(int width, int height, WebViewProfile* profile)
     : should_suppress_dialogs_(false),
       active_on_non_blank_paint_(false),

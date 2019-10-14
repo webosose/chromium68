@@ -187,6 +187,10 @@ void BlinkView::DidSwapCompositorFrame() {
             << "(): Did swap window frame notification is delivered";
 }
 
+void BlinkView::DidResumeDOM() {
+  LOG(INFO) << __func__ << "(): Did ResumeDOM notification is delivered";
+}
+
 void WebAppWindowImpl::OnWindowClosing() {
   observer_->OnWindowClosing(this);
 }

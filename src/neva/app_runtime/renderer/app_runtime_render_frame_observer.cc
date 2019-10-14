@@ -80,6 +80,10 @@ void AppRuntimeRenderFrameObserver::ResumeDOM() {
   dom_suspended_ = false;
 
   render_frame()->GetRenderView()->GetWebView()->DidExitModalLoop();
+  mojom::AppRuntimeHostAssociatedPtr interface;
+  render_frame()->GetRemoteAssociatedInterfaces()->GetInterface(&interface);
+  if (interface)
+    interface->DidResumeDOM();
 }
 
 void AppRuntimeRenderFrameObserver::ResetStateToMarkNextPaintForContainer() {

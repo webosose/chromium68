@@ -80,6 +80,7 @@ class BlinkView : public app_runtime::WebViewBase,
   void DidHistoryBackOnTopPage() override;
   void DidClearWindowObject() override;
   void DidSwapCompositorFrame() override;
+  void DidResumeDOM() override;
   void SetDecidePolicyForResponse();
 
   // InjectionBrowserControlHandlerDelegate

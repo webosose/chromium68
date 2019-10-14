@@ -32,5 +32,6 @@ interface AppRuntimeHost {
   DidNonFirstMeaningfulPaint();
   DidClearWindowObject();
   DoLaunchSettingsApplication(int32 target_id);
+  DidResumeDOM();
 };
 
