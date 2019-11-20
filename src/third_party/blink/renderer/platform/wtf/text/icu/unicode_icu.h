@@ -118,6 +118,12 @@ inline UChar32 FoldCase(UChar32 c) {
   return u_foldCase(c, U_FOLD_CASE_DEFAULT);
 }
 
+enum PairedBracketType {
+  kPairedBracket_None = U_BPT_NONE,
+  kPairedBracket_Open = U_BPT_OPEN,
+  kPairedBracket_Close = U_BPT_CLOSE,
+};
+
 inline int FoldCase(UChar* result,
                     int result_length,
                     const UChar* src,
@@ -166,6 +172,10 @@ inline UChar32 ToTitleCase(UChar32 c) {
   return u_totitle(c);
 }
 
+inline UChar32 ToPairedBracket(UChar32 c) {
+  return u_getBidiPairedBracket(c);
+}
+
 inline bool IsArabicChar(UChar32 c) {
   return ublock_getCode(c) == UBLOCK_ARABIC;
 }
@@ -210,9 +220,26 @@ inline uint8_t CombiningClass(UChar32 c) {
   return u_getCombiningClass(c);
 }
 
+inline bool DirectionIsNeutral(CharDirection d) {
+  switch (d) {
+    case kBlockSeparator:
+    case kSegmentSeparator:
+    case kWhiteSpaceNeutral:
+    case kOtherNeutral:
+      return true;
+    default:
+      return false;
+  }
+}
+
 inline CharDecompositionType DecompositionType(UChar32 c) {
   return static_cast<CharDecompositionType>(
       u_getIntPropertyValue(c, UCHAR_DECOMPOSITION_TYPE));
+}
+
+inline PairedBracketType GetPairedBracketType(UChar32 c) {
+  return static_cast<PairedBracketType>(
+      u_getIntPropertyValue(c, UCHAR_BIDI_PAIRED_BRACKET_TYPE));
 }
 
 inline int Umemcasecmp(const UChar* a, const UChar* b, int len) {

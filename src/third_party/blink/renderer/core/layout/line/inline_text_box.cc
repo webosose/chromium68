@@ -424,9 +424,10 @@ LayoutUnit InlineTextBox::PlaceEllipsisBox(bool flow_is_ltr,
     // more accurate position in rtl text.
     // TODO(crbug.com/722043: This doesn't always give the best results.
     bool ltr = IsLeftToRightDirection();
-    int offset = OffsetForPosition(ellipsis_x,
-                                   ltr ? OnlyFullGlyphs : IncludePartialGlyphs,
-                                   DontBreakGlyphs);
+    int offset = OffsetForPosition(
+        ellipsis_x,
+        (!ltr || ltr != flow_is_ltr) ? IncludePartialGlyphs : OnlyFullGlyphs,
+        DontBreakGlyphs);
 
     // Full truncation is only necessary when we're flowing left-to-right.
     if (flow_is_ltr && offset == 0 && ltr == flow_is_ltr) {
@@ -434,7 +435,10 @@ LayoutUnit InlineTextBox::PlaceEllipsisBox(bool flow_is_ltr,
       // place the ellipsis at the min of our start and the ellipsis edge.
       SetTruncation(kCFullTruncation);
       truncated_width += ellipsis_width;
-      return std::min(ellipsis_x, LogicalLeft());
+      // FIXME: return -1 is workaround code. We need to check offsetForPosition
+      // and logicalLeft() value. It is relate with bidi bracket automation
+      // algorithm.
+      return flow_is_ltr ? std::min(ellipsis_x, LogicalLeft()) : LayoutUnit(-1);
     }
 
     // When the text's direction doesn't match the flow's direction we can

@@ -851,6 +851,15 @@ inline void InlineBidiResolver::AppendRun(BidiRunList<BidiRun>& runs) {
     IsolateTracker isolate_tracker(runs, NumberOfIsolateAncestors(sor_));
     int start = sor_.Offset();
     LineLayoutItem obj = sor_.GetLineLayoutItem();
+    if (!WTF::Unicode::DirectionIsNeutral(direction_) &&
+        !unresolved_neutrals_sequences_.IsEmpty() &&
+        WTF::Unicode::DirectionIsNeutral(
+            unresolved_neutrals_sequences_.back().NextDirection())) {
+      unresolved_neutrals_sequences_.back().SetNextDirection(direction_);
+      if (unresolved_neutrals_sequences_.back().Resolve())
+        unresolved_neutrals_sequences_.pop_back();
+    }
+
     while (obj && obj != eor_.GetLineLayoutItem() &&
            obj != end_of_run_at_end_of_line_.GetLineLayoutItem()) {
       if (isolate_tracker.InIsolate())
@@ -885,6 +894,9 @@ inline void InlineBidiResolver::AppendRun(BidiRunList<BidiRun>& runs) {
             obj, start, end, sor_.Root(), *this, kAppendingRunsForObject,
             isolate_tracker);
     }
+
+    if (!WTF::Unicode::DirectionIsNeutral(direction_))
+      status_.last_non_neutral = direction_;
 
     if (is_end_of_line)
       reached_end_of_line_ = true;

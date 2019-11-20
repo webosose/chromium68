@@ -500,6 +500,8 @@ BidiStatus RootInlineBox::LineBreakBidiStatus() const {
       static_cast<WTF::Unicode::CharDirection>(line_break_bidi_status_eor_),
       static_cast<WTF::Unicode::CharDirection>(
           line_break_bidi_status_last_strong_),
+      static_cast<WTF::Unicode::CharDirection>(
+          line_break_bidi_status_last_non_neutral_),
       static_cast<WTF::Unicode::CharDirection>(line_break_bidi_status_last_),
       line_break_context_);
 }
@@ -520,6 +522,7 @@ void RootInlineBox::SetLineBreakInfo(LineLayoutItem obj,
   line_break_pos_ = break_pos;
   line_break_bidi_status_eor_ = status.eor;
   line_break_bidi_status_last_strong_ = status.last_strong;
+  line_break_bidi_status_last_non_neutral_ = status.last_non_neutral;
   line_break_bidi_status_last_ = status.last;
   line_break_context_ = status.context;
 }
